@@ -1,0 +1,516 @@
+   1               		.file	"AES_driver.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 445               		.section	.text.AES_encrypt,"ax",@progbits
+ 450               	.global	AES_encrypt
+ 452               	AES_encrypt:
+   1:crypto/rng/AES_driver.c **** /* This file has been prepared for Doxygen automatic documentation generation.*/   
+   2:crypto/rng/AES_driver.c **** /*! \file *********************************************************************  
+   3:crypto/rng/AES_driver.c ****  *  
+   4:crypto/rng/AES_driver.c ****  * \brief  
+   5:crypto/rng/AES_driver.c ****  *      XMEGA AES driver source file.  
+   6:crypto/rng/AES_driver.c ****  *  
+   7:crypto/rng/AES_driver.c ****  *      This file contains the function implementations the XMEGA AES driver.  
+   8:crypto/rng/AES_driver.c ****  *  
+   9:crypto/rng/AES_driver.c ****  *      The driver is not intended for size and/or speed critical code, since  
+  10:crypto/rng/AES_driver.c ****  *      most functions are just a few lines of code, and the function call  
+  11:crypto/rng/AES_driver.c ****  *      overhead would decrease code performance. The driver is intended for  
+  12:crypto/rng/AES_driver.c ****  *      rapid prototyping and documentation purposes for getting started with  
+  13:crypto/rng/AES_driver.c ****  *      the XMEGA AES module.  
+  14:crypto/rng/AES_driver.c ****  *  
+  15:crypto/rng/AES_driver.c ****  *      For size and/or speed critical code, it is recommended to copy the  
+  16:crypto/rng/AES_driver.c ****  *      function contents directly into your application instead of making  
+  17:crypto/rng/AES_driver.c ****  *      a function call.  
+  18:crypto/rng/AES_driver.c ****  *  
+  19:crypto/rng/AES_driver.c ****  *      Several functions use the following construct:  
+  20:crypto/rng/AES_driver.c ****  *          "some_register = ... | (some_parameter ? SOME_BIT_bm : 0) | ..."  
+  21:crypto/rng/AES_driver.c ****  *      Although the use of the ternary operator ( if ? then : else ) is discouraged,  
+  22:crypto/rng/AES_driver.c ****  *      in some occasions the operator makes it possible to write pretty clean and  
+  23:crypto/rng/AES_driver.c ****  *      neat code. In this driver, the construct is used to set or not set a  
+  24:crypto/rng/AES_driver.c ****  *      configuration bit based on a boolean input parameter, such as  
+  25:crypto/rng/AES_driver.c ****  *      the "some_parameter" in the example above.  
+  26:crypto/rng/AES_driver.c ****  *  
+  27:crypto/rng/AES_driver.c ****  * \par Application note:  
+  28:crypto/rng/AES_driver.c ****  *      AVR1317 Using the XMEGA built in AES accelerator  
+  29:crypto/rng/AES_driver.c ****  *  
+  30:crypto/rng/AES_driver.c ****  * \par Documentation  
+  31:crypto/rng/AES_driver.c ****  *      For comprehensive code documentation, supported compilers, compiler  
+  32:crypto/rng/AES_driver.c ****  *      settings and supported devices see readme.html  
+  33:crypto/rng/AES_driver.c ****  *  
+  34:crypto/rng/AES_driver.c ****  * \author  
+  35:crypto/rng/AES_driver.c ****  *      Atmel Corporation: http://www.atmel.com \n  
+  36:crypto/rng/AES_driver.c ****  *      Support email: avr@atmel.com  
+  37:crypto/rng/AES_driver.c ****  *  
+  38:crypto/rng/AES_driver.c ****  * $Revision: 1569 $  
+  39:crypto/rng/AES_driver.c ****  * $Date: 2008-04-22 13:03:43 +0200 (ti, 22 apr 2008) $  \n  
+  40:crypto/rng/AES_driver.c ****  *  
+  41:crypto/rng/AES_driver.c ****  * Copyright (c) 2008, Atmel Corporation All rights reserved.  
+  42:crypto/rng/AES_driver.c ****  *  
+  43:crypto/rng/AES_driver.c ****  * Redistribution and use in source and binary forms, with or without  
+  44:crypto/rng/AES_driver.c ****  * modification, are permitted provided that the following conditions are met:  
+  45:crypto/rng/AES_driver.c ****  *  
+  46:crypto/rng/AES_driver.c ****  * 1. Redistributions of source code must retain the above copyright notice,  
+  47:crypto/rng/AES_driver.c ****  * this list of conditions and the following disclaimer.  
+  48:crypto/rng/AES_driver.c ****  *  
+  49:crypto/rng/AES_driver.c ****  * 2. Redistributions in binary form must reproduce the above copyright notice,  
+  50:crypto/rng/AES_driver.c ****  * this list of conditions and the following disclaimer in the documentation  
+  51:crypto/rng/AES_driver.c ****  * and/or other materials provided with the distribution.  
+  52:crypto/rng/AES_driver.c ****  *  
+  53:crypto/rng/AES_driver.c ****  * 3. The name of ATMEL may not be used to endorse or promote products derived  
+  54:crypto/rng/AES_driver.c ****  * from this software without specific prior written permission.  
+  55:crypto/rng/AES_driver.c ****  *  
+  56:crypto/rng/AES_driver.c ****  * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED  
+  57:crypto/rng/AES_driver.c ****  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF  
+  58:crypto/rng/AES_driver.c ****  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY AND  
+  59:crypto/rng/AES_driver.c **** key sch * SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT,  
+  60:crypto/rng/AES_driver.c ****  * INDIRECT, INkeyCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES  
+  61:crypto/rng/AES_driver.c ****  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;  
+  62:crypto/rng/AES_driver.c ****  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND  
+  63:crypto/rng/AES_driver.c ****  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT  
+  64:crypto/rng/AES_driver.c ****  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF  
+  65:crypto/rng/AES_driver.c ****  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  
+  66:crypto/rng/AES_driver.c ****  *****************************************************************************/   
+  67:crypto/rng/AES_driver.c **** #include "AES_driver.h"   
+  68:crypto/rng/AES_driver.c ****    
+  69:crypto/rng/AES_driver.c **** 
+  70:crypto/rng/AES_driver.c **** bool AES_encrypt(uint8_t * plaintext, uint8_t * ciphertext, uint8_t * key)   
+  71:crypto/rng/AES_driver.c **** {   
+ 454               	.LM0:
+ 455               	.LFBB1:
+ 456               	/* prologue: function */
+ 457               	/* frame size = 0 */
+ 458               	/* stack size = 0 */
+ 459               	.L__stack_usage = 0
+ 460 0000 9C01      		movw r18,r24
+ 461 0002 CB01      		movw r24,r22
+ 462 0004 BA01      		movw r22,r20
+ 463 0006 405F      		subi r20,-16
+ 464 0008 5F4F      		sbci r21,-1
+ 465               	.L2:
+ 466 000a FB01      		movw r30,r22
+ 467               	.LBB2:
+  72:crypto/rng/AES_driver.c ****   bool encrypt_ok;   
+  73:crypto/rng/AES_driver.c ****    
+  74:crypto/rng/AES_driver.c ****   /* Load key into AES key memory. */   
+  75:crypto/rng/AES_driver.c ****   uint8_t * temp_key = key;   
+  76:crypto/rng/AES_driver.c ****   for(uint8_t i = 0; i < AES_BLOCK_LENGTH; i++){   
+  77:crypto/rng/AES_driver.c ****     AES.KEY =  *(temp_key++);   
+ 469               	.LM1:
+ 470 000c 6F5F      		subi r22,-1
+ 471 000e 7F4F      		sbci r23,-1
+ 473               	.LM2:
+ 474 0010 E081      		ld r30,Z
+ 476               	.LM3:
+ 477 0012 E093 C300 		sts 195,r30
+  76:crypto/rng/AES_driver.c ****     AES.KEY =  *(temp_key++);   
+ 479               	.LM4:
+ 480 0016 4617      		cp r20,r22
+ 481 0018 5707      		cpc r21,r23
+ 482 001a 01F4      		brne .L2
+ 483 001c A901      		movw r20,r18
+ 484 001e 405F      		subi r20,-16
+ 485 0020 5F4F      		sbci r21,-1
+ 486               	.L3:
+ 487 0022 F901      		movw r30,r18
+ 488               	.LBE2:
+ 489               	.LBB3:
+  78:crypto/rng/AES_driver.c ****   }   
+  79:crypto/rng/AES_driver.c ****    
+  80:crypto/rng/AES_driver.c ****   /* Load data into AES state memory. */   
+  81:crypto/rng/AES_driver.c ****   uint8_t * temp_plaintext = plaintext;   
+  82:crypto/rng/AES_driver.c ****   for(uint8_t i = 0; i < AES_BLOCK_LENGTH; i++){   
+  83:crypto/rng/AES_driver.c ****     AES.STATE =  *(temp_plaintext++);   
+ 491               	.LM5:
+ 492 0024 2F5F      		subi r18,-1
+ 493 0026 3F4F      		sbci r19,-1
+ 495               	.LM6:
+ 496 0028 6081      		ld r22,Z
+ 498               	.LM7:
+ 499 002a 6093 C200 		sts 194,r22
+  82:crypto/rng/AES_driver.c ****     AES.STATE =  *(temp_plaintext++);   
+ 501               	.LM8:
+ 502 002e 4217      		cp r20,r18
+ 503 0030 5307      		cpc r21,r19
+ 504 0032 01F4      		brne .L3
+ 505               	.LBE3:
+  84:crypto/rng/AES_driver.c ****   }   
+  85:crypto/rng/AES_driver.c ****    
+  86:crypto/rng/AES_driver.c ****   /* Set AES in encryption mode and start AES. */   
+  87:crypto/rng/AES_driver.c ****   AES.CTRL = (AES.CTRL & (~AES_DECRYPT_bm)) | AES_START_bm;   
+ 507               	.LM9:
+ 508 0034 2091 C000 		lds r18,192
+ 510               	.LM10:
+ 511 0038 2F76      		andi r18,lo8(111)
+ 512 003a 2068      		ori r18,lo8(-128)
+ 514               	.LM11:
+ 515 003c 2093 C000 		sts 192,r18
+ 516               	.L4:
+  88:crypto/rng/AES_driver.c ****    
+  89:crypto/rng/AES_driver.c ****   do{   
+  90:crypto/rng/AES_driver.c ****     /* Wait until AES is finished or an error occurs. */   
+  91:crypto/rng/AES_driver.c ****   }while((AES.STATUS & (AES_SRIF_bm|AES_ERROR_bm) ) == 0);   
+ 518               	.LM12:
+ 519 0040 2091 C100 		lds r18,193
+ 521               	.LM13:
+ 522 0044 2178      		andi r18,lo8(-127)
+ 523 0046 01F0      		breq .L4
+  92:crypto/rng/AES_driver.c ****    
+  93:crypto/rng/AES_driver.c ****   /* If not error. */   
+  94:crypto/rng/AES_driver.c ****   if((AES.STATUS & AES_ERROR_bm) == 0){   
+ 525               	.LM14:
+ 526 0048 2091 C100 		lds r18,193
+ 528               	.LM15:
+ 529 004c 27FD      		sbrc r18,7
+ 530 004e 00C0      		rjmp .L7
+ 531 0050 9C01      		movw r18,r24
+ 532 0052 205F      		subi r18,-16
+ 533 0054 3F4F      		sbci r19,-1
+ 534               	.L6:
+ 535 0056 FC01      		movw r30,r24
+ 536               	.LBB4:
+ 537               	.LBB5:
+  95:crypto/rng/AES_driver.c ****     /* Store the result. */   
+  96:crypto/rng/AES_driver.c ****     uint8_t * temp_ciphertext = ciphertext;   
+  97:crypto/rng/AES_driver.c ****     for(uint8_t i = 0; i < AES_BLOCK_LENGTH; i++){   
+  98:crypto/rng/AES_driver.c ****       *(temp_ciphertext++) = AES.STATE;   
+ 539               	.LM16:
+ 540 0058 0196      		adiw r24,1
+ 542               	.LM17:
+ 543 005a 4091 C200 		lds r20,194
+ 545               	.LM18:
+ 546 005e 4083      		st Z,r20
+  97:crypto/rng/AES_driver.c ****       *(temp_ciphertext++) = AES.STATE;   
+ 548               	.LM19:
+ 549 0060 2817      		cp r18,r24
+ 550 0062 3907      		cpc r19,r25
+ 551 0064 01F4      		brne .L6
+ 552               	.LBE5:
+  99:crypto/rng/AES_driver.c ****     }   
+ 100:crypto/rng/AES_driver.c ****     encrypt_ok = true;   
+ 554               	.LM20:
+ 555 0066 81E0      		ldi r24,lo8(1)
+ 556               	.LBB6:
+ 557 0068 0895      		ret
+ 558               	.L7:
+ 559               	.LBE6:
+ 560               	.LBE4:
+ 101:crypto/rng/AES_driver.c ****   }else{   
+ 102:crypto/rng/AES_driver.c ****     encrypt_ok = false;   
+ 562               	.LM21:
+ 563 006a 80E0      		ldi r24,0
+ 564               	/* epilogue start */
+ 103:crypto/rng/AES_driver.c ****    
+ 104:crypto/rng/AES_driver.c ****   }   
+ 105:crypto/rng/AES_driver.c ****   return encrypt_ok;   
+ 106:crypto/rng/AES_driver.c **** }   
+ 566               	.LM22:
+ 567 006c 0895      		ret
+ 572               	.Lscope1:
+ 573               		.section	.text.AES_decrypt,"ax",@progbits
+ 578               	.global	AES_decrypt
+ 580               	AES_decrypt:
+ 107:crypto/rng/AES_driver.c ****    
+ 108:crypto/rng/AES_driver.c ****    
+ 109:crypto/rng/AES_driver.c ****    
+ 110:crypto/rng/AES_driver.c **** /*! \brief  Polled function that does an AES decryption on one 128-bit data block.
+ 111:crypto/rng/AES_driver.c ****  *
+ 112:crypto/rng/AES_driver.c ****  *  \note This code is blocking and will dead lock if no interrupt flags are set.
+ 113:crypto/rng/AES_driver.c ****  *
+ 114:crypto/rng/AES_driver.c ****  *  \param  ciphertext  Pointer to the ciphertext that shall be decrypted
+ 115:crypto/rng/AES_driver.c ****  *  \param  plaintext   Pointer to where in memory the plaintext (answer) shall be stored.
+ 116:crypto/rng/AES_driver.c ****  *  \param  key         Pointer to the DES key
+ 117:crypto/rng/AES_driver.c ****  *
+ 118:crypto/rng/AES_driver.c ****  *  \retval true   If the AES decryption was successful.
+ 119:crypto/rng/AES_driver.c ****  *  \retval false  If the AES decryption was not successful.
+ 120:crypto/rng/AES_driver.c ****  */
+ 121:crypto/rng/AES_driver.c **** bool AES_decrypt(uint8_t * ciphertext, uint8_t * plaintext,
+ 122:crypto/rng/AES_driver.c ****                  uint8_t * key){
+ 582               	.LM23:
+ 583               	.LFBB2:
+ 584               	/* prologue: function */
+ 585               	/* frame size = 0 */
+ 586               	/* stack size = 0 */
+ 587               	.L__stack_usage = 0
+ 588 0000 9C01      		movw r18,r24
+ 589 0002 CB01      		movw r24,r22
+ 590 0004 BA01      		movw r22,r20
+ 591 0006 405F      		subi r20,-16
+ 592 0008 5F4F      		sbci r21,-1
+ 593               	.L14:
+ 594 000a FB01      		movw r30,r22
+ 595               	.LBB7:
+ 123:crypto/rng/AES_driver.c **** 
+ 124:crypto/rng/AES_driver.c ****   bool decrypt_ok;
+ 125:crypto/rng/AES_driver.c **** 
+ 126:crypto/rng/AES_driver.c ****   /* Load key into AES key memory. */
+ 127:crypto/rng/AES_driver.c ****   uint8_t * temp_key = key;
+ 128:crypto/rng/AES_driver.c ****   for(uint8_t i = 0; i < AES_BLOCK_LENGTH; i++){
+ 129:crypto/rng/AES_driver.c ****     AES.KEY =  *(temp_key++);
+ 597               	.LM24:
+ 598 000c 6F5F      		subi r22,-1
+ 599 000e 7F4F      		sbci r23,-1
+ 601               	.LM25:
+ 602 0010 E081      		ld r30,Z
+ 604               	.LM26:
+ 605 0012 E093 C300 		sts 195,r30
+ 128:crypto/rng/AES_driver.c ****     AES.KEY =  *(temp_key++);
+ 607               	.LM27:
+ 608 0016 4617      		cp r20,r22
+ 609 0018 5707      		cpc r21,r23
+ 610 001a 01F4      		brne .L14
+ 611 001c A901      		movw r20,r18
+ 612 001e 405F      		subi r20,-16
+ 613 0020 5F4F      		sbci r21,-1
+ 614               	.L15:
+ 615 0022 F901      		movw r30,r18
+ 616               	.LBE7:
+ 617               	.LBB8:
+ 130:crypto/rng/AES_driver.c ****   }
+ 131:crypto/rng/AES_driver.c **** 
+ 132:crypto/rng/AES_driver.c ****   /* Load data into AES state memory. */
+ 133:crypto/rng/AES_driver.c ****   uint8_t * temp_ciphertext = ciphertext;
+ 134:crypto/rng/AES_driver.c ****   for(uint8_t i = 0; i < AES_BLOCK_LENGTH; i++){
+ 135:crypto/rng/AES_driver.c ****     AES.STATE =  *(temp_ciphertext++);
+ 619               	.LM28:
+ 620 0024 2F5F      		subi r18,-1
+ 621 0026 3F4F      		sbci r19,-1
+ 623               	.LM29:
+ 624 0028 6081      		ld r22,Z
+ 626               	.LM30:
+ 627 002a 6093 C200 		sts 194,r22
+ 134:crypto/rng/AES_driver.c ****     AES.STATE =  *(temp_ciphertext++);
+ 629               	.LM31:
+ 630 002e 4217      		cp r20,r18
+ 631 0030 5307      		cpc r21,r19
+ 632 0032 01F4      		brne .L15
+ 633               	.LBE8:
+ 136:crypto/rng/AES_driver.c ****   }
+ 137:crypto/rng/AES_driver.c **** 
+ 138:crypto/rng/AES_driver.c ****   /* Set AES in decryption mode and start the AES.*/
+ 139:crypto/rng/AES_driver.c ****   AES.CTRL |= (AES_START_bm | AES_DECRYPT_bm);
+ 635               	.LM32:
+ 636 0034 2091 C000 		lds r18,192
+ 637 0038 2069      		ori r18,lo8(-112)
+ 638 003a 2093 C000 		sts 192,r18
+ 639               	.L16:
+ 140:crypto/rng/AES_driver.c **** 
+ 141:crypto/rng/AES_driver.c ****   do{
+ 142:crypto/rng/AES_driver.c ****     /* Wait until AES is finished or an error occurs. */
+ 143:crypto/rng/AES_driver.c ****   }while((AES.STATUS & (AES_SRIF_bm|AES_ERROR_bm) ) == 0);
+ 641               	.LM33:
+ 642 003e 2091 C100 		lds r18,193
+ 644               	.LM34:
+ 645 0042 2178      		andi r18,lo8(-127)
+ 646 0044 01F0      		breq .L16
+ 144:crypto/rng/AES_driver.c **** 
+ 145:crypto/rng/AES_driver.c ****   /* If not error. */
+ 146:crypto/rng/AES_driver.c ****   if((AES.STATUS & AES_ERROR_bm) == 0){
+ 648               	.LM35:
+ 649 0046 2091 C100 		lds r18,193
+ 651               	.LM36:
+ 652 004a 27FD      		sbrc r18,7
+ 653 004c 00C0      		rjmp .L19
+ 654 004e 9C01      		movw r18,r24
+ 655 0050 205F      		subi r18,-16
+ 656 0052 3F4F      		sbci r19,-1
+ 657               	.L18:
+ 658 0054 FC01      		movw r30,r24
+ 659               	.LBB9:
+ 660               	.LBB10:
+ 147:crypto/rng/AES_driver.c ****     /* Store the result. */
+ 148:crypto/rng/AES_driver.c ****     uint8_t * temp_plaintext = plaintext;
+ 149:crypto/rng/AES_driver.c ****     for(uint8_t i = 0; i < AES_BLOCK_LENGTH; i++){
+ 150:crypto/rng/AES_driver.c ****       *(temp_plaintext++) = AES.STATE;
+ 662               	.LM37:
+ 663 0056 0196      		adiw r24,1
+ 665               	.LM38:
+ 666 0058 4091 C200 		lds r20,194
+ 668               	.LM39:
+ 669 005c 4083      		st Z,r20
+ 149:crypto/rng/AES_driver.c ****       *(temp_plaintext++) = AES.STATE;
+ 671               	.LM40:
+ 672 005e 2817      		cp r18,r24
+ 673 0060 3907      		cpc r19,r25
+ 674 0062 01F4      		brne .L18
+ 675               	.LBE10:
+ 151:crypto/rng/AES_driver.c ****     }
+ 152:crypto/rng/AES_driver.c ****     decrypt_ok = true;
+ 677               	.LM41:
+ 678 0064 81E0      		ldi r24,lo8(1)
+ 679               	.LBB11:
+ 680 0066 0895      		ret
+ 681               	.L19:
+ 682               	.LBE11:
+ 683               	.LBE9:
+ 153:crypto/rng/AES_driver.c ****   }else{
+ 154:crypto/rng/AES_driver.c ****     decrypt_ok = false;
+ 685               	.LM42:
+ 686 0068 80E0      		ldi r24,0
+ 687               	/* epilogue start */
+ 155:crypto/rng/AES_driver.c **** 
+ 156:crypto/rng/AES_driver.c ****   }
+ 157:crypto/rng/AES_driver.c ****   return decrypt_ok;
+ 158:crypto/rng/AES_driver.c **** }
+ 689               	.LM43:
+ 690 006a 0895      		ret
+ 695               	.Lscope2:
+ 696               		.section	.text.AES_encrypt_backtoback,"ax",@progbits
+ 700               	.global	AES_encrypt_backtoback
+ 702               	AES_encrypt_backtoback:
+ 159:crypto/rng/AES_driver.c **** 
+ 160:crypto/rng/AES_driver.c ****    
+ 161:crypto/rng/AES_driver.c ****    
+ 162:crypto/rng/AES_driver.c **** /*! \brief  Polled function that does an AES encryption on one 128-bit data block.  
+ 163:crypto/rng/AES_driver.c ****  *  
+ 164:crypto/rng/AES_driver.c ****  *  Function equal to the AES_encrypt function but the key is not loaded  
+ 165:crypto/rng/AES_driver.c ****  *  into the key memory. The function require that the key already is in the  
+ 166:crypto/rng/AES_driver.c ****  *  key memory. Used when encryption and decryption with the same key is  
+ 167:crypto/rng/AES_driver.c ****  *  done every other time.  
+ 168:crypto/rng/AES_driver.c ****  *  
+ 169:crypto/rng/AES_driver.c ****  *  \note This code is blocking and will dead lock if no interrupt flags are set.  
+ 170:crypto/rng/AES_driver.c ****  *  
+ 171:crypto/rng/AES_driver.c ****  *  \param  plaintext  Pointer to the plaintext that shall be encrypted  
+ 172:crypto/rng/AES_driver.c ****  *  \param  ciphertext Pointer to where in memory the ciphertext (answer) shall be stored.  
+ 173:crypto/rng/AES_driver.c ****  *  
+ 174:crypto/rng/AES_driver.c ****  *  \retval true   If the AES encryption was successful.  
+ 175:crypto/rng/AES_driver.c ****  *  \retval false  If the AES encryption was not successful.  
+ 176:crypto/rng/AES_driver.c ****  */   
+ 177:crypto/rng/AES_driver.c **** bool AES_encrypt_backtoback(uint8_t * plaintext, uint8_t * ciphertext)   
+ 178:crypto/rng/AES_driver.c **** {   
+ 704               	.LM44:
+ 705               	.LFBB3:
+ 706               	/* prologue: function */
+ 707               	/* frame size = 0 */
+ 708               	/* stack size = 0 */
+ 709               	.L__stack_usage = 0
+ 710 0000 9C01      		movw r18,r24
+ 711 0002 CB01      		movw r24,r22
+ 712 0004 A901      		movw r20,r18
+ 713 0006 405F      		subi r20,-16
+ 714 0008 5F4F      		sbci r21,-1
+ 715               	.L26:
+ 716 000a F901      		movw r30,r18
+ 717               	.LBB12:
+ 179:crypto/rng/AES_driver.c ****   bool encrypt_ok;   
+ 180:crypto/rng/AES_driver.c ****    
+ 181:crypto/rng/AES_driver.c ****   /* Load data into AES state memory. */   
+ 182:crypto/rng/AES_driver.c ****   uint8_t * temp_plaintext = plaintext;   
+ 183:crypto/rng/AES_driver.c ****   for(uint8_t i = 0; i < AES_BLOCK_LENGTH; i++){   
+ 184:crypto/rng/AES_driver.c ****     AES.STATE =  *(temp_plaintext++);   
+ 719               	.LM45:
+ 720 000c 2F5F      		subi r18,-1
+ 721 000e 3F4F      		sbci r19,-1
+ 723               	.LM46:
+ 724 0010 6081      		ld r22,Z
+ 726               	.LM47:
+ 727 0012 6093 C200 		sts 194,r22
+ 183:crypto/rng/AES_driver.c ****     AES.STATE =  *(temp_plaintext++);   
+ 729               	.LM48:
+ 730 0016 4217      		cp r20,r18
+ 731 0018 5307      		cpc r21,r19
+ 732 001a 01F4      		brne .L26
+ 733               	.LBE12:
+ 185:crypto/rng/AES_driver.c ****   }   
+ 186:crypto/rng/AES_driver.c ****    
+ 187:crypto/rng/AES_driver.c ****   /* Set AES in encryption mode and start AES. */   
+ 188:crypto/rng/AES_driver.c ****   AES.CTRL = (AES.CTRL & (~AES_DECRYPT_bm)) | AES_START_bm;   
+ 735               	.LM49:
+ 736 001c 2091 C000 		lds r18,192
+ 738               	.LM50:
+ 739 0020 2F76      		andi r18,lo8(111)
+ 740 0022 2068      		ori r18,lo8(-128)
+ 742               	.LM51:
+ 743 0024 2093 C000 		sts 192,r18
+ 744               	.L27:
+ 189:crypto/rng/AES_driver.c ****    
+ 190:crypto/rng/AES_driver.c ****    
+ 191:crypto/rng/AES_driver.c ****   do{   
+ 192:crypto/rng/AES_driver.c ****     /* Wait until AES is finished or an error occurs. */   
+ 193:crypto/rng/AES_driver.c ****   }while((AES.STATUS & (AES_SRIF_bm|AES_ERROR_bm) ) == 0);   
+ 746               	.LM52:
+ 747 0028 2091 C100 		lds r18,193
+ 749               	.LM53:
+ 750 002c 2178      		andi r18,lo8(-127)
+ 751 002e 01F0      		breq .L27
+ 194:crypto/rng/AES_driver.c ****    
+ 195:crypto/rng/AES_driver.c ****   /* If not error. */   
+ 196:crypto/rng/AES_driver.c ****   if((AES.STATUS & AES_ERROR_bm) == 0){   
+ 753               	.LM54:
+ 754 0030 2091 C100 		lds r18,193
+ 756               	.LM55:
+ 757 0034 27FD      		sbrc r18,7
+ 758 0036 00C0      		rjmp .L30
+ 759 0038 9C01      		movw r18,r24
+ 760 003a 205F      		subi r18,-16
+ 761 003c 3F4F      		sbci r19,-1
+ 762               	.L29:
+ 763 003e FC01      		movw r30,r24
+ 764               	.LBB13:
+ 765               	.LBB14:
+ 197:crypto/rng/AES_driver.c ****     /* Store the result. */   
+ 198:crypto/rng/AES_driver.c ****     uint8_t * temp_ciphertext = ciphertext;   
+ 199:crypto/rng/AES_driver.c ****     for(uint8_t i = 0; i < AES_BLOCK_LENGTH; i++){   
+ 200:crypto/rng/AES_driver.c ****       *(temp_ciphertext++) = AES.STATE;   
+ 767               	.LM56:
+ 768 0040 0196      		adiw r24,1
+ 770               	.LM57:
+ 771 0042 4091 C200 		lds r20,194
+ 773               	.LM58:
+ 774 0046 4083      		st Z,r20
+ 199:crypto/rng/AES_driver.c ****       *(temp_ciphertext++) = AES.STATE;   
+ 776               	.LM59:
+ 777 0048 2817      		cp r18,r24
+ 778 004a 3907      		cpc r19,r25
+ 779 004c 01F4      		brne .L29
+ 780               	.LBE14:
+ 201:crypto/rng/AES_driver.c ****     }   
+ 202:crypto/rng/AES_driver.c ****     encrypt_ok = true;   
+ 782               	.LM60:
+ 783 004e 81E0      		ldi r24,lo8(1)
+ 784               	.LBB15:
+ 785 0050 0895      		ret
+ 786               	.L30:
+ 787               	.LBE15:
+ 788               	.LBE13:
+ 203:crypto/rng/AES_driver.c ****   }else{   
+ 204:crypto/rng/AES_driver.c ****     encrypt_ok = false;   
+ 790               	.LM61:
+ 791 0052 80E0      		ldi r24,0
+ 792               	/* epilogue start */
+ 205:crypto/rng/AES_driver.c ****    
+ 206:crypto/rng/AES_driver.c ****   }   
+ 207:crypto/rng/AES_driver.c ****   return encrypt_ok;   
+ 208:crypto/rng/AES_driver.c **** }   
+ 794               	.LM62:
+ 795 0054 0895      		ret
+ 800               	.Lscope3:
+ 801               		.text
+ 803               	.Letext0:
+ 804               		.ident	"GCC: (GNU) 9.1.0"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 AES_driver.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:452    .text.AES_encrypt:0000000000000000 AES_encrypt
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:580    .text.AES_decrypt:0000000000000000 AES_decrypt
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccf6BeXX.s:702    .text.AES_encrypt_backtoback:0000000000000000 AES_encrypt_backtoback
+
+NO UNDEFINED SYMBOLS

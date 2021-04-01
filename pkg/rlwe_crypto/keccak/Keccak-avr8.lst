@@ -1,0 +1,874 @@
+   1               		.file	"Keccak-avr8.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 449               		.section	.text.crypto_hash,"ax",@progbits
+ 452               	.global	crypto_hash
+ 454               	crypto_hash:
+   1:crypto/keccak/Keccak-avr8.c **** /*
+   2:crypto/keccak/Keccak-avr8.c **** The Keccak sponge function, designed by Guido Bertoni, Joan Daemen,
+   3:crypto/keccak/Keccak-avr8.c **** Michaël Peeters and Gilles Van Assche. For more information, feedback or
+   4:crypto/keccak/Keccak-avr8.c **** questions, please refer to our website: http://keccak.noekeon.org/
+   5:crypto/keccak/Keccak-avr8.c **** 
+   6:crypto/keccak/Keccak-avr8.c **** Implementation by Ronny Van Keer,
+   7:crypto/keccak/Keccak-avr8.c **** hereby denoted as "the implementer".
+   8:crypto/keccak/Keccak-avr8.c **** 
+   9:crypto/keccak/Keccak-avr8.c **** To the extent possible under law, the implementer has waived all copyright
+  10:crypto/keccak/Keccak-avr8.c **** and related or neighboring rights to the source code in this file.
+  11:crypto/keccak/Keccak-avr8.c **** http://creativecommons.org/publicdomain/zero/1.0/
+  12:crypto/keccak/Keccak-avr8.c **** */
+  13:crypto/keccak/Keccak-avr8.c **** 
+  14:crypto/keccak/Keccak-avr8.c **** #include <string.h>
+  15:crypto/keccak/Keccak-avr8.c **** #include <avr/pgmspace.h>
+  16:crypto/keccak/Keccak-avr8.c **** #include "Keccak-avr8.h"
+  17:crypto/keccak/Keccak-avr8.c **** #include "Keccak-avr8-util.h"
+  18:crypto/keccak/Keccak-avr8.c **** 
+  19:crypto/keccak/Keccak-avr8.c **** #define cKeccakR_SizeInBytes    (cKeccakR / 8)
+  20:crypto/keccak/Keccak-avr8.c **** #ifndef crypto_hash_BYTES
+  21:crypto/keccak/Keccak-avr8.c ****     #ifdef cKeccakFixedOutputLengthInBytes
+  22:crypto/keccak/Keccak-avr8.c ****         #define crypto_hash_BYTES cKeccakFixedOutputLengthInBytes
+  23:crypto/keccak/Keccak-avr8.c ****     #else
+  24:crypto/keccak/Keccak-avr8.c ****         #define crypto_hash_BYTES cKeccakR_SizeInBytes
+  25:crypto/keccak/Keccak-avr8.c ****     #endif
+  26:crypto/keccak/Keccak-avr8.c **** #endif
+  27:crypto/keccak/Keccak-avr8.c **** #if (crypto_hash_BYTES > cKeccakR_SizeInBytes)
+  28:crypto/keccak/Keccak-avr8.c ****     #error "Full squeezing not yet implemented"
+  29:crypto/keccak/Keccak-avr8.c **** #endif
+  30:crypto/keccak/Keccak-avr8.c **** 
+  31:crypto/keccak/Keccak-avr8.c **** typedef unsigned char				UINT8;
+  32:crypto/keccak/Keccak-avr8.c **** typedef UINT8								tSmallUInt;
+  33:crypto/keccak/Keccak-avr8.c **** typedef unsigned long long  UINT64;
+  34:crypto/keccak/Keccak-avr8.c **** typedef UINT64 							tKeccakLane;
+  35:crypto/keccak/Keccak-avr8.c **** 
+  36:crypto/keccak/Keccak-avr8.c **** void KeccakF( tKeccakLane * state );
+  37:crypto/keccak/Keccak-avr8.c **** 
+  38:crypto/keccak/Keccak-avr8.c **** 
+  39:crypto/keccak/Keccak-avr8.c **** int crypto_hash( unsigned char *out, const unsigned char *in, unsigned long long inlen )
+  40:crypto/keccak/Keccak-avr8.c **** {
+ 456               	.LM0:
+ 457               	.LFBB1:
+ 458 0000 2F92      		push r2
+ 459 0002 3F92      		push r3
+ 460 0004 4F92      		push r4
+ 461 0006 5F92      		push r5
+ 462 0008 6F92      		push r6
+ 463 000a 7F92      		push r7
+ 464 000c 8F92      		push r8
+ 465 000e 9F92      		push r9
+ 466 0010 AF92      		push r10
+ 467 0012 BF92      		push r11
+ 468 0014 CF92      		push r12
+ 469 0016 DF92      		push r13
+ 470 0018 EF92      		push r14
+ 471 001a FF92      		push r15
+ 472 001c 0F93      		push r16
+ 473 001e 1F93      		push r17
+ 474 0020 CF93      		push r28
+ 475 0022 DF93      		push r29
+ 476 0024 CDB7      		in r28,__SP_L__
+ 477 0026 DEB7      		in r29,__SP_H__
+ 478 0028 C85C      		subi r28,-56
+ 479 002a D109      		sbc r29,__zero_reg__
+ 480 002c CDBF      		out __SP_L__,r28
+ 481 002e DEBF      		out __SP_H__,r29
+ 482               	/* prologue: function */
+ 483               	/* frame size = 200 */
+ 484               	/* stack size = 218 */
+ 485               	.L__stack_usage = 218
+ 486 0030 1C01      		movw r2,r24
+ 487 0032 6B01      		movw r12,r22
+ 488 0034 2701      		movw r4,r14
+ 489 0036 3801      		movw r6,r16
+ 490 0038 4901      		movw r8,r18
+ 491 003a 5A01      		movw r10,r20
+  41:crypto/keccak/Keccak-avr8.c **** #if 1
+  42:crypto/keccak/Keccak-avr8.c **** 
+  43:crypto/keccak/Keccak-avr8.c **** 	tSmallUInt			len;
+  44:crypto/keccak/Keccak-avr8.c ****   tKeccakLane			state[5 * 5];
+  45:crypto/keccak/Keccak-avr8.c **** 
+  46:crypto/keccak/Keccak-avr8.c ****   memset( state, 0, sizeof(state) );
+ 493               	.LM1:
+ 494 003c 8E01      		movw r16,r28
+ 495 003e 0F5F      		subi r16,-1
+ 496 0040 1F4F      		sbci r17,-1
+ 497 0042 88EC      		ldi r24,lo8(-56)
+ 498 0044 F801      		movw r30,r16
+ 499               		0:
+ 500 0046 1192      		st Z+,__zero_reg__
+ 501 0048 8A95      		dec r24
+ 502 004a 01F4      		brne 0b
+ 503               	.L2:
+  47:crypto/keccak/Keccak-avr8.c **** 
+  48:crypto/keccak/Keccak-avr8.c **** 	/*	Full blocks	*/
+  49:crypto/keccak/Keccak-avr8.c ****   for ( /* empty */; inlen >= cKeccakR_SizeInBytes; inlen -= cKeccakR_SizeInBytes )
+ 505               	.LM2:
+ 506 004c 9201      		movw r18,r4
+ 507 004e A301      		movw r20,r6
+ 508 0050 B401      		movw r22,r8
+ 509 0052 C501      		movw r24,r10
+ 510 0054 2738      		cpi r18,-121
+ 511 0056 3105      		cpc r19,__zero_reg__
+ 512 0058 4105      		cpc r20,__zero_reg__
+ 513 005a 5105      		cpc r21,__zero_reg__
+ 514 005c 6105      		cpc r22,__zero_reg__
+ 515 005e 7105      		cpc r23,__zero_reg__
+ 516 0060 8105      		cpc r24,__zero_reg__
+ 517 0062 9105      		cpc r25,__zero_reg__
+ 518 0064 01F0      		breq .+2
+ 519 0066 00F4      		brsh .L3
+  50:crypto/keccak/Keccak-avr8.c ****   {
+  51:crypto/keccak/Keccak-avr8.c **** 		in = xorLanes( state, in, cKeccakR_SizeInBytes / 8 );
+  52:crypto/keccak/Keccak-avr8.c ****     KeccakF( state );
+  53:crypto/keccak/Keccak-avr8.c ****   }
+  54:crypto/keccak/Keccak-avr8.c **** 
+  55:crypto/keccak/Keccak-avr8.c ****   /*	Last uncomplete block */
+  56:crypto/keccak/Keccak-avr8.c **** 	len = (tSmallUInt)inlen;
+  57:crypto/keccak/Keccak-avr8.c **** 	xorBytes( state, in, len );
+ 521               	.LM3:
+ 522 0068 442D      		mov r20,r4
+ 523 006a B601      		movw r22,r12
+ 524 006c C801      		movw r24,r16
+ 525 006e 0E94 0000 		call xorBytes
+  58:crypto/keccak/Keccak-avr8.c **** 
+  59:crypto/keccak/Keccak-avr8.c ****   /*	Padding	*/
+  60:crypto/keccak/Keccak-avr8.c **** 	*((UINT8*)state + len) ^= 1;
+ 527               	.LM4:
+ 528 0072 F801      		movw r30,r16
+ 529 0074 E40D      		add r30,r4
+ 530 0076 F51D      		adc r31,r5
+ 531 0078 8081      		ld r24,Z
+ 532 007a 91E0      		ldi r25,lo8(1)
+ 533 007c 8927      		eor r24,r25
+ 534 007e 8083      		st Z,r24
+  61:crypto/keccak/Keccak-avr8.c **** 	((UINT8*)state)[cKeccakR_SizeInBytes-1] ^= 0x80;
+ 536               	.LM5:
+ 537 0080 C857      		subi r28,lo8(-136)
+ 538 0082 DF4F      		sbci r29,hi8(-136)
+ 539 0084 8881      		ld r24,Y
+ 540 0086 C858      		subi r28,lo8(136)
+ 541 0088 D040      		sbci r29,hi8(136)
+ 542 008a 8058      		subi r24,lo8(-(-128))
+ 543 008c C857      		subi r28,lo8(-136)
+ 544 008e DF4F      		sbci r29,hi8(-136)
+ 545 0090 8883      		st Y,r24
+ 546 0092 C858      		subi r28,lo8(136)
+ 547 0094 D040      		sbci r29,hi8(136)
+  62:crypto/keccak/Keccak-avr8.c **** 	KeccakF( state );
+ 549               	.LM6:
+ 550 0096 C801      		movw r24,r16
+ 551 0098 0E94 0000 		call KeccakF
+  63:crypto/keccak/Keccak-avr8.c **** 
+  64:crypto/keccak/Keccak-avr8.c ****   memcpy( out, state, crypto_hash_BYTES );
+ 553               	.LM7:
+ 554 009c 88E8      		ldi r24,lo8(-120)
+ 555 009e F801      		movw r30,r16
+ 556 00a0 D101      		movw r26,r2
+ 557               		0:
+ 558 00a2 0190      		ld r0,Z+
+ 559 00a4 0D92      		st X+,r0
+ 560 00a6 8A95      		dec r24
+ 561 00a8 01F4      		brne 0b
+  65:crypto/keccak/Keccak-avr8.c **** 
+  66:crypto/keccak/Keccak-avr8.c **** 	return ( 0 );
+  67:crypto/keccak/Keccak-avr8.c **** 
+  68:crypto/keccak/Keccak-avr8.c **** #else
+  69:crypto/keccak/Keccak-avr8.c **** 
+  70:crypto/keccak/Keccak-avr8.c **** 	hashState state;
+  71:crypto/keccak/Keccak-avr8.c **** 
+  72:crypto/keccak/Keccak-avr8.c **** 	Init( &state );
+  73:crypto/keccak/Keccak-avr8.c **** 	Update( &state, in, inlen * 8 );
+  74:crypto/keccak/Keccak-avr8.c **** 	return (Final( &state, out, crypto_hash_BYTES ) );
+  75:crypto/keccak/Keccak-avr8.c **** 
+  76:crypto/keccak/Keccak-avr8.c **** #endif
+  77:crypto/keccak/Keccak-avr8.c **** 
+  78:crypto/keccak/Keccak-avr8.c **** }
+ 563               	.LM8:
+ 564 00aa 90E0      		ldi r25,0
+ 565 00ac 80E0      		ldi r24,0
+ 566               	/* epilogue start */
+ 567 00ae C853      		subi r28,56
+ 568 00b0 DF4F      		sbci r29,-1
+ 569 00b2 CDBF      		out __SP_L__,r28
+ 570 00b4 DEBF      		out __SP_H__,r29
+ 571 00b6 DF91      		pop r29
+ 572 00b8 CF91      		pop r28
+ 573 00ba 1F91      		pop r17
+ 574 00bc 0F91      		pop r16
+ 575 00be FF90      		pop r15
+ 576 00c0 EF90      		pop r14
+ 577 00c2 DF90      		pop r13
+ 578 00c4 CF90      		pop r12
+ 579 00c6 BF90      		pop r11
+ 580 00c8 AF90      		pop r10
+ 581 00ca 9F90      		pop r9
+ 582 00cc 8F90      		pop r8
+ 583 00ce 7F90      		pop r7
+ 584 00d0 6F90      		pop r6
+ 585 00d2 5F90      		pop r5
+ 586 00d4 4F90      		pop r4
+ 587 00d6 3F90      		pop r3
+ 588 00d8 2F90      		pop r2
+ 589 00da 0895      		ret
+ 590               	.L3:
+  51:crypto/keccak/Keccak-avr8.c ****     KeccakF( state );
+ 592               	.LM9:
+ 593 00dc 41E1      		ldi r20,lo8(17)
+ 594 00de B601      		movw r22,r12
+ 595 00e0 C801      		movw r24,r16
+ 596 00e2 0E94 0000 		call xorLanes
+ 597 00e6 6C01      		movw r12,r24
+  52:crypto/keccak/Keccak-avr8.c ****   }
+ 599               	.LM10:
+ 600 00e8 C801      		movw r24,r16
+ 601 00ea 0E94 0000 		call KeccakF
+  49:crypto/keccak/Keccak-avr8.c ****   {
+ 603               	.LM11:
+ 604 00ee 9201      		movw r18,r4
+ 605 00f0 A301      		movw r20,r6
+ 606 00f2 B401      		movw r22,r8
+ 607 00f4 C501      		movw r24,r10
+ 608 00f6 2858      		subi r18,-120
+ 609 00f8 3109      		sbc r19,__zero_reg__
+ 610 00fa 4109      		sbc r20,__zero_reg__
+ 611 00fc 5109      		sbc r21,__zero_reg__
+ 612 00fe 6109      		sbc r22,__zero_reg__
+ 613 0100 7109      		sbc r23,__zero_reg__
+ 614 0102 8109      		sbc r24,__zero_reg__
+ 615 0104 9109      		sbc r25,__zero_reg__
+ 616 0106 2901      		movw r4,r18
+ 617 0108 3A01      		movw r6,r20
+ 618 010a 4B01      		movw r8,r22
+ 619 010c 5C01      		movw r10,r24
+ 620 010e 00C0      		rjmp .L2
+ 625               	.Lscope1:
+ 626               		.section	.text.Init,"ax",@progbits
+ 629               	.global	Init
+ 631               	Init:
+  79:crypto/keccak/Keccak-avr8.c **** 
+  80:crypto/keccak/Keccak-avr8.c **** 
+  81:crypto/keccak/Keccak-avr8.c **** /*
+  82:crypto/keccak/Keccak-avr8.c **** ** API with a message queue
+  83:crypto/keccak/Keccak-avr8.c **** */
+  84:crypto/keccak/Keccak-avr8.c **** 
+  85:crypto/keccak/Keccak-avr8.c **** HashReturn Init(hashState *state)
+  86:crypto/keccak/Keccak-avr8.c **** {
+ 633               	.LM12:
+ 634               	.LFBB2:
+ 635               	/* prologue: function */
+ 636               	/* frame size = 0 */
+ 637               	/* stack size = 0 */
+ 638               	.L__stack_usage = 0
+  87:crypto/keccak/Keccak-avr8.c **** 	memset( state, 0, sizeof(hashState) );
+ 640               	.LM13:
+ 641 0000 2AEC      		ldi r18,lo8(-54)
+ 642 0002 FC01      		movw r30,r24
+ 643               		0:
+ 644 0004 1192      		st Z+,__zero_reg__
+ 645 0006 2A95      		dec r18
+ 646 0008 01F4      		brne 0b
+  88:crypto/keccak/Keccak-avr8.c **** 	return ( SUCCESS );
+  89:crypto/keccak/Keccak-avr8.c **** }
+ 648               	.LM14:
+ 649 000a 80E0      		ldi r24,0
+ 650               	/* epilogue start */
+ 651 000c 0895      		ret
+ 653               	.Lscope2:
+ 654               		.section	.text.Update,"ax",@progbits
+ 658               	.global	Update
+ 660               	Update:
+  90:crypto/keccak/Keccak-avr8.c **** 
+  91:crypto/keccak/Keccak-avr8.c **** HashReturn Update(hashState *state, const BitSequence *data, DataLength databitlen)
+  92:crypto/keccak/Keccak-avr8.c **** {
+ 662               	.LM15:
+ 663               	.LFBB3:
+ 664 0000 2F92      		push r2
+ 665 0002 3F92      		push r3
+ 666 0004 4F92      		push r4
+ 667 0006 5F92      		push r5
+ 668 0008 6F92      		push r6
+ 669 000a 7F92      		push r7
+ 670 000c 8F92      		push r8
+ 671 000e 9F92      		push r9
+ 672 0010 AF92      		push r10
+ 673 0012 BF92      		push r11
+ 674 0014 CF92      		push r12
+ 675 0016 DF92      		push r13
+ 676 0018 EF92      		push r14
+ 677 001a FF92      		push r15
+ 678 001c 0F93      		push r16
+ 679 001e 1F93      		push r17
+ 680 0020 CF93      		push r28
+ 681 0022 DF93      		push r29
+ 682 0024 CDB7      		in r28,__SP_L__
+ 683 0026 DEB7      		in r29,__SP_H__
+ 684 0028 2A97      		sbiw r28,10
+ 685 002a CDBF      		out __SP_L__,r28
+ 686 002c DEBF      		out __SP_H__,r29
+ 687               	/* prologue: function */
+ 688               	/* frame size = 10 */
+ 689               	/* stack size = 28 */
+ 690               	.L__stack_usage = 28
+ 691 002e 1C01      		movw r2,r24
+ 692 0030 6983      		std Y+1,r22
+ 693 0032 7A83      		std Y+2,r23
+ 694 0034 B901      		movw r22,r18
+ 695 0036 CA01      		movw r24,r20
+  93:crypto/keccak/Keccak-avr8.c **** 	tSmallUInt	trailingBits;
+  94:crypto/keccak/Keccak-avr8.c **** 	tSmallUInt	len;
+  95:crypto/keccak/Keccak-avr8.c **** 
+  96:crypto/keccak/Keccak-avr8.c **** 	if ( (state->bytesInQueue == 0xFF) || (state->trailingBitsInQueue != 0) )
+ 697               	.LM16:
+ 698 0038 9101      		movw r18,r2
+ 699 003a 2853      		subi r18,56
+ 700 003c 3F4F      		sbci r19,-1
+ 701 003e 2D83      		std Y+5,r18
+ 702 0040 3E83      		std Y+6,r19
+ 703 0042 D901      		movw r26,r18
+ 704 0044 EC91      		ld r30,X
+ 706               	.LM17:
+ 707 0046 EF3F      		cpi r30,lo8(-1)
+ 708 0048 01F4      		brne .+2
+ 709 004a 00C0      		rjmp .L13
+ 711               	.LM18:
+ 712 004c 2F5F      		subi r18,-1
+ 713 004e 3F4F      		sbci r19,-1
+ 714 0050 2F83      		std Y+7,r18
+ 715 0052 3887      		std Y+8,r19
+ 716 0054 D901      		movw r26,r18
+ 717 0056 2C91      		ld r18,X
+ 719               	.LM19:
+ 720 0058 2111      		cpse r18,__zero_reg__
+ 721 005a 00C0      		rjmp .L14
+  97:crypto/keccak/Keccak-avr8.c **** 	{
+  98:crypto/keccak/Keccak-avr8.c **** 		/*	 Final() already called or bits already in queue not modulo 8.	*/
+  99:crypto/keccak/Keccak-avr8.c **** 		return ( FAIL );
+ 100:crypto/keccak/Keccak-avr8.c **** 	}
+ 101:crypto/keccak/Keccak-avr8.c **** 
+ 102:crypto/keccak/Keccak-avr8.c **** 	trailingBits = (unsigned char)databitlen & 7;
+ 723               	.LM20:
+ 724 005c BE2D      		mov r27,r14
+ 725 005e B770      		andi r27,lo8(7)
+ 726 0060 BB83      		std Y+3,r27
+ 103:crypto/keccak/Keccak-avr8.c **** 	databitlen >>= 3;	/*	becomes byte length	*/
+ 728               	.LM21:
+ 729 0062 2E2D      		mov r18,r14
+ 730 0064 3F2D      		mov r19,r15
+ 731 0066 A801      		movw r20,r16
+ 732 0068 03E0      		ldi r16,lo8(3)
+ 733 006a 0E94 0000 		call __lshrdi3
+ 734 006e 2987      		std Y+9,r18
+ 735 0070 432E      		mov r4,r19
+ 736 0072 542E      		mov r5,r20
+ 737 0074 652E      		mov r6,r21
+ 738 0076 762E      		mov r7,r22
+ 739 0078 872E      		mov r8,r23
+ 740 007a 982E      		mov r9,r24
+ 741 007c 9A87      		std Y+10,r25
+ 104:crypto/keccak/Keccak-avr8.c **** 
+ 105:crypto/keccak/Keccak-avr8.c **** 	/*	If already data in queue, continue queuing first */
+ 106:crypto/keccak/Keccak-avr8.c **** 	if ( (state->bytesInQueue != 0) && (databitlen != 0) )
+ 743               	.LM22:
+ 744 007e EE23      		tst r30
+ 745 0080 01F4      		brne .+2
+ 746 0082 00C0      		rjmp .L10
+ 748               	.LM23:
+ 749 0084 A0E0      		ldi r26,0
+ 750 0086 0E94 0000 		call __cmpdi2_s8
+ 751 008a 01F4      		brne .+2
+ 752 008c 00C0      		rjmp .L8
+ 107:crypto/keccak/Keccak-avr8.c **** 	{
+ 108:crypto/keccak/Keccak-avr8.c **** 		len = cKeccakR_SizeInBytes - state->bytesInQueue;
+ 754               	.LM24:
+ 755 008e 88E8      		ldi r24,lo8(-120)
+ 756 0090 8E1B      		sub r24,r30
+ 757 0092 8C83      		std Y+4,r24
+ 109:crypto/keccak/Keccak-avr8.c **** 		if ( databitlen < len )
+ 759               	.LM25:
+ 760 0094 282F      		mov r18,r24
+ 761 0096 30E0      		ldi r19,0
+ 762 0098 40E0      		ldi r20,0
+ 763 009a 50E0      		ldi r21,0
+ 764 009c 60E0      		ldi r22,0
+ 765 009e 70E0      		ldi r23,0
+ 766 00a0 80E0      		ldi r24,0
+ 767 00a2 90E0      		ldi r25,0
+ 768 00a4 A984      		ldd r10,Y+9
+ 769 00a6 B42C      		mov r11,r4
+ 770 00a8 C52C      		mov r12,r5
+ 771 00aa D62C      		mov r13,r6
+ 772 00ac E72C      		mov r14,r7
+ 773 00ae F82C      		mov r15,r8
+ 774 00b0 092D      		mov r16,r9
+ 775 00b2 1A85      		ldd r17,Y+10
+ 776 00b4 0E94 0000 		call __cmpdi2
+ 777 00b8 01F0      		breq .L9
+ 778 00ba 00F0      		brlo .L9
+ 110:crypto/keccak/Keccak-avr8.c **** 		{
+ 111:crypto/keccak/Keccak-avr8.c **** 			len = (unsigned char)databitlen;
+ 780               	.LM26:
+ 781 00bc AC82      		std Y+4,r10
+ 782               	.L9:
+ 112:crypto/keccak/Keccak-avr8.c **** 		}
+ 113:crypto/keccak/Keccak-avr8.c **** 		data = xorBytes( state->state + state->bytesInQueue, data, len );
+ 784               	.LM27:
+ 785 00be 4C81      		ldd r20,Y+4
+ 786 00c0 6981      		ldd r22,Y+1
+ 787 00c2 7A81      		ldd r23,Y+2
+ 788 00c4 C101      		movw r24,r2
+ 789 00c6 8E0F      		add r24,r30
+ 790 00c8 911D      		adc r25,__zero_reg__
+ 791 00ca 0E94 0000 		call xorBytes
+ 792 00ce 8983      		std Y+1,r24
+ 793 00d0 9A83      		std Y+2,r25
+ 114:crypto/keccak/Keccak-avr8.c **** 		databitlen -= len;
+ 795               	.LM28:
+ 796 00d2 2985      		ldd r18,Y+9
+ 797 00d4 342D      		mov r19,r4
+ 798 00d6 452D      		mov r20,r5
+ 799 00d8 562D      		mov r21,r6
+ 800 00da 672D      		mov r22,r7
+ 801 00dc 782D      		mov r23,r8
+ 802 00de 892D      		mov r24,r9
+ 803 00e0 9A85      		ldd r25,Y+10
+ 804 00e2 AC80      		ldd r10,Y+4
+ 805 00e4 B12C      		mov r11,__zero_reg__
+ 806 00e6 C12C      		mov r12,__zero_reg__
+ 807 00e8 D12C      		mov r13,__zero_reg__
+ 808 00ea E12C      		mov r14,__zero_reg__
+ 809 00ec F12C      		mov r15,__zero_reg__
+ 810 00ee 00E0      		ldi r16,0
+ 811 00f0 10E0      		ldi r17,0
+ 812 00f2 0E94 0000 		call __subdi3
+ 813 00f6 2987      		std Y+9,r18
+ 814 00f8 432E      		mov r4,r19
+ 815 00fa 542E      		mov r5,r20
+ 816 00fc 652E      		mov r6,r21
+ 817 00fe 762E      		mov r7,r22
+ 818 0100 872E      		mov r8,r23
+ 819 0102 982E      		mov r9,r24
+ 820 0104 9A87      		std Y+10,r25
+ 115:crypto/keccak/Keccak-avr8.c **** 		if ( (state->bytesInQueue += len) == cKeccakR_SizeInBytes )
+ 822               	.LM29:
+ 823 0106 8101      		movw r16,r2
+ 824 0108 0853      		subi r16,56
+ 825 010a 1F4F      		sbci r17,-1
+ 826 010c F801      		movw r30,r16
+ 827 010e 8081      		ld r24,Z
+ 828 0110 8A0D      		add r24,r10
+ 829 0112 8083      		st Z,r24
+ 831               	.LM30:
+ 832 0114 8838      		cpi r24,lo8(-120)
+ 833 0116 01F4      		brne .L10
+ 116:crypto/keccak/Keccak-avr8.c **** 		{
+ 117:crypto/keccak/Keccak-avr8.c **** 			KeccakF( (tKeccakLane *)state->state );
+ 835               	.LM31:
+ 836 0118 C101      		movw r24,r2
+ 837 011a 0E94 0000 		call KeccakF
+ 118:crypto/keccak/Keccak-avr8.c **** 			state->bytesInQueue = 0;
+ 839               	.LM32:
+ 840 011e D801      		movw r26,r16
+ 841 0120 1C92      		st X,__zero_reg__
+ 842               	.L10:
+ 119:crypto/keccak/Keccak-avr8.c **** 		}
+ 120:crypto/keccak/Keccak-avr8.c **** 	}
+ 121:crypto/keccak/Keccak-avr8.c **** 
+ 122:crypto/keccak/Keccak-avr8.c **** 	/*	Absorb complete blocks */
+ 123:crypto/keccak/Keccak-avr8.c **** 	for ( /* */; databitlen >= cKeccakR_SizeInBytes; databitlen -= cKeccakR_SizeInBytes )
+ 844               	.LM33:
+ 845 0122 2985      		ldd r18,Y+9
+ 846 0124 342D      		mov r19,r4
+ 847 0126 452D      		mov r20,r5
+ 848 0128 562D      		mov r21,r6
+ 849 012a 672D      		mov r22,r7
+ 850 012c 782D      		mov r23,r8
+ 851 012e 892D      		mov r24,r9
+ 852 0130 9A85      		ldd r25,Y+10
+ 853 0132 2738      		cpi r18,-121
+ 854 0134 3105      		cpc r19,__zero_reg__
+ 855 0136 4105      		cpc r20,__zero_reg__
+ 856 0138 5105      		cpc r21,__zero_reg__
+ 857 013a 6105      		cpc r22,__zero_reg__
+ 858 013c 7105      		cpc r23,__zero_reg__
+ 859 013e 8105      		cpc r24,__zero_reg__
+ 860 0140 9105      		cpc r25,__zero_reg__
+ 861 0142 01F0      		breq .+4
+ 862 0144 00F0      		brlo .+2
+ 863 0146 00C0      		rjmp .L11
+ 864               	.L8:
+ 124:crypto/keccak/Keccak-avr8.c **** 	{
+ 125:crypto/keccak/Keccak-avr8.c **** 		data = xorLanes( state->state, data, cKeccakR_SizeInBytes / 8 );
+ 126:crypto/keccak/Keccak-avr8.c **** 		KeccakF( (tKeccakLane *)state->state );
+ 127:crypto/keccak/Keccak-avr8.c **** 	}
+ 128:crypto/keccak/Keccak-avr8.c **** 
+ 129:crypto/keccak/Keccak-avr8.c **** 	/*	Queue remaining data bytes */
+ 130:crypto/keccak/Keccak-avr8.c **** 	if ( (unsigned char)databitlen != 0 )
+ 866               	.LM34:
+ 867 0148 E985      		ldd r30,Y+9
+ 868 014a EE23      		tst r30
+ 869 014c 01F0      		breq .L12
+ 131:crypto/keccak/Keccak-avr8.c **** 	{
+ 132:crypto/keccak/Keccak-avr8.c **** 		data = xorBytes( state->state, data, (unsigned char)databitlen );
+ 871               	.LM35:
+ 872 014e 4E2F      		mov r20,r30
+ 873 0150 6981      		ldd r22,Y+1
+ 874 0152 7A81      		ldd r23,Y+2
+ 875 0154 C101      		movw r24,r2
+ 876 0156 0E94 0000 		call xorBytes
+ 877 015a 8983      		std Y+1,r24
+ 878 015c 9A83      		std Y+2,r25
+ 133:crypto/keccak/Keccak-avr8.c **** 		state->bytesInQueue = (unsigned char)databitlen;
+ 880               	.LM36:
+ 881 015e F101      		movw r30,r2
+ 882 0160 E853      		subi r30,56
+ 883 0162 FF4F      		sbci r31,-1
+ 884 0164 2985      		ldd r18,Y+9
+ 885 0166 2083      		st Z,r18
+ 886               	.L12:
+ 134:crypto/keccak/Keccak-avr8.c **** 	}
+ 135:crypto/keccak/Keccak-avr8.c **** 
+ 136:crypto/keccak/Keccak-avr8.c **** 	/*	Queue eventual remaining data bits plus add first padding bit */
+ 137:crypto/keccak/Keccak-avr8.c **** 	if ( trailingBits != 0 )
+ 888               	.LM37:
+ 889 0168 3B81      		ldd r19,Y+3
+ 890 016a 3323      		tst r19
+ 891 016c 01F0      		breq .L5
+ 138:crypto/keccak/Keccak-avr8.c **** 	{
+ 139:crypto/keccak/Keccak-avr8.c **** 		state->trailingBitsInQueue = trailingBits;
+ 893               	.LM38:
+ 894 016e AF81      		ldd r26,Y+7
+ 895 0170 B885      		ldd r27,Y+8
+ 896 0172 3C93      		st X,r19
+ 140:crypto/keccak/Keccak-avr8.c **** 		state->state[state->bytesInQueue] ^= (*data >> (8 - trailingBits));
+ 898               	.LM39:
+ 899 0174 AD81      		ldd r26,Y+5
+ 900 0176 BE81      		ldd r27,Y+6
+ 901 0178 EC91      		ld r30,X
+ 902 017a E20D      		add r30,r2
+ 903 017c F32D      		mov r31,r3
+ 904 017e F11D      		adc r31,__zero_reg__
+ 906               	.LM40:
+ 907 0180 A981      		ldd r26,Y+1
+ 908 0182 BA81      		ldd r27,Y+2
+ 909 0184 8C91      		ld r24,X
+ 910 0186 90E0      		ldi r25,0
+ 912               	.LM41:
+ 913 0188 28E0      		ldi r18,lo8(8)
+ 914 018a 30E0      		ldi r19,0
+ 915 018c BB81      		ldd r27,Y+3
+ 916 018e 2B1B      		sub r18,r27
+ 917 0190 3109      		sbc r19,__zero_reg__
+ 919               	.LM42:
+ 920 0192 00C0      		rjmp 2f
+ 921               		1:
+ 922 0194 9595      		asr r25
+ 923 0196 8795      		ror r24
+ 924               		2:
+ 925 0198 2A95      		dec r18
+ 926 019a 02F4      		brpl 1b
+ 928               	.LM43:
+ 929 019c 9081      		ld r25,Z
+ 930 019e 8927      		eor r24,r25
+ 931 01a0 8083      		st Z,r24
+ 141:crypto/keccak/Keccak-avr8.c **** 	}
+ 142:crypto/keccak/Keccak-avr8.c **** 	return ( SUCCESS );
+ 933               	.LM44:
+ 934 01a2 1B82      		std Y+3,__zero_reg__
+ 935               	.L5:
+ 143:crypto/keccak/Keccak-avr8.c **** }
+ 937               	.LM45:
+ 938 01a4 8B81      		ldd r24,Y+3
+ 939               	/* epilogue start */
+ 940 01a6 2A96      		adiw r28,10
+ 941 01a8 CDBF      		out __SP_L__,r28
+ 942 01aa DEBF      		out __SP_H__,r29
+ 943 01ac DF91      		pop r29
+ 944 01ae CF91      		pop r28
+ 945 01b0 1F91      		pop r17
+ 946 01b2 0F91      		pop r16
+ 947 01b4 FF90      		pop r15
+ 948 01b6 EF90      		pop r14
+ 949 01b8 DF90      		pop r13
+ 950 01ba CF90      		pop r12
+ 951 01bc BF90      		pop r11
+ 952 01be AF90      		pop r10
+ 953 01c0 9F90      		pop r9
+ 954 01c2 8F90      		pop r8
+ 955 01c4 7F90      		pop r7
+ 956 01c6 6F90      		pop r6
+ 957 01c8 5F90      		pop r5
+ 958 01ca 4F90      		pop r4
+ 959 01cc 3F90      		pop r3
+ 960 01ce 2F90      		pop r2
+ 961 01d0 0895      		ret
+ 962               	.L11:
+ 125:crypto/keccak/Keccak-avr8.c **** 		KeccakF( (tKeccakLane *)state->state );
+ 964               	.LM46:
+ 965 01d2 41E1      		ldi r20,lo8(17)
+ 966 01d4 6981      		ldd r22,Y+1
+ 967 01d6 7A81      		ldd r23,Y+2
+ 968 01d8 C101      		movw r24,r2
+ 969 01da 0E94 0000 		call xorLanes
+ 970 01de 8983      		std Y+1,r24
+ 971 01e0 9A83      		std Y+2,r25
+ 126:crypto/keccak/Keccak-avr8.c **** 	}
+ 973               	.LM47:
+ 974 01e2 C101      		movw r24,r2
+ 975 01e4 0E94 0000 		call KeccakF
+ 123:crypto/keccak/Keccak-avr8.c **** 	{
+ 977               	.LM48:
+ 978 01e8 2985      		ldd r18,Y+9
+ 979 01ea 342D      		mov r19,r4
+ 980 01ec 452D      		mov r20,r5
+ 981 01ee 562D      		mov r21,r6
+ 982 01f0 672D      		mov r22,r7
+ 983 01f2 782D      		mov r23,r8
+ 984 01f4 892D      		mov r24,r9
+ 985 01f6 9A85      		ldd r25,Y+10
+ 986 01f8 2858      		subi r18,-120
+ 987 01fa 3109      		sbc r19,__zero_reg__
+ 988 01fc 4109      		sbc r20,__zero_reg__
+ 989 01fe 5109      		sbc r21,__zero_reg__
+ 990 0200 6109      		sbc r22,__zero_reg__
+ 991 0202 7109      		sbc r23,__zero_reg__
+ 992 0204 8109      		sbc r24,__zero_reg__
+ 993 0206 9109      		sbc r25,__zero_reg__
+ 994 0208 2987      		std Y+9,r18
+ 995 020a 432E      		mov r4,r19
+ 996 020c 542E      		mov r5,r20
+ 997 020e 652E      		mov r6,r21
+ 998 0210 762E      		mov r7,r22
+ 999 0212 872E      		mov r8,r23
+ 1000 0214 982E      		mov r9,r24
+ 1001 0216 9A87      		std Y+10,r25
+ 1002 0218 00C0      		rjmp .L10
+ 1003               	.L13:
+  99:crypto/keccak/Keccak-avr8.c **** 	}
+ 1005               	.LM49:
+ 1006 021a E1E0      		ldi r30,lo8(1)
+ 1007 021c EB83      		std Y+3,r30
+ 1008 021e 00C0      		rjmp .L5
+ 1009               	.L14:
+ 1010 0220 F1E0      		ldi r31,lo8(1)
+ 1011 0222 FB83      		std Y+3,r31
+ 1012 0224 00C0      		rjmp .L5
+ 1018               	.Lscope3:
+ 1019               		.section	.text.Final,"ax",@progbits
+ 1024               	.global	Final
+ 1026               	Final:
+ 144:crypto/keccak/Keccak-avr8.c **** 
+ 145:crypto/keccak/Keccak-avr8.c **** HashReturn Final(hashState *state, BitSequence *hashval, int hashbytelen)
+ 146:crypto/keccak/Keccak-avr8.c **** {
+ 1028               	.LM50:
+ 1029               	.LFBB4:
+ 1030 0000 AF92      		push r10
+ 1031 0002 BF92      		push r11
+ 1032 0004 CF92      		push r12
+ 1033 0006 DF92      		push r13
+ 1034 0008 EF92      		push r14
+ 1035 000a FF92      		push r15
+ 1036 000c 0F93      		push r16
+ 1037 000e 1F93      		push r17
+ 1038 0010 CF93      		push r28
+ 1039 0012 DF93      		push r29
+ 1040               	/* prologue: function */
+ 1041               	/* frame size = 0 */
+ 1042               	/* stack size = 10 */
+ 1043               	.L__stack_usage = 10
+ 1044 0014 EC01      		movw r28,r24
+ 1045 0016 6B01      		movw r12,r22
+ 1046 0018 8A01      		movw r16,r20
+ 147:crypto/keccak/Keccak-avr8.c **** 	tSmallUInt	size;
+ 148:crypto/keccak/Keccak-avr8.c **** 
+ 149:crypto/keccak/Keccak-avr8.c **** 	if ( state->bytesInQueue < 0 )
+ 150:crypto/keccak/Keccak-avr8.c **** 	{
+ 151:crypto/keccak/Keccak-avr8.c **** 		/*	 Final() already called.	*/
+ 152:crypto/keccak/Keccak-avr8.c **** 		return ( FAIL );
+ 153:crypto/keccak/Keccak-avr8.c **** 	}
+ 154:crypto/keccak/Keccak-avr8.c **** 
+ 155:crypto/keccak/Keccak-avr8.c ****   // Padding
+ 156:crypto/keccak/Keccak-avr8.c ****   if ((state->bytesInQueue == (cKeccakR_SizeInBytes - 1)) && (state->trailingBitsInQueue == 7))
+ 1048               	.LM51:
+ 1049 001a 5C01      		movw r10,r24
+ 1050 001c 48EC      		ldi r20,-56
+ 1051 001e A40E      		add r10,r20
+ 1052 0020 B11C      		adc r11,__zero_reg__
+ 1053 0022 D501      		movw r26,r10
+ 1054 0024 EC91      		ld r30,X
+ 1055 0026 1196      		adiw r26,1
+ 1056 0028 2C91      		ld r18,X
+ 1057 002a AC01      		movw r20,r24
+ 1058 002c 4957      		subi r20,121
+ 1059 002e 5F4F      		sbci r21,-1
+ 1060 0030 7A01      		movw r14,r20
+ 1062               	.LM52:
+ 1063 0032 E738      		cpi r30,lo8(-121)
+ 1064 0034 01F4      		brne .L25
+ 1066               	.LM53:
+ 1067 0036 2730      		cpi r18,lo8(7)
+ 1068 0038 01F4      		brne .L25
+ 157:crypto/keccak/Keccak-avr8.c ****   {
+ 158:crypto/keccak/Keccak-avr8.c **** 		state->state[cKeccakR_SizeInBytes-1] ^= 0x80;
+ 1070               	.LM54:
+ 1071 003a DA01      		movw r26,r20
+ 1072 003c 8C91      		ld r24,X
+ 1073 003e 8058      		subi r24,lo8(-(-128))
+ 1074 0040 8C93      		st X,r24
+ 159:crypto/keccak/Keccak-avr8.c **** 		KeccakF( (tKeccakLane *)state->state );
+ 1076               	.LM55:
+ 1077 0042 CE01      		movw r24,r28
+ 1078 0044 0E94 0000 		call KeccakF
+ 1079               	.L26:
+ 160:crypto/keccak/Keccak-avr8.c ****   }
+ 161:crypto/keccak/Keccak-avr8.c ****   else
+ 162:crypto/keccak/Keccak-avr8.c ****   {
+ 163:crypto/keccak/Keccak-avr8.c **** 		state->state[state->bytesInQueue] ^= 1 << state->trailingBitsInQueue;
+ 164:crypto/keccak/Keccak-avr8.c ****   }
+ 165:crypto/keccak/Keccak-avr8.c ****   state->state[cKeccakR_SizeInBytes-1] ^= 0x80;
+ 1081               	.LM56:
+ 1082 0048 D701      		movw r26,r14
+ 1083 004a 8C91      		ld r24,X
+ 1084 004c 8058      		subi r24,lo8(-(-128))
+ 1085 004e 8C93      		st X,r24
+ 166:crypto/keccak/Keccak-avr8.c ****   KeccakF( (tKeccakLane *)state->state );
+ 1087               	.LM57:
+ 1088 0050 CE01      		movw r24,r28
+ 1089 0052 0E94 0000 		call KeccakF
+ 1090               	.L27:
+ 167:crypto/keccak/Keccak-avr8.c **** 
+ 168:crypto/keccak/Keccak-avr8.c **** 	for ( /* empty */; hashbytelen != 0; hashval += size, hashbytelen -= size )
+ 1092               	.LM58:
+ 1093 0056 0115      		cp r16,__zero_reg__
+ 1094 0058 1105      		cpc r17,__zero_reg__
+ 1095 005a 01F4      		brne .L30
+ 169:crypto/keccak/Keccak-avr8.c **** 	{
+ 170:crypto/keccak/Keccak-avr8.c **** 		size = (hashbytelen < cKeccakR_SizeInBytes) ? hashbytelen : cKeccakR_SizeInBytes;
+ 171:crypto/keccak/Keccak-avr8.c **** 
+ 172:crypto/keccak/Keccak-avr8.c ****     memcpy( hashval, state->state, size );
+ 173:crypto/keccak/Keccak-avr8.c **** 
+ 174:crypto/keccak/Keccak-avr8.c **** 		if ( size != hashbytelen )
+ 175:crypto/keccak/Keccak-avr8.c **** 		{
+ 176:crypto/keccak/Keccak-avr8.c **** 			KeccakF( (tKeccakLane *)state->state );
+ 177:crypto/keccak/Keccak-avr8.c **** 		}
+ 178:crypto/keccak/Keccak-avr8.c **** 	}
+ 179:crypto/keccak/Keccak-avr8.c **** 
+ 180:crypto/keccak/Keccak-avr8.c **** 	state->bytesInQueue = 0xFF;	/* flag final state */
+ 1097               	.LM59:
+ 1098 005c 8FEF      		ldi r24,lo8(-1)
+ 1099 005e F501      		movw r30,r10
+ 1100 0060 8083      		st Z,r24
+ 181:crypto/keccak/Keccak-avr8.c **** 	return ( SUCCESS );
+ 182:crypto/keccak/Keccak-avr8.c **** }
+ 1102               	.LM60:
+ 1103 0062 80E0      		ldi r24,0
+ 1104               	/* epilogue start */
+ 1105 0064 DF91      		pop r29
+ 1106 0066 CF91      		pop r28
+ 1107 0068 1F91      		pop r17
+ 1108 006a 0F91      		pop r16
+ 1109 006c FF90      		pop r15
+ 1110 006e EF90      		pop r14
+ 1111 0070 DF90      		pop r13
+ 1112 0072 CF90      		pop r12
+ 1113 0074 BF90      		pop r11
+ 1114 0076 AF90      		pop r10
+ 1115 0078 0895      		ret
+ 1116               	.L25:
+ 163:crypto/keccak/Keccak-avr8.c ****   }
+ 1118               	.LM61:
+ 1119 007a EC0F      		add r30,r28
+ 1120 007c FD2F      		mov r31,r29
+ 1121 007e F11D      		adc r31,__zero_reg__
+ 163:crypto/keccak/Keccak-avr8.c ****   }
+ 1123               	.LM62:
+ 1124 0080 81E0      		ldi r24,lo8(1)
+ 1125 0082 90E0      		ldi r25,0
+ 1126 0084 AC01      		movw r20,r24
+ 1127 0086 00C0      		rjmp 2f
+ 1128               		1:
+ 1129 0088 440F      		lsl r20
+ 1130 008a 551F      		rol r21
+ 1131               		2:
+ 1132 008c 2A95      		dec r18
+ 1133 008e 02F4      		brpl 1b
+ 163:crypto/keccak/Keccak-avr8.c ****   }
+ 1135               	.LM63:
+ 1136 0090 8081      		ld r24,Z
+ 1137 0092 8427      		eor r24,r20
+ 1138 0094 8083      		st Z,r24
+ 1139 0096 00C0      		rjmp .L26
+ 1140               	.L30:
+ 170:crypto/keccak/Keccak-avr8.c **** 
+ 1142               	.LM64:
+ 1143 0098 C801      		movw r24,r16
+ 1144 009a 0938      		cpi r16,-119
+ 1145 009c 1105      		cpc r17,__zero_reg__
+ 1146 009e 04F0      		brlt .L28
+ 1147 00a0 88E8      		ldi r24,lo8(-120)
+ 1148 00a2 90E0      		ldi r25,0
+ 1149               	.L28:
+ 1150 00a4 7C01      		movw r14,r24
+ 1151 00a6 FF24      		clr r15
+ 172:crypto/keccak/Keccak-avr8.c **** 
+ 1153               	.LM65:
+ 1154 00a8 A701      		movw r20,r14
+ 1155 00aa BE01      		movw r22,r28
+ 1156 00ac C601      		movw r24,r12
+ 1157 00ae 0E94 0000 		call memcpy
+ 174:crypto/keccak/Keccak-avr8.c **** 		{
+ 1159               	.LM66:
+ 1160 00b2 0E15      		cp r16,r14
+ 1161 00b4 1F05      		cpc r17,r15
+ 1162 00b6 01F0      		breq .L29
+ 176:crypto/keccak/Keccak-avr8.c **** 		}
+ 1164               	.LM67:
+ 1165 00b8 CE01      		movw r24,r28
+ 1166 00ba 0E94 0000 		call KeccakF
+ 1167               	.L29:
+ 168:crypto/keccak/Keccak-avr8.c **** 	{
+ 1169               	.LM68:
+ 1170 00be CE0C      		add r12,r14
+ 1171 00c0 DF1C      		adc r13,r15
+ 168:crypto/keccak/Keccak-avr8.c **** 	{
+ 1173               	.LM69:
+ 1174 00c2 0E19      		sub r16,r14
+ 1175 00c4 1F09      		sbc r17,r15
+ 1176 00c6 00C0      		rjmp .L27
+ 1178               	.Lscope4:
+ 1179               		.text
+ 1181               	.Letext0:
+ 1182               		.ident	"GCC: (GNU) 9.1.0"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Keccak-avr8.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:454    .text.crypto_hash:0000000000000000 crypto_hash
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:631    .text.Init:0000000000000000 Init
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:660    .text.Update:0000000000000000 Update
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCDLbIt.s:1026   .text.Final:0000000000000000 Final
+
+UNDEFINED SYMBOLS
+xorBytes
+KeccakF
+xorLanes
+__lshrdi3
+__cmpdi2_s8
+__cmpdi2
+__subdi3
+memcpy

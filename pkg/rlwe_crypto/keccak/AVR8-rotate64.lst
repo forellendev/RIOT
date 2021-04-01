@@ -1,0 +1,307 @@
+   1               	# 1 "crypto/keccak/AVR8-rotate64.S"
+   1               	/*
+   0               	
+   0               	
+   2               	File: AVR8-rotate64.s
+   3               	
+   4               	This code is originally by Daniel Otte (daniel.otte@rub.de) in 2006-2010 as part of the AVR-Crypto-
+   5               	
+   6               	Implementation by Daniel Otte and Ronny Van Keer,
+   7               	hereby denoted as "the implementer".
+   8               	
+   9               	To the extent possible under law, the implementer has waived all copyright
+  10               	and related or neighboring rights to the source code in this file.
+  11               	http://creativecommons.org/publicdomain/zero/1.0/
+  12               	*/
+  13               	
+  14               	.global rotate64_1bit_left
+  15               	rotate64_4bit_left:
+  16:crypto/keccak/AVR8-rotate64.S **** 	lsl r18
+  17:crypto/keccak/AVR8-rotate64.S **** 	rol r19
+  18:crypto/keccak/AVR8-rotate64.S **** 	rol r20
+  19:crypto/keccak/AVR8-rotate64.S **** 	rol r21
+  20:crypto/keccak/AVR8-rotate64.S **** 	rol r22
+  21:crypto/keccak/AVR8-rotate64.S **** 	rol r23
+  22:crypto/keccak/AVR8-rotate64.S **** 	rol r24
+  23:crypto/keccak/AVR8-rotate64.S **** 	rol r25
+  24:crypto/keccak/AVR8-rotate64.S **** 	adc r18 ,  r1
+  25               	rotate64_3bit_left:
+  26:crypto/keccak/AVR8-rotate64.S **** 	lsl r18
+  27:crypto/keccak/AVR8-rotate64.S **** 	rol r19
+  28:crypto/keccak/AVR8-rotate64.S **** 	rol r20
+  29:crypto/keccak/AVR8-rotate64.S **** 	rol r21
+  30:crypto/keccak/AVR8-rotate64.S **** 	rol r22
+  31:crypto/keccak/AVR8-rotate64.S **** 	rol r23
+  32:crypto/keccak/AVR8-rotate64.S **** 	rol r24
+  33:crypto/keccak/AVR8-rotate64.S **** 	rol r25
+  34:crypto/keccak/AVR8-rotate64.S **** 	adc r18 ,  r1
+  35               	rotate64_2bit_left:
+  36:crypto/keccak/AVR8-rotate64.S **** 	lsl r18
+  37:crypto/keccak/AVR8-rotate64.S **** 	rol r19
+  38:crypto/keccak/AVR8-rotate64.S **** 	rol r20
+  39:crypto/keccak/AVR8-rotate64.S **** 	rol r21
+  40:crypto/keccak/AVR8-rotate64.S **** 	rol r22
+  41:crypto/keccak/AVR8-rotate64.S **** 	rol r23
+  42:crypto/keccak/AVR8-rotate64.S **** 	rol r24
+  43:crypto/keccak/AVR8-rotate64.S **** 	rol r25
+  44:crypto/keccak/AVR8-rotate64.S **** 	adc r18 ,  r1
+  45               	rotate64_1bit_left:
+  46:crypto/keccak/AVR8-rotate64.S **** 	lsl r18
+  47:crypto/keccak/AVR8-rotate64.S **** 	rol r19
+  48:crypto/keccak/AVR8-rotate64.S **** 	rol r20
+  49:crypto/keccak/AVR8-rotate64.S **** 	rol r21
+  50:crypto/keccak/AVR8-rotate64.S **** 	rol r22
+  51:crypto/keccak/AVR8-rotate64.S **** 	rol r23
+  52:crypto/keccak/AVR8-rotate64.S **** 	rol r24
+  53:crypto/keccak/AVR8-rotate64.S **** 	rol r25
+  54:crypto/keccak/AVR8-rotate64.S **** 	adc r18 ,  r1
+  55:crypto/keccak/AVR8-rotate64.S **** 	ret
+  56               	
+  57               	.global rotate64_1bit_right
+  58               	rotate64_3bit_right:
+  59:crypto/keccak/AVR8-rotate64.S **** 	bst r18 ,  0
+  60:crypto/keccak/AVR8-rotate64.S **** 	ror r25
+  61:crypto/keccak/AVR8-rotate64.S **** 	ror r24
+  62:crypto/keccak/AVR8-rotate64.S **** 	ror r23
+  63:crypto/keccak/AVR8-rotate64.S **** 	ror r22
+  64:crypto/keccak/AVR8-rotate64.S **** 	ror r21
+  65:crypto/keccak/AVR8-rotate64.S **** 	ror r20
+  66:crypto/keccak/AVR8-rotate64.S **** 	ror r19
+  67:crypto/keccak/AVR8-rotate64.S **** 	ror r18
+  68:crypto/keccak/AVR8-rotate64.S **** 	bld r25 ,  7
+  69               	rotate64_2bit_right:
+  70:crypto/keccak/AVR8-rotate64.S **** 	bst r18 ,  0
+  71:crypto/keccak/AVR8-rotate64.S **** 	ror r25
+  72:crypto/keccak/AVR8-rotate64.S **** 	ror r24
+  73:crypto/keccak/AVR8-rotate64.S **** 	ror r23
+  74:crypto/keccak/AVR8-rotate64.S **** 	ror r22
+  75:crypto/keccak/AVR8-rotate64.S **** 	ror r21
+  76:crypto/keccak/AVR8-rotate64.S **** 	ror r20
+  77:crypto/keccak/AVR8-rotate64.S **** 	ror r19
+  78:crypto/keccak/AVR8-rotate64.S **** 	ror r18
+  79:crypto/keccak/AVR8-rotate64.S **** 	bld r25 ,  7
+  80               	rotate64_1bit_right:
+  81:crypto/keccak/AVR8-rotate64.S **** 	bst r18 ,  0
+  82:crypto/keccak/AVR8-rotate64.S **** 	ror r25
+  83:crypto/keccak/AVR8-rotate64.S **** 	ror r24
+  84:crypto/keccak/AVR8-rotate64.S **** 	ror r23
+  85:crypto/keccak/AVR8-rotate64.S **** 	ror r22
+  86:crypto/keccak/AVR8-rotate64.S **** 	ror r21
+  87:crypto/keccak/AVR8-rotate64.S **** 	ror r20
+  88:crypto/keccak/AVR8-rotate64.S **** 	ror r19
+  89:crypto/keccak/AVR8-rotate64.S **** 	ror r18
+  90:crypto/keccak/AVR8-rotate64.S **** 	bld r25 ,  7
+  91:crypto/keccak/AVR8-rotate64.S **** 	ret
+  92               	
+  93               	/*
+  94               	**	Each byte rotate routine must be 16 instructions long.
+  95               	*/
+  96               	rotate64_0byte_left:
+  97:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x07
+  98:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(bit_rot_jmp_table)
+  99:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(bit_rot_jmp_table)
+ 100:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 101               	
+ 102:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 103:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+ 104:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 105:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 106               	
+ 107:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 108:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 109:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 110:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 111               	
+ 112:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 113:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 114:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 115:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 116               	
+ 117               	rotate64_1byte_left:
+ 118:crypto/keccak/AVR8-rotate64.S **** 	mov r0 ,  r25
+ 119:crypto/keccak/AVR8-rotate64.S **** 	mov r25 ,  r24
+ 120:crypto/keccak/AVR8-rotate64.S **** 	mov r24 ,  r23
+ 121:crypto/keccak/AVR8-rotate64.S **** 	mov r23 ,  r22
+ 122               	
+ 123:crypto/keccak/AVR8-rotate64.S **** 	mov r22 ,  r21
+ 124:crypto/keccak/AVR8-rotate64.S **** 	mov r21 ,  r20
+ 125:crypto/keccak/AVR8-rotate64.S **** 	mov r20 ,  r19
+ 126:crypto/keccak/AVR8-rotate64.S **** 	mov r19 ,  r18
+ 127               	
+ 128:crypto/keccak/AVR8-rotate64.S **** 	mov r18 ,  r0
+ 129:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x07
+ 130:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(bit_rot_jmp_table)
+ 131:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(bit_rot_jmp_table)
+ 132               	
+ 133:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 134:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 135:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+ 136:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 137               	
+ 138               	rotate64_2byte_left:
+ 139:crypto/keccak/AVR8-rotate64.S **** 	movw r0 ,  r24
+ 140:crypto/keccak/AVR8-rotate64.S **** 	movw r24 ,  r22
+ 141:crypto/keccak/AVR8-rotate64.S **** 	movw r22 ,  r20
+ 142:crypto/keccak/AVR8-rotate64.S **** 	movw r20 ,  r18
+ 143               	
+ 144:crypto/keccak/AVR8-rotate64.S **** 	movw r18 ,  r0
+ 145:crypto/keccak/AVR8-rotate64.S **** 	clr r1
+ 146:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x07
+ 147:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(bit_rot_jmp_table)
+ 148               	
+ 149:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(bit_rot_jmp_table)
+ 150:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 151:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 152:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+ 153               	
+ 154:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 155:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 156:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 157:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 158               	
+ 159               	rotate64_3byte_left:
+ 160:crypto/keccak/AVR8-rotate64.S **** 	mov r0 ,  r25
+ 161:crypto/keccak/AVR8-rotate64.S **** 	mov r25 ,  r22
+ 162:crypto/keccak/AVR8-rotate64.S **** 	mov r22 ,  r19
+ 163:crypto/keccak/AVR8-rotate64.S **** 	mov r19 ,  r24
+ 164               	
+ 165:crypto/keccak/AVR8-rotate64.S **** 	mov r24 ,  r21
+ 166:crypto/keccak/AVR8-rotate64.S **** 	mov r21 ,  r18
+ 167:crypto/keccak/AVR8-rotate64.S **** 	mov r18 ,  r23
+ 168:crypto/keccak/AVR8-rotate64.S **** 	mov r23 ,  r20
+ 169               	
+ 170:crypto/keccak/AVR8-rotate64.S **** 	mov r20 ,  r0
+ 171:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x07
+ 172:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(bit_rot_jmp_table)
+ 173:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(bit_rot_jmp_table)
+ 174               	
+ 175:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 176:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 177:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+ 178:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 179               	
+ 180               	rotate64_4byte_left:
+ 181:crypto/keccak/AVR8-rotate64.S **** 	movw r0 ,  r24
+ 182:crypto/keccak/AVR8-rotate64.S **** 	movw r24 ,  r20
+ 183:crypto/keccak/AVR8-rotate64.S **** 	movw r20 ,  r0
+ 184:crypto/keccak/AVR8-rotate64.S **** 	movw r0 ,  r22
+ 185               	
+ 186:crypto/keccak/AVR8-rotate64.S **** 	movw r22 ,  r18
+ 187:crypto/keccak/AVR8-rotate64.S **** 	movw r18 ,  r0
+ 188:crypto/keccak/AVR8-rotate64.S **** 	clr r1
+ 189:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x07
+ 190               	
+ 191:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(bit_rot_jmp_table)
+ 192:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(bit_rot_jmp_table)
+ 193:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 194:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 195               	
+ 196:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+ 197:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 198:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 199:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 200               	
+ 201               	rotate64_5byte_left:
+ 202:crypto/keccak/AVR8-rotate64.S **** 	mov r0 ,  r25
+ 203:crypto/keccak/AVR8-rotate64.S **** 	mov r25 ,  r20
+ 204:crypto/keccak/AVR8-rotate64.S **** 	mov r20 ,  r23
+ 205:crypto/keccak/AVR8-rotate64.S **** 	mov r23 ,  r18
+ 206               	
+ 207:crypto/keccak/AVR8-rotate64.S **** 	mov r18 ,  r21
+ 208:crypto/keccak/AVR8-rotate64.S **** 	mov r21 ,  r24
+ 209:crypto/keccak/AVR8-rotate64.S **** 	mov r24 ,  r19
+ 210:crypto/keccak/AVR8-rotate64.S **** 	mov r19 ,  r22
+ 211               	
+ 212:crypto/keccak/AVR8-rotate64.S **** 	mov r22 ,  r0
+ 213:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x07
+ 214:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(bit_rot_jmp_table)
+ 215:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(bit_rot_jmp_table)
+ 216               	
+ 217:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 218:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 219:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+ 220:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 221               	
+ 222               	rotate64_6byte_left:
+ 223:crypto/keccak/AVR8-rotate64.S **** 	movw r0 ,  r18
+ 224:crypto/keccak/AVR8-rotate64.S **** 	movw r18 ,  r20
+ 225:crypto/keccak/AVR8-rotate64.S **** 	movw r20 ,  r22
+ 226:crypto/keccak/AVR8-rotate64.S **** 	movw r22 ,  r24
+ 227               	
+ 228:crypto/keccak/AVR8-rotate64.S **** 	movw r24 ,  r0
+ 229:crypto/keccak/AVR8-rotate64.S **** 	clr r1
+ 230:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x07
+ 231:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(bit_rot_jmp_table)
+ 232               	
+ 233:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(bit_rot_jmp_table)
+ 234:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 235:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 236:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+ 237               	
+ 238:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 239:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 240:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 241:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 242               	
+ 243               	rotate64_7byte_left:
+ 244:crypto/keccak/AVR8-rotate64.S **** 	mov r0 ,  r18
+ 245:crypto/keccak/AVR8-rotate64.S **** 	mov r18 ,  r19
+ 246:crypto/keccak/AVR8-rotate64.S **** 	mov r19 ,  r20
+ 247:crypto/keccak/AVR8-rotate64.S **** 	mov r20 ,  r21
+ 248               	
+ 249:crypto/keccak/AVR8-rotate64.S **** 	mov r21 ,  r22
+ 250:crypto/keccak/AVR8-rotate64.S **** 	mov r22 ,  r23
+ 251:crypto/keccak/AVR8-rotate64.S **** 	mov r23 ,  r24
+ 252:crypto/keccak/AVR8-rotate64.S **** 	mov r24 ,  r25
+ 253               	
+ 254:crypto/keccak/AVR8-rotate64.S **** 	mov r25 ,  r0
+ 255:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x07
+ 256:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(bit_rot_jmp_table)
+ 257:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(bit_rot_jmp_table)
+ 258               	
+ 259:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 260:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 261:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+ 262:crypto/keccak/AVR8-rotate64.S **** 	nop
+ 263               	
+ 264               	
+ 265               	bit_rot_jmp_table:
+ 266:crypto/keccak/AVR8-rotate64.S **** 	ret
+ 267:crypto/keccak/AVR8-rotate64.S **** 	rjmp rotate64_1bit_left
+ 268:crypto/keccak/AVR8-rotate64.S **** 	rjmp rotate64_2bit_left
+ 269:crypto/keccak/AVR8-rotate64.S **** 	rjmp rotate64_3bit_left
+ 270:crypto/keccak/AVR8-rotate64.S **** 	rjmp rotate64_4bit_left
+ 271:crypto/keccak/AVR8-rotate64.S **** 	rjmp rotate64_3bit_right
+ 272:crypto/keccak/AVR8-rotate64.S **** 	rjmp rotate64_2bit_right
+ 273:crypto/keccak/AVR8-rotate64.S **** 	rjmp rotate64_1bit_right
+ 274               	
+ 275               	.global rotate64left_code
+ 276               	rotate64left_code:
+ 277:crypto/keccak/AVR8-rotate64.S **** 	ldi r30 ,  pm_lo8(rotate64_0byte_left)
+ 278:crypto/keccak/AVR8-rotate64.S **** 	ldi r31 ,  pm_hi8(rotate64_0byte_left)
+ 279:crypto/keccak/AVR8-rotate64.S **** 	mov r0 ,  r16
+ 280:crypto/keccak/AVR8-rotate64.S **** 	andi r16 ,  0x70
+ 281:crypto/keccak/AVR8-rotate64.S **** 	add r30 ,  r16
+ 282:crypto/keccak/AVR8-rotate64.S **** 	adc r31 ,  r1
+ 283:crypto/keccak/AVR8-rotate64.S **** 	mov r16 ,  r0
+ 284:crypto/keccak/AVR8-rotate64.S **** 	ijmp
+DEFINED SYMBOLS
+crypto/keccak/AVR8-rotate64.S:45     .text:0000000000000036 rotate64_1bit_left
+crypto/keccak/AVR8-rotate64.S:15     .text:0000000000000000 rotate64_4bit_left
+crypto/keccak/AVR8-rotate64.S:25     .text:0000000000000012 rotate64_3bit_left
+crypto/keccak/AVR8-rotate64.S:35     .text:0000000000000024 rotate64_2bit_left
+crypto/keccak/AVR8-rotate64.S:80     .text:0000000000000072 rotate64_1bit_right
+crypto/keccak/AVR8-rotate64.S:58     .text:000000000000004a rotate64_3bit_right
+crypto/keccak/AVR8-rotate64.S:69     .text:000000000000005e rotate64_2bit_right
+crypto/keccak/AVR8-rotate64.S:96     .text:0000000000000088 rotate64_0byte_left
+crypto/keccak/AVR8-rotate64.S:265    .text:0000000000000188 bit_rot_jmp_table
+crypto/keccak/AVR8-rotate64.S:117    .text:00000000000000a8 rotate64_1byte_left
+crypto/keccak/AVR8-rotate64.S:138    .text:00000000000000c8 rotate64_2byte_left
+crypto/keccak/AVR8-rotate64.S:159    .text:00000000000000e8 rotate64_3byte_left
+crypto/keccak/AVR8-rotate64.S:180    .text:0000000000000108 rotate64_4byte_left
+crypto/keccak/AVR8-rotate64.S:201    .text:0000000000000128 rotate64_5byte_left
+crypto/keccak/AVR8-rotate64.S:222    .text:0000000000000148 rotate64_6byte_left
+crypto/keccak/AVR8-rotate64.S:243    .text:0000000000000168 rotate64_7byte_left
+crypto/keccak/AVR8-rotate64.S:276    .text:0000000000000198 rotate64left_code
+
+NO UNDEFINED SYMBOLS

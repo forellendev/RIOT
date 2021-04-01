@@ -1,0 +1,236 @@
+   1               		.file	"avr_trng.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 441               		.section	.rodata
+ 442               	.LC0:
+ 443 0000 00        		.string	""
+ 444 0001 00        		.string	""
+ 445 0002 00        		.string	""
+ 446 0003 00        		.string	""
+ 447               		.section	.text.get_trnd_adc,"ax",@progbits
+ 449               	.global	get_trnd_adc
+ 451               	get_trnd_adc:
+   1:crypto/rng/avr_trng.c **** #include <inttypes.h>
+   2:crypto/rng/avr_trng.c **** #include "../../device/avr_compiler.h"
+   3:crypto/rng/avr_trng.c **** 
+   4:crypto/rng/avr_trng.c **** 
+   5:crypto/rng/avr_trng.c **** uint32_t get_trnd_adc(void)
+   6:crypto/rng/avr_trng.c **** {
+ 453               	.LM0:
+ 454               	.LFBB1:
+ 455 0000 CF93      		push r28
+ 456 0002 DF93      		push r29
+ 457 0004 CDB7      		in r28,__SP_L__
+ 458 0006 DEB7      		in r29,__SP_H__
+ 459 0008 2897      		sbiw r28,8
+ 460 000a CDBF      		out __SP_L__,r28
+ 461 000c DEBF      		out __SP_H__,r29
+ 462               	/* prologue: function */
+ 463               	/* frame size = 8 */
+ 464               	/* stack size = 10 */
+ 465               	.L__stack_usage = 10
+   7:crypto/rng/avr_trng.c **** 	uint32_t result = 0;
+   8:crypto/rng/avr_trng.c **** 	uint8_t res[4] = {0,0,0,0};
+ 467               	.LM1:
+ 468 000e 8091 0000 		lds r24,.LC0
+ 469 0012 9091 0000 		lds r25,.LC0+1
+ 470 0016 A091 0000 		lds r26,.LC0+2
+ 471 001a B091 0000 		lds r27,.LC0+3
+ 472 001e 8983      		std Y+1,r24
+ 473 0020 9A83      		std Y+2,r25
+ 474 0022 AB83      		std Y+3,r26
+ 475 0024 BC83      		std Y+4,r27
+ 476 0026 FE01      		movw r30,r28
+ 477 0028 3196      		adiw r30,1
+ 478 002a AE01      		movw r20,r28
+ 479 002c 4B5F      		subi r20,-5
+ 480 002e 5F4F      		sbci r21,-1
+ 481               	.LBB2:
+ 482               	.LBB3:
+   9:crypto/rng/avr_trng.c **** 	
+  10:crypto/rng/avr_trng.c **** 	for(int j = 0; j<4;j++)
+  11:crypto/rng/avr_trng.c **** 	{
+  12:crypto/rng/avr_trng.c **** 		for(int i = 0; i<8; i++)
+  13:crypto/rng/avr_trng.c **** 		{
+  14:crypto/rng/avr_trng.c **** 			ADCA.CH0.CTRL |= ADC_CH_START_bm; // start conversion on channel 0
+  15:crypto/rng/avr_trng.c **** 		
+  16:crypto/rng/avr_trng.c **** 			while(!ADCA.CH0.INTFLAGS); // wait for conversion to be finished
+  17:crypto/rng/avr_trng.c **** 			
+  18:crypto/rng/avr_trng.c **** 			ADCA.CH0.INTFLAGS=ADC_CH_CHIF_bm; // clear itnerrupt flag
+ 484               	.LM2:
+ 485 0030 61E0      		ldi r22,lo8(1)
+ 486               	.L2:
+  12:crypto/rng/avr_trng.c **** 		{
+ 488               	.LM3:
+ 489 0032 30E0      		ldi r19,0
+ 490 0034 20E0      		ldi r18,0
+ 491               	.L4:
+  14:crypto/rng/avr_trng.c **** 		
+ 493               	.LM4:
+ 494 0036 8091 2002 		lds r24,544
+ 495 003a 8068      		ori r24,lo8(-128)
+ 496 003c 8093 2002 		sts 544,r24
+ 497               	.L3:
+  16:crypto/rng/avr_trng.c **** 			
+ 499               	.LM5:
+ 500 0040 8091 2302 		lds r24,547
+  16:crypto/rng/avr_trng.c **** 			
+ 502               	.LM6:
+ 503 0044 8823      		tst r24
+ 504 0046 01F0      		breq .L3
+ 506               	.LM7:
+ 507 0048 6093 2302 		sts 547,r22
+  19:crypto/rng/avr_trng.c **** 		
+  20:crypto/rng/avr_trng.c **** 			res[j] |= (ADCA.CH0RES & 1)<<i; // get LSB
+ 509               	.LM8:
+ 510 004c 8091 1002 		lds r24,528
+ 511 0050 9091 1102 		lds r25,528+1
+ 513               	.LM9:
+ 514 0054 8170      		andi r24,1
+ 515 0056 9927      		clr r25
+ 517               	.LM10:
+ 518 0058 022E      		mov r0,r18
+ 519 005a 00C0      		rjmp 2f
+ 520               		1:
+ 521 005c 880F      		lsl r24
+ 522               		2:
+ 523 005e 0A94      		dec r0
+ 524 0060 02F4      		brpl 1b
+ 526               	.LM11:
+ 527 0062 9081      		ld r25,Z
+ 528 0064 892B      		or r24,r25
+ 529 0066 8083      		st Z,r24
+  12:crypto/rng/avr_trng.c **** 		{
+ 531               	.LM12:
+ 532 0068 2F5F      		subi r18,-1
+ 533 006a 3F4F      		sbci r19,-1
+  12:crypto/rng/avr_trng.c **** 		{
+ 535               	.LM13:
+ 536 006c 2830      		cpi r18,8
+ 537 006e 3105      		cpc r19,__zero_reg__
+ 538 0070 01F4      		brne .L4
+ 539 0072 3196      		adiw r30,1
+ 540               	.LBE3:
+  10:crypto/rng/avr_trng.c **** 	{
+ 542               	.LM14:
+ 543 0074 E417      		cp r30,r20
+ 544 0076 F507      		cpc r31,r21
+ 545 0078 01F4      		brne .L2
+ 546               	.LBE2:
+  21:crypto/rng/avr_trng.c **** 		}	
+  22:crypto/rng/avr_trng.c **** 	}
+  23:crypto/rng/avr_trng.c **** 	
+  24:crypto/rng/avr_trng.c **** 	// compose 32 bit value in assembly
+  25:crypto/rng/avr_trng.c **** 	asm (
+ 548               	.LM15:
+ 549 007a 8981      		ldd r24,Y+1
+ 550 007c 9A81      		ldd r25,Y+2
+ 551 007e 2B81      		ldd r18,Y+3
+ 552 0080 3C81      		ldd r19,Y+4
+ 553               	/* #APP */
+ 554               	 ;  25 "crypto/rng/avr_trng.c" 1
+ 555 0082 482F      		mov r20, r24
+ 556 0084 592F      		mov r21, r25
+ 557 0086 622F      		mov r22, r18
+ 558 0088 732F      		mov r23, r19
+ 559               	 ;  0 "" 2
+  26:crypto/rng/avr_trng.c ****       "mov %A0, %A1"	"\n\t"
+  27:crypto/rng/avr_trng.c ****       "mov %B0, %A2"	"\n\t"
+  28:crypto/rng/avr_trng.c ****       "mov %C0, %A3"	"\n\t"
+  29:crypto/rng/avr_trng.c ****       "mov %D0, %A4"
+  30:crypto/rng/avr_trng.c ****          : "=&r" (result)
+  31:crypto/rng/avr_trng.c ****          : "r"   (res[0]), "r" (res[1]), "r"   (res[2]), "r" (res[3])
+  32:crypto/rng/avr_trng.c ****     );	
+  33:crypto/rng/avr_trng.c **** 	
+  34:crypto/rng/avr_trng.c **** 	return result;
+  35:crypto/rng/avr_trng.c **** }
+ 561               	.LM16:
+ 562               	/* #NOAPP */
+ 563 008a CB01      		movw r24,r22
+ 564 008c BA01      		movw r22,r20
+ 565               	/* epilogue start */
+ 566 008e 2896      		adiw r28,8
+ 567 0090 CDBF      		out __SP_L__,r28
+ 568 0092 DEBF      		out __SP_H__,r29
+ 569 0094 DF91      		pop r29
+ 570 0096 CF91      		pop r28
+ 571 0098 0895      		ret
+ 579               	.Lscope1:
+ 580               		.section	.text.avr_trng_init,"ax",@progbits
+ 582               	.global	avr_trng_init
+ 584               	avr_trng_init:
+  36:crypto/rng/avr_trng.c **** 
+  37:crypto/rng/avr_trng.c **** // http://www.bostonandroid.com/manuals/xmega-precision-adc-howto.html
+  38:crypto/rng/avr_trng.c **** void avr_trng_init(void)
+  39:crypto/rng/avr_trng.c **** {
+ 586               	.LM17:
+ 587               	.LFBB2:
+ 588               	/* prologue: function */
+ 589               	/* frame size = 0 */
+ 590               	/* stack size = 0 */
+ 591               	.L__stack_usage = 0
+  40:crypto/rng/avr_trng.c **** 	PORTA.DIR = 0; 	// configure PORTA as input
+ 593               	.LM18:
+ 594 0000 1092 0006 		sts 1536,__zero_reg__
+  41:crypto/rng/avr_trng.c **** 	ADCA.CTRLA |= 0x1; 	// enable adc
+ 596               	.LM19:
+ 597 0004 E0E0      		ldi r30,0
+ 598 0006 F2E0      		ldi r31,lo8(2)
+ 599 0008 8081      		ld r24,Z
+ 600 000a 8160      		ori r24,lo8(1)
+ 601 000c 8083      		st Z,r24
+  42:crypto/rng/avr_trng.c **** 	ADCA.CTRLB = ADC_RESOLUTION_12BIT_gc; 	// 12 bit conversion
+ 603               	.LM20:
+ 604 000e 1182      		std Z+1,__zero_reg__
+  43:crypto/rng/avr_trng.c **** 	ADCA.REFCTRL = ADC_REFSEL_INT1V_gc | 0x02; 	// internal 1V bandgap reference
+ 606               	.LM21:
+ 607 0010 82E0      		ldi r24,lo8(2)
+ 608 0012 8283      		std Z+2,r24
+  44:crypto/rng/avr_trng.c **** 	ADCA.PRESCALER = ADC_PRESCALER_DIV8_gc; 	// peripheral clk/8 (2MHz/16=250kHz)
+ 610               	.LM22:
+ 611 0014 81E0      		ldi r24,lo8(1)
+ 612 0016 8483      		std Z+4,r24
+  45:crypto/rng/avr_trng.c **** 	ADCA.CH0.CTRL = ADC_CH_INPUTMODE_SINGLEENDED_gc  | ADC_CH_GAIN_64X_gc; 	// single ended & 64x gain
+ 614               	.LM23:
+ 615 0018 89E1      		ldi r24,lo8(25)
+ 616 001a 80A3      		std Z+32,r24
+  46:crypto/rng/avr_trng.c **** 	ADCA.CH0.MUXCTRL = ADC_CH_MUXPOS_PIN4_gc; 	// PORTA:2 
+ 618               	.LM24:
+ 619 001c 80E2      		ldi r24,lo8(32)
+ 620 001e 81A3      		std Z+33,r24
+ 621               	/* epilogue start */
+  47:crypto/rng/avr_trng.c **** }
+ 623               	.LM25:
+ 624 0020 0895      		ret
+ 626               	.Lscope2:
+ 627               		.text
+ 629               	.Letext0:
+ 630               		.ident	"GCC: (GNU) 9.1.0"
+ 631               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 avr_trng.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:451    .text.get_trnd_adc:0000000000000000 get_trnd_adc
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cckli3a5.s:584    .text.avr_trng_init:0000000000000000 avr_trng_init
+
+UNDEFINED SYMBOLS
+__do_copy_data

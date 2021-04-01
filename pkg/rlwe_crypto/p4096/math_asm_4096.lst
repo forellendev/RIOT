@@ -1,0 +1,92 @@
+   1               	# 1 "crypto/p4096/math_asm_4096.S"
+   1               	#define Res1 r18
+   0               	
+   0               	
+   2               	#define Res2 R19
+   3               	#define Res3 R20
+   4               	
+   5               	#define a_low R24
+   6               	#define a_high R25
+   7               	#define b_low R22
+   8               	#define b_high R23
+   9               	
+  10               	/*
+  11               	.global call_mulRed_asm_4096
+  12               	call_mulRed_asm_4096:
+  13               	
+  14               		cpi a_high, 0
+  15               		brne neg
+  16               	
+  17               	pos:
+  18               		//multiplication of two 12 bit values
+  19               		mul a_low,b_low
+  20               		mov Res1,R0
+  21               		mov Res2,R1
+  22               	
+  23               		// a_high = 0
+  24               		//mul a_high,b_low
+  25               		//add Res2,R0
+  26               	
+  27               		mul a_low,b_high
+  28               		add Res2,R0
+  29               	
+  30               		mov r24, Res1
+  31               		mov r25, Res2
+  32               	
+  33               		rjmp end
+  34               	
+  35               	neg:
+  36               	
+  37               		neg a_low
+  38               		
+  39               		mul a_low,b_low
+  40               		mov Res1,R0
+  41               		mov Res2,R1
+  42               	
+  43               		// a_high = 0
+  44               		//mul a_high,b_low
+  45               		//add Res2,R0
+  46               	
+  47               		mul a_low,b_high
+  48               		add Res2,R0
+  49               	
+  50               		clr r24
+  51               		clr r25
+  52               	
+  53               		sub r24, Res1
+  54               		sbc r25, Res2
+  55               	
+  56               	end:
+  57               	
+  58               		andi r25, 0xF
+  59               	
+  60               		clr r1
+  61               		clr r0
+  62               	
+  63               		ret
+  64               	*/
+  65               	
+  66               	
+  67               	.global call_mulRed_asm_4096
+  68               	call_mulRed_asm_4096:
+  69               	
+  70:crypto/p4096/math_asm_4096.S **** 	muls a_low,b_high
+  71:crypto/p4096/math_asm_4096.S **** 	mov Res2,R0
+  72               	
+  73:crypto/p4096/math_asm_4096.S **** 	mov b_high, a_low
+  74:crypto/p4096/math_asm_4096.S **** 	mulsu b_high,b_low
+  75:crypto/p4096/math_asm_4096.S **** 	mov Res1,R0
+  76:crypto/p4096/math_asm_4096.S **** 	add Res2,R1
+  77               	
+  78:crypto/p4096/math_asm_4096.S **** 	mov r24, Res1
+  79:crypto/p4096/math_asm_4096.S **** 	mov r25, Res2
+  80               	
+  81:crypto/p4096/math_asm_4096.S **** 	andi r25, 0xF
+  82               	
+  83:crypto/p4096/math_asm_4096.S **** 	clr r1
+  84               	
+  85:crypto/p4096/math_asm_4096.S **** 	ret
+DEFINED SYMBOLS
+crypto/p4096/math_asm_4096.S:68     .text:0000000000000000 call_mulRed_asm_4096
+
+NO UNDEFINED SYMBOLS

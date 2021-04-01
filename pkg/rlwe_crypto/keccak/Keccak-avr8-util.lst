@@ -1,0 +1,131 @@
+   1               	# 1 "crypto/keccak/Keccak-avr8-util.S"
+   1               	/*
+   0               	
+   0               	
+   2               	The Keccak sponge function, designed by Guido Bertoni, Joan Daemen,
+   3               	Michaël Peeters and Gilles Van Assche. For more information, feedback or
+   4               	questions, please refer to our website: http://keccak.noekeon.org/
+   5               	
+   6               	Implementation by Ronny Van Keer,
+   7               	hereby denoted as "the implementer".
+   8               	
+   9               	To the extent possible under law, the implementer has waived all copyright
+  10               	and related or neighboring rights to the source code in this file.
+  11               	http://creativecommons.org/publicdomain/zero/1.0/
+  12               	*/
+  13               	
+  14               	/*
+  15               	 * const void * xorBytes( void * dest, const void * src, unsigned char n );
+  16               	 *
+  17               	 * param dest is passed in r24:r25
+  18               	 * param src  is passed in r22:r23
+  19               	 * param n    is passed in r20
+  20               	 */
+  21               	.global xorBytes
+  22               	xorBytes:
+  23:crypto/keccak/Keccak-avr8-util.S **** 	movw	r30, r24
+  24:crypto/keccak/Keccak-avr8-util.S **** 	movw	r26, r22
+  25               	
+  26:crypto/keccak/Keccak-avr8-util.S **** 	lsr 	r20
+  27:crypto/keccak/Keccak-avr8-util.S **** 	brcc	xorBytes2
+  28:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  29:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  30:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  31:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  32               	xorBytes2:
+  33:crypto/keccak/Keccak-avr8-util.S **** 	lsr		r20
+  34:crypto/keccak/Keccak-avr8-util.S **** 	brcc	xorBytes4
+  35:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  36:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  37:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  38:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  39:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  40:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  41:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  42:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  43               	xorBytes4:
+  44:crypto/keccak/Keccak-avr8-util.S **** 	lsr		r20
+  45:crypto/keccak/Keccak-avr8-util.S **** 	brcc	xorBytes8
+  46:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  47:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  48:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  49:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  50:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  51:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  52:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  53:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  54:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  55:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  56:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  57:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  58:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  59:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  60:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  61:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  62               	
+  63:crypto/keccak/Keccak-avr8-util.S **** 	subi	r20,0
+  64               	xorBytes8:
+  65:crypto/keccak/Keccak-avr8-util.S **** 	brne	xorLanesLoop
+  66:crypto/keccak/Keccak-avr8-util.S **** 	movw	r24, r26
+  67:crypto/keccak/Keccak-avr8-util.S **** 	ret
+  68               	
+  69               	
+  70               	
+  71               	/*
+  72               	 * const void *  xorLanes( void * dest, const void * src, unsigned char n );
+  73               	 *
+  74               	 * param dest is passed in r24:r25
+  75               	 * param src  is passed in r22:r23
+  76               	 * param n    is passed in r20		No check if n is zero
+  77               	 */
+  78               	.global xorLanes
+  79               	xorLanes:
+  80:crypto/keccak/Keccak-avr8-util.S **** 	movw	r30, r24
+  81:crypto/keccak/Keccak-avr8-util.S **** 	movw	r26, r22
+  82               	xorLanesLoop:
+  83:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  84:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  85:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  86:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  87:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  88:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  89:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  90:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  91:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  92:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  93:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  94:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  95:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+  96:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+  97:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+  98:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+  99:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+ 100:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+ 101:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+ 102:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+ 103:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+ 104:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+ 105:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+ 106:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+ 107:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+ 108:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+ 109:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+ 110:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+ 111:crypto/keccak/Keccak-avr8-util.S **** 	ld		r22, X+
+ 112:crypto/keccak/Keccak-avr8-util.S **** 	ld		r23, Z
+ 113:crypto/keccak/Keccak-avr8-util.S **** 	eor		r22, r23
+ 114:crypto/keccak/Keccak-avr8-util.S **** 	st		Z+, r22
+ 115               	
+ 116:crypto/keccak/Keccak-avr8-util.S **** 	subi	r20, 1
+ 117:crypto/keccak/Keccak-avr8-util.S **** 	brne	xorLanesLoop
+ 118:crypto/keccak/Keccak-avr8-util.S **** 	movw	r24, r26
+ 119:crypto/keccak/Keccak-avr8-util.S **** 	ret
+DEFINED SYMBOLS
+crypto/keccak/Keccak-avr8-util.S:22     .text:0000000000000000 xorBytes
+crypto/keccak/Keccak-avr8-util.S:32     .text:0000000000000010 xorBytes2
+crypto/keccak/Keccak-avr8-util.S:43     .text:0000000000000024 xorBytes4
+crypto/keccak/Keccak-avr8-util.S:64     .text:000000000000004a xorBytes8
+crypto/keccak/Keccak-avr8-util.S:82     .text:0000000000000054 xorLanesLoop
+crypto/keccak/Keccak-avr8-util.S:79     .text:0000000000000050 xorLanes
+
+NO UNDEFINED SYMBOLS
