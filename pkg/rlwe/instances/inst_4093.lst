@@ -1,0 +1,1837 @@
+   1               		.file	"inst_4093.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 439               		.section	.text.startup.main,"ax",@progbits
+ 441               	.global	main
+ 443               	main:
+   1:instances/inst_4093.c **** #include <avr/io.h> 
+   2:instances/inst_4093.c **** #include "../crypto/p4093/ksuba_4093.h"
+   3:instances/inst_4093.c **** #include "../crypto/p4096/ksuba_4096.h"
+   4:instances/inst_4093.c **** #include "../crypto/p4093/school_4093.h"
+   5:instances/inst_4093.c **** #include "../crypto/p12289/ntt_12289_512.h"
+   6:instances/inst_4093.c **** #include "../crypto/p7681/ntt_7681_256.h"
+   7:instances/inst_4093.c **** 
+   8:instances/inst_4093.c **** 
+   9:instances/inst_4093.c **** 
+  10:instances/inst_4093.c **** 
+  11:instances/inst_4093.c **** static void uart_init (void); 
+  12:instances/inst_4093.c **** static int uart_putchar(char c);
+  13:instances/inst_4093.c **** 
+  14:instances/inst_4093.c **** #define LEDPORT PORTE
+  15:instances/inst_4093.c **** volatile unsigned int counter; 
+  16:instances/inst_4093.c **** 
+  17:instances/inst_4093.c **** 
+  18:instances/inst_4093.c **** //Keys
+  19:instances/inst_4093.c **** #include "../keys/keypair_S_192_4093_8000.data"
+  20:instances/inst_4093.c **** #include "../keys/keypair_S_256_4093_8000.data"
+  21:instances/inst_4093.c **** #include "../keys/keypair_S_320_4093_8000.data"
+  22:instances/inst_4093.c **** #include "../keys/keypair_N_256_7681_1132.data"
+  23:instances/inst_4093.c **** #include "../keys/keypair_N_512_12289_1218.data"
+  24:instances/inst_4093.c **** 
+  25:instances/inst_4093.c **** int main (void)
+  26:instances/inst_4093.c **** {
+ 445               	.LM0:
+ 446               	.LFBB1:
+ 447 0000 CDB7      		in r28,__SP_L__
+ 448 0002 DEB7      		in r29,__SP_H__
+ 449 0004 C054      		subi r28,64
+ 450 0006 D840      		sbci r29,8
+ 451 0008 CDBF      		out __SP_L__,r28
+ 452 000a DEBF      		out __SP_H__,r29
+ 453               	/* prologue: function */
+ 454               	/* frame size = 2112 */
+ 455               	/* stack size = 2112 */
+ 456               	.L__stack_usage = 2112
+ 457               	.LBB7:
+ 458               	.LBB8:
+  27:instances/inst_4093.c ****   uart_init();  
+  28:instances/inst_4093.c **** 
+  29:instances/inst_4093.c ****  
+  30:instances/inst_4093.c ****   uint16_t c1[ALGOSELECT];
+  31:instances/inst_4093.c ****   uint16_t c2[ALGOSELECT];	
+  32:instances/inst_4093.c ****   uint8_t plaintext[ALGOSELECT/8];
+  33:instances/inst_4093.c **** 
+  34:instances/inst_4093.c ****   #if ALGOSELECT == 192 && ALGO == 0
+  35:instances/inst_4093.c ****     encrypt_4093(plaintext, c1, c2, pubKeyA_4093_192, pubKeyP_4093_192, 192);			
+  36:instances/inst_4093.c ****     decrypt_4093(plaintext, c1, c2, prvKeyR2_4093_192, 192);
+  37:instances/inst_4093.c ****   #endif
+  38:instances/inst_4093.c **** 
+  39:instances/inst_4093.c ****   #if ALGOSELECT == 256 && ALGO == 0
+  40:instances/inst_4093.c ****     encrypt_4093(plaintext, c1, c2, pubKeyA_4093_256, pubKeyP_4093_256, 256);			
+  41:instances/inst_4093.c ****     decrypt_4093(plaintext, c1, c2, prvKeyR2_4093_256, 256);
+  42:instances/inst_4093.c ****   #endif
+  43:instances/inst_4093.c **** 
+  44:instances/inst_4093.c ****   #if ALGOSELECT == 320 && ALGO == 0
+  45:instances/inst_4093.c ****     encrypt_4093(plaintext, c1, c2, pubKeyA_4093_320, pubKeyP_4093_320, 320);			
+  46:instances/inst_4093.c ****     decrypt_4093(plaintext, c1, c2, prvKeyR2_4093_320, 320);
+  47:instances/inst_4093.c ****   #endif
+  48:instances/inst_4093.c **** 
+  49:instances/inst_4093.c **** 
+  50:instances/inst_4093.c ****   #if ALGOSELECT == 192 && ALGO == 1
+  51:instances/inst_4093.c ****     encrypt_ksuba_4093(plaintext, c1, c2, pubKeyA_4093_192, pubKeyP_4093_192, 192);			
+  52:instances/inst_4093.c ****     decrypt_ksuba_4093(plaintext, c1, c2, prvKeyR2_4093_192, 192);
+  53:instances/inst_4093.c ****   #endif
+  54:instances/inst_4093.c **** 
+  55:instances/inst_4093.c ****   #if ALGOSELECT == 256 && ALGO == 1
+  56:instances/inst_4093.c ****     encrypt_ksuba_4093(plaintext, c1, c2, pubKeyA_4093_256, pubKeyP_4093_256, 256);			
+  57:instances/inst_4093.c ****     decrypt_ksuba_4093(plaintext, c1, c2, prvKeyR2_4093_256, 256);
+  58:instances/inst_4093.c ****   #endif
+  59:instances/inst_4093.c **** 
+  60:instances/inst_4093.c ****   #if ALGOSELECT == 320 && ALGO == 1
+  61:instances/inst_4093.c ****     encrypt_ksuba_4093(plaintext, c1, c2, pubKeyA_4093_320, pubKeyP_4093_320, 320);			
+  62:instances/inst_4093.c ****     decrypt_ksuba_4093(plaintext, c1, c2, prvKeyR2_4093_320, 320);
+  63:instances/inst_4093.c ****   #endif
+  64:instances/inst_4093.c **** 
+  65:instances/inst_4093.c ****   #if ALGOSELECT == 192 && ALGO == 5
+  66:instances/inst_4093.c ****     encrypt_ksuba_4096(plaintext, c1, c2, pubKeyA_4093_192, pubKeyP_4093_192, 192);			
+  67:instances/inst_4093.c ****     decrypt_ksuba_4096(plaintext, c1, c2, prvKeyR2_4093_192, 192);
+  68:instances/inst_4093.c ****   #endif
+  69:instances/inst_4093.c **** 
+  70:instances/inst_4093.c ****   #if ALGOSELECT == 256 && ALGO == 5
+  71:instances/inst_4093.c ****     encrypt_ksuba_4096(plaintext, c1, c2, pubKeyA_4093_256, pubKeyP_4093_256, 256);			
+  72:instances/inst_4093.c ****     decrypt_ksuba_4096(plaintext, c1, c2, prvKeyR2_4093_256, 256);
+  73:instances/inst_4093.c ****   #endif
+  74:instances/inst_4093.c **** 
+  75:instances/inst_4093.c ****   #if ALGOSELECT == 320 && ALGO == 5
+  76:instances/inst_4093.c ****     encrypt_ksuba_4096(plaintext, c1, c2, pubKeyA_4093_320, pubKeyP_4093_320, 320);			
+  77:instances/inst_4093.c ****     decrypt_ksuba_4096(plaintext, c1, c2, prvKeyR2_4093_320, 320);
+  78:instances/inst_4093.c ****   #endif
+  79:instances/inst_4093.c **** 
+  80:instances/inst_4093.c ****   #if ALGOSELECT == 256 && ALGO == 2
+  81:instances/inst_4093.c ****     encrypt_7681_256(plaintext, c1, c2, pubKeyA_7681_256, pubKeyP_7681_256);
+  82:instances/inst_4093.c ****     decrypt_7681_256(plaintext, c1, c2, prvKeyR2_7681_256);
+  83:instances/inst_4093.c ****   #endif
+  84:instances/inst_4093.c **** 
+  85:instances/inst_4093.c ****   #if ALGOSELECT == 512 && ALGO == 2
+  86:instances/inst_4093.c ****     encrypt_12289_512(plaintext, c1, c2, pubKeyA_12289_512, pubKeyP_12289_512);
+  87:instances/inst_4093.c ****     decrypt_12289_512(plaintext, c1, c2, prvKeyR2_12289_512);
+  88:instances/inst_4093.c ****   #endif
+  89:instances/inst_4093.c **** 
+  90:instances/inst_4093.c ****   #if ALGOSELECT == 256 && ALGO == 3
+  91:instances/inst_4093.c ****     enc_p7681_96m(plaintext, c1, c2, pubKeyA_7681_256, pubKeyP_7681_256);
+  92:instances/inst_4093.c ****     dec_p7681_96m(plaintext, c1, c2, prvKeyR2_7681_256);
+  93:instances/inst_4093.c ****   #endif
+  94:instances/inst_4093.c **** 
+  95:instances/inst_4093.c ****   #if ALGOSELECT == 256 && ALGO == 4
+  96:instances/inst_4093.c ****     uint8_t redundancy[16];
+  97:instances/inst_4093.c ****     uint8_t key_enc[16];
+  98:instances/inst_4093.c ****     uint8_t key_dec[16];
+  99:instances/inst_4093.c ****     kem_encapsulate(c1, c2, pubKeyA_7681_256, pubKeyP_7681_256, key_enc, redundancy); 
+ 100:instances/inst_4093.c ****     kem_decapsulate(key_dec, redundancy, c1, c2, prvKeyR2_7681_256);
+ 101:instances/inst_4093.c ****   #endif
+ 102:instances/inst_4093.c **** 
+ 103:instances/inst_4093.c **** 
+ 104:instances/inst_4093.c ****   for(uint16_t i=0; i<ALGOSELECT; i++){
+ 105:instances/inst_4093.c ****     uart_putchar(plaintext[i]);
+ 106:instances/inst_4093.c ****    }
+ 107:instances/inst_4093.c ****          
+ 108:instances/inst_4093.c **** }
+ 109:instances/inst_4093.c ****  
+ 110:instances/inst_4093.c **** 
+ 111:instances/inst_4093.c **** static int uart_putchar (char c)
+ 112:instances/inst_4093.c **** {
+ 113:instances/inst_4093.c ****  
+ 114:instances/inst_4093.c ****   // Wait for the transmit buffer to be empty
+ 115:instances/inst_4093.c ****   while ( !( USARTC0.STATUS & USART_DREIF_bm) );
+ 116:instances/inst_4093.c ****  
+ 117:instances/inst_4093.c ****   // Put our character into the transmit buffer
+ 118:instances/inst_4093.c ****   USARTC0.DATA = c; 
+ 119:instances/inst_4093.c ****  
+ 120:instances/inst_4093.c ****   return 0;
+ 121:instances/inst_4093.c **** }
+ 122:instances/inst_4093.c ****  
+ 123:instances/inst_4093.c ****  
+ 124:instances/inst_4093.c **** // Init USART.  Transmit only (we're not receiving anything)
+ 125:instances/inst_4093.c **** // We use USARTC0, transmit pin on PC3.
+ 126:instances/inst_4093.c **** // Want 9600 baud. Have a 2 MHz clock. BSCALE = 0
+ 127:instances/inst_4093.c **** // BSEL = ( 2000000 / (2^0 * 16*9600)) -1 = 12
+ 128:instances/inst_4093.c **** // Fbaud = 2000000 / (2^0 * 16 * (12+1))  = 9615 bits/sec
+ 129:instances/inst_4093.c **** static void uart_init (void)
+ 130:instances/inst_4093.c **** {
+ 131:instances/inst_4093.c ****   // Set the TxD pin high - set PORTC DIR register bit 3 to 1
+ 132:instances/inst_4093.c ****   PORTC.OUTSET = PIN3_bm;
+ 460               	.LM1:
+ 461 000c 88E0      		ldi r24,lo8(8)
+ 462 000e 8093 4506 		sts 1605,r24
+ 133:instances/inst_4093.c ****  
+ 134:instances/inst_4093.c ****   // Set the TxD pin as an output - set PORTC OUT register bit 3 to 1
+ 135:instances/inst_4093.c ****   PORTC.DIRSET = PIN3_bm;
+ 464               	.LM2:
+ 465 0012 8093 4106 		sts 1601,r24
+ 136:instances/inst_4093.c ****  
+ 137:instances/inst_4093.c ****   // Set baud rate & frame format
+ 138:instances/inst_4093.c ****   USARTC0.BAUDCTRLB = 0;// BSCALE = 0 as well
+ 467               	.LM3:
+ 468 0016 1092 A708 		sts 2215,__zero_reg__
+ 139:instances/inst_4093.c ****   USARTC0.BAUDCTRLA = 12;
+ 470               	.LM4:
+ 471 001a 9CE0      		ldi r25,lo8(12)
+ 472 001c 9093 A608 		sts 2214,r25
+ 140:instances/inst_4093.c ****  
+ 141:instances/inst_4093.c ****   // Set mode of operation
+ 142:instances/inst_4093.c ****   USARTC0.CTRLA = 0;// no interrupts please
+ 474               	.LM5:
+ 475 0020 1092 A308 		sts 2211,__zero_reg__
+ 143:instances/inst_4093.c ****   USARTC0.CTRLC = 0x03;// async, no parity, 8 bit data, 1 stop bit
+ 477               	.LM6:
+ 478 0024 93E0      		ldi r25,lo8(3)
+ 479 0026 9093 A508 		sts 2213,r25
+ 144:instances/inst_4093.c ****  
+ 145:instances/inst_4093.c ****   // Enable transmitter only
+ 146:instances/inst_4093.c ****   USARTC0.CTRLB = USART_TXEN_bm;
+ 481               	.LM7:
+ 482 002a 8093 A408 		sts 2212,r24
+ 483               	.LBE8:
+ 484               	.LBE7:
+  86:instances/inst_4093.c ****     decrypt_12289_512(plaintext, c1, c2, prvKeyR2_12289_512);
+ 486               	.LM8:
+ 487 002e 00E0      		ldi r16,lo8(pubKeyP_12289_512)
+ 488 0030 10E0      		ldi r17,hi8(pubKeyP_12289_512)
+ 489 0032 20E0      		ldi r18,lo8(pubKeyA_12289_512)
+ 490 0034 30E0      		ldi r19,hi8(pubKeyA_12289_512)
+ 491 0036 AE01      		movw r20,r28
+ 492 0038 4F5F      		subi r20,-1
+ 493 003a 5F4F      		sbci r21,-1
+ 494 003c BE01      		movw r22,r28
+ 495 003e 6F5F      		subi r22,-1
+ 496 0040 7B4F      		sbci r23,-5
+ 497 0042 CE01      		movw r24,r28
+ 498 0044 8F5F      		subi r24,-1
+ 499 0046 974F      		sbci r25,-9
+ 500 0048 0E94 0000 		call encrypt_12289_512
+  87:instances/inst_4093.c ****   #endif
+ 502               	.LM9:
+ 503 004c 20E0      		ldi r18,lo8(prvKeyR2_12289_512)
+ 504 004e 30E0      		ldi r19,hi8(prvKeyR2_12289_512)
+ 505 0050 AE01      		movw r20,r28
+ 506 0052 4F5F      		subi r20,-1
+ 507 0054 5F4F      		sbci r21,-1
+ 508 0056 BE01      		movw r22,r28
+ 509 0058 6F5F      		subi r22,-1
+ 510 005a 7B4F      		sbci r23,-5
+ 511 005c CE01      		movw r24,r28
+ 512 005e 8F5F      		subi r24,-1
+ 513 0060 974F      		sbci r25,-9
+ 514 0062 0E94 0000 		call decrypt_12289_512
+ 515 0066 FE01      		movw r30,r28
+ 516 0068 EF5F      		subi r30,-1
+ 517 006a F74F      		sbci r31,-9
+ 518 006c CE01      		movw r24,r28
+ 519 006e 8F5F      		subi r24,-1
+ 520 0070 954F      		sbci r25,-11
+ 521               	.L3:
+ 522               	.LBB9:
+ 105:instances/inst_4093.c ****    }
+ 524               	.LM10:
+ 525 0072 2191      		ld r18,Z+
+ 526               	.L2:
+ 527               	.LBB10:
+ 528               	.LBB11:
+ 115:instances/inst_4093.c ****  
+ 530               	.LM11:
+ 531 0074 3091 A108 		lds r19,2209
+ 115:instances/inst_4093.c ****  
+ 533               	.LM12:
+ 534 0078 35FF      		sbrs r19,5
+ 535 007a 00C0      		rjmp .L2
+ 118:instances/inst_4093.c ****  
+ 537               	.LM13:
+ 538 007c 2093 A008 		sts 2208,r18
+ 539               	.LBE11:
+ 540               	.LBE10:
+ 104:instances/inst_4093.c ****     uart_putchar(plaintext[i]);
+ 542               	.LM14:
+ 543 0080 E817      		cp r30,r24
+ 544 0082 F907      		cpc r31,r25
+ 545 0084 01F4      		brne .L3
+ 546               	.LBE9:
+ 108:instances/inst_4093.c ****  
+ 548               	.LM15:
+ 549 0086 90E0      		ldi r25,0
+ 550 0088 80E0      		ldi r24,0
+ 551               	/* epilogue start */
+ 552 008a C05C      		subi r28,-64
+ 553 008c D74F      		sbci r29,-9
+ 554 008e CDBF      		out __SP_L__,r28
+ 555 0090 DEBF      		out __SP_H__,r29
+ 556 0092 0895      		ret
+ 563               	.Lscope1:
+ 564               		.section	.progmem.data.pubKeyA_12289_512,"a"
+ 567               	pubKeyA_12289_512:
+ 568 0000 EE2A      		.word	10990
+ 569 0002 6115      		.word	5473
+ 570 0004 372F      		.word	12087
+ 571 0006 5D0A      		.word	2653
+ 572 0008 7E02      		.word	638
+ 573 000a E308      		.word	2275
+ 574 000c 4204      		.word	1090
+ 575 000e 0E01      		.word	270
+ 576 0010 220D      		.word	3362
+ 577 0012 DE06      		.word	1758
+ 578 0014 0D1F      		.word	7949
+ 579 0016 5F27      		.word	10079
+ 580 0018 5D1F      		.word	8029
+ 581 001a 1726      		.word	9751
+ 582 001c 8B1B      		.word	7051
+ 583 001e C306      		.word	1731
+ 584 0020 C919      		.word	6601
+ 585 0022 911D      		.word	7569
+ 586 0024 5711      		.word	4439
+ 587 0026 0A2E      		.word	11786
+ 588 0028 3629      		.word	10550
+ 589 002a DC2D      		.word	11740
+ 590 002c 712F      		.word	12145
+ 591 002e FE05      		.word	1534
+ 592 0030 FE2C      		.word	11518
+ 593 0032 4103      		.word	833
+ 594 0034 C60C      		.word	3270
+ 595 0036 5307      		.word	1875
+ 596 0038 9811      		.word	4504
+ 597 003a FA2B      		.word	11258
+ 598 003c 8A0B      		.word	2954
+ 599 003e A603      		.word	934
+ 600 0040 7522      		.word	8821
+ 601 0042 1A04      		.word	1050
+ 602 0044 6A1D      		.word	7530
+ 603 0046 A50C      		.word	3237
+ 604 0048 4807      		.word	1864
+ 605 004a CF25      		.word	9679
+ 606 004c C117      		.word	6081
+ 607 004e 4326      		.word	9795
+ 608 0050 7F07      		.word	1919
+ 609 0052 D32A      		.word	10963
+ 610 0054 5E0D      		.word	3422
+ 611 0056 990D      		.word	3481
+ 612 0058 932F      		.word	12179
+ 613 005a E225      		.word	9698
+ 614 005c CA26      		.word	9930
+ 615 005e F12A      		.word	10993
+ 616 0060 0010      		.word	4096
+ 617 0062 E40A      		.word	2788
+ 618 0064 C210      		.word	4290
+ 619 0066 6508      		.word	2149
+ 620 0068 E91C      		.word	7401
+ 621 006a 0A22      		.word	8714
+ 622 006c F923      		.word	9209
+ 623 006e 171D      		.word	7447
+ 624 0070 3B23      		.word	9019
+ 625 0072 A016      		.word	5792
+ 626 0074 6A2E      		.word	11882
+ 627 0076 AF20      		.word	8367
+ 628 0078 222E      		.word	11810
+ 629 007a D109      		.word	2513
+ 630 007c 5A1B      		.word	7002
+ 631 007e 4000      		.word	64
+ 632 0080 A20F      		.word	4002
+ 633 0082 4722      		.word	8775
+ 634 0084 6712      		.word	4711
+ 635 0086 B916      		.word	5817
+ 636 0088 7302      		.word	627
+ 637 008a 482B      		.word	11080
+ 638 008c C81D      		.word	7624
+ 639 008e FC12      		.word	4860
+ 640 0090 370F      		.word	3895
+ 641 0092 B80D      		.word	3512
+ 642 0094 550D      		.word	3413
+ 643 0096 DA1A      		.word	6874
+ 644 0098 3926      		.word	9785
+ 645 009a AE10      		.word	4270
+ 646 009c CC04      		.word	1228
+ 647 009e AE07      		.word	1966
+ 648 00a0 FB00      		.word	251
+ 649 00a2 481C      		.word	7240
+ 650 00a4 E51A      		.word	6885
+ 651 00a6 3814      		.word	5176
+ 652 00a8 1320      		.word	8211
+ 653 00aa 8625      		.word	9606
+ 654 00ac F126      		.word	9969
+ 655 00ae 6926      		.word	9833
+ 656 00b0 7502      		.word	629
+ 657 00b2 EB13      		.word	5099
+ 658 00b4 A00A      		.word	2720
+ 659 00b6 F30B      		.word	3059
+ 660 00b8 B91D      		.word	7609
+ 661 00ba 0913      		.word	4873
+ 662 00bc 0209      		.word	2306
+ 663 00be E01E      		.word	7904
+ 664 00c0 FC1F      		.word	8188
+ 665 00c2 7716      		.word	5751
+ 666 00c4 C01F      		.word	8128
+ 667 00c6 1F0A      		.word	2591
+ 668 00c8 771E      		.word	7799
+ 669 00ca 9107      		.word	1937
+ 670 00cc 2221      		.word	8482
+ 671 00ce 2128      		.word	10273
+ 672 00d0 541F      		.word	8020
+ 673 00d2 4922      		.word	8777
+ 674 00d4 1415      		.word	5396
+ 675 00d6 B205      		.word	1458
+ 676 00d8 1D28      		.word	10269
+ 677 00da 6505      		.word	1381
+ 678 00dc 6900      		.word	105
+ 679 00de 0526      		.word	9733
+ 680 00e0 1C00      		.word	28
+ 681 00e2 EE2C      		.word	11502
+ 682 00e4 1810      		.word	4120
+ 683 00e6 9608      		.word	2198
+ 684 00e8 C92B      		.word	11209
+ 685 00ea B901      		.word	441
+ 686 00ec 5B06      		.word	1627
+ 687 00ee CA29      		.word	10698
+ 688 00f0 2422      		.word	8740
+ 689 00f2 C71F      		.word	8135
+ 690 00f4 A007      		.word	1952
+ 691 00f6 6213      		.word	4962
+ 692 00f8 C427      		.word	10180
+ 693 00fa 2E21      		.word	8494
+ 694 00fc 3504      		.word	1077
+ 695 00fe 8218      		.word	6274
+ 696 0100 572F      		.word	12119
+ 697 0102 A703      		.word	935
+ 698 0104 4223      		.word	9026
+ 699 0106 0D09      		.word	2317
+ 700 0108 CA1B      		.word	7114
+ 701 010a 601C      		.word	7264
+ 702 010c BE1E      		.word	7870
+ 703 010e 7F01      		.word	383
+ 704 0110 6A00      		.word	106
+ 705 0112 7F23      		.word	9087
+ 706 0114 5313      		.word	4947
+ 707 0116 F619      		.word	6646
+ 708 0118 142B      		.word	11028
+ 709 011a 990A      		.word	2713
+ 710 011c 8C1F      		.word	8076
+ 711 011e F624      		.word	9462
+ 712 0120 6B27      		.word	10091
+ 713 0122 DD28      		.word	10461
+ 714 0124 5A15      		.word	5466
+ 715 0126 1201      		.word	274
+ 716 0128 D907      		.word	2009
+ 717 012a 2027      		.word	10016
+ 718 012c 7A0C      		.word	3194
+ 719 012e 631F      		.word	8035
+ 720 0130 F40E      		.word	3828
+ 721 0132 D02E      		.word	11984
+ 722 0134 3B04      		.word	1083
+ 723 0136 9C29      		.word	10652
+ 724 0138 7108      		.word	2161
+ 725 013a F522      		.word	8949
+ 726 013c 0E2A      		.word	10766
+ 727 013e 6B2F      		.word	12139
+ 728 0140 531C      		.word	7251
+ 729 0142 1A1E      		.word	7706
+ 730 0144 AC0C      		.word	3244
+ 731 0146 662F      		.word	12134
+ 732 0148 1906      		.word	1561
+ 733 014a 281C      		.word	7208
+ 734 014c C508      		.word	2245
+ 735 014e 0A07      		.word	1802
+ 736 0150 C11B      		.word	7105
+ 737 0152 D613      		.word	5078
+ 738 0154 D21D      		.word	7634
+ 739 0156 490A      		.word	2633
+ 740 0158 1E01      		.word	286
+ 741 015a 3112      		.word	4657
+ 742 015c 5606      		.word	1622
+ 743 015e 962E      		.word	11926
+ 744 0160 072F      		.word	12039
+ 745 0162 3320      		.word	8243
+ 746 0164 6025      		.word	9568
+ 747 0166 E604      		.word	1254
+ 748 0168 711B      		.word	7025
+ 749 016a 3005      		.word	1328
+ 750 016c 6A0A      		.word	2666
+ 751 016e 8001      		.word	384
+ 752 0170 6A25      		.word	9578
+ 753 0172 981F      		.word	8088
+ 754 0174 3506      		.word	1589
+ 755 0176 7611      		.word	4470
+ 756 0178 6C22      		.word	8812
+ 757 017a 750B      		.word	2933
+ 758 017c A62F      		.word	12198
+ 759 017e BE12      		.word	4798
+ 760 0180 B42C      		.word	11444
+ 761 0182 D60B      		.word	3030
+ 762 0184 C611      		.word	4550
+ 763 0186 CE14      		.word	5326
+ 764 0188 160F      		.word	3862
+ 765 018a 2F13      		.word	4911
+ 766 018c 7704      		.word	1143
+ 767 018e D509      		.word	2517
+ 768 0190 B320      		.word	8371
+ 769 0192 B72A      		.word	10935
+ 770 0194 4917      		.word	5961
+ 771 0196 3B23      		.word	9019
+ 772 0198 9010      		.word	4240
+ 773 019a 7F1F      		.word	8063
+ 774 019c B012      		.word	4784
+ 775 019e 3908      		.word	2105
+ 776 01a0 790F      		.word	3961
+ 777 01a2 7710      		.word	4215
+ 778 01a4 961B      		.word	7062
+ 779 01a6 CD1A      		.word	6861
+ 780 01a8 B210      		.word	4274
+ 781 01aa 061C      		.word	7174
+ 782 01ac DC2B      		.word	11228
+ 783 01ae CC03      		.word	972
+ 784 01b0 4007      		.word	1856
+ 785 01b2 5F21      		.word	8543
+ 786 01b4 6912      		.word	4713
+ 787 01b6 070A      		.word	2567
+ 788 01b8 082C      		.word	11272
+ 789 01ba E108      		.word	2273
+ 790 01bc 312E      		.word	11825
+ 791 01be D415      		.word	5588
+ 792 01c0 9F1A      		.word	6815
+ 793 01c2 1A0F      		.word	3866
+ 794 01c4 951F      		.word	8085
+ 795 01c6 F517      		.word	6133
+ 796 01c8 741C      		.word	7284
+ 797 01ca 8220      		.word	8322
+ 798 01cc CF16      		.word	5839
+ 799 01ce D005      		.word	1488
+ 800 01d0 4C2C      		.word	11340
+ 801 01d2 8C1B      		.word	7052
+ 802 01d4 D90A      		.word	2777
+ 803 01d6 1D13      		.word	4893
+ 804 01d8 7D13      		.word	4989
+ 805 01da 0702      		.word	519
+ 806 01dc 0219      		.word	6402
+ 807 01de E224      		.word	9442
+ 808 01e0 2C2E      		.word	11820
+ 809 01e2 0B2A      		.word	10763
+ 810 01e4 6D26      		.word	9837
+ 811 01e6 CB2C      		.word	11467
+ 812 01e8 5006      		.word	1616
+ 813 01ea 0B07      		.word	1803
+ 814 01ec 8929      		.word	10633
+ 815 01ee 120E      		.word	3602
+ 816 01f0 6320      		.word	8291
+ 817 01f2 8A2E      		.word	11914
+ 818 01f4 720E      		.word	3698
+ 819 01f6 0F0A      		.word	2575
+ 820 01f8 C214      		.word	5314
+ 821 01fa B914      		.word	5305
+ 822 01fc 0417      		.word	5892
+ 823 01fe 5228      		.word	10322
+ 824 0200 2726      		.word	9767
+ 825 0202 4023      		.word	9024
+ 826 0204 1D2A      		.word	10781
+ 827 0206 4426      		.word	9796
+ 828 0208 DF12      		.word	4831
+ 829 020a CA1E      		.word	7882
+ 830 020c F42A      		.word	10996
+ 831 020e 8A1F      		.word	8074
+ 832 0210 BB04      		.word	1211
+ 833 0212 4D24      		.word	9293
+ 834 0214 8F15      		.word	5519
+ 835 0216 1C10      		.word	4124
+ 836 0218 7326      		.word	9843
+ 837 021a 560E      		.word	3670
+ 838 021c 8327      		.word	10115
+ 839 021e 9019      		.word	6544
+ 840 0220 AE2F      		.word	12206
+ 841 0222 2628      		.word	10278
+ 842 0224 2C0E      		.word	3628
+ 843 0226 6221      		.word	8546
+ 844 0228 B411      		.word	4532
+ 845 022a E020      		.word	8416
+ 846 022c D522      		.word	8917
+ 847 022e E614      		.word	5350
+ 848 0230 BF01      		.word	447
+ 849 0232 5B08      		.word	2139
+ 850 0234 5F2B      		.word	11103
+ 851 0236 8B0A      		.word	2699
+ 852 0238 CD03      		.word	973
+ 853 023a 8201      		.word	386
+ 854 023c E21B      		.word	7138
+ 855 023e 050D      		.word	3333
+ 856 0240 0A0C      		.word	3082
+ 857 0242 A117      		.word	6049
+ 858 0244 7701      		.word	375
+ 859 0246 AC1E      		.word	7852
+ 860 0248 6425      		.word	9572
+ 861 024a 5307      		.word	1875
+ 862 024c 9D29      		.word	10653
+ 863 024e DF0E      		.word	3807
+ 864 0250 180A      		.word	2584
+ 865 0252 6D15      		.word	5485
+ 866 0254 F70B      		.word	3063
+ 867 0256 9221      		.word	8594
+ 868 0258 7A1D      		.word	7546
+ 869 025a 4614      		.word	5190
+ 870 025c 3920      		.word	8249
+ 871 025e 9D02      		.word	669
+ 872 0260 5F07      		.word	1887
+ 873 0262 6A26      		.word	9834
+ 874 0264 FD19      		.word	6653
+ 875 0266 562D      		.word	11606
+ 876 0268 0314      		.word	5123
+ 877 026a 7605      		.word	1398
+ 878 026c DB0A      		.word	2779
+ 879 026e C806      		.word	1736
+ 880 0270 D209      		.word	2514
+ 881 0272 7304      		.word	1139
+ 882 0274 D806      		.word	1752
+ 883 0276 4616      		.word	5702
+ 884 0278 D22A      		.word	10962
+ 885 027a 5B15      		.word	5467
+ 886 027c 011C      		.word	7169
+ 887 027e FE2D      		.word	11774
+ 888 0280 CA06      		.word	1738
+ 889 0282 8524      		.word	9349
+ 890 0284 C516      		.word	5829
+ 891 0286 7809      		.word	2424
+ 892 0288 8801      		.word	392
+ 893 028a CE12      		.word	4814
+ 894 028c 7113      		.word	4977
+ 895 028e B31C      		.word	7347
+ 896 0290 1600      		.word	22
+ 897 0292 0123      		.word	8961
+ 898 0294 D40A      		.word	2772
+ 899 0296 0408      		.word	2052
+ 900 0298 9513      		.word	5013
+ 901 029a A303      		.word	931
+ 902 029c 8B2F      		.word	12171
+ 903 029e FD05      		.word	1533
+ 904 02a0 DE12      		.word	4830
+ 905 02a2 ED02      		.word	749
+ 906 02a4 5F04      		.word	1119
+ 907 02a6 A729      		.word	10663
+ 908 02a8 0405      		.word	1284
+ 909 02aa 7E1B      		.word	7038
+ 910 02ac 301C      		.word	7216
+ 911 02ae 0009      		.word	2304
+ 912 02b0 CB0D      		.word	3531
+ 913 02b2 D910      		.word	4313
+ 914 02b4 AC27      		.word	10156
+ 915 02b6 8504      		.word	1157
+ 916 02b8 A00E      		.word	3744
+ 917 02ba B82F      		.word	12216
+ 918 02bc 5A14      		.word	5210
+ 919 02be 9018      		.word	6288
+ 920 02c0 1508      		.word	2069
+ 921 02c2 0F2A      		.word	10767
+ 922 02c4 8A26      		.word	9866
+ 923 02c6 142A      		.word	10772
+ 924 02c8 F90B      		.word	3065
+ 925 02ca 121C      		.word	7186
+ 926 02cc 2A24      		.word	9258
+ 927 02ce 7D0A      		.word	2685
+ 928 02d0 6B16      		.word	5739
+ 929 02d2 7C11      		.word	4476
+ 930 02d4 D502      		.word	725
+ 931 02d6 D811      		.word	4568
+ 932 02d8 811B      		.word	7041
+ 933 02da 322B      		.word	11058
+ 934 02dc A214      		.word	5282
+ 935 02de D81F      		.word	8152
+ 936 02e0 0C15      		.word	5388
+ 937 02e2 DD1B      		.word	7133
+ 938 02e4 8702      		.word	647
+ 939 02e6 032A      		.word	10755
+ 940 02e8 9E2C      		.word	11422
+ 941 02ea 862B      		.word	11142
+ 942 02ec 5409      		.word	2388
+ 943 02ee 5D26      		.word	9821
+ 944 02f0 1005      		.word	1296
+ 945 02f2 F60D      		.word	3574
+ 946 02f4 1F28      		.word	10271
+ 947 02f6 CF2E      		.word	11983
+ 948 02f8 F70A      		.word	2807
+ 949 02fa F127      		.word	10225
+ 950 02fc E215      		.word	5602
+ 951 02fe 832F      		.word	12163
+ 952 0300 822C      		.word	11394
+ 953 0302 8E0C      		.word	3214
+ 954 0304 4411      		.word	4420
+ 955 0306 DB16      		.word	5851
+ 956 0308 F310      		.word	4339
+ 957 030a 7B1C      		.word	7291
+ 958 030c 5B20      		.word	8283
+ 959 030e CF0D      		.word	3535
+ 960 0310 092A      		.word	10761
+ 961 0312 212C      		.word	11297
+ 962 0314 DD0B      		.word	3037
+ 963 0316 E424      		.word	9444
+ 964 0318 C42B      		.word	11204
+ 965 031a E326      		.word	9955
+ 966 031c 8205      		.word	1410
+ 967 031e 0008      		.word	2048
+ 968 0320 641F      		.word	8036
+ 969 0322 261A      		.word	6694
+ 970 0324 0C09      		.word	2316
+ 971 0326 3409      		.word	2356
+ 972 0328 3415      		.word	5428
+ 973 032a 8A2C      		.word	11402
+ 974 032c 372C      		.word	11319
+ 975 032e 3D28      		.word	10301
+ 976 0330 9815      		.word	5528
+ 977 0332 F114      		.word	5361
+ 978 0334 9C0E      		.word	3740
+ 979 0336 A31A      		.word	6819
+ 980 0338 EB21      		.word	8683
+ 981 033a BE0A      		.word	2750
+ 982 033c 8128      		.word	10369
+ 983 033e F715      		.word	5623
+ 984 0340 8E0D      		.word	3470
+ 985 0342 9F24      		.word	9375
+ 986 0344 720C      		.word	3186
+ 987 0346 3B1F      		.word	7995
+ 988 0348 C01B      		.word	7104
+ 989 034a 452E      		.word	11845
+ 990 034c AD07      		.word	1965
+ 991 034e 3D23      		.word	9021
+ 992 0350 C128      		.word	10433
+ 993 0352 5125      		.word	9553
+ 994 0354 A816      		.word	5800
+ 995 0356 3100      		.word	49
+ 996 0358 7A0E      		.word	3706
+ 997 035a 6D1F      		.word	8045
+ 998 035c 1919      		.word	6425
+ 999 035e 590A      		.word	2649
+ 1000 0360 9B17      		.word	6043
+ 1001 0362 C508      		.word	2245
+ 1002 0364 C916      		.word	5833
+ 1003 0366 EC1F      		.word	8172
+ 1004 0368 2F0A      		.word	2607
+ 1005 036a CB25      		.word	9675
+ 1006 036c 2001      		.word	288
+ 1007 036e 8323      		.word	9091
+ 1008 0370 9A0D      		.word	3482
+ 1009 0372 8402      		.word	644
+ 1010 0374 6F06      		.word	1647
+ 1011 0376 0D17      		.word	5901
+ 1012 0378 462A      		.word	10822
+ 1013 037a C81F      		.word	8136
+ 1014 037c BD07      		.word	1981
+ 1015 037e 142B      		.word	11028
+ 1016 0380 7524      		.word	9333
+ 1017 0382 4B0F      		.word	3915
+ 1018 0384 1D28      		.word	10269
+ 1019 0386 0E0F      		.word	3854
+ 1020 0388 A91C      		.word	7337
+ 1021 038a B92C      		.word	11449
+ 1022 038c A221      		.word	8610
+ 1023 038e 0A28      		.word	10250
+ 1024 0390 560D      		.word	3414
+ 1025 0392 4008      		.word	2112
+ 1026 0394 0D0B      		.word	2829
+ 1027 0396 EF08      		.word	2287
+ 1028 0398 3917      		.word	5945
+ 1029 039a 0704      		.word	1031
+ 1030 039c A70E      		.word	3751
+ 1031 039e 0419      		.word	6404
+ 1032 03a0 1106      		.word	1553
+ 1033 03a2 7008      		.word	2160
+ 1034 03a4 2405      		.word	1316
+ 1035 03a6 8E16      		.word	5774
+ 1036 03a8 A40A      		.word	2724
+ 1037 03aa 472B      		.word	11079
+ 1038 03ac E626      		.word	9958
+ 1039 03ae 4608      		.word	2118
+ 1040 03b0 A112      		.word	4769
+ 1041 03b2 830F      		.word	3971
+ 1042 03b4 8109      		.word	2433
+ 1043 03b6 C52F      		.word	12229
+ 1044 03b8 4C0B      		.word	2892
+ 1045 03ba 660C      		.word	3174
+ 1046 03bc C620      		.word	8390
+ 1047 03be 1E2B      		.word	11038
+ 1048 03c0 ED23      		.word	9197
+ 1049 03c2 B503      		.word	949
+ 1050 03c4 0A11      		.word	4362
+ 1051 03c6 B629      		.word	10678
+ 1052 03c8 C30F      		.word	4035
+ 1053 03ca 0913      		.word	4873
+ 1054 03cc 8624      		.word	9350
+ 1055 03ce 7A13      		.word	4986
+ 1056 03d0 5803      		.word	856
+ 1057 03d2 1D10      		.word	4125
+ 1058 03d4 4429      		.word	10564
+ 1059 03d6 901C      		.word	7312
+ 1060 03d8 0003      		.word	768
+ 1061 03da DD10      		.word	4317
+ 1062 03dc 8D10      		.word	4237
+ 1063 03de 1F14      		.word	5151
+ 1064 03e0 052E      		.word	11781
+ 1065 03e2 4D0F      		.word	3917
+ 1066 03e4 E800      		.word	232
+ 1067 03e6 4E27      		.word	10062
+ 1068 03e8 CD16      		.word	5837
+ 1069 03ea 540B      		.word	2900
+ 1070 03ec 322A      		.word	10802
+ 1071 03ee 3923      		.word	9017
+ 1072 03f0 5521      		.word	8533
+ 1073 03f2 EA13      		.word	5098
+ 1074 03f4 3A11      		.word	4410
+ 1075 03f6 352A      		.word	10805
+ 1076 03f8 180E      		.word	3608
+ 1077 03fa 7D0F      		.word	3965
+ 1078 03fc 2A22      		.word	8746
+ 1079 03fe 5A1D      		.word	7514
+ 1081               		.section	.progmem.data.pubKeyP_12289_512,"a"
+ 1084               	pubKeyP_12289_512:
+ 1085 0000 F01A      		.word	6896
+ 1086 0002 8D20      		.word	8333
+ 1087 0004 3E1C      		.word	7230
+ 1088 0006 5A2C      		.word	11354
+ 1089 0008 9D14      		.word	5277
+ 1090 000a D110      		.word	4305
+ 1091 000c F62C      		.word	11510
+ 1092 000e 2F22      		.word	8751
+ 1093 0010 7C0A      		.word	2684
+ 1094 0012 FE0C      		.word	3326
+ 1095 0014 9E21      		.word	8606
+ 1096 0016 3F27      		.word	10047
+ 1097 0018 E81F      		.word	8168
+ 1098 001a 440A      		.word	2628
+ 1099 001c 6C2C      		.word	11372
+ 1100 001e 1E26      		.word	9758
+ 1101 0020 BF04      		.word	1215
+ 1102 0022 7B01      		.word	379
+ 1103 0024 B20A      		.word	2738
+ 1104 0026 2B01      		.word	299
+ 1105 0028 6B28      		.word	10347
+ 1106 002a 6E13      		.word	4974
+ 1107 002c 4F0C      		.word	3151
+ 1108 002e B109      		.word	2481
+ 1109 0030 0A2E      		.word	11786
+ 1110 0032 D208      		.word	2258
+ 1111 0034 F024      		.word	9456
+ 1112 0036 3B0B      		.word	2875
+ 1113 0038 5418      		.word	6228
+ 1114 003a 5C12      		.word	4700
+ 1115 003c 781B      		.word	7032
+ 1116 003e 330E      		.word	3635
+ 1117 0040 DF29      		.word	10719
+ 1118 0042 D714      		.word	5335
+ 1119 0044 C011      		.word	4544
+ 1120 0046 B912      		.word	4793
+ 1121 0048 AE1E      		.word	7854
+ 1122 004a 281F      		.word	7976
+ 1123 004c 4F22      		.word	8783
+ 1124 004e 1A1C      		.word	7194
+ 1125 0050 A905      		.word	1449
+ 1126 0052 AA0E      		.word	3754
+ 1127 0054 FD09      		.word	2557
+ 1128 0056 5E04      		.word	1118
+ 1129 0058 3316      		.word	5683
+ 1130 005a A503      		.word	933
+ 1131 005c 6C27      		.word	10092
+ 1132 005e 5906      		.word	1625
+ 1133 0060 2B1E      		.word	7723
+ 1134 0062 1801      		.word	280
+ 1135 0064 1D01      		.word	285
+ 1136 0066 152D      		.word	11541
+ 1137 0068 E00C      		.word	3296
+ 1138 006a 311C      		.word	7217
+ 1139 006c F113      		.word	5105
+ 1140 006e F81C      		.word	7416
+ 1141 0070 AF06      		.word	1711
+ 1142 0072 701D      		.word	7536
+ 1143 0074 0C1B      		.word	6924
+ 1144 0076 5D2D      		.word	11613
+ 1145 0078 3718      		.word	6199
+ 1146 007a 9E12      		.word	4766
+ 1147 007c EE02      		.word	750
+ 1148 007e B71A      		.word	6839
+ 1149 0080 8E1C      		.word	7310
+ 1150 0082 7827      		.word	10104
+ 1151 0084 DC25      		.word	9692
+ 1152 0086 FE25      		.word	9726
+ 1153 0088 5216      		.word	5714
+ 1154 008a BC2E      		.word	11964
+ 1155 008c 3D06      		.word	1597
+ 1156 008e 4F20      		.word	8271
+ 1157 0090 600C      		.word	3168
+ 1158 0092 B703      		.word	951
+ 1159 0094 8D25      		.word	9613
+ 1160 0096 F11A      		.word	6897
+ 1161 0098 F90C      		.word	3321
+ 1162 009a F506      		.word	1781
+ 1163 009c 3414      		.word	5172
+ 1164 009e 262B      		.word	11046
+ 1165 00a0 262D      		.word	11558
+ 1166 00a2 E604      		.word	1254
+ 1167 00a4 C90E      		.word	3785
+ 1168 00a6 5218      		.word	6226
+ 1169 00a8 202A      		.word	10784
+ 1170 00aa 1A2F      		.word	12058
+ 1171 00ac E410      		.word	4324
+ 1172 00ae 4F0A      		.word	2639
+ 1173 00b0 F327      		.word	10227
+ 1174 00b2 4F2D      		.word	11599
+ 1175 00b4 6128      		.word	10337
+ 1176 00b6 D413      		.word	5076
+ 1177 00b8 8B21      		.word	8587
+ 1178 00ba D325      		.word	9683
+ 1179 00bc 5027      		.word	10064
+ 1180 00be E91C      		.word	7401
+ 1181 00c0 B828      		.word	10424
+ 1182 00c2 402F      		.word	12096
+ 1183 00c4 DC09      		.word	2524
+ 1184 00c6 CE1B      		.word	7118
+ 1185 00c8 E414      		.word	5348
+ 1186 00ca 5F19      		.word	6495
+ 1187 00cc 3109      		.word	2353
+ 1188 00ce DF11      		.word	4575
+ 1189 00d0 6F17      		.word	5999
+ 1190 00d2 4724      		.word	9287
+ 1191 00d4 BC25      		.word	9660
+ 1192 00d6 2B14      		.word	5163
+ 1193 00d8 131D      		.word	7443
+ 1194 00da 5F05      		.word	1375
+ 1195 00dc C226      		.word	9922
+ 1196 00de 2724      		.word	9255
+ 1197 00e0 E01E      		.word	7904
+ 1198 00e2 F029      		.word	10736
+ 1199 00e4 6217      		.word	5986
+ 1200 00e6 372D      		.word	11575
+ 1201 00e8 8019      		.word	6528
+ 1202 00ea BF11      		.word	4543
+ 1203 00ec 9922      		.word	8857
+ 1204 00ee A503      		.word	933
+ 1205 00f0 D50A      		.word	2773
+ 1206 00f2 D70E      		.word	3799
+ 1207 00f4 500D      		.word	3408
+ 1208 00f6 650E      		.word	3685
+ 1209 00f8 5829      		.word	10584
+ 1210 00fa 5C06      		.word	1628
+ 1211 00fc A200      		.word	162
+ 1212 00fe 9113      		.word	5009
+ 1213 0100 510F      		.word	3921
+ 1214 0102 0C17      		.word	5900
+ 1215 0104 A31D      		.word	7587
+ 1216 0106 1425      		.word	9492
+ 1217 0108 1E0E      		.word	3614
+ 1218 010a 7F1F      		.word	8063
+ 1219 010c FB1F      		.word	8187
+ 1220 010e F42F      		.word	12276
+ 1221 0110 0310      		.word	4099
+ 1222 0112 AA03      		.word	938
+ 1223 0114 E516      		.word	5861
+ 1224 0116 1A1C      		.word	7194
+ 1225 0118 6118      		.word	6241
+ 1226 011a D418      		.word	6356
+ 1227 011c 050C      		.word	3077
+ 1228 011e 7306      		.word	1651
+ 1229 0120 D20F      		.word	4050
+ 1230 0122 3A11      		.word	4410
+ 1231 0124 5418      		.word	6228
+ 1232 0126 410F      		.word	3905
+ 1233 0128 110D      		.word	3345
+ 1234 012a 792C      		.word	11385
+ 1235 012c E012      		.word	4832
+ 1236 012e 6404      		.word	1124
+ 1237 0130 3F28      		.word	10303
+ 1238 0132 7025      		.word	9584
+ 1239 0134 DB08      		.word	2267
+ 1240 0136 EF17      		.word	6127
+ 1241 0138 C71A      		.word	6855
+ 1242 013a 0719      		.word	6407
+ 1243 013c EB2E      		.word	12011
+ 1244 013e 892A      		.word	10889
+ 1245 0140 6202      		.word	610
+ 1246 0142 3C27      		.word	10044
+ 1247 0144 F028      		.word	10480
+ 1248 0146 C92E      		.word	11977
+ 1249 0148 4626      		.word	9798
+ 1250 014a 5710      		.word	4183
+ 1251 014c 0521      		.word	8453
+ 1252 014e 330D      		.word	3379
+ 1253 0150 5F19      		.word	6495
+ 1254 0152 D525      		.word	9685
+ 1255 0154 620A      		.word	2658
+ 1256 0156 AA1A      		.word	6826
+ 1257 0158 EF0E      		.word	3823
+ 1258 015a 2C1B      		.word	6956
+ 1259 015c 792C      		.word	11385
+ 1260 015e 4725      		.word	9543
+ 1261 0160 2E09      		.word	2350
+ 1262 0162 D102      		.word	721
+ 1263 0164 E32A      		.word	10979
+ 1264 0166 4303      		.word	835
+ 1265 0168 E122      		.word	8929
+ 1266 016a E012      		.word	4832
+ 1267 016c 9417      		.word	6036
+ 1268 016e C028      		.word	10432
+ 1269 0170 E610      		.word	4326
+ 1270 0172 3B0E      		.word	3643
+ 1271 0174 B92A      		.word	10937
+ 1272 0176 0512      		.word	4613
+ 1273 0178 E811      		.word	4584
+ 1274 017a F428      		.word	10484
+ 1275 017c C604      		.word	1222
+ 1276 017e 4012      		.word	4672
+ 1277 0180 210C      		.word	3105
+ 1278 0182 F207      		.word	2034
+ 1279 0184 5223      		.word	9042
+ 1280 0186 F311      		.word	4595
+ 1281 0188 EC1A      		.word	6892
+ 1282 018a 182A      		.word	10776
+ 1283 018c E802      		.word	744
+ 1284 018e AE0F      		.word	4014
+ 1285 0190 461A      		.word	6726
+ 1286 0192 4C1A      		.word	6732
+ 1287 0194 5D22      		.word	8797
+ 1288 0196 641D      		.word	7524
+ 1289 0198 4F2E      		.word	11855
+ 1290 019a 6A08      		.word	2154
+ 1291 019c 9324      		.word	9363
+ 1292 019e 8E04      		.word	1166
+ 1293 01a0 9308      		.word	2195
+ 1294 01a2 DA2B      		.word	11226
+ 1295 01a4 0B1A      		.word	6667
+ 1296 01a6 3502      		.word	565
+ 1297 01a8 E22B      		.word	11234
+ 1298 01aa D92F      		.word	12249
+ 1299 01ac 2713      		.word	4903
+ 1300 01ae B112      		.word	4785
+ 1301 01b0 DC0F      		.word	4060
+ 1302 01b2 232A      		.word	10787
+ 1303 01b4 E51D      		.word	7653
+ 1304 01b6 7924      		.word	9337
+ 1305 01b8 880A      		.word	2696
+ 1306 01ba 331F      		.word	7987
+ 1307 01bc C32E      		.word	11971
+ 1308 01be DF17      		.word	6111
+ 1309 01c0 A413      		.word	5028
+ 1310 01c2 4A0B      		.word	2890
+ 1311 01c4 990C      		.word	3225
+ 1312 01c6 9E2A      		.word	10910
+ 1313 01c8 1A06      		.word	1562
+ 1314 01ca BE02      		.word	702
+ 1315 01cc EE28      		.word	10478
+ 1316 01ce D513      		.word	5077
+ 1317 01d0 062A      		.word	10758
+ 1318 01d2 4B22      		.word	8779
+ 1319 01d4 BC1B      		.word	7100
+ 1320 01d6 DA27      		.word	10202
+ 1321 01d8 F729      		.word	10743
+ 1322 01da 7C05      		.word	1404
+ 1323 01dc 1D03      		.word	797
+ 1324 01de 4722      		.word	8775
+ 1325 01e0 E703      		.word	999
+ 1326 01e2 D324      		.word	9427
+ 1327 01e4 0B25      		.word	9483
+ 1328 01e6 6207      		.word	1890
+ 1329 01e8 EA25      		.word	9706
+ 1330 01ea CA2E      		.word	11978
+ 1331 01ec D020      		.word	8400
+ 1332 01ee D02A      		.word	10960
+ 1333 01f0 391C      		.word	7225
+ 1334 01f2 8C15      		.word	5516
+ 1335 01f4 DC1A      		.word	6876
+ 1336 01f6 9806      		.word	1688
+ 1337 01f8 EC01      		.word	492
+ 1338 01fa 9427      		.word	10132
+ 1339 01fc 2822      		.word	8744
+ 1340 01fe A329      		.word	10659
+ 1341 0200 8111      		.word	4481
+ 1342 0202 812C      		.word	11393
+ 1343 0204 6011      		.word	4448
+ 1344 0206 2B22      		.word	8747
+ 1345 0208 0D21      		.word	8461
+ 1346 020a 612F      		.word	12129
+ 1347 020c CB16      		.word	5835
+ 1348 020e FC26      		.word	9980
+ 1349 0210 970D      		.word	3479
+ 1350 0212 A528      		.word	10405
+ 1351 0214 A918      		.word	6313
+ 1352 0216 6621      		.word	8550
+ 1353 0218 6402      		.word	612
+ 1354 021a 9713      		.word	5015
+ 1355 021c 6928      		.word	10345
+ 1356 021e C01F      		.word	8128
+ 1357 0220 2222      		.word	8738
+ 1358 0222 DA0D      		.word	3546
+ 1359 0224 B72E      		.word	11959
+ 1360 0226 AE0F      		.word	4014
+ 1361 0228 4618      		.word	6214
+ 1362 022a C900      		.word	201
+ 1363 022c 7801      		.word	376
+ 1364 022e 4207      		.word	1858
+ 1365 0230 6B12      		.word	4715
+ 1366 0232 FC0F      		.word	4092
+ 1367 0234 E60E      		.word	3814
+ 1368 0236 DA2E      		.word	11994
+ 1369 0238 271E      		.word	7719
+ 1370 023a 320A      		.word	2610
+ 1371 023c B50A      		.word	2741
+ 1372 023e B129      		.word	10673
+ 1373 0240 A62D      		.word	11686
+ 1374 0242 C814      		.word	5320
+ 1375 0244 8E0C      		.word	3214
+ 1376 0246 6B19      		.word	6507
+ 1377 0248 D402      		.word	724
+ 1378 024a 012C      		.word	11265
+ 1379 024c 2800      		.word	40
+ 1380 024e 080F      		.word	3848
+ 1381 0250 1707      		.word	1815
+ 1382 0252 7C16      		.word	5756
+ 1383 0254 3C15      		.word	5436
+ 1384 0256 9A28      		.word	10394
+ 1385 0258 A40D      		.word	3492
+ 1386 025a 9012      		.word	4752
+ 1387 025c 2117      		.word	5921
+ 1388 025e 3100      		.word	49
+ 1389 0260 6605      		.word	1382
+ 1390 0262 D01B      		.word	7120
+ 1391 0264 6F01      		.word	367
+ 1392 0266 5E02      		.word	606
+ 1393 0268 AA09      		.word	2474
+ 1394 026a C629      		.word	10694
+ 1395 026c E62C      		.word	11494
+ 1396 026e 6706      		.word	1639
+ 1397 0270 0B0F      		.word	3851
+ 1398 0272 242D      		.word	11556
+ 1399 0274 502E      		.word	11856
+ 1400 0276 2D14      		.word	5165
+ 1401 0278 2610      		.word	4134
+ 1402 027a 7803      		.word	888
+ 1403 027c BD22      		.word	8893
+ 1404 027e CD02      		.word	717
+ 1405 0280 B322      		.word	8883
+ 1406 0282 8B01      		.word	395
+ 1407 0284 FA0C      		.word	3322
+ 1408 0286 F505      		.word	1525
+ 1409 0288 AE2E      		.word	11950
+ 1410 028a 6D12      		.word	4717
+ 1411 028c 1F11      		.word	4383
+ 1412 028e 7624      		.word	9334
+ 1413 0290 4628      		.word	10310
+ 1414 0292 B320      		.word	8371
+ 1415 0294 E32E      		.word	12003
+ 1416 0296 4609      		.word	2374
+ 1417 0298 5E22      		.word	8798
+ 1418 029a AE1E      		.word	7854
+ 1419 029c 6501      		.word	357
+ 1420 029e 3A03      		.word	826
+ 1421 02a0 AB0A      		.word	2731
+ 1422 02a2 FE01      		.word	510
+ 1423 02a4 A507      		.word	1957
+ 1424 02a6 9929      		.word	10649
+ 1425 02a8 0B0A      		.word	2571
+ 1426 02aa 3C2F      		.word	12092
+ 1427 02ac 521A      		.word	6738
+ 1428 02ae 5008      		.word	2128
+ 1429 02b0 611A      		.word	6753
+ 1430 02b2 6725      		.word	9575
+ 1431 02b4 202E      		.word	11808
+ 1432 02b6 8014      		.word	5248
+ 1433 02b8 D31A      		.word	6867
+ 1434 02ba 8008      		.word	2176
+ 1435 02bc B800      		.word	184
+ 1436 02be B004      		.word	1200
+ 1437 02c0 932E      		.word	11923
+ 1438 02c2 3607      		.word	1846
+ 1439 02c4 CD16      		.word	5837
+ 1440 02c6 9C10      		.word	4252
+ 1441 02c8 ED17      		.word	6125
+ 1442 02ca 8315      		.word	5507
+ 1443 02cc AA15      		.word	5546
+ 1444 02ce 1807      		.word	1816
+ 1445 02d0 550D      		.word	3413
+ 1446 02d2 A723      		.word	9127
+ 1447 02d4 3919      		.word	6457
+ 1448 02d6 C90E      		.word	3785
+ 1449 02d8 402B      		.word	11072
+ 1450 02da 6621      		.word	8550
+ 1451 02dc 3922      		.word	8761
+ 1452 02de CB2A      		.word	10955
+ 1453 02e0 8413      		.word	4996
+ 1454 02e2 5E1A      		.word	6750
+ 1455 02e4 5D0A      		.word	2653
+ 1456 02e6 D814      		.word	5336
+ 1457 02e8 E328      		.word	10467
+ 1458 02ea AE09      		.word	2478
+ 1459 02ec F30F      		.word	4083
+ 1460 02ee 2C0B      		.word	2860
+ 1461 02f0 9501      		.word	405
+ 1462 02f2 1120      		.word	8209
+ 1463 02f4 3C24      		.word	9276
+ 1464 02f6 0F24      		.word	9231
+ 1465 02f8 1413      		.word	4884
+ 1466 02fa 6E0A      		.word	2670
+ 1467 02fc CD19      		.word	6605
+ 1468 02fe A416      		.word	5796
+ 1469 0300 2B1D      		.word	7467
+ 1470 0302 BF01      		.word	447
+ 1471 0304 8A21      		.word	8586
+ 1472 0306 E410      		.word	4324
+ 1473 0308 0F11      		.word	4367
+ 1474 030a 5224      		.word	9298
+ 1475 030c 8002      		.word	640
+ 1476 030e 7326      		.word	9843
+ 1477 0310 B617      		.word	6070
+ 1478 0312 8913      		.word	5001
+ 1479 0314 8B14      		.word	5259
+ 1480 0316 0105      		.word	1281
+ 1481 0318 7D2A      		.word	10877
+ 1482 031a C113      		.word	5057
+ 1483 031c DA10      		.word	4314
+ 1484 031e 8A2B      		.word	11146
+ 1485 0320 0B20      		.word	8203
+ 1486 0322 A409      		.word	2468
+ 1487 0324 0E25      		.word	9486
+ 1488 0326 E50C      		.word	3301
+ 1489 0328 3500      		.word	53
+ 1490 032a 9127      		.word	10129
+ 1491 032c 250E      		.word	3621
+ 1492 032e 2B29      		.word	10539
+ 1493 0330 D311      		.word	4563
+ 1494 0332 1A1C      		.word	7194
+ 1495 0334 CD27      		.word	10189
+ 1496 0336 0A0E      		.word	3594
+ 1497 0338 3210      		.word	4146
+ 1498 033a 1211      		.word	4370
+ 1499 033c C00F      		.word	4032
+ 1500 033e 6205      		.word	1378
+ 1501 0340 141A      		.word	6676
+ 1502 0342 8113      		.word	4993
+ 1503 0344 3F26      		.word	9791
+ 1504 0346 F717      		.word	6135
+ 1505 0348 CA2F      		.word	12234
+ 1506 034a B90E      		.word	3769
+ 1507 034c E607      		.word	2022
+ 1508 034e 7D13      		.word	4989
+ 1509 0350 9B02      		.word	667
+ 1510 0352 3615      		.word	5430
+ 1511 0354 1616      		.word	5654
+ 1512 0356 A314      		.word	5283
+ 1513 0358 D821      		.word	8664
+ 1514 035a E208      		.word	2274
+ 1515 035c A31E      		.word	7843
+ 1516 035e D021      		.word	8656
+ 1517 0360 0C28      		.word	10252
+ 1518 0362 1F27      		.word	10015
+ 1519 0364 A106      		.word	1697
+ 1520 0366 0E16      		.word	5646
+ 1521 0368 EA06      		.word	1770
+ 1522 036a C515      		.word	5573
+ 1523 036c 042A      		.word	10756
+ 1524 036e 071E      		.word	7687
+ 1525 0370 E913      		.word	5097
+ 1526 0372 E220      		.word	8418
+ 1527 0374 572F      		.word	12119
+ 1528 0376 0F09      		.word	2319
+ 1529 0378 1328      		.word	10259
+ 1530 037a 4B16      		.word	5707
+ 1531 037c EB19      		.word	6635
+ 1532 037e 631D      		.word	7523
+ 1533 0380 9C0A      		.word	2716
+ 1534 0382 F403      		.word	1012
+ 1535 0384 8E19      		.word	6542
+ 1536 0386 1420      		.word	8212
+ 1537 0388 6100      		.word	97
+ 1538 038a 761A      		.word	6774
+ 1539 038c 221E      		.word	7714
+ 1540 038e 9E1B      		.word	7070
+ 1541 0390 BC00      		.word	188
+ 1542 0392 5319      		.word	6483
+ 1543 0394 3F20      		.word	8255
+ 1544 0396 3905      		.word	1337
+ 1545 0398 7323      		.word	9075
+ 1546 039a 3825      		.word	9528
+ 1547 039c D62D      		.word	11734
+ 1548 039e C62A      		.word	10950
+ 1549 03a0 562F      		.word	12118
+ 1550 03a2 7401      		.word	372
+ 1551 03a4 AF28      		.word	10415
+ 1552 03a6 3E26      		.word	9790
+ 1553 03a8 F42C      		.word	11508
+ 1554 03aa 2928      		.word	10281
+ 1555 03ac B12B      		.word	11185
+ 1556 03ae 841C      		.word	7300
+ 1557 03b0 A61E      		.word	7846
+ 1558 03b2 CC24      		.word	9420
+ 1559 03b4 C102      		.word	705
+ 1560 03b6 9E26      		.word	9886
+ 1561 03b8 6A2C      		.word	11370
+ 1562 03ba 0502      		.word	517
+ 1563 03bc 5427      		.word	10068
+ 1564 03be 6A05      		.word	1386
+ 1565 03c0 B001      		.word	432
+ 1566 03c2 DA2B      		.word	11226
+ 1567 03c4 ED1D      		.word	7661
+ 1568 03c6 D225      		.word	9682
+ 1569 03c8 590F      		.word	3929
+ 1570 03ca 531B      		.word	6995
+ 1571 03cc 330D      		.word	3379
+ 1572 03ce 6209      		.word	2402
+ 1573 03d0 C90A      		.word	2761
+ 1574 03d2 2429      		.word	10532
+ 1575 03d4 BB06      		.word	1723
+ 1576 03d6 FC29      		.word	10748
+ 1577 03d8 8F21      		.word	8591
+ 1578 03da A922      		.word	8873
+ 1579 03dc 090E      		.word	3593
+ 1580 03de 0105      		.word	1281
+ 1581 03e0 760D      		.word	3446
+ 1582 03e2 0E1F      		.word	7950
+ 1583 03e4 4C15      		.word	5452
+ 1584 03e6 2228      		.word	10274
+ 1585 03e8 5427      		.word	10068
+ 1586 03ea C219      		.word	6594
+ 1587 03ec 7D04      		.word	1149
+ 1588 03ee DB25      		.word	9691
+ 1589 03f0 2F00      		.word	47
+ 1590 03f2 832D      		.word	11651
+ 1591 03f4 681F      		.word	8040
+ 1592 03f6 6F1A      		.word	6767
+ 1593 03f8 A610      		.word	4262
+ 1594 03fa 9B01      		.word	411
+ 1595 03fc 9807      		.word	1944
+ 1596 03fe C90E      		.word	3785
+ 1598               		.section	.progmem.data.prvKeyR2_12289_512,"a"
+ 1601               	prvKeyR2_12289_512:
+ 1602 0000 7602      		.word	630
+ 1603 0002 0B03      		.word	779
+ 1604 0004 3B06      		.word	1595
+ 1605 0006 2D1C      		.word	7213
+ 1606 0008 BF2C      		.word	11455
+ 1607 000a B01A      		.word	6832
+ 1608 000c CF29      		.word	10703
+ 1609 000e 2D2E      		.word	11821
+ 1610 0010 7C2F      		.word	12156
+ 1611 0012 572D      		.word	11607
+ 1612 0014 950E      		.word	3733
+ 1613 0016 1814      		.word	5144
+ 1614 0018 D60D      		.word	3542
+ 1615 001a C108      		.word	2241
+ 1616 001c 1923      		.word	8985
+ 1617 001e 2519      		.word	6437
+ 1618 0020 4227      		.word	10050
+ 1619 0022 C905      		.word	1481
+ 1620 0024 430E      		.word	3651
+ 1621 0026 152C      		.word	11285
+ 1622 0028 831F      		.word	8067
+ 1623 002a A51D      		.word	7589
+ 1624 002c 571D      		.word	7511
+ 1625 002e B80C      		.word	3256
+ 1626 0030 CC1E      		.word	7884
+ 1627 0032 0F19      		.word	6415
+ 1628 0034 2A03      		.word	810
+ 1629 0036 600C      		.word	3168
+ 1630 0038 7F1C      		.word	7295
+ 1631 003a C50E      		.word	3781
+ 1632 003c B225      		.word	9650
+ 1633 003e D707      		.word	2007
+ 1634 0040 C515      		.word	5573
+ 1635 0042 D32F      		.word	12243
+ 1636 0044 BB1D      		.word	7611
+ 1637 0046 BA09      		.word	2490
+ 1638 0048 AB1F      		.word	8107
+ 1639 004a C71A      		.word	6855
+ 1640 004c F323      		.word	9203
+ 1641 004e BA02      		.word	698
+ 1642 0050 C326      		.word	9923
+ 1643 0052 950F      		.word	3989
+ 1644 0054 A228      		.word	10402
+ 1645 0056 581C      		.word	7256
+ 1646 0058 AD04      		.word	1197
+ 1647 005a 0220      		.word	8194
+ 1648 005c 1913      		.word	4889
+ 1649 005e 7A16      		.word	5754
+ 1650 0060 B428      		.word	10420
+ 1651 0062 E028      		.word	10464
+ 1652 0064 E503      		.word	997
+ 1653 0066 5803      		.word	856
+ 1654 0068 2019      		.word	6432
+ 1655 006a DD2D      		.word	11741
+ 1656 006c 9316      		.word	5779
+ 1657 006e 3308      		.word	2099
+ 1658 0070 161F      		.word	7958
+ 1659 0072 BA15      		.word	5562
+ 1660 0074 1F16      		.word	5663
+ 1661 0076 E526      		.word	9957
+ 1662 0078 DC08      		.word	2268
+ 1663 007a 370D      		.word	3383
+ 1664 007c 2905      		.word	1321
+ 1665 007e B804      		.word	1208
+ 1666 0080 E900      		.word	233
+ 1667 0082 9122      		.word	8849
+ 1668 0084 8F19      		.word	6543
+ 1669 0086 D301      		.word	467
+ 1670 0088 8921      		.word	8585
+ 1671 008a 150A      		.word	2581
+ 1672 008c 0728      		.word	10247
+ 1673 008e 6229      		.word	10594
+ 1674 0090 EE00      		.word	238
+ 1675 0092 300D      		.word	3376
+ 1676 0094 A402      		.word	676
+ 1677 0096 7008      		.word	2160
+ 1678 0098 F81A      		.word	6904
+ 1679 009a 1914      		.word	5145
+ 1680 009c E305      		.word	1507
+ 1681 009e 6805      		.word	1384
+ 1682 00a0 EF26      		.word	9967
+ 1683 00a2 8025      		.word	9600
+ 1684 00a4 6321      		.word	8547
+ 1685 00a6 EF2C      		.word	11503
+ 1686 00a8 9F23      		.word	9119
+ 1687 00aa 5C1D      		.word	7516
+ 1688 00ac 9F13      		.word	5023
+ 1689 00ae 3504      		.word	1077
+ 1690 00b0 2D0D      		.word	3373
+ 1691 00b2 7913      		.word	4985
+ 1692 00b4 7304      		.word	1139
+ 1693 00b6 5902      		.word	601
+ 1694 00b8 4223      		.word	9026
+ 1695 00ba 0612      		.word	4614
+ 1696 00bc F510      		.word	4341
+ 1697 00be FF0A      		.word	2815
+ 1698 00c0 A726      		.word	9895
+ 1699 00c2 F414      		.word	5364
+ 1700 00c4 CB03      		.word	971
+ 1701 00c6 FF22      		.word	8959
+ 1702 00c8 1E26      		.word	9758
+ 1703 00ca C009      		.word	2496
+ 1704 00cc 6922      		.word	8809
+ 1705 00ce E11B      		.word	7137
+ 1706 00d0 3517      		.word	5941
+ 1707 00d2 FA1D      		.word	7674
+ 1708 00d4 2727      		.word	10023
+ 1709 00d6 D815      		.word	5592
+ 1710 00d8 1A0E      		.word	3610
+ 1711 00da 5214      		.word	5202
+ 1712 00dc A124      		.word	9377
+ 1713 00de 8B19      		.word	6539
+ 1714 00e0 AA02      		.word	682
+ 1715 00e2 940E      		.word	3732
+ 1716 00e4 6622      		.word	8806
+ 1717 00e6 3602      		.word	566
+ 1718 00e8 2E26      		.word	9774
+ 1719 00ea 6D28      		.word	10349
+ 1720 00ec 2C05      		.word	1324
+ 1721 00ee F11C      		.word	7409
+ 1722 00f0 080D      		.word	3336
+ 1723 00f2 0601      		.word	262
+ 1724 00f4 1E1E      		.word	7710
+ 1725 00f6 6411      		.word	4452
+ 1726 00f8 9907      		.word	1945
+ 1727 00fa 332B      		.word	11059
+ 1728 00fc 5D01      		.word	349
+ 1729 00fe 1D16      		.word	5661
+ 1730 0100 9618      		.word	6294
+ 1731 0102 BB08      		.word	2235
+ 1732 0104 2C04      		.word	1068
+ 1733 0106 AB11      		.word	4523
+ 1734 0108 9A05      		.word	1434
+ 1735 010a 6D10      		.word	4205
+ 1736 010c 1601      		.word	278
+ 1737 010e 2712      		.word	4647
+ 1738 0110 9209      		.word	2450
+ 1739 0112 4709      		.word	2375
+ 1740 0114 0603      		.word	774
+ 1741 0116 4C20      		.word	8268
+ 1742 0118 1A19      		.word	6426
+ 1743 011a D718      		.word	6359
+ 1744 011c 5B17      		.word	5979
+ 1745 011e 1210      		.word	4114
+ 1746 0120 8B23      		.word	9099
+ 1747 0122 9E13      		.word	5022
+ 1748 0124 CF0D      		.word	3535
+ 1749 0126 1728      		.word	10263
+ 1750 0128 471C      		.word	7239
+ 1751 012a 371E      		.word	7735
+ 1752 012c 9625      		.word	9622
+ 1753 012e A72D      		.word	11687
+ 1754 0130 A828      		.word	10408
+ 1755 0132 EF02      		.word	751
+ 1756 0134 4221      		.word	8514
+ 1757 0136 F127      		.word	10225
+ 1758 0138 162C      		.word	11286
+ 1759 013a A42A      		.word	10916
+ 1760 013c 4823      		.word	9032
+ 1761 013e 6915      		.word	5481
+ 1762 0140 1D07      		.word	1821
+ 1763 0142 7519      		.word	6517
+ 1764 0144 231E      		.word	7715
+ 1765 0146 940B      		.word	2964
+ 1766 0148 D00D      		.word	3536
+ 1767 014a 5201      		.word	338
+ 1768 014c 301E      		.word	7728
+ 1769 014e AA22      		.word	8874
+ 1770 0150 570E      		.word	3671
+ 1771 0152 0627      		.word	9990
+ 1772 0154 C927      		.word	10185
+ 1773 0156 9605      		.word	1430
+ 1774 0158 2722      		.word	8743
+ 1775 015a 3423      		.word	9012
+ 1776 015c F528      		.word	10485
+ 1777 015e 422B      		.word	11074
+ 1778 0160 011D      		.word	7425
+ 1779 0162 0B01      		.word	267
+ 1780 0164 3005      		.word	1328
+ 1781 0166 AE28      		.word	10414
+ 1782 0168 D70B      		.word	3031
+ 1783 016a 4024      		.word	9280
+ 1784 016c 1629      		.word	10518
+ 1785 016e B80C      		.word	3256
+ 1786 0170 8B1F      		.word	8075
+ 1787 0172 CC1C      		.word	7372
+ 1788 0174 9E09      		.word	2462
+ 1789 0176 C01C      		.word	7360
+ 1790 0178 1624      		.word	9238
+ 1791 017a 8F18      		.word	6287
+ 1792 017c 4D29      		.word	10573
+ 1793 017e 9012      		.word	4752
+ 1794 0180 C60E      		.word	3782
+ 1795 0182 450D      		.word	3397
+ 1796 0184 0E29      		.word	10510
+ 1797 0186 B916      		.word	5817
+ 1798 0188 3F13      		.word	4927
+ 1799 018a FC09      		.word	2556
+ 1800 018c 050F      		.word	3845
+ 1801 018e 4815      		.word	5448
+ 1802 0190 160F      		.word	3862
+ 1803 0192 810B      		.word	2945
+ 1804 0194 5D26      		.word	9821
+ 1805 0196 0016      		.word	5632
+ 1806 0198 380B      		.word	2872
+ 1807 019a F414      		.word	5364
+ 1808 019c C527      		.word	10181
+ 1809 019e 642C      		.word	11364
+ 1810 01a0 3E2A      		.word	10814
+ 1811 01a2 1B2F      		.word	12059
+ 1812 01a4 1217      		.word	5906
+ 1813 01a6 5E25      		.word	9566
+ 1814 01a8 1514      		.word	5141
+ 1815 01aa 872C      		.word	11399
+ 1816 01ac E91D      		.word	7657
+ 1817 01ae 191A      		.word	6681
+ 1818 01b0 D717      		.word	6103
+ 1819 01b2 D518      		.word	6357
+ 1820 01b4 9625      		.word	9622
+ 1821 01b6 2B12      		.word	4651
+ 1822 01b8 0D0B      		.word	2829
+ 1823 01ba D129      		.word	10705
+ 1824 01bc 541E      		.word	7764
+ 1825 01be 2428      		.word	10276
+ 1826 01c0 4E12      		.word	4686
+ 1827 01c2 5012      		.word	4688
+ 1828 01c4 8218      		.word	6274
+ 1829 01c6 6624      		.word	9318
+ 1830 01c8 5912      		.word	4697
+ 1831 01ca BF02      		.word	703
+ 1832 01cc 8922      		.word	8841
+ 1833 01ce D01E      		.word	7888
+ 1834 01d0 6A03      		.word	874
+ 1835 01d2 0429      		.word	10500
+ 1836 01d4 EB0F      		.word	4075
+ 1837 01d6 2311      		.word	4387
+ 1838 01d8 5301      		.word	339
+ 1839 01da 0905      		.word	1289
+ 1840 01dc 4829      		.word	10568
+ 1841 01de 3B0F      		.word	3899
+ 1842 01e0 E101      		.word	481
+ 1843 01e2 130A      		.word	2579
+ 1844 01e4 3F23      		.word	9023
+ 1845 01e6 440E      		.word	3652
+ 1846 01e8 E229      		.word	10722
+ 1847 01ea F72F      		.word	12279
+ 1848 01ec 522F      		.word	12114
+ 1849 01ee C027      		.word	10176
+ 1850 01f0 4A0F      		.word	3914
+ 1851 01f2 8C07      		.word	1932
+ 1852 01f4 4426      		.word	9796
+ 1853 01f6 E815      		.word	5608
+ 1854 01f8 A810      		.word	4264
+ 1855 01fa BE24      		.word	9406
+ 1856 01fc BF21      		.word	8639
+ 1857 01fe 6C15      		.word	5484
+ 1858 0200 DE23      		.word	9182
+ 1859 0202 041F      		.word	7940
+ 1860 0204 8515      		.word	5509
+ 1861 0206 0413      		.word	4868
+ 1862 0208 9B1A      		.word	6811
+ 1863 020a 0818      		.word	6152
+ 1864 020c 9421      		.word	8596
+ 1865 020e A42E      		.word	11940
+ 1866 0210 0E18      		.word	6158
+ 1867 0212 4F2F      		.word	12111
+ 1868 0214 9D1A      		.word	6813
+ 1869 0216 6328      		.word	10339
+ 1870 0218 7305      		.word	1395
+ 1871 021a 6A1B      		.word	7018
+ 1872 021c 1C0F      		.word	3868
+ 1873 021e E40B      		.word	3044
+ 1874 0220 B11D      		.word	7601
+ 1875 0222 8610      		.word	4230
+ 1876 0224 EE22      		.word	8942
+ 1877 0226 911B      		.word	7057
+ 1878 0228 B903      		.word	953
+ 1879 022a E117      		.word	6113
+ 1880 022c E328      		.word	10467
+ 1881 022e AB1A      		.word	6827
+ 1882 0230 9F0B      		.word	2975
+ 1883 0232 B622      		.word	8886
+ 1884 0234 6006      		.word	1632
+ 1885 0236 A90C      		.word	3241
+ 1886 0238 392C      		.word	11321
+ 1887 023a D505      		.word	1493
+ 1888 023c 2D1D      		.word	7469
+ 1889 023e 501B      		.word	6992
+ 1890 0240 552E      		.word	11861
+ 1891 0242 A529      		.word	10661
+ 1892 0244 7A26      		.word	9850
+ 1893 0246 F62D      		.word	11766
+ 1894 0248 B316      		.word	5811
+ 1895 024a 941B      		.word	7060
+ 1896 024c 1E06      		.word	1566
+ 1897 024e C905      		.word	1481
+ 1898 0250 B215      		.word	5554
+ 1899 0252 6014      		.word	5216
+ 1900 0254 B318      		.word	6323
+ 1901 0256 6319      		.word	6499
+ 1902 0258 4403      		.word	836
+ 1903 025a 4F0A      		.word	2639
+ 1904 025c DE11      		.word	4574
+ 1905 025e 8808      		.word	2184
+ 1906 0260 A327      		.word	10147
+ 1907 0262 9B1C      		.word	7323
+ 1908 0264 5823      		.word	9048
+ 1909 0266 572F      		.word	12119
+ 1910 0268 841B      		.word	7044
+ 1911 026a 9709      		.word	2455
+ 1912 026c 982F      		.word	12184
+ 1913 026e DF06      		.word	1759
+ 1914 0270 A70F      		.word	4007
+ 1915 0272 780F      		.word	3960
+ 1916 0274 C823      		.word	9160
+ 1917 0276 B11D      		.word	7601
+ 1918 0278 C125      		.word	9665
+ 1919 027a 7721      		.word	8567
+ 1920 027c 6703      		.word	871
+ 1921 027e 3B17      		.word	5947
+ 1922 0280 511F      		.word	8017
+ 1923 0282 0A22      		.word	8714
+ 1924 0284 9601      		.word	406
+ 1925 0286 3609      		.word	2358
+ 1926 0288 2B0E      		.word	3627
+ 1927 028a FF05      		.word	1535
+ 1928 028c 0618      		.word	6150
+ 1929 028e E82E      		.word	12008
+ 1930 0290 EE03      		.word	1006
+ 1931 0292 472F      		.word	12103
+ 1932 0294 7E0E      		.word	3710
+ 1933 0296 4317      		.word	5955
+ 1934 0298 941D      		.word	7572
+ 1935 029a ED0C      		.word	3309
+ 1936 029c 9721      		.word	8599
+ 1937 029e 2D0C      		.word	3117
+ 1938 02a0 4F2E      		.word	11855
+ 1939 02a2 C826      		.word	9928
+ 1940 02a4 2320      		.word	8227
+ 1941 02a6 C21D      		.word	7618
+ 1942 02a8 3615      		.word	5430
+ 1943 02aa BD1E      		.word	7869
+ 1944 02ac 3716      		.word	5687
+ 1945 02ae DB0B      		.word	3035
+ 1946 02b0 B80D      		.word	3512
+ 1947 02b2 B028      		.word	10416
+ 1948 02b4 6C00      		.word	108
+ 1949 02b6 C024      		.word	9408
+ 1950 02b8 5B11      		.word	4443
+ 1951 02ba 5911      		.word	4441
+ 1952 02bc EE25      		.word	9710
+ 1953 02be E617      		.word	6118
+ 1954 02c0 ED02      		.word	749
+ 1955 02c2 D40D      		.word	3540
+ 1956 02c4 3F1A      		.word	6719
+ 1957 02c6 8C27      		.word	10124
+ 1958 02c8 9607      		.word	1942
+ 1959 02ca 1D14      		.word	5149
+ 1960 02cc 452D      		.word	11589
+ 1961 02ce 1911      		.word	4377
+ 1962 02d0 AA12      		.word	4778
+ 1963 02d2 DE14      		.word	5342
+ 1964 02d4 8027      		.word	10112
+ 1965 02d6 B41F      		.word	8116
+ 1966 02d8 5508      		.word	2133
+ 1967 02da 6700      		.word	103
+ 1968 02dc 3824      		.word	9272
+ 1969 02de 0F16      		.word	5647
+ 1970 02e0 0429      		.word	10500
+ 1971 02e2 C30E      		.word	3779
+ 1972 02e4 7426      		.word	9844
+ 1973 02e6 9A15      		.word	5530
+ 1974 02e8 1B11      		.word	4379
+ 1975 02ea 3B2C      		.word	11323
+ 1976 02ec B624      		.word	9398
+ 1977 02ee 411F      		.word	8001
+ 1978 02f0 5A25      		.word	9562
+ 1979 02f2 FE2C      		.word	11518
+ 1980 02f4 9B29      		.word	10651
+ 1981 02f6 5900      		.word	89
+ 1982 02f8 0921      		.word	8457
+ 1983 02fa DE08      		.word	2270
+ 1984 02fc F000      		.word	240
+ 1985 02fe 6F0F      		.word	3951
+ 1986 0300 C20F      		.word	4034
+ 1987 0302 8023      		.word	9088
+ 1988 0304 F30C      		.word	3315
+ 1989 0306 4111      		.word	4417
+ 1990 0308 DF2B      		.word	11231
+ 1991 030a 0B21      		.word	8459
+ 1992 030c C61C      		.word	7366
+ 1993 030e 9601      		.word	406
+ 1994 0310 1326      		.word	9747
+ 1995 0312 9310      		.word	4243
+ 1996 0314 2A17      		.word	5930
+ 1997 0316 AC12      		.word	4780
+ 1998 0318 6A27      		.word	10090
+ 1999 031a 6117      		.word	5985
+ 2000 031c 851F      		.word	8069
+ 2001 031e D606      		.word	1750
+ 2002 0320 8023      		.word	9088
+ 2003 0322 B301      		.word	435
+ 2004 0324 8B10      		.word	4235
+ 2005 0326 F928      		.word	10489
+ 2006 0328 3001      		.word	304
+ 2007 032a 5925      		.word	9561
+ 2008 032c 9329      		.word	10643
+ 2009 032e 5105      		.word	1361
+ 2010 0330 CA1D      		.word	7626
+ 2011 0332 7B1A      		.word	6779
+ 2012 0334 A32C      		.word	11427
+ 2013 0336 E223      		.word	9186
+ 2014 0338 AC12      		.word	4780
+ 2015 033a FB2F      		.word	12283
+ 2016 033c E92B      		.word	11241
+ 2017 033e B11F      		.word	8113
+ 2018 0340 1108      		.word	2065
+ 2019 0342 641F      		.word	8036
+ 2020 0344 BE0E      		.word	3774
+ 2021 0346 C924      		.word	9417
+ 2022 0348 AC14      		.word	5292
+ 2023 034a 5B0A      		.word	2651
+ 2024 034c C100      		.word	193
+ 2025 034e 4521      		.word	8517
+ 2026 0350 CD16      		.word	5837
+ 2027 0352 CF20      		.word	8399
+ 2028 0354 691F      		.word	8041
+ 2029 0356 2F25      		.word	9519
+ 2030 0358 1918      		.word	6169
+ 2031 035a 6D09      		.word	2413
+ 2032 035c 3710      		.word	4151
+ 2033 035e 9F04      		.word	1183
+ 2034 0360 481B      		.word	6984
+ 2035 0362 FC1B      		.word	7164
+ 2036 0364 F908      		.word	2297
+ 2037 0366 1D0C      		.word	3101
+ 2038 0368 E501      		.word	485
+ 2039 036a 6C02      		.word	620
+ 2040 036c 4E0F      		.word	3918
+ 2041 036e 8629      		.word	10630
+ 2042 0370 701C      		.word	7280
+ 2043 0372 4300      		.word	67
+ 2044 0374 510C      		.word	3153
+ 2045 0376 1A04      		.word	1050
+ 2046 0378 7921      		.word	8569
+ 2047 037a 0D0B      		.word	2829
+ 2048 037c C805      		.word	1480
+ 2049 037e 7522      		.word	8821
+ 2050 0380 EC12      		.word	4844
+ 2051 0382 F31A      		.word	6899
+ 2052 0384 7E21      		.word	8574
+ 2053 0386 2708      		.word	2087
+ 2054 0388 2B29      		.word	10539
+ 2055 038a 672F      		.word	12135
+ 2056 038c C609      		.word	2502
+ 2057 038e 690B      		.word	2921
+ 2058 0390 9D26      		.word	9885
+ 2059 0392 3E11      		.word	4414
+ 2060 0394 BB12      		.word	4795
+ 2061 0396 A719      		.word	6567
+ 2062 0398 692C      		.word	11369
+ 2063 039a 9E2F      		.word	12190
+ 2064 039c F01A      		.word	6896
+ 2065 039e 8E19      		.word	6542
+ 2066 03a0 071F      		.word	7943
+ 2067 03a2 7829      		.word	10616
+ 2068 03a4 3E0E      		.word	3646
+ 2069 03a6 6C0A      		.word	2668
+ 2070 03a8 4216      		.word	5698
+ 2071 03aa 2E26      		.word	9774
+ 2072 03ac AE2A      		.word	10926
+ 2073 03ae E202      		.word	738
+ 2074 03b0 F02D      		.word	11760
+ 2075 03b2 542C      		.word	11348
+ 2076 03b4 A326      		.word	9891
+ 2077 03b6 A107      		.word	1953
+ 2078 03b8 D71D      		.word	7639
+ 2079 03ba 7509      		.word	2421
+ 2080 03bc 4E22      		.word	8782
+ 2081 03be 150A      		.word	2581
+ 2082 03c0 5006      		.word	1616
+ 2083 03c2 3D1B      		.word	6973
+ 2084 03c4 0817      		.word	5896
+ 2085 03c6 0809      		.word	2312
+ 2086 03c8 2409      		.word	2340
+ 2087 03ca 0C20      		.word	8204
+ 2088 03cc 341C      		.word	7220
+ 2089 03ce 7607      		.word	1910
+ 2090 03d0 590E      		.word	3673
+ 2091 03d2 0F1A      		.word	6671
+ 2092 03d4 6C2A      		.word	10860
+ 2093 03d6 EC2A      		.word	10988
+ 2094 03d8 7E2B      		.word	11134
+ 2095 03da 7328      		.word	10355
+ 2096 03dc A30E      		.word	3747
+ 2097 03de 4106      		.word	1601
+ 2098 03e0 C622      		.word	8902
+ 2099 03e2 742E      		.word	11892
+ 2100 03e4 282A      		.word	10792
+ 2101 03e6 7815      		.word	5496
+ 2102 03e8 540C      		.word	3156
+ 2103 03ea 5B06      		.word	1627
+ 2104 03ec 1004      		.word	1040
+ 2105 03ee 7726      		.word	9847
+ 2106 03f0 5605      		.word	1366
+ 2107 03f2 E520      		.word	8421
+ 2108 03f4 A01E      		.word	7840
+ 2109 03f6 DF25      		.word	9695
+ 2110 03f8 6822      		.word	8808
+ 2111 03fa 8E08      		.word	2190
+ 2112 03fc 3C12      		.word	4668
+ 2113 03fe DA17      		.word	6106
+ 2115               		.comm	counter,2,1
+ 2117               		.text
+ 2119               	.Letext0:
+ 2120               		.ident	"GCC: (GNU) 9.1.0"
+ 2121               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 inst_4093.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:443    .text.startup.main:0000000000000000 main
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:1084   .progmem.data.pubKeyP_12289_512:0000000000000000 pubKeyP_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:567    .progmem.data.pubKeyA_12289_512:0000000000000000 pubKeyA_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:1601   .progmem.data.prvKeyR2_12289_512:0000000000000000 prvKeyR2_12289_512
+                            *COM*:0000000000000002 counter
+
+UNDEFINED SYMBOLS
+encrypt_12289_512
+decrypt_12289_512
+__do_clear_bss

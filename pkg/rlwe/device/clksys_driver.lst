@@ -1,0 +1,603 @@
+   1               		.file	"clksys_driver.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 445               		.section	.text.CCPWrite,"ax",@progbits
+ 449               	.global	CCPWrite
+ 451               	CCPWrite:
+   1:device/clksys_driver.c **** /* This file has been prepared for Doxygen automatic documentation generation.*/
+   2:device/clksys_driver.c **** /*! \file *********************************************************************
+   3:device/clksys_driver.c ****  *
+   4:device/clksys_driver.c ****  * \brief  XMEGA Clock System driver source file.
+   5:device/clksys_driver.c ****  *
+   6:device/clksys_driver.c ****  *      This file contains the function implementations for the XMEGA Clock
+   7:device/clksys_driver.c ****  *      System driver.
+   8:device/clksys_driver.c ****  *
+   9:device/clksys_driver.c ****  *      The driver is not intended for size and/or speed critical code, since
+  10:device/clksys_driver.c ****  *      most functions are just a few lines of code, and the function call
+  11:device/clksys_driver.c ****  *      overhead would decrease code performance. The driver is intended for
+  12:device/clksys_driver.c ****  *      rapid prototyping and documentation purposes for getting started with
+  13:device/clksys_driver.c ****  *      the XMEGA Clock System.
+  14:device/clksys_driver.c ****  *
+  15:device/clksys_driver.c ****  *      For size and/or speed critical code, it is recommended to copy the
+  16:device/clksys_driver.c ****  *      function contents directly into your application instead of making
+  17:device/clksys_driver.c ****  *      a function call.
+  18:device/clksys_driver.c ****  *
+  19:device/clksys_driver.c ****  *      Several functions use the following construct:
+  20:device/clksys_driver.c ****  *          "some_register = ... | (some_parameter ? SOME_BIT_bm : 0) | ..."
+  21:device/clksys_driver.c ****  *      Although the use of the ternary operator ( if ? then : else ) is
+  22:device/clksys_driver.c ****  *      discouraged, in some occasions the operator makes it possible to
+  23:device/clksys_driver.c ****  *      write pretty clean and neat code. In this driver, the construct is
+  24:device/clksys_driver.c ****  *      used to set or not set a configuration bit based on a boolean input
+  25:device/clksys_driver.c ****  *      parameter, such as the "some_parameter" in the example above.
+  26:device/clksys_driver.c ****  *
+  27:device/clksys_driver.c ****  * \par Application note:
+  28:device/clksys_driver.c ****  *      AVR1003: Using the XMEGA Clock System
+  29:device/clksys_driver.c ****  *
+  30:device/clksys_driver.c ****  * \par Documentation
+  31:device/clksys_driver.c ****  *      For comprehensive code documentation, supported compilers, compiler
+  32:device/clksys_driver.c ****  *      settings and supported devices see readme.html
+  33:device/clksys_driver.c ****  *
+  34:device/clksys_driver.c ****  * \author
+  35:device/clksys_driver.c ****  *      Atmel Corporation: http://www.atmel.com \n
+  36:device/clksys_driver.c ****  *      Support email: avr@atmel.com
+  37:device/clksys_driver.c ****  *
+  38:device/clksys_driver.c ****  * $Revision: 2771 $
+  39:device/clksys_driver.c ****  * $Date: 2009-09-11 11:54:26 +0200 (fr, 11 sep 2009) $  \n
+  40:device/clksys_driver.c ****  *
+  41:device/clksys_driver.c ****  * Copyright (c) 2008, Atmel Corporation All rights reserved.
+  42:device/clksys_driver.c ****  *
+  43:device/clksys_driver.c ****  * Redistribution and use in source and binary forms, with or without
+  44:device/clksys_driver.c ****  * modification, are permitted provided that the following conditions are met:
+  45:device/clksys_driver.c ****  *
+  46:device/clksys_driver.c ****  * 1. Redistributions of source code must retain the above copyright notice,
+  47:device/clksys_driver.c ****  * this list of conditions and the following disclaimer.
+  48:device/clksys_driver.c ****  *
+  49:device/clksys_driver.c ****  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  50:device/clksys_driver.c ****  * this list of conditions and the following disclaimer in the documentation
+  51:device/clksys_driver.c ****  * and/or other materials provided with the distribution.
+  52:device/clksys_driver.c ****  *
+  53:device/clksys_driver.c ****  * 3. The name of ATMEL may not be used to endorse or promote products derived
+  54:device/clksys_driver.c ****  * from this software without specific prior written permission.
+  55:device/clksys_driver.c ****  *
+  56:device/clksys_driver.c ****  * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+  57:device/clksys_driver.c ****  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  58:device/clksys_driver.c ****  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY AND
+  59:device/clksys_driver.c ****  * SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT,
+  60:device/clksys_driver.c ****  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  61:device/clksys_driver.c ****  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  62:device/clksys_driver.c ****  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+  63:device/clksys_driver.c ****  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  64:device/clksys_driver.c ****  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+  65:device/clksys_driver.c ****  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  66:device/clksys_driver.c ****  *****************************************************************************/
+  67:device/clksys_driver.c **** #include "clksys_driver.h"
+  68:device/clksys_driver.c **** 
+  69:device/clksys_driver.c **** /*! \brief CCP write helper function written in assembly.
+  70:device/clksys_driver.c ****  *
+  71:device/clksys_driver.c ****  *  This function is written in assembly because of the timecritial
+  72:device/clksys_driver.c ****  *  operation of writing to the registers.
+  73:device/clksys_driver.c ****  *
+  74:device/clksys_driver.c ****  *  \param address A pointer to the address to write to.
+  75:device/clksys_driver.c ****  *  \param value   The value to put in to the register.
+  76:device/clksys_driver.c ****  */
+  77:device/clksys_driver.c **** void CCPWrite( volatile uint8_t * address, uint8_t value )
+  78:device/clksys_driver.c **** {
+ 453               	.LM0:
+ 454               	.LFBB1:
+ 455 0000 0F93      		push r16
+ 456 0002 CF93      		push r28
+ 457 0004 DF93      		push r29
+ 458 0006 0F92      		push __tmp_reg__
+ 459 0008 CDB7      		in r28,__SP_L__
+ 460 000a DEB7      		in r29,__SP_H__
+ 461               	/* prologue: function */
+ 462               	/* frame size = 1 */
+ 463               	/* stack size = 4 */
+ 464               	.L__stack_usage = 4
+ 465 000c 9C01      		movw r18,r24
+  79:device/clksys_driver.c **** #ifdef __ICCAVR__
+  80:device/clksys_driver.c **** 
+  81:device/clksys_driver.c **** 	// Store global interrupt setting in scratch register and disable interrupts.
+  82:device/clksys_driver.c ****         asm("in  R1, 0x3F \n"
+  83:device/clksys_driver.c **** 	    "cli"
+  84:device/clksys_driver.c **** 	    );
+  85:device/clksys_driver.c **** 
+  86:device/clksys_driver.c **** 	// Move destination address pointer to Z pointer registers.
+  87:device/clksys_driver.c **** 	asm("movw r30, r16");
+  88:device/clksys_driver.c **** #ifdef RAMPZ
+  89:device/clksys_driver.c **** 	asm("ldi  R16, 0 \n"
+  90:device/clksys_driver.c ****             "out  0x3B, R16"
+  91:device/clksys_driver.c **** 	    );
+  92:device/clksys_driver.c **** 
+  93:device/clksys_driver.c **** #endif
+  94:device/clksys_driver.c **** 	asm("ldi  r16,  0xD8 \n"
+  95:device/clksys_driver.c **** 	    "out  0x34, r16  \n"
+  96:device/clksys_driver.c **** #if (__MEMORY_MODEL__ == 1)
+  97:device/clksys_driver.c **** 	    "st     Z,  r17  \n");
+  98:device/clksys_driver.c **** #elif (__MEMORY_MODEL__ == 2)
+  99:device/clksys_driver.c **** 	    "st     Z,  r18  \n");
+ 100:device/clksys_driver.c **** #else /* (__MEMORY_MODEL__ == 3) || (__MEMORY_MODEL__ == 5) */
+ 101:device/clksys_driver.c **** 	    "st     Z,  r19  \n");
+ 102:device/clksys_driver.c **** #endif /* __MEMORY_MODEL__ */
+ 103:device/clksys_driver.c **** 
+ 104:device/clksys_driver.c **** 	// Restore global interrupt setting from scratch register.
+ 105:device/clksys_driver.c ****         asm("out  0x3F, R1");
+ 106:device/clksys_driver.c **** 
+ 107:device/clksys_driver.c **** #elif defined __GNUC__
+ 108:device/clksys_driver.c **** 	AVR_ENTER_CRITICAL_REGION( );
+ 467               	.LM1:
+ 468 000e 8FB7      		in r24,__SREG__
+ 469 0010 8983      		std Y+1,r24
+ 470               	/* #APP */
+ 471               	 ;  108 "device/clksys_driver.c" 1
+ 472 0012 F894      		cli
+ 473               	 ;  0 "" 2
+ 109:device/clksys_driver.c **** 	volatile uint8_t * tmpAddr = address;
+ 110:device/clksys_driver.c **** #ifdef RAMPZ
+ 111:device/clksys_driver.c **** 	RAMPZ = 0;
+ 475               	.LM2:
+ 476               	/* #NOAPP */
+ 477 0014 1BBE      		out __RAMPZ__,__zero_reg__
+ 112:device/clksys_driver.c **** #endif
+ 113:device/clksys_driver.c **** 	asm volatile(
+ 479               	.LM3:
+ 480               	/* #APP */
+ 481               	 ;  113 "device/clksys_driver.c" 1
+ 482 0016 F901      		movw r30,  r18
+ 483 0018 08ED      		ldi  r16,  216
+ 484 001a 04BF      		out   52, r16
+ 485 001c 6083      		st     Z,  r22
+ 486               		
+ 487               	 ;  0 "" 2
+ 114:device/clksys_driver.c **** 		"movw r30,  %0"	      "\n\t"
+ 115:device/clksys_driver.c **** 		"ldi  r16,  %2"	      "\n\t"
+ 116:device/clksys_driver.c **** 		"out   %3, r16"	      "\n\t"
+ 117:device/clksys_driver.c **** 		"st     Z,  %1"       "\n\t"
+ 118:device/clksys_driver.c **** 		:
+ 119:device/clksys_driver.c **** 		: "r" (tmpAddr), "r" (value), "M" (CCP_IOREG_gc), "i" (&CCP)
+ 120:device/clksys_driver.c **** 		: "r16", "r30", "r31"
+ 121:device/clksys_driver.c **** 		);
+ 122:device/clksys_driver.c **** 
+ 123:device/clksys_driver.c **** 	AVR_LEAVE_CRITICAL_REGION( );
+ 489               	.LM4:
+ 490               	/* #NOAPP */
+ 491 001e 8981      		ldd r24,Y+1
+ 492 0020 8FBF      		out __SREG__,r24
+ 493               	/* epilogue start */
+ 124:device/clksys_driver.c **** #endif
+ 125:device/clksys_driver.c **** }
+ 495               	.LM5:
+ 496 0022 0F90      		pop __tmp_reg__
+ 497 0024 DF91      		pop r29
+ 498 0026 CF91      		pop r28
+ 499 0028 0F91      		pop r16
+ 500 002a 0895      		ret
+ 505               	.Lscope1:
+ 506               		.section	.text.CLKSYS_XOSC_Config,"ax",@progbits
+ 511               	.global	CLKSYS_XOSC_Config
+ 513               	CLKSYS_XOSC_Config:
+ 126:device/clksys_driver.c **** 
+ 127:device/clksys_driver.c **** /*! \brief This function configures the external oscillator.
+ 128:device/clksys_driver.c ****  *
+ 129:device/clksys_driver.c ****  *  \note Note that the oscillator cannot be used as a main system clock
+ 130:device/clksys_driver.c ****  *        source without being enabled and stable first. Check the ready flag
+ 131:device/clksys_driver.c ****  *        before using the clock. The macro CLKSYS_IsReady( _oscSel )
+ 132:device/clksys_driver.c ****  *        can be used to check this.
+ 133:device/clksys_driver.c ****  *
+ 134:device/clksys_driver.c ****  *  \param  freqRange          Frequency range for high-frequency crystal, does
+ 135:device/clksys_driver.c ****  *                             not apply for external clock or 32kHz crystals.
+ 136:device/clksys_driver.c ****  *  \param  lowPower32kHz      True of high-quality watch crystals are used and
+ 137:device/clksys_driver.c ****  *                             low-power oscillator is desired.
+ 138:device/clksys_driver.c ****  *  \param  xoscModeSelection  Combined selection of oscillator type (or
+ 139:device/clksys_driver.c ****  *                             external clock) and startup times.
+ 140:device/clksys_driver.c ****  */
+ 141:device/clksys_driver.c **** void CLKSYS_XOSC_Config( OSC_FRQRANGE_t freqRange,
+ 142:device/clksys_driver.c ****                          bool lowPower32kHz,
+ 143:device/clksys_driver.c ****                          OSC_XOSCSEL_t xoscModeSelection )
+ 144:device/clksys_driver.c **** {
+ 515               	.LM6:
+ 516               	.LFBB2:
+ 517               	/* prologue: function */
+ 518               	/* frame size = 0 */
+ 519               	/* stack size = 0 */
+ 520               	.L__stack_usage = 0
+ 145:device/clksys_driver.c **** 	OSC.XOSCCTRL = (uint8_t) freqRange |
+ 522               	.LM7:
+ 523 0000 90E0      		ldi r25,0
+ 524 0002 6111      		cpse r22,__zero_reg__
+ 525 0004 90E2      		ldi r25,lo8(32)
+ 526               	.L3:
+ 146:device/clksys_driver.c **** 	               ( lowPower32kHz ? OSC_X32KLPM_bm : 0 ) |
+ 528               	.LM8:
+ 529 0006 842B      		or r24,r20
+ 530 0008 892B      		or r24,r25
+ 145:device/clksys_driver.c **** 	OSC.XOSCCTRL = (uint8_t) freqRange |
+ 532               	.LM9:
+ 533 000a 8093 5200 		sts 82,r24
+ 534               	/* epilogue start */
+ 147:device/clksys_driver.c **** 	               xoscModeSelection;
+ 148:device/clksys_driver.c **** }
+ 536               	.LM10:
+ 537 000e 0895      		ret
+ 539               	.Lscope2:
+ 540               		.section	.text.CLKSYS_PLL_Config,"ax",@progbits
+ 544               	.global	CLKSYS_PLL_Config
+ 546               	CLKSYS_PLL_Config:
+ 149:device/clksys_driver.c **** 
+ 150:device/clksys_driver.c **** 
+ 151:device/clksys_driver.c **** /*! \brief This function configures the internal high-frequency PLL.
+ 152:device/clksys_driver.c ****  *
+ 153:device/clksys_driver.c ****  *  Configuration of the internal high-frequency PLL to the correct
+ 154:device/clksys_driver.c ****  *  values. It is used to define the input of the PLL and the factor of
+ 155:device/clksys_driver.c ****  *  multiplication of the input clock source.
+ 156:device/clksys_driver.c ****  *
+ 157:device/clksys_driver.c ****  *  \note Note that the oscillator cannot be used as a main system clock
+ 158:device/clksys_driver.c ****  *        source without being enabled and stable first. Check the ready flag
+ 159:device/clksys_driver.c ****  *        before using the clock. The macro CLKSYS_IsReady( _oscSel )
+ 160:device/clksys_driver.c ****  *        can be used to check this.
+ 161:device/clksys_driver.c ****  *
+ 162:device/clksys_driver.c ****  *  \param  clockSource Reference clock source for the PLL,
+ 163:device/clksys_driver.c ****  *                      must be above 0.4MHz.
+ 164:device/clksys_driver.c ****  *  \param  factor      PLL multiplication factor, must be
+ 165:device/clksys_driver.c ****  *                      from 1 to 31, inclusive.
+ 166:device/clksys_driver.c ****  */
+ 167:device/clksys_driver.c **** void CLKSYS_PLL_Config( OSC_PLLSRC_t clockSource, uint8_t factor )
+ 168:device/clksys_driver.c **** {
+ 548               	.LM11:
+ 549               	.LFBB3:
+ 550               	/* prologue: function */
+ 551               	/* frame size = 0 */
+ 552               	/* stack size = 0 */
+ 553               	.L__stack_usage = 0
+ 169:device/clksys_driver.c **** 	factor &= OSC_PLLFAC_gm;
+ 555               	.LM12:
+ 556 0000 6F71      		andi r22,lo8(31)
+ 170:device/clksys_driver.c **** 	OSC.PLLCTRL = (uint8_t) clockSource | ( factor << OSC_PLLFAC_gp );
+ 558               	.LM13:
+ 559 0002 682B      		or r22,r24
+ 561               	.LM14:
+ 562 0004 6093 5500 		sts 85,r22
+ 563               	/* epilogue start */
+ 171:device/clksys_driver.c **** }
+ 565               	.LM15:
+ 566 0008 0895      		ret
+ 568               	.Lscope3:
+ 569               		.section	.text.CLKSYS_Disable,"ax",@progbits
+ 572               	.global	CLKSYS_Disable
+ 574               	CLKSYS_Disable:
+ 172:device/clksys_driver.c **** 
+ 173:device/clksys_driver.c **** 
+ 174:device/clksys_driver.c **** /*! \brief This function disables the selected oscillator.
+ 175:device/clksys_driver.c ****  *
+ 176:device/clksys_driver.c ****  *  This function will disable the selected oscillator if possible.
+ 177:device/clksys_driver.c ****  *  If it is currently used as a main system clock source, hardware will
+ 178:device/clksys_driver.c ****  *  disregard the disable attempt, and this function will return zero.
+ 179:device/clksys_driver.c ****  *  If it fails, change to another main system clock source and try again.
+ 180:device/clksys_driver.c ****  *
+ 181:device/clksys_driver.c ****  *  \param oscSel  Bitmask of selected clock. Can be one of the following
+ 182:device/clksys_driver.c ****  *                 OSC_RC2MEN_bm, OSC_RC32MEN_bm, OSC_RC32KEN_bm,
+ 183:device/clksys_driver.c ****  *                 OSC_XOSCEN_bm, OSC_PLLEN_bm.
+ 184:device/clksys_driver.c ****  *
+ 185:device/clksys_driver.c ****  *  \return  Non-zero if oscillator was disabled successfully.
+ 186:device/clksys_driver.c ****  */
+ 187:device/clksys_driver.c **** uint8_t CLKSYS_Disable( uint8_t oscSel )
+ 188:device/clksys_driver.c **** {
+ 576               	.LM16:
+ 577               	.LFBB4:
+ 578               	/* prologue: function */
+ 579               	/* frame size = 0 */
+ 580               	/* stack size = 0 */
+ 581               	.L__stack_usage = 0
+ 189:device/clksys_driver.c **** 	OSC.CTRL &= ~oscSel;
+ 583               	.LM17:
+ 584 0000 E0E5      		ldi r30,lo8(80)
+ 585 0002 F0E0      		ldi r31,0
+ 586 0004 2081      		ld r18,Z
+ 587 0006 982F      		mov r25,r24
+ 588 0008 9095      		com r25
+ 589 000a 9223      		and r25,r18
+ 590 000c 9083      		st Z,r25
+ 190:device/clksys_driver.c **** 	uint8_t clkEnabled = OSC.CTRL & oscSel;
+ 592               	.LM18:
+ 593 000e 9081      		ld r25,Z
+ 191:device/clksys_driver.c **** 	return clkEnabled;
+ 192:device/clksys_driver.c **** }
+ 595               	.LM19:
+ 596 0010 8923      		and r24,r25
+ 597               	/* epilogue start */
+ 598 0012 0895      		ret
+ 600               	.Lscope4:
+ 601               		.section	.text.CLKSYS_Prescalers_Config,"ax",@progbits
+ 605               	.global	CLKSYS_Prescalers_Config
+ 607               	CLKSYS_Prescalers_Config:
+ 193:device/clksys_driver.c **** 
+ 194:device/clksys_driver.c **** 
+ 195:device/clksys_driver.c **** /*! \brief This function changes the prescaler configuration.
+ 196:device/clksys_driver.c ****  *
+ 197:device/clksys_driver.c ****  *  Change the configuration of the three system clock
+ 198:device/clksys_driver.c ****  *  prescaler is one single operation. The user must make sure that
+ 199:device/clksys_driver.c ****  *  the main CPU clock does not exceed recommended limits.
+ 200:device/clksys_driver.c ****  *
+ 201:device/clksys_driver.c ****  *  \param  PSAfactor   Prescaler A division factor, OFF or 2 to 512 in
+ 202:device/clksys_driver.c ****  *                      powers of two.
+ 203:device/clksys_driver.c ****  *  \param  PSBCfactor  Prescaler B and C division factor, in the combination
+ 204:device/clksys_driver.c ****  *                      of (1,1), (1,2), (4,1) or (2,2).
+ 205:device/clksys_driver.c ****  */
+ 206:device/clksys_driver.c **** void CLKSYS_Prescalers_Config( CLK_PSADIV_t PSAfactor,
+ 207:device/clksys_driver.c ****                                CLK_PSBCDIV_t PSBCfactor )
+ 208:device/clksys_driver.c **** {
+ 609               	.LM20:
+ 610               	.LFBB5:
+ 611               	/* prologue: function */
+ 612               	/* frame size = 0 */
+ 613               	/* stack size = 0 */
+ 614               	.L__stack_usage = 0
+ 209:device/clksys_driver.c **** 	uint8_t PSconfig = (uint8_t) PSAfactor | PSBCfactor;
+ 616               	.LM21:
+ 617 0000 682B      		or r22,r24
+ 210:device/clksys_driver.c **** 	CCPWrite( &CLK.PSCTRL, PSconfig );
+ 619               	.LM22:
+ 620 0002 81E4      		ldi r24,lo8(65)
+ 621 0004 90E0      		ldi r25,0
+ 622 0006 0C94 0000 		jmp CCPWrite
+ 624               	.Lscope5:
+ 625               		.section	.text.CLKSYS_Main_ClockSource_Select,"ax",@progbits
+ 628               	.global	CLKSYS_Main_ClockSource_Select
+ 630               	CLKSYS_Main_ClockSource_Select:
+ 211:device/clksys_driver.c **** }
+ 212:device/clksys_driver.c **** 
+ 213:device/clksys_driver.c **** 
+ 214:device/clksys_driver.c **** /*! \brief This function selects the main system clock source.
+ 215:device/clksys_driver.c ****  *
+ 216:device/clksys_driver.c ****  *  Hardware will disregard any attempts to select a clock source that is not
+ 217:device/clksys_driver.c ****  *  enabled or not stable. If the change fails, make sure the source is ready
+ 218:device/clksys_driver.c ****  *  and running and try again.
+ 219:device/clksys_driver.c ****  *
+ 220:device/clksys_driver.c ****  *  \param  clockSource  Clock source to use as input for the system clock
+ 221:device/clksys_driver.c ****  *                       prescaler block.
+ 222:device/clksys_driver.c ****  *
+ 223:device/clksys_driver.c ****  *  \return  Non-zero if change was successful.
+ 224:device/clksys_driver.c ****  */
+ 225:device/clksys_driver.c **** uint8_t CLKSYS_Main_ClockSource_Select( CLK_SCLKSEL_t clockSource )
+ 226:device/clksys_driver.c **** {
+ 632               	.LM23:
+ 633               	.LFBB6:
+ 634 0000 0F93      		push r16
+ 635 0002 1F93      		push r17
+ 636 0004 CF93      		push r28
+ 637               	/* prologue: function */
+ 638               	/* frame size = 0 */
+ 639               	/* stack size = 3 */
+ 640               	.L__stack_usage = 3
+ 641 0006 C82F      		mov r28,r24
+ 227:device/clksys_driver.c **** 	uint8_t clkCtrl = ( CLK.CTRL & ~CLK_SCLKSEL_gm ) | clockSource;
+ 643               	.LM24:
+ 644 0008 00E4      		ldi r16,lo8(64)
+ 645 000a 10E0      		ldi r17,0
+ 646 000c F801      		movw r30,r16
+ 647 000e 6081      		ld r22,Z
+ 649               	.LM25:
+ 650 0010 687F      		andi r22,lo8(-8)
+ 652               	.LM26:
+ 653 0012 682B      		or r22,r24
+ 228:device/clksys_driver.c **** 	CCPWrite( &CLK.CTRL, clkCtrl );
+ 655               	.LM27:
+ 656 0014 80E4      		ldi r24,lo8(64)
+ 657 0016 90E0      		ldi r25,0
+ 658 0018 0E94 0000 		call CCPWrite
+ 229:device/clksys_driver.c **** 	clkCtrl = ( CLK.CTRL & clockSource );
+ 660               	.LM28:
+ 661 001c F801      		movw r30,r16
+ 662 001e 8081      		ld r24,Z
+ 230:device/clksys_driver.c **** 	return clkCtrl;
+ 231:device/clksys_driver.c **** }
+ 664               	.LM29:
+ 665 0020 8C23      		and r24,r28
+ 666               	/* epilogue start */
+ 667 0022 CF91      		pop r28
+ 668 0024 1F91      		pop r17
+ 669 0026 0F91      		pop r16
+ 670 0028 0895      		ret
+ 672               	.Lscope6:
+ 673               		.section	.text.CLKSYS_RTC_ClockSource_Enable,"ax",@progbits
+ 676               	.global	CLKSYS_RTC_ClockSource_Enable
+ 678               	CLKSYS_RTC_ClockSource_Enable:
+ 232:device/clksys_driver.c **** 
+ 233:device/clksys_driver.c **** 
+ 234:device/clksys_driver.c **** /*! \brief This function selects a Real-Time Counter clock source.
+ 235:device/clksys_driver.c ****  *
+ 236:device/clksys_driver.c ****  *  Selects the clock source for use by the Real-Time Counter (RTC)
+ 237:device/clksys_driver.c ****  *  and enables clock signal routing to the RTC module.
+ 238:device/clksys_driver.c ****  *
+ 239:device/clksys_driver.c ****  *  \param  clockSource  Clock source to use for the RTC.
+ 240:device/clksys_driver.c ****  */
+ 241:device/clksys_driver.c **** void CLKSYS_RTC_ClockSource_Enable( CLK_RTCSRC_t clockSource )
+ 242:device/clksys_driver.c **** {
+ 680               	.LM30:
+ 681               	.LFBB7:
+ 682               	/* prologue: function */
+ 683               	/* frame size = 0 */
+ 684               	/* stack size = 0 */
+ 685               	.L__stack_usage = 0
+ 243:device/clksys_driver.c **** 	CLK.RTCCTRL = ( CLK.RTCCTRL & ~CLK_RTCSRC_gm ) |
+ 687               	.LM31:
+ 688 0000 E0E4      		ldi r30,lo8(64)
+ 689 0002 F0E0      		ldi r31,0
+ 690 0004 9381      		ldd r25,Z+3
+ 692               	.LM32:
+ 693 0006 917F      		andi r25,lo8(-15)
+ 695               	.LM33:
+ 696 0008 982B      		or r25,r24
+ 244:device/clksys_driver.c **** 	              clockSource |
+ 698               	.LM34:
+ 699 000a 9160      		ori r25,lo8(1)
+ 243:device/clksys_driver.c **** 	CLK.RTCCTRL = ( CLK.RTCCTRL & ~CLK_RTCSRC_gm ) |
+ 701               	.LM35:
+ 702 000c 9383      		std Z+3,r25
+ 703               	/* epilogue start */
+ 245:device/clksys_driver.c **** 	              CLK_RTCEN_bm;
+ 246:device/clksys_driver.c **** }
+ 705               	.LM36:
+ 706 000e 0895      		ret
+ 708               	.Lscope7:
+ 709               		.section	.text.CLKSYS_AutoCalibration_Enable,"ax",@progbits
+ 713               	.global	CLKSYS_AutoCalibration_Enable
+ 715               	CLKSYS_AutoCalibration_Enable:
+ 247:device/clksys_driver.c **** 
+ 248:device/clksys_driver.c **** 
+ 249:device/clksys_driver.c **** /*! \brief This function enables automatic calibration of the selected internal
+ 250:device/clksys_driver.c ****  *         oscillator.
+ 251:device/clksys_driver.c ****  *
+ 252:device/clksys_driver.c ****  *  Either the internal 32kHz RC oscillator or an external 32kHz
+ 253:device/clksys_driver.c ****  *  crystal can be used as a calibration reference. The user must make sure
+ 254:device/clksys_driver.c ****  *  that the selected reference is ready and running.
+ 255:device/clksys_driver.c ****  *
+ 256:device/clksys_driver.c ****  *  \param  clkSource    Clock source to calibrate, either OSC_RC2MCREF_bm or
+ 257:device/clksys_driver.c ****  *                       OSC_RC32MCREF_bm.
+ 258:device/clksys_driver.c ****  *  \param  extReference True if external crystal should be used as reference.
+ 259:device/clksys_driver.c ****  */
+ 260:device/clksys_driver.c **** void CLKSYS_AutoCalibration_Enable( uint8_t clkSource, bool extReference )
+ 261:device/clksys_driver.c **** {
+ 717               	.LM37:
+ 718               	.LFBB8:
+ 719               	/* prologue: function */
+ 720               	/* frame size = 0 */
+ 721               	/* stack size = 0 */
+ 722               	.L__stack_usage = 0
+ 262:device/clksys_driver.c **** 	OSC.DFLLCTRL = ( OSC.DFLLCTRL & ~clkSource ) |
+ 724               	.LM38:
+ 725 0000 3091 5600 		lds r19,86
+ 727               	.LM39:
+ 728 0004 282F      		mov r18,r24
+ 729 0006 982F      		mov r25,r24
+ 730 0008 9095      		com r25
+ 731 000a 9323      		and r25,r19
+ 733               	.LM40:
+ 734 000c 6111      		cpse r22,__zero_reg__
+ 735 000e 00C0      		rjmp .L11
+ 736 0010 20E0      		ldi r18,0
+ 737               	.L11:
+ 739               	.LM41:
+ 740 0012 922B      		or r25,r18
+ 742               	.LM42:
+ 743 0014 9093 5600 		sts 86,r25
+ 263:device/clksys_driver.c **** 	               ( extReference ? clkSource : 0 );
+ 264:device/clksys_driver.c **** 	if (clkSource == OSC_RC2MCREF_bm) {
+ 745               	.LM43:
+ 746 0018 8130      		cpi r24,lo8(1)
+ 747 001a 01F4      		brne .L12
+ 265:device/clksys_driver.c **** 		DFLLRC2M.CTRL |= DFLL_ENABLE_bm;
+ 749               	.LM44:
+ 750 001c 8091 6800 		lds r24,104
+ 751 0020 8160      		ori r24,lo8(1)
+ 752 0022 8093 6800 		sts 104,r24
+ 753 0026 0895      		ret
+ 754               	.L12:
+ 266:device/clksys_driver.c **** 	} else if (clkSource == OSC_RC32MCREF_bm) {
+ 756               	.LM45:
+ 757 0028 8230      		cpi r24,lo8(2)
+ 758 002a 01F4      		brne .L10
+ 267:device/clksys_driver.c **** 		DFLLRC32M.CTRL |= DFLL_ENABLE_bm;
+ 760               	.LM46:
+ 761 002c 8091 6000 		lds r24,96
+ 762 0030 8160      		ori r24,lo8(1)
+ 763 0032 8093 6000 		sts 96,r24
+ 764               	.L10:
+ 765               	/* epilogue start */
+ 268:device/clksys_driver.c **** 	}
+ 269:device/clksys_driver.c **** }
+ 767               	.LM47:
+ 768 0036 0895      		ret
+ 770               	.Lscope8:
+ 771               		.section	.text.CLKSYS_XOSC_FailureDetection_Enable,"ax",@progbits
+ 773               	.global	CLKSYS_XOSC_FailureDetection_Enable
+ 775               	CLKSYS_XOSC_FailureDetection_Enable:
+ 270:device/clksys_driver.c **** 
+ 271:device/clksys_driver.c **** 
+ 272:device/clksys_driver.c **** /*! \brief This function enables the External Oscillator Failure Detection
+ 273:device/clksys_driver.c ****  *         (XOSCFD) feature.
+ 274:device/clksys_driver.c ****  *
+ 275:device/clksys_driver.c ****  *  The feature will stay enabled until next reset. Note that the
+ 276:device/clksys_driver.c ****  *  XOSCFD _will_ issue the XOSCF Non-maskable Interrupt (NMI) regardless of
+ 277:device/clksys_driver.c ****  *  any interrupt priorities and settings. Therefore, make sure that a handler
+ 278:device/clksys_driver.c ****  *  is implemented for the XOSCF NMI when you enable it.
+ 279:device/clksys_driver.c ****  */
+ 280:device/clksys_driver.c **** void CLKSYS_XOSC_FailureDetection_Enable( void )
+ 281:device/clksys_driver.c **** {
+ 777               	.LM48:
+ 778               	.LFBB9:
+ 779               	/* prologue: function */
+ 780               	/* frame size = 0 */
+ 781               	/* stack size = 0 */
+ 782               	.L__stack_usage = 0
+ 282:device/clksys_driver.c **** 	CCPWrite( &OSC.XOSCFAIL, ( OSC_XOSCFDIF_bm | OSC_XOSCFDEN_bm ) );
+ 784               	.LM49:
+ 785 0000 63E0      		ldi r22,lo8(3)
+ 786 0002 83E5      		ldi r24,lo8(83)
+ 787 0004 90E0      		ldi r25,0
+ 788 0006 0C94 0000 		jmp CCPWrite
+ 790               	.Lscope9:
+ 791               		.section	.text.CLKSYS_Configuration_Lock,"ax",@progbits
+ 793               	.global	CLKSYS_Configuration_Lock
+ 795               	CLKSYS_Configuration_Lock:
+ 283:device/clksys_driver.c **** }
+ 284:device/clksys_driver.c **** 
+ 285:device/clksys_driver.c **** 
+ 286:device/clksys_driver.c **** /*! \brief This function lock the entire clock system configuration.
+ 287:device/clksys_driver.c ****  *
+ 288:device/clksys_driver.c ****  *  This will lock the configuration until the next reset, or until the
+ 289:device/clksys_driver.c ****  *  External Oscillator Failure Detections (XOSCFD) feature detects a failure
+ 290:device/clksys_driver.c ****  *  and switches to internal 2MHz RC oscillator.
+ 291:device/clksys_driver.c ****  */
+ 292:device/clksys_driver.c **** void CLKSYS_Configuration_Lock( void )
+ 293:device/clksys_driver.c **** {
+ 797               	.LM50:
+ 798               	.LFBB10:
+ 799               	/* prologue: function */
+ 800               	/* frame size = 0 */
+ 801               	/* stack size = 0 */
+ 802               	.L__stack_usage = 0
+ 294:device/clksys_driver.c **** 	CCPWrite( &CLK.LOCK, CLK_LOCK_bm );
+ 804               	.LM51:
+ 805 0000 61E0      		ldi r22,lo8(1)
+ 806 0002 82E4      		ldi r24,lo8(66)
+ 807 0004 90E0      		ldi r25,0
+ 808 0006 0C94 0000 		jmp CCPWrite
+ 810               	.Lscope10:
+ 811               		.text
+ 813               	.Letext0:
+ 814               		.ident	"GCC: (GNU) 9.1.0"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 clksys_driver.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:451    .text.CCPWrite:0000000000000000 CCPWrite
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:513    .text.CLKSYS_XOSC_Config:0000000000000000 CLKSYS_XOSC_Config
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:546    .text.CLKSYS_PLL_Config:0000000000000000 CLKSYS_PLL_Config
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:574    .text.CLKSYS_Disable:0000000000000000 CLKSYS_Disable
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:607    .text.CLKSYS_Prescalers_Config:0000000000000000 CLKSYS_Prescalers_Config
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:630    .text.CLKSYS_Main_ClockSource_Select:0000000000000000 CLKSYS_Main_ClockSource_Select
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:678    .text.CLKSYS_RTC_ClockSource_Enable:0000000000000000 CLKSYS_RTC_ClockSource_Enable
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:715    .text.CLKSYS_AutoCalibration_Enable:0000000000000000 CLKSYS_AutoCalibration_Enable
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:775    .text.CLKSYS_XOSC_FailureDetection_Enable:0000000000000000 CLKSYS_XOSC_FailureDetection_Enable
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc2N5CvP.s:795    .text.CLKSYS_Configuration_Lock:0000000000000000 CLKSYS_Configuration_Lock
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,152 @@
+   1               	# 1 "crypto/p7681/mm7681.S"
+   1               	
+   0               	
+   0               	
+   2               	
+   3               	// #include	"ATxmega128A1def.inc"
+   4               	
+   5               		 #define P0_low r24
+   6               		 #define P0_high r25
+   7               		 #define P1_low r22
+   8               		 #define P1_high r23
+   9               	
+  10               		 #define V1 R27
+  11               	
+  12               		 #define T0l r22
+  13               		 #define T0h r23
+  14               		 #define T1l r24
+  15               		 #define T1h r25
+  16               		 #define T2  r26
+  17               	
+  18               		 #define S0 r18
+  19               		 #define S1 r19
+  20               		 #define S2 r20
+  21               		 #define S3 r21
+  22               	
+  23               		 #define RET0 r24
+  24               		 #define RET1 r25
+  25               	
+  26               	//#define TIMING_RESISTANT
+  27               	
+  28               	.global mod7681
+  29               	mod7681:
+  30               		 //value is in P0_low=r24, P0_high=r25
+  31:crypto/p7681/mm7681.S **** 	 ldi S0, (7681 & 0xFF)
+  32:crypto/p7681/mm7681.S **** 	 ldi S1, (7681>>8) & 0xFF
+  33:crypto/p7681/mm7681.S **** 	 cpi P0_low, (7681 & 0xFF)
+  34:crypto/p7681/mm7681.S **** 	 cpc P0_high, S1
+  35:crypto/p7681/mm7681.S **** 	 BRLT DO_NIX
+  36:crypto/p7681/mm7681.S **** 	 sub P0_low,  S0
+  37:crypto/p7681/mm7681.S **** 	 sbc P0_high, S1
+  38:crypto/p7681/mm7681.S **** 	 rjmp FIN
+  39               	DO_NIX:		
+  40:crypto/p7681/mm7681.S **** 	 inc S0
+  41:crypto/p7681/mm7681.S **** 	 ori S0,0
+  42:crypto/p7681/mm7681.S **** 	 dec S0
+  43               	FIN:	
+  44:crypto/p7681/mm7681.S **** 	 ret
+  45               		
+  46               		
+  47               	.global mm7681_check
+  48               	mm7681_check:
+  49               		 //TODO
+  50               		 //Check if the second coefficient is one (then just return)
+  51               		 //ldi S0, 0x01
+  52               		 ///cpi P1_high,  0
+  53               		 //cpc P1_low, S0
+  54               	
+  55               		 //If second coefficient is one we just return (r25:24 hold the return value which is not one)
+  56:crypto/p7681/mm7681.S **** 	 rjmp SECOND_NOT_ONE
+  57:crypto/p7681/mm7681.S **** 	 ret
+  58               	
+  59               	.global mm7681
+  60               	mm7681:	
+  61               	SECOND_NOT_ONE:	
+  62               	
+  63               		//Multiply a*b. Store result in P1-P4. Use S0-S4
+  64:crypto/p7681/mm7681.S **** 	 mul P0_low, P1_low
+  65:crypto/p7681/mm7681.S **** 	 movw S0, r0
+  66:crypto/p7681/mm7681.S **** 	 mul P0_high, P1_high
+  67:crypto/p7681/mm7681.S **** 	 movw S2, r0
+  68:crypto/p7681/mm7681.S **** 	 mul P0_high, P1_low
+  69:crypto/p7681/mm7681.S **** 	 clr P1_low //have a zero register for addition
+  70:crypto/p7681/mm7681.S **** 	 add S1, r0
+  71:crypto/p7681/mm7681.S **** 	 adc S2, r1
+  72:crypto/p7681/mm7681.S **** 	 adc S3, P1_low
+  73:crypto/p7681/mm7681.S **** 	 mul P0_low, P1_high
+  74:crypto/p7681/mm7681.S **** 	 add S1, r0
+  75:crypto/p7681/mm7681.S **** 	 adc S2, r1
+  76:crypto/p7681/mm7681.S **** 	 adc S3, P1_low
+  77               		 //result of multiplication is now in S3:S0
+  78               	
+  79               		 //reduction
+  80               		 // shift
+  81:crypto/p7681/mm7681.S **** 	 movw T0l, S2
+  82:crypto/p7681/mm7681.S **** 	 lsr T0h
+  83:crypto/p7681/mm7681.S **** 	 ror T0l
+  84               	
+  85:crypto/p7681/mm7681.S **** 	 movw T1l, S2
+  86:crypto/p7681/mm7681.S **** 	 mov  T2, S1
+  87:crypto/p7681/mm7681.S **** 	 lsl T2
+  88:crypto/p7681/mm7681.S **** 	 rol T1l
+  89:crypto/p7681/mm7681.S **** 	 rol T1h
+  90               	
+  91:crypto/p7681/mm7681.S **** 	 lsl T2
+  92:crypto/p7681/mm7681.S **** 	 rol T1l
+  93:crypto/p7681/mm7681.S **** 	 rol T1h
+  94               	
+  95:crypto/p7681/mm7681.S **** 	 lsl T2
+  96:crypto/p7681/mm7681.S **** 	 rol T1l
+  97:crypto/p7681/mm7681.S **** 	 rol T1h
+  98               	
+  99               		 //add
+ 100:crypto/p7681/mm7681.S **** 	 add T0l, T1l
+ 101:crypto/p7681/mm7681.S **** 	 adc T0h, T1h
+ 102               	
+ 103:crypto/p7681/mm7681.S **** 	 add T0l, T1h
+ 104:crypto/p7681/mm7681.S **** 	 clr T2
+ 105:crypto/p7681/mm7681.S **** 	 adc T0h, T2
+ 106               		
+ 107               		 //mul
+ 108:crypto/p7681/mm7681.S **** 	 ldi V1, (7681 >> 8) & 0xFF
+ 109:crypto/p7681/mm7681.S **** 	 mul V1,T0l 
+ 110               		
+ 111               		//sub
+ 112:crypto/p7681/mm7681.S **** 	sub S0, T0l
+ 113:crypto/p7681/mm7681.S ****     	sbc S1, T0h
+ 114               	
+ 115:crypto/p7681/mm7681.S **** 	sub S1, R0
+ 116               	
+ 117               	
+ 118               	CHECK_SUB:
+ 119:crypto/p7681/mm7681.S **** 	cp V1, S1
+ 120:crypto/p7681/mm7681.S **** 	brlo DO_SUB
+ 121:crypto/p7681/mm7681.S **** 	brne FINISHED
+ 122               		
+ 123:crypto/p7681/mm7681.S **** 	cpi S0, 1
+ 124:crypto/p7681/mm7681.S **** 	brlo FINISHED
+ 125               	
+ 126               	DO_SUB:
+ 127:crypto/p7681/mm7681.S **** 	subi S0, 1
+ 128:crypto/p7681/mm7681.S **** 	sbc S1, V1
+ 129               		
+ 130:crypto/p7681/mm7681.S **** 	rjmp CHECK_SUB
+ 131               	
+ 132               	FINISHED:
+ 133               		//Return argument has to be put into r25:r24
+ 134:crypto/p7681/mm7681.S **** 	clr r1
+ 135:crypto/p7681/mm7681.S **** 	mov RET0, S0
+ 136:crypto/p7681/mm7681.S **** 	mov RET1, S1
+ 137:crypto/p7681/mm7681.S **** 	ret
+DEFINED SYMBOLS
+crypto/p7681/mm7681.S:29     .text:0000000000000000 mod7681
+crypto/p7681/mm7681.S:39     .text:0000000000000010 DO_NIX
+crypto/p7681/mm7681.S:43     .text:0000000000000016 FIN
+crypto/p7681/mm7681.S:48     .text:0000000000000018 mm7681_check
+crypto/p7681/mm7681.S:61     .text:000000000000001c SECOND_NOT_ONE
+crypto/p7681/mm7681.S:60     .text:000000000000001c mm7681
+crypto/p7681/mm7681.S:118    .text:0000000000000066 CHECK_SUB
+crypto/p7681/mm7681.S:126    .text:0000000000000070 DO_SUB
+crypto/p7681/mm7681.S:132    .text:0000000000000076 FINISHED
+
+NO UNDEFINED SYMBOLS

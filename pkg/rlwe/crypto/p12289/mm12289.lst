@@ -1,0 +1,168 @@
+   1               	# 1 "crypto/p12289/mm12289.S"
+   1               	#define P0_low r24
+   0               	
+   0               	
+   2               		 #define P0_high r25
+   3               		 #define P1_low r22
+   4               		 #define P1_high r23
+   5               	
+   6               		 #define V1 R27
+   7               	
+   8               		 #define T0l r22
+   9               		 #define T0h r23
+  10               		 #define T1l r24
+  11               		 #define T1h r25
+  12               		 #define T2  r26
+  13               	
+  14               		 #define S0 r18
+  15               		 #define S1 r19
+  16               		 #define S2 r20
+  17               		 #define S3 r21
+  18               	
+  19               		 #define RET0 r24
+  20               		 #define RET1 r25
+  21               	
+  22               	
+  23               	
+  24               	//#############################################  mulmod12289 #################################
+  25               	.global mm12289
+  26               	mm12289:
+  27               		 // --------------------- PROGRAM ----------------------
+  28               		 //Multiply a*b. Store result in P1-P4. Use S0-S4
+  29:crypto/p12289/mm12289.S **** 	 mul P0_low, P1_low
+  30:crypto/p12289/mm12289.S **** 	 movw S0, r0
+  31:crypto/p12289/mm12289.S **** 	 mul P0_high, P1_high
+  32:crypto/p12289/mm12289.S **** 	 movw S2, r0
+  33:crypto/p12289/mm12289.S **** 	 mul P0_high, P1_low
+  34:crypto/p12289/mm12289.S **** 	 clr P1_low //have a zero register for addition
+  35:crypto/p12289/mm12289.S **** 	 add S1, r0
+  36:crypto/p12289/mm12289.S **** 	 adc S2, r1
+  37:crypto/p12289/mm12289.S **** 	 adc S3, P1_low
+  38:crypto/p12289/mm12289.S **** 	 mul P0_low, P1_high
+  39:crypto/p12289/mm12289.S **** 	 add S1, r0
+  40:crypto/p12289/mm12289.S **** 	 adc S2, r1
+  41:crypto/p12289/mm12289.S **** 	 adc S3, P1_low
+  42               		 //result of multiplication is now in S3:S0
+  43               	
+  44               		 //reduction
+  45               		 // shift
+  46:crypto/p12289/mm12289.S **** 	 clr V1
+  47               		 // T0
+  48:crypto/p12289/mm12289.S **** 	 movw T0l, S2
+  49:crypto/p12289/mm12289.S **** 	 movw T1l, S2
+  50:crypto/p12289/mm12289.S **** 	 mov  T2, S1
+  51               		 // T1
+  52:crypto/p12289/mm12289.S **** 	 add T0l, T1h
+  53:crypto/p12289/mm12289.S **** 	 adc T0h, V1
+  54               	
+  55               		 //T2
+  56:crypto/p12289/mm12289.S **** 	 lsl T2
+  57:crypto/p12289/mm12289.S **** 	 rol T1l
+  58:crypto/p12289/mm12289.S **** 	 rol T1h
+  59               	
+  60:crypto/p12289/mm12289.S **** 	 lsl T2
+  61:crypto/p12289/mm12289.S **** 	 rol T1l
+  62:crypto/p12289/mm12289.S **** 	 rol T1h
+  63               	
+  64:crypto/p12289/mm12289.S **** 	 add T0l, T1l
+  65:crypto/p12289/mm12289.S **** 	 adc T0h, T1h
+  66               	
+  67               		 //T3
+  68:crypto/p12289/mm12289.S **** 	 add T0l, T1h
+  69:crypto/p12289/mm12289.S **** 	 adc T0h, V1
+  70               	
+  71               		 //T4
+  72:crypto/p12289/mm12289.S **** 	 lsl T1l
+  73:crypto/p12289/mm12289.S **** 	 rol T1h
+  74:crypto/p12289/mm12289.S **** 	 lsl T1l
+  75:crypto/p12289/mm12289.S **** 	 rol T1h
+  76               	
+  77:crypto/p12289/mm12289.S **** 	 add T0l, T1h
+  78:crypto/p12289/mm12289.S **** 	 adc T0h, V1
+  79               	
+  80               		 //T5
+  81:crypto/p12289/mm12289.S **** 	 lsl T1l
+  82:crypto/p12289/mm12289.S **** 	 rol T1h
+  83:crypto/p12289/mm12289.S **** 	 rol V1
+  84:crypto/p12289/mm12289.S **** 	 lsl T1l
+  85:crypto/p12289/mm12289.S **** 	 rol T1h
+  86:crypto/p12289/mm12289.S **** 	 rol V1
+  87               	
+  88:crypto/p12289/mm12289.S **** 	 add T0l, T1h
+  89:crypto/p12289/mm12289.S **** 	 adc T0h, V1
+  90               	
+  91               		
+  92               		 //mul
+  93:crypto/p12289/mm12289.S **** 	 ldi V1, (12289 >> 8) & 0xFF
+  94:crypto/p12289/mm12289.S **** 	 mul V1,T0l 
+  95:crypto/p12289/mm12289.S **** 	 movw T1l, R0
+  96:crypto/p12289/mm12289.S **** 	 mul V1,T0h
+  97:crypto/p12289/mm12289.S **** 	 add T1h, R0
+  98               	
+  99:crypto/p12289/mm12289.S **** 	clr T2
+ 100               	
+ 101               		//sub
+ 102:crypto/p12289/mm12289.S **** 	sub S0, T0l
+ 103:crypto/p12289/mm12289.S ****     	sbc S1, T0h
+ 104:crypto/p12289/mm12289.S **** 	sbc S2, T2
+ 105               	
+ 106:crypto/p12289/mm12289.S **** 	sub S1, T1l
+ 107:crypto/p12289/mm12289.S **** 	sbc S2, T1h
+ 108               	
+ 109               		
+ 110               	
+ 111               	CHECK_SUB:
+ 112:crypto/p12289/mm12289.S **** 	cpi S2, 1
+ 113:crypto/p12289/mm12289.S **** 	breq DO_SUB
+ 114               	
+ 115:crypto/p12289/mm12289.S **** 	cp V1, S1
+ 116:crypto/p12289/mm12289.S **** 	brlo DO_SUB
+ 117:crypto/p12289/mm12289.S **** 	brne FINISHED
+ 118               		
+ 119:crypto/p12289/mm12289.S **** 	cpi S0, 1
+ 120:crypto/p12289/mm12289.S **** 	brlo FINISHED
+ 121               	
+ 122               	DO_SUB:
+ 123:crypto/p12289/mm12289.S **** 	subi S0, 1
+ 124:crypto/p12289/mm12289.S **** 	sbc S1, V1
+ 125:crypto/p12289/mm12289.S **** 	sbc S2, T2
+ 126               		
+ 127:crypto/p12289/mm12289.S **** 	rjmp CHECK_SUB
+ 128               	
+ 129               	FINISHED:
+ 130               		//Return argument has to be put into r25:r24
+ 131:crypto/p12289/mm12289.S **** 	clr r1
+ 132:crypto/p12289/mm12289.S **** 	mov RET0, S0
+ 133:crypto/p12289/mm12289.S **** 	mov RET1, S1
+ 134:crypto/p12289/mm12289.S **** 	ret
+ 135               	
+ 136               	
+ 137               	// #############################################  mod12289 (addition) #############################
+ 138               	.global mod12289
+ 139               	mod12289:
+ 140               		 //value is in P0_low=r24, P0_high=r25
+ 141:crypto/p12289/mm12289.S **** 	 ldi S0, (12289 & 0xFF)
+ 142:crypto/p12289/mm12289.S **** 	 ldi S1, (12289>>8) & 0xFF
+ 143               	
+ 144:crypto/p12289/mm12289.S **** 	 cpi P0_low, (12289 & 0xFF)
+ 145:crypto/p12289/mm12289.S **** 	 cpc P0_high, S1
+ 146:crypto/p12289/mm12289.S **** 	 BRLT DO_NIX
+ 147:crypto/p12289/mm12289.S **** 	 sub P0_low,  S0
+ 148:crypto/p12289/mm12289.S **** 	 sbc P0_high, S1
+ 149:crypto/p12289/mm12289.S **** 	 rjmp FIN
+ 150               	DO_NIX:
+ 151:crypto/p12289/mm12289.S **** 	 inc S0
+ 152:crypto/p12289/mm12289.S **** 	 ori S0,0
+ 153:crypto/p12289/mm12289.S **** 	 dec S0
+ 154               	FIN:
+ 155:crypto/p12289/mm12289.S **** 	 ret
+DEFINED SYMBOLS
+crypto/p12289/mm12289.S:26     .text:0000000000000000 mm12289
+crypto/p12289/mm12289.S:111    .text:000000000000006c CHECK_SUB
+crypto/p12289/mm12289.S:122    .text:000000000000007a DO_SUB
+crypto/p12289/mm12289.S:129    .text:0000000000000082 FINISHED
+crypto/p12289/mm12289.S:139    .text:000000000000008a mod12289
+crypto/p12289/mm12289.S:150    .text:000000000000009a DO_NIX
+crypto/p12289/mm12289.S:154    .text:00000000000000a0 FIN
+
+NO UNDEFINED SYMBOLS

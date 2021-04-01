@@ -1,0 +1,1077 @@
+   1               		.file	"usart_driver.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 458               		.section	.text.uart_putchar,"ax",@progbits
+ 462               	.global	uart_putchar
+ 464               	uart_putchar:
+   1:device/usart_driver.c **** /* This file has been prepared for Doxygen automatic documentation generation.*/
+   2:device/usart_driver.c **** /*! \file *********************************************************************
+   3:device/usart_driver.c ****  *
+   4:device/usart_driver.c ****  * \brief
+   5:device/usart_driver.c ****  *      XMEGA USART driver source file.
+   6:device/usart_driver.c ****  *
+   7:device/usart_driver.c ****  *      This file contains the function implementations the XMEGA interrupt
+   8:device/usart_driver.c ****  *      and polled USART driver.
+   9:device/usart_driver.c ****  *
+  10:device/usart_driver.c ****  *      The driver is not intended for size and/or speed critical code, since
+  11:device/usart_driver.c ****  *      most functions are just a few lines of code, and the function call
+  12:device/usart_driver.c ****  *      overhead would decrease code performance. The driver is intended for
+  13:device/usart_driver.c ****  *      rapid prototyping and documentation purposes for getting started with
+  14:device/usart_driver.c ****  *      the XMEGA ADC module.
+  15:device/usart_driver.c ****  *
+  16:device/usart_driver.c ****  *      For size and/or speed critical code, it is recommended to copy the
+  17:device/usart_driver.c ****  *      function contents directly into your application instead of making
+  18:device/usart_driver.c ****  *      a function call.
+  19:device/usart_driver.c ****  *
+  20:device/usart_driver.c ****  *      Some functions use the following construct:
+  21:device/usart_driver.c ****  *          "some_register = ... | (some_parameter ? SOME_BIT_bm : 0) | ..."
+  22:device/usart_driver.c ****  *      Although the use of the ternary operator ( if ? then : else ) is discouraged,
+  23:device/usart_driver.c ****  *      in some occasions the operator makes it possible to write pretty clean and
+  24:device/usart_driver.c ****  *      neat code. In this driver, the construct is used to set or not set a
+  25:device/usart_driver.c ****  *      configuration bit based on a boolean input parameter, such as
+  26:device/usart_driver.c ****  *      the "some_parameter" in the example above.
+  27:device/usart_driver.c ****  *
+  28:device/usart_driver.c ****  * \par Application note:
+  29:device/usart_driver.c ****  *      AVR1307: Using the XMEGA USART
+  30:device/usart_driver.c ****  *
+  31:device/usart_driver.c ****  * \par Documentation
+  32:device/usart_driver.c ****  *      For comprehensive code documentation, supported compilers, compiler
+  33:device/usart_driver.c ****  *      settings and supported devices see readme.html
+  34:device/usart_driver.c ****  *
+  35:device/usart_driver.c ****  * \author
+  36:device/usart_driver.c ****  *      Atmel Corporation: http://www.atmel.com \n
+  37:device/usart_driver.c ****  *      Support email: avr@atmel.com
+  38:device/usart_driver.c ****  *
+  39:device/usart_driver.c ****  * $Revision: 1694 $
+  40:device/usart_driver.c ****  * $Date: 2008-07-29 14:21:58 +0200 (ti, 29 jul 2008) $  \n
+  41:device/usart_driver.c ****  *
+  42:device/usart_driver.c ****  * Copyright (c) 2008, Atmel Corporation All rights reserved.
+  43:device/usart_driver.c ****  *
+  44:device/usart_driver.c ****  * Redistribution and use in source and binary forms, with or without
+  45:device/usart_driver.c ****  * modification, are permitted provided that the following conditions are met:
+  46:device/usart_driver.c ****  *
+  47:device/usart_driver.c ****  * 1. Redistributions of source code must retain the above copyright notice,
+  48:device/usart_driver.c ****  * this list of conditions and the following disclaimer.
+  49:device/usart_driver.c ****  *
+  50:device/usart_driver.c ****  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  51:device/usart_driver.c ****  * this list of conditions and the following disclaimer in the documentation
+  52:device/usart_driver.c ****  * and/or other materials provided with the distribution.
+  53:device/usart_driver.c ****  *
+  54:device/usart_driver.c ****  * 3. The name of ATMEL may not be used to endorse or promote products derived
+  55:device/usart_driver.c ****  * from this software without specific prior written permission.
+  56:device/usart_driver.c ****  *
+  57:device/usart_driver.c ****  * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+  58:device/usart_driver.c ****  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  59:device/usart_driver.c ****  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY AND
+  60:device/usart_driver.c ****  * SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT,
+  61:device/usart_driver.c ****  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  62:device/usart_driver.c ****  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  63:device/usart_driver.c ****  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+  64:device/usart_driver.c ****  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  65:device/usart_driver.c ****  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+  66:device/usart_driver.c ****  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  67:device/usart_driver.c ****  *****************************************************************************/
+  68:device/usart_driver.c **** 
+  69:device/usart_driver.c **** #define USART USARTC0
+  70:device/usart_driver.c **** #include "usart_driver.h"
+  71:device/usart_driver.c **** 
+  72:device/usart_driver.c **** /*! \brief Initializes buffer and selects what USART module to use.
+  73:device/usart_driver.c ****  *
+  74:device/usart_driver.c ****  *  Initializes receive and transmit buffer and selects what USART module to use,
+  75:device/usart_driver.c ****  *  and stores the data register empty interrupt level.
+  76:device/usart_driver.c ****  *
+  77:device/usart_driver.c ****  *  \param usart_data           The USART_data_t struct instance.
+  78:device/usart_driver.c ****  *  \param usart                The USART module.
+  79:device/usart_driver.c ****  *  \param dreIntLevel          Data register empty interrupt level.
+  80:device/usart_driver.c ****  */
+  81:device/usart_driver.c **** void USART_InterruptDriver_Initialize(USART_data_t * usart_data,
+  82:device/usart_driver.c ****                                       USART_t * usart,
+  83:device/usart_driver.c ****                                       USART_DREINTLVL_t dreIntLevel)
+  84:device/usart_driver.c **** {
+  85:device/usart_driver.c **** 	usart_data->usart = usart;
+  86:device/usart_driver.c **** 	usart_data->dreIntLevel = dreIntLevel;
+  87:device/usart_driver.c **** 
+  88:device/usart_driver.c **** 	usart_data->buffer.RX_Tail = 0;
+  89:device/usart_driver.c **** 	usart_data->buffer.RX_Head = 0;
+  90:device/usart_driver.c **** 	usart_data->buffer.TX_Tail = 0;
+  91:device/usart_driver.c **** 	usart_data->buffer.TX_Head = 0;
+  92:device/usart_driver.c **** }
+  93:device/usart_driver.c **** 
+  94:device/usart_driver.c **** 
+  95:device/usart_driver.c **** /*! \brief Set USART DRE interrupt level.
+  96:device/usart_driver.c ****  *
+  97:device/usart_driver.c ****  *  Set the interrupt level on Data Register interrupt.
+  98:device/usart_driver.c ****  *
+  99:device/usart_driver.c ****  *  \note Changing the DRE interrupt level in the interrupt driver while it is
+ 100:device/usart_driver.c ****  *        running will not change the DRE interrupt level in the USART before the
+ 101:device/usart_driver.c ****  *        DRE interrupt have been disabled and enabled again.
+ 102:device/usart_driver.c ****  *
+ 103:device/usart_driver.c ****  *  \param usart_data         The USART_data_t struct instance
+ 104:device/usart_driver.c ****  *  \param dreIntLevel        Interrupt level of the DRE interrupt.
+ 105:device/usart_driver.c ****  */
+ 106:device/usart_driver.c **** void USART_InterruptDriver_DreInterruptLevel_Set(USART_data_t * usart_data,
+ 107:device/usart_driver.c ****                                                  USART_DREINTLVL_t dreIntLevel)
+ 108:device/usart_driver.c **** {
+ 109:device/usart_driver.c **** 	usart_data->dreIntLevel = dreIntLevel;
+ 110:device/usart_driver.c **** }
+ 111:device/usart_driver.c **** 
+ 112:device/usart_driver.c **** 
+ 113:device/usart_driver.c **** /*! \brief Test if there is data in the transmitter software buffer.
+ 114:device/usart_driver.c ****  *
+ 115:device/usart_driver.c ****  *  This function can be used to test if there is free space in the transmitter
+ 116:device/usart_driver.c ****  *  software buffer.
+ 117:device/usart_driver.c ****  *
+ 118:device/usart_driver.c ****  *  \param usart_data The USART_data_t struct instance.
+ 119:device/usart_driver.c ****  *
+ 120:device/usart_driver.c ****  *  \retval true      There is data in the receive buffer.
+ 121:device/usart_driver.c ****  *  \retval false     The receive buffer is empty.
+ 122:device/usart_driver.c ****  */
+ 123:device/usart_driver.c **** bool USART_TXBuffer_FreeSpace(USART_data_t * usart_data)
+ 124:device/usart_driver.c **** {
+ 125:device/usart_driver.c **** 	/* Make copies to make sure that volatile access is specified. */
+ 126:device/usart_driver.c **** 	uint8_t tempHead = (usart_data->buffer.TX_Head + 1) & USART_TX_BUFFER_MASK;
+ 127:device/usart_driver.c **** 	uint8_t tempTail = usart_data->buffer.TX_Tail;
+ 128:device/usart_driver.c **** 
+ 129:device/usart_driver.c **** 	/* There are data left in the buffer unless Head and Tail are equal. */
+ 130:device/usart_driver.c **** 	return (tempHead != tempTail);
+ 131:device/usart_driver.c **** }
+ 132:device/usart_driver.c **** 
+ 133:device/usart_driver.c **** 
+ 134:device/usart_driver.c **** 
+ 135:device/usart_driver.c **** /*! \brief Put data (5-8 bit character).
+ 136:device/usart_driver.c ****  *
+ 137:device/usart_driver.c ****  *  Stores data byte in TX software buffer and enables DRE interrupt if there
+ 138:device/usart_driver.c ****  *  is free space in the TX software buffer.
+ 139:device/usart_driver.c ****  *
+ 140:device/usart_driver.c ****  *  \param usart_data The USART_data_t struct instance.
+ 141:device/usart_driver.c ****  *  \param data       The data to send.
+ 142:device/usart_driver.c ****  */
+ 143:device/usart_driver.c **** bool USART_TXBuffer_PutByte(USART_data_t * usart_data, uint8_t data)
+ 144:device/usart_driver.c **** {
+ 145:device/usart_driver.c **** 	uint8_t tempCTRLA;
+ 146:device/usart_driver.c **** 	uint8_t tempTX_Head;
+ 147:device/usart_driver.c **** 	bool TXBuffer_FreeSpace;
+ 148:device/usart_driver.c **** 	USART_Buffer_t * TXbufPtr;
+ 149:device/usart_driver.c **** 
+ 150:device/usart_driver.c **** 	TXbufPtr = &usart_data->buffer;
+ 151:device/usart_driver.c **** 	TXBuffer_FreeSpace = USART_TXBuffer_FreeSpace(usart_data);
+ 152:device/usart_driver.c **** 
+ 153:device/usart_driver.c **** 
+ 154:device/usart_driver.c **** 	if(TXBuffer_FreeSpace)
+ 155:device/usart_driver.c **** 	{
+ 156:device/usart_driver.c **** 	  	tempTX_Head = TXbufPtr->TX_Head;
+ 157:device/usart_driver.c **** 	  	TXbufPtr->TX[tempTX_Head]= data;
+ 158:device/usart_driver.c **** 		/* Advance buffer head. */
+ 159:device/usart_driver.c **** 		TXbufPtr->TX_Head = (tempTX_Head + 1) & USART_TX_BUFFER_MASK;
+ 160:device/usart_driver.c **** 
+ 161:device/usart_driver.c **** 		/* Enable DRE interrupt. */
+ 162:device/usart_driver.c **** 		tempCTRLA = usart_data->usart->CTRLA;
+ 163:device/usart_driver.c **** 		tempCTRLA = (tempCTRLA & ~USART_DREINTLVL_gm) | usart_data->dreIntLevel;
+ 164:device/usart_driver.c **** 		usart_data->usart->CTRLA = tempCTRLA;
+ 165:device/usart_driver.c **** 	}
+ 166:device/usart_driver.c **** 	return TXBuffer_FreeSpace;
+ 167:device/usart_driver.c **** }
+ 168:device/usart_driver.c **** 
+ 169:device/usart_driver.c **** 
+ 170:device/usart_driver.c **** 
+ 171:device/usart_driver.c **** /*! \brief Test if there is data in the receive software buffer.
+ 172:device/usart_driver.c ****  *
+ 173:device/usart_driver.c ****  *  This function can be used to test if there is data in the receive software
+ 174:device/usart_driver.c ****  *  buffer.
+ 175:device/usart_driver.c ****  *
+ 176:device/usart_driver.c ****  *  \param usart_data         The USART_data_t struct instance
+ 177:device/usart_driver.c ****  *
+ 178:device/usart_driver.c ****  *  \retval true      There is data in the receive buffer.
+ 179:device/usart_driver.c ****  *  \retval false     The receive buffer is empty.
+ 180:device/usart_driver.c ****  */
+ 181:device/usart_driver.c **** bool USART_RXBufferData_Available(USART_data_t * usart_data)
+ 182:device/usart_driver.c **** {
+ 183:device/usart_driver.c **** 	/* Make copies to make sure that volatile access is specified. */
+ 184:device/usart_driver.c **** 	uint8_t tempHead = usart_data->buffer.RX_Head;
+ 185:device/usart_driver.c **** 	uint8_t tempTail = usart_data->buffer.RX_Tail;
+ 186:device/usart_driver.c **** 
+ 187:device/usart_driver.c **** 	/* There are data left in the buffer unless Head and Tail are equal. */
+ 188:device/usart_driver.c **** 	return (tempHead != tempTail);
+ 189:device/usart_driver.c **** }
+ 190:device/usart_driver.c **** 
+ 191:device/usart_driver.c **** 
+ 192:device/usart_driver.c **** 
+ 193:device/usart_driver.c **** /*! \brief Get received data (5-8 bit character).
+ 194:device/usart_driver.c ****  *
+ 195:device/usart_driver.c ****  *  The function USART_RXBufferData_Available should be used before this
+ 196:device/usart_driver.c ****  *  function is used to ensure that data is available.
+ 197:device/usart_driver.c ****  *
+ 198:device/usart_driver.c ****  *  Returns data from RX software buffer.
+ 199:device/usart_driver.c ****  *
+ 200:device/usart_driver.c ****  *  \param usart_data       The USART_data_t struct instance.
+ 201:device/usart_driver.c ****  *
+ 202:device/usart_driver.c ****  *  \return         Received data.
+ 203:device/usart_driver.c ****  */
+ 204:device/usart_driver.c **** uint8_t USART_RXBuffer_GetByte(USART_data_t * usart_data)
+ 205:device/usart_driver.c **** {
+ 206:device/usart_driver.c **** 	USART_Buffer_t * bufPtr;
+ 207:device/usart_driver.c **** 	uint8_t ans;
+ 208:device/usart_driver.c **** 
+ 209:device/usart_driver.c **** 	bufPtr = &usart_data->buffer;
+ 210:device/usart_driver.c **** 	ans = (bufPtr->RX[bufPtr->RX_Tail]);
+ 211:device/usart_driver.c **** 
+ 212:device/usart_driver.c **** 	/* Advance buffer tail. */
+ 213:device/usart_driver.c **** 	bufPtr->RX_Tail = (bufPtr->RX_Tail + 1) & USART_RX_BUFFER_MASK;
+ 214:device/usart_driver.c **** 
+ 215:device/usart_driver.c **** 	return ans;
+ 216:device/usart_driver.c **** }
+ 217:device/usart_driver.c **** 
+ 218:device/usart_driver.c **** 
+ 219:device/usart_driver.c **** 
+ 220:device/usart_driver.c **** /*! \brief RX Complete Interrupt Service Routine.
+ 221:device/usart_driver.c ****  *
+ 222:device/usart_driver.c ****  *  RX Complete Interrupt Service Routine.
+ 223:device/usart_driver.c ****  *  Stores received data in RX software buffer.
+ 224:device/usart_driver.c ****  *
+ 225:device/usart_driver.c ****  *  \param usart_data      The USART_data_t struct instance.
+ 226:device/usart_driver.c ****  */
+ 227:device/usart_driver.c **** bool USART_RXComplete(USART_data_t * usart_data)
+ 228:device/usart_driver.c **** {
+ 229:device/usart_driver.c **** 	USART_Buffer_t * bufPtr;
+ 230:device/usart_driver.c **** 	bool ans;
+ 231:device/usart_driver.c **** 
+ 232:device/usart_driver.c **** 	bufPtr = &usart_data->buffer;
+ 233:device/usart_driver.c **** 	/* Advance buffer head. */
+ 234:device/usart_driver.c **** 	uint8_t tempRX_Head = (bufPtr->RX_Head + 1) & USART_RX_BUFFER_MASK;
+ 235:device/usart_driver.c **** 
+ 236:device/usart_driver.c **** 	/* Check for overflow. */
+ 237:device/usart_driver.c **** 	uint8_t tempRX_Tail = bufPtr->RX_Tail;
+ 238:device/usart_driver.c **** 	uint8_t data = usart_data->usart->DATA;
+ 239:device/usart_driver.c **** 
+ 240:device/usart_driver.c **** 	if (tempRX_Head == tempRX_Tail) {
+ 241:device/usart_driver.c **** 	  	ans = false;
+ 242:device/usart_driver.c **** 	}else{
+ 243:device/usart_driver.c **** 		ans = true;
+ 244:device/usart_driver.c **** 		usart_data->buffer.RX[usart_data->buffer.RX_Head] = data;
+ 245:device/usart_driver.c **** 		usart_data->buffer.RX_Head = tempRX_Head;
+ 246:device/usart_driver.c **** 	}
+ 247:device/usart_driver.c **** 	return ans;
+ 248:device/usart_driver.c **** }
+ 249:device/usart_driver.c **** 
+ 250:device/usart_driver.c **** 
+ 251:device/usart_driver.c **** 
+ 252:device/usart_driver.c **** /*! \brief Data Register Empty Interrupt Service Routine.
+ 253:device/usart_driver.c ****  *
+ 254:device/usart_driver.c ****  *  Data Register Empty Interrupt Service Routine.
+ 255:device/usart_driver.c ****  *  Transmits one byte from TX software buffer. Disables DRE interrupt if buffer
+ 256:device/usart_driver.c ****  *  is empty. Argument is pointer to USART (USART_data_t).
+ 257:device/usart_driver.c ****  *
+ 258:device/usart_driver.c ****  *  \param usart_data      The USART_data_t struct instance.
+ 259:device/usart_driver.c ****  */
+ 260:device/usart_driver.c **** void USART_DataRegEmpty(USART_data_t * usart_data)
+ 261:device/usart_driver.c **** {
+ 262:device/usart_driver.c **** 	USART_Buffer_t * bufPtr;
+ 263:device/usart_driver.c **** 	bufPtr = &usart_data->buffer;
+ 264:device/usart_driver.c **** 
+ 265:device/usart_driver.c **** 	/* Check if all data is transmitted. */
+ 266:device/usart_driver.c **** 	uint8_t tempTX_Tail = usart_data->buffer.TX_Tail;
+ 267:device/usart_driver.c **** 	if (bufPtr->TX_Head == tempTX_Tail){
+ 268:device/usart_driver.c **** 	    /* Disable DRE interrupts. */
+ 269:device/usart_driver.c **** 		uint8_t tempCTRLA = usart_data->usart->CTRLA;
+ 270:device/usart_driver.c **** 		tempCTRLA = (tempCTRLA & ~USART_DREINTLVL_gm) | USART_DREINTLVL_OFF_gc;
+ 271:device/usart_driver.c **** 		usart_data->usart->CTRLA = tempCTRLA;
+ 272:device/usart_driver.c **** 
+ 273:device/usart_driver.c **** 	}else{
+ 274:device/usart_driver.c **** 		/* Start transmitting. */
+ 275:device/usart_driver.c **** 		uint8_t data = bufPtr->TX[usart_data->buffer.TX_Tail];
+ 276:device/usart_driver.c **** 		usart_data->usart->DATA = data;
+ 277:device/usart_driver.c **** 
+ 278:device/usart_driver.c **** 		/* Advance buffer tail. */
+ 279:device/usart_driver.c **** 		bufPtr->TX_Tail = (bufPtr->TX_Tail + 1) & USART_TX_BUFFER_MASK;
+ 280:device/usart_driver.c **** 	}
+ 281:device/usart_driver.c **** }
+ 282:device/usart_driver.c **** 
+ 283:device/usart_driver.c **** 
+ 284:device/usart_driver.c **** /*! \brief Put data (9 bit character).
+ 285:device/usart_driver.c ****  *
+ 286:device/usart_driver.c ****  *  Use the function USART_IsTXDataRegisterEmpty before using this function to
+ 287:device/usart_driver.c ****  *  put 9 bit character to the TX register.
+ 288:device/usart_driver.c ****  *
+ 289:device/usart_driver.c ****  *  \param usart      The USART module.
+ 290:device/usart_driver.c ****  *  \param data       The data to send.
+ 291:device/usart_driver.c ****  */
+ 292:device/usart_driver.c **** void USART_NineBits_PutChar(USART_t * usart, uint16_t data)
+ 293:device/usart_driver.c **** {
+ 294:device/usart_driver.c **** 	if(data & 0x0100) {
+ 295:device/usart_driver.c **** 		usart->CTRLB |= USART_TXB8_bm;
+ 296:device/usart_driver.c **** 	}else {
+ 297:device/usart_driver.c **** 		usart->CTRLB &= ~USART_TXB8_bm;
+ 298:device/usart_driver.c **** 	}
+ 299:device/usart_driver.c **** 
+ 300:device/usart_driver.c **** 	usart->DATA = (data & 0x00FF);
+ 301:device/usart_driver.c **** }
+ 302:device/usart_driver.c **** 
+ 303:device/usart_driver.c **** 
+ 304:device/usart_driver.c **** /*! \brief Get received data (9 bit character).
+ 305:device/usart_driver.c ****  *
+ 306:device/usart_driver.c ****  *  This function reads out the received 9 bit character (uint16_t).
+ 307:device/usart_driver.c ****  *  Use the function USART_IsRXComplete to check if anything is received.
+ 308:device/usart_driver.c ****  *
+ 309:device/usart_driver.c ****  *  \param usart      The USART module.
+ 310:device/usart_driver.c ****  *
+ 311:device/usart_driver.c ****  *  \retval           Received data.
+ 312:device/usart_driver.c ****  */
+ 313:device/usart_driver.c **** uint16_t USART_NineBits_GetChar(USART_t * usart)
+ 314:device/usart_driver.c **** {
+ 315:device/usart_driver.c **** 	if(usart->CTRLB & USART_RXB8_bm) {
+ 316:device/usart_driver.c **** 		return(0x0100 | usart->DATA);
+ 317:device/usart_driver.c **** 	}else {
+ 318:device/usart_driver.c **** 		return(usart->DATA);
+ 319:device/usart_driver.c **** 	}
+ 320:device/usart_driver.c **** }
+ 321:device/usart_driver.c **** 
+ 322:device/usart_driver.c **** void USARTinit(void)
+ 323:device/usart_driver.c **** {	
+ 324:device/usart_driver.c **** 	/* This PORT setting is only valid to USARTC0 if other USARTs is used a
+ 325:device/usart_driver.c **** 	 * different PORT and/or pins is used. */
+ 326:device/usart_driver.c **** 	/* PIN3 (TXD0) as output. */
+ 327:device/usart_driver.c **** 	PORTC.DIRSET = PIN3_bm;
+ 328:device/usart_driver.c **** 
+ 329:device/usart_driver.c **** 	/* PC2 (RXD0) as input. */
+ 330:device/usart_driver.c **** 	PORTC.DIRCLR = PIN2_bm;
+ 331:device/usart_driver.c **** 
+ 332:device/usart_driver.c **** 	/* USARTC0, 8 Data bits, No Parity, 1 Stop bit. */
+ 333:device/usart_driver.c **** 	USART_Format_Set(&USART, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);
+ 334:device/usart_driver.c **** 
+ 335:device/usart_driver.c **** 	/* Set Baudrate to 9600 bps:
+ 336:device/usart_driver.c **** 	 * Use the default I/O clock fequency that is 2 MHz.
+ 337:device/usart_driver.c **** 	 * Do not use the baudrate scale factor
+ 338:device/usart_driver.c **** 	 *
+ 339:device/usart_driver.c **** 	 * Baudrate select = (1/(16*(((I/O clock frequency)/Baudrate)-1)
+ 340:device/usart_driver.c **** 	 *                 = 12
+ 341:device/usart_driver.c **** 	 */
+ 342:device/usart_driver.c **** 	//USART_Baudrate_Set(&USART, 12 , 0);
+ 343:device/usart_driver.c **** 	USART_Baudrate_Set(&USART, 207 , 0);
+ 344:device/usart_driver.c **** 
+ 345:device/usart_driver.c **** 	/* Enable both RX and TX. */
+ 346:device/usart_driver.c **** 	USART_Rx_Enable(&USART);
+ 347:device/usart_driver.c **** 	USART_Tx_Enable(&USART);
+ 348:device/usart_driver.c **** 	
+ 349:device/usart_driver.c **** 	stdout = &mystdout;
+ 350:device/usart_driver.c **** }
+ 351:device/usart_driver.c **** 
+ 352:device/usart_driver.c **** void USARTsend(uint8_t c)
+ 353:device/usart_driver.c **** {
+ 354:device/usart_driver.c **** 	/* Send one char. */
+ 355:device/usart_driver.c **** 	do{
+ 356:device/usart_driver.c **** 	/* Wait until it is possible to put data into TX data register.
+ 357:device/usart_driver.c **** 	 * NOTE: If TXDataRegister never becomes empty this will be a DEADLOCK. */
+ 358:device/usart_driver.c **** 	}while(!USART_IsTXDataRegisterEmpty(&USART));
+ 359:device/usart_driver.c **** 	USART_PutChar(&USART, c);
+ 360:device/usart_driver.c **** }
+ 361:device/usart_driver.c **** 
+ 362:device/usart_driver.c **** void USARTsend16b(uint16_t c)
+ 363:device/usart_driver.c **** {
+ 364:device/usart_driver.c **** 	USARTsend((uint8_t)(c>>8));
+ 365:device/usart_driver.c **** 	USARTsend((uint8_t)(c%512));
+ 366:device/usart_driver.c **** }
+ 367:device/usart_driver.c **** 
+ 368:device/usart_driver.c **** /*
+ 369:device/usart_driver.c **** void USARTsendMeasurementResult(uint32_t c, uint16_t prescaler)
+ 370:device/usart_driver.c **** {
+ 371:device/usart_driver.c **** 		uint32_t temp = c * prescaler;	
+ 372:device/usart_driver.c **** 		
+ 373:device/usart_driver.c **** 		USARTsend(((temp%1000000000)-(temp%100000000))/100000000+0x30);
+ 374:device/usart_driver.c **** 		USARTsend(((temp%100000000)-(temp%10000000))/10000000+0x30);
+ 375:device/usart_driver.c **** 		USARTsend(((temp%10000000)-(temp%1000000))/1000000+0x30);
+ 376:device/usart_driver.c **** 		USARTsend(((temp%1000000)-(temp%100000))/100000+0x30);
+ 377:device/usart_driver.c **** 		USARTsend(((temp%100000)-(temp%10000))/10000+0x30);
+ 378:device/usart_driver.c **** 		USARTsend(((temp%10000)-(temp%1000))/1000+0x30);
+ 379:device/usart_driver.c **** 		USARTsend(((temp%1000)-(temp%100))/100+0x30);
+ 380:device/usart_driver.c **** 		USARTsend(((temp%100)-(temp%10))/10+0x30);
+ 381:device/usart_driver.c **** 		USARTsend((temp%10)+0x30);
+ 382:device/usart_driver.c **** 
+ 383:device/usart_driver.c **** 		USARTsend(' ');
+ 384:device/usart_driver.c **** 		}
+ 385:device/usart_driver.c **** */
+ 386:device/usart_driver.c **** 
+ 387:device/usart_driver.c **** void USARTsendStr(uint8_t *str, uint8_t length) {
+ 388:device/usart_driver.c **** 
+ 389:device/usart_driver.c ****   while(length) {
+ 390:device/usart_driver.c ****     USARTsend(str[0]);
+ 391:device/usart_driver.c ****     str++;
+ 392:device/usart_driver.c ****     length--;
+ 393:device/usart_driver.c ****   }
+ 394:device/usart_driver.c **** 
+ 395:device/usart_driver.c **** }
+ 396:device/usart_driver.c **** 
+ 397:device/usart_driver.c **** // void USARTsendPoly(struct polynomial poly) {
+ 398:device/usart_driver.c **** // 
+ 399:device/usart_driver.c **** //   for(int i = 0; i<paramN; i++)
+ 400:device/usart_driver.c **** //   {
+ 401:device/usart_driver.c **** // 		uint16_t temp = poly.coeffs[i];
+ 402:device/usart_driver.c **** // 
+ 403:device/usart_driver.c **** // 		USARTsend(((temp%10000)-(temp%1000))/1000+0x30);
+ 404:device/usart_driver.c **** // 		USARTsend(((temp%1000)-(temp%100))/100+0x30);
+ 405:device/usart_driver.c **** // 		USARTsend(((temp%100)-(temp%10))/10+0x30);
+ 406:device/usart_driver.c **** // 		USARTsend((temp%10)+0x30);
+ 407:device/usart_driver.c **** // 
+ 408:device/usart_driver.c **** // 		USARTsend(' ');
+ 409:device/usart_driver.c **** //   }
+ 410:device/usart_driver.c **** // 
+ 411:device/usart_driver.c **** // }
+ 412:device/usart_driver.c **** 
+ 413:device/usart_driver.c **** void uart_putchar( char c, FILE *stream )
+ 414:device/usart_driver.c **** {
+ 466               	.LM0:
+ 467               	.LFBB1:
+ 468               	/* prologue: function */
+ 469               	/* frame size = 0 */
+ 470               	/* stack size = 0 */
+ 471               	.L__stack_usage = 0
+ 472               	.L2:
+ 415:device/usart_driver.c **** 	/* Send one char. */
+ 416:device/usart_driver.c **** 	do{
+ 417:device/usart_driver.c **** 	/* Wait until it is possible to put data into TX data register.
+ 418:device/usart_driver.c **** 	 * NOTE: If TXDataRegister never becomes empty this will be a DEADLOCK. */
+ 419:device/usart_driver.c **** 	}while(!USART_IsTXDataRegisterEmpty(&USART));
+ 474               	.LM1:
+ 475 0000 9091 A108 		lds r25,2209
+ 477               	.LM2:
+ 478 0004 95FF      		sbrs r25,5
+ 479 0006 00C0      		rjmp .L2
+ 420:device/usart_driver.c **** 	USART_PutChar(&USART, c);
+ 481               	.LM3:
+ 482 0008 8093 A008 		sts 2208,r24
+ 483               	/* epilogue start */
+ 421:device/usart_driver.c **** }
+ 485               	.LM4:
+ 486 000c 0895      		ret
+ 488               	.Lscope1:
+ 489               		.section	.text.USART_InterruptDriver_Initialize,"ax",@progbits
+ 494               	.global	USART_InterruptDriver_Initialize
+ 496               	USART_InterruptDriver_Initialize:
+  84:device/usart_driver.c **** 	usart_data->usart = usart;
+ 498               	.LM5:
+ 499               	.LFBB2:
+ 500               	/* prologue: function */
+ 501               	/* frame size = 0 */
+ 502               	/* stack size = 0 */
+ 503               	.L__stack_usage = 0
+ 504 0000 FC01      		movw r30,r24
+  85:device/usart_driver.c **** 	usart_data->dreIntLevel = dreIntLevel;
+ 506               	.LM6:
+ 507 0002 6083      		st Z,r22
+ 508 0004 7183      		std Z+1,r23
+  86:device/usart_driver.c **** 
+ 510               	.LM7:
+ 511 0006 4283      		std Z+2,r20
+  88:device/usart_driver.c **** 	usart_data->buffer.RX_Head = 0;
+ 513               	.LM8:
+ 514 0008 1486      		std Z+12,__zero_reg__
+  89:device/usart_driver.c **** 	usart_data->buffer.TX_Tail = 0;
+ 516               	.LM9:
+ 517 000a 1386      		std Z+11,__zero_reg__
+  90:device/usart_driver.c **** 	usart_data->buffer.TX_Head = 0;
+ 519               	.LM10:
+ 520 000c 1686      		std Z+14,__zero_reg__
+  91:device/usart_driver.c **** }
+ 522               	.LM11:
+ 523 000e 1586      		std Z+13,__zero_reg__
+ 524               	/* epilogue start */
+  92:device/usart_driver.c **** 
+ 526               	.LM12:
+ 527 0010 0895      		ret
+ 529               	.Lscope2:
+ 530               		.section	.text.USART_InterruptDriver_DreInterruptLevel_Set,"ax",@progbits
+ 534               	.global	USART_InterruptDriver_DreInterruptLevel_Set
+ 536               	USART_InterruptDriver_DreInterruptLevel_Set:
+ 108:device/usart_driver.c **** 	usart_data->dreIntLevel = dreIntLevel;
+ 538               	.LM13:
+ 539               	.LFBB3:
+ 540               	/* prologue: function */
+ 541               	/* frame size = 0 */
+ 542               	/* stack size = 0 */
+ 543               	.L__stack_usage = 0
+ 109:device/usart_driver.c **** }
+ 545               	.LM14:
+ 546 0000 FC01      		movw r30,r24
+ 547 0002 6283      		std Z+2,r22
+ 548               	/* epilogue start */
+ 110:device/usart_driver.c **** 
+ 550               	.LM15:
+ 551 0004 0895      		ret
+ 553               	.Lscope3:
+ 554               		.section	.text.USART_TXBuffer_FreeSpace,"ax",@progbits
+ 557               	.global	USART_TXBuffer_FreeSpace
+ 559               	USART_TXBuffer_FreeSpace:
+ 124:device/usart_driver.c **** 	/* Make copies to make sure that volatile access is specified. */
+ 561               	.LM16:
+ 562               	.LFBB4:
+ 563               	/* prologue: function */
+ 564               	/* frame size = 0 */
+ 565               	/* stack size = 0 */
+ 566               	.L__stack_usage = 0
+ 567 0000 FC01      		movw r30,r24
+ 126:device/usart_driver.c **** 	uint8_t tempTail = usart_data->buffer.TX_Tail;
+ 569               	.LM17:
+ 570 0002 9585      		ldd r25,Z+13
+ 127:device/usart_driver.c **** 
+ 572               	.LM18:
+ 573 0004 2685      		ldd r18,Z+14
+ 126:device/usart_driver.c **** 	uint8_t tempTail = usart_data->buffer.TX_Tail;
+ 575               	.LM19:
+ 576 0006 9F5F      		subi r25,lo8(-(1))
+ 126:device/usart_driver.c **** 	uint8_t tempTail = usart_data->buffer.TX_Tail;
+ 578               	.LM20:
+ 579 0008 9370      		andi r25,lo8(3)
+ 130:device/usart_driver.c **** }
+ 581               	.LM21:
+ 582 000a 81E0      		ldi r24,lo8(1)
+ 583 000c 9213      		cpse r25,r18
+ 584 000e 00C0      		rjmp .L8
+ 585 0010 80E0      		ldi r24,0
+ 586               	.L8:
+ 587               	/* epilogue start */
+ 131:device/usart_driver.c **** 
+ 589               	.LM22:
+ 590 0012 0895      		ret
+ 595               	.Lscope4:
+ 596               		.section	.text.USART_TXBuffer_PutByte,"ax",@progbits
+ 600               	.global	USART_TXBuffer_PutByte
+ 602               	USART_TXBuffer_PutByte:
+ 144:device/usart_driver.c **** 	uint8_t tempCTRLA;
+ 604               	.LM23:
+ 605               	.LFBB5:
+ 606 0000 1F93      		push r17
+ 607 0002 CF93      		push r28
+ 608 0004 DF93      		push r29
+ 609               	/* prologue: function */
+ 610               	/* frame size = 0 */
+ 611               	/* stack size = 3 */
+ 612               	.L__stack_usage = 3
+ 613 0006 EC01      		movw r28,r24
+ 614 0008 162F      		mov r17,r22
+ 151:device/usart_driver.c **** 
+ 616               	.LM24:
+ 617 000a 0E94 0000 		call USART_TXBuffer_FreeSpace
+ 154:device/usart_driver.c **** 	{
+ 619               	.LM25:
+ 620 000e 8823      		tst r24
+ 621 0010 01F0      		breq .L9
+ 156:device/usart_driver.c **** 	  	TXbufPtr->TX[tempTX_Head]= data;
+ 623               	.LM26:
+ 624 0012 9D85      		ldd r25,Y+13
+ 157:device/usart_driver.c **** 		/* Advance buffer head. */
+ 626               	.LM27:
+ 627 0014 FE01      		movw r30,r28
+ 628 0016 E90F      		add r30,r25
+ 629 0018 F11D      		adc r31,__zero_reg__
+ 630 001a 1783      		std Z+7,r17
+ 159:device/usart_driver.c **** 
+ 632               	.LM28:
+ 633 001c 9F5F      		subi r25,lo8(-(1))
+ 159:device/usart_driver.c **** 
+ 635               	.LM29:
+ 636 001e 9370      		andi r25,lo8(3)
+ 159:device/usart_driver.c **** 
+ 638               	.LM30:
+ 639 0020 9D87      		std Y+13,r25
+ 162:device/usart_driver.c **** 		tempCTRLA = (tempCTRLA & ~USART_DREINTLVL_gm) | usart_data->dreIntLevel;
+ 641               	.LM31:
+ 642 0022 E881      		ld r30,Y
+ 643 0024 F981      		ldd r31,Y+1
+ 162:device/usart_driver.c **** 		tempCTRLA = (tempCTRLA & ~USART_DREINTLVL_gm) | usart_data->dreIntLevel;
+ 645               	.LM32:
+ 646 0026 9381      		ldd r25,Z+3
+ 163:device/usart_driver.c **** 		usart_data->usart->CTRLA = tempCTRLA;
+ 648               	.LM33:
+ 649 0028 9C7F      		andi r25,lo8(-4)
+ 163:device/usart_driver.c **** 		usart_data->usart->CTRLA = tempCTRLA;
+ 651               	.LM34:
+ 652 002a 2A81      		ldd r18,Y+2
+ 653 002c 922B      		or r25,r18
+ 164:device/usart_driver.c **** 	}
+ 655               	.LM35:
+ 656 002e 9383      		std Z+3,r25
+ 657               	.L9:
+ 658               	/* epilogue start */
+ 167:device/usart_driver.c **** 
+ 660               	.LM36:
+ 661 0030 DF91      		pop r29
+ 662 0032 CF91      		pop r28
+ 663 0034 1F91      		pop r17
+ 664 0036 0895      		ret
+ 670               	.Lscope5:
+ 671               		.section	.text.USART_RXBufferData_Available,"ax",@progbits
+ 674               	.global	USART_RXBufferData_Available
+ 676               	USART_RXBufferData_Available:
+ 182:device/usart_driver.c **** 	/* Make copies to make sure that volatile access is specified. */
+ 678               	.LM37:
+ 679               	.LFBB6:
+ 680               	/* prologue: function */
+ 681               	/* frame size = 0 */
+ 682               	/* stack size = 0 */
+ 683               	.L__stack_usage = 0
+ 684 0000 FC01      		movw r30,r24
+ 184:device/usart_driver.c **** 	uint8_t tempTail = usart_data->buffer.RX_Tail;
+ 686               	.LM38:
+ 687 0002 2385      		ldd r18,Z+11
+ 185:device/usart_driver.c **** 
+ 689               	.LM39:
+ 690 0004 9485      		ldd r25,Z+12
+ 188:device/usart_driver.c **** }
+ 692               	.LM40:
+ 693 0006 81E0      		ldi r24,lo8(1)
+ 694 0008 2913      		cpse r18,r25
+ 695 000a 00C0      		rjmp .L15
+ 696 000c 80E0      		ldi r24,0
+ 697               	.L15:
+ 698               	/* epilogue start */
+ 189:device/usart_driver.c **** 
+ 700               	.LM41:
+ 701 000e 0895      		ret
+ 707               	.Lscope6:
+ 708               		.section	.text.USART_RXBuffer_GetByte,"ax",@progbits
+ 711               	.global	USART_RXBuffer_GetByte
+ 713               	USART_RXBuffer_GetByte:
+ 205:device/usart_driver.c **** 	USART_Buffer_t * bufPtr;
+ 715               	.LM42:
+ 716               	.LFBB7:
+ 717               	/* prologue: function */
+ 718               	/* frame size = 0 */
+ 719               	/* stack size = 0 */
+ 720               	.L__stack_usage = 0
+ 721 0000 FC01      		movw r30,r24
+ 210:device/usart_driver.c **** 
+ 723               	.LM43:
+ 724 0002 A485      		ldd r26,Z+12
+ 210:device/usart_driver.c **** 
+ 726               	.LM44:
+ 727 0004 A80F      		add r26,r24
+ 728 0006 B92F      		mov r27,r25
+ 729 0008 B11D      		adc r27,__zero_reg__
+ 730 000a 1396      		adiw r26,3
+ 731 000c 8C91      		ld r24,X
+ 213:device/usart_driver.c **** 
+ 733               	.LM45:
+ 734 000e 9485      		ldd r25,Z+12
+ 213:device/usart_driver.c **** 
+ 736               	.LM46:
+ 737 0010 9F5F      		subi r25,lo8(-(1))
+ 213:device/usart_driver.c **** 
+ 739               	.LM47:
+ 740 0012 9370      		andi r25,lo8(3)
+ 213:device/usart_driver.c **** 
+ 742               	.LM48:
+ 743 0014 9487      		std Z+12,r25
+ 744               	/* epilogue start */
+ 216:device/usart_driver.c **** 
+ 746               	.LM49:
+ 747 0016 0895      		ret
+ 752               	.Lscope7:
+ 753               		.section	.text.USART_RXComplete,"ax",@progbits
+ 756               	.global	USART_RXComplete
+ 758               	USART_RXComplete:
+ 228:device/usart_driver.c **** 	USART_Buffer_t * bufPtr;
+ 760               	.LM50:
+ 761               	.LFBB8:
+ 762               	/* prologue: function */
+ 763               	/* frame size = 0 */
+ 764               	/* stack size = 0 */
+ 765               	.L__stack_usage = 0
+ 766 0000 FC01      		movw r30,r24
+ 234:device/usart_driver.c **** 
+ 768               	.LM51:
+ 769 0002 8385      		ldd r24,Z+11
+ 234:device/usart_driver.c **** 
+ 771               	.LM52:
+ 772 0004 8F5F      		subi r24,lo8(-(1))
+ 234:device/usart_driver.c **** 
+ 774               	.LM53:
+ 775 0006 8370      		andi r24,lo8(3)
+ 237:device/usart_driver.c **** 	uint8_t data = usart_data->usart->DATA;
+ 777               	.LM54:
+ 778 0008 2485      		ldd r18,Z+12
+ 238:device/usart_driver.c **** 
+ 780               	.LM55:
+ 781 000a A081      		ld r26,Z
+ 782 000c B181      		ldd r27,Z+1
+ 238:device/usart_driver.c **** 
+ 784               	.LM56:
+ 785 000e 9C91      		ld r25,X
+ 240:device/usart_driver.c **** 	  	ans = false;
+ 787               	.LM57:
+ 788 0010 8217      		cp r24,r18
+ 789 0012 01F0      		breq .L19
+ 244:device/usart_driver.c **** 		usart_data->buffer.RX_Head = tempRX_Head;
+ 791               	.LM58:
+ 792 0014 A385      		ldd r26,Z+11
+ 244:device/usart_driver.c **** 		usart_data->buffer.RX_Head = tempRX_Head;
+ 794               	.LM59:
+ 795 0016 AE0F      		add r26,r30
+ 796 0018 BF2F      		mov r27,r31
+ 797 001a B11D      		adc r27,__zero_reg__
+ 798 001c 1396      		adiw r26,3
+ 799 001e 9C93      		st X,r25
+ 245:device/usart_driver.c **** 	}
+ 801               	.LM60:
+ 802 0020 8387      		std Z+11,r24
+ 243:device/usart_driver.c **** 		usart_data->buffer.RX[usart_data->buffer.RX_Head] = data;
+ 804               	.LM61:
+ 805 0022 81E0      		ldi r24,lo8(1)
+ 806 0024 0895      		ret
+ 807               	.L19:
+ 241:device/usart_driver.c **** 	}else{
+ 809               	.LM62:
+ 810 0026 80E0      		ldi r24,0
+ 811               	/* epilogue start */
+ 248:device/usart_driver.c **** 
+ 813               	.LM63:
+ 814 0028 0895      		ret
+ 822               	.Lscope8:
+ 823               		.section	.text.USART_DataRegEmpty,"ax",@progbits
+ 826               	.global	USART_DataRegEmpty
+ 828               	USART_DataRegEmpty:
+ 261:device/usart_driver.c **** 	USART_Buffer_t * bufPtr;
+ 830               	.LM64:
+ 831               	.LFBB9:
+ 832 0000 CF93      		push r28
+ 833 0002 DF93      		push r29
+ 834               	/* prologue: function */
+ 835               	/* frame size = 0 */
+ 836               	/* stack size = 2 */
+ 837               	.L__stack_usage = 2
+ 838 0004 FC01      		movw r30,r24
+ 266:device/usart_driver.c **** 	if (bufPtr->TX_Head == tempTX_Tail){
+ 840               	.LM65:
+ 841 0006 8685      		ldd r24,Z+14
+ 267:device/usart_driver.c **** 	    /* Disable DRE interrupts. */
+ 843               	.LM66:
+ 844 0008 9585      		ldd r25,Z+13
+ 845 000a A081      		ld r26,Z
+ 846 000c B181      		ldd r27,Z+1
+ 267:device/usart_driver.c **** 	    /* Disable DRE interrupts. */
+ 848               	.LM67:
+ 849 000e 9813      		cpse r25,r24
+ 850 0010 00C0      		rjmp .L21
+ 851               	.LBB2:
+ 269:device/usart_driver.c **** 		tempCTRLA = (tempCTRLA & ~USART_DREINTLVL_gm) | USART_DREINTLVL_OFF_gc;
+ 853               	.LM68:
+ 854 0012 1396      		adiw r26,3
+ 855 0014 8C91      		ld r24,X
+ 856 0016 1397      		sbiw r26,3
+ 270:device/usart_driver.c **** 		usart_data->usart->CTRLA = tempCTRLA;
+ 858               	.LM69:
+ 859 0018 8C7F      		andi r24,lo8(-4)
+ 271:device/usart_driver.c **** 
+ 861               	.LM70:
+ 862 001a 1396      		adiw r26,3
+ 863 001c 8C93      		st X,r24
+ 864               	.L20:
+ 865               	/* epilogue start */
+ 866               	.LBE2:
+ 281:device/usart_driver.c **** 
+ 868               	.LM71:
+ 869 001e DF91      		pop r29
+ 870 0020 CF91      		pop r28
+ 871 0022 0895      		ret
+ 872               	.L21:
+ 873               	.LBB3:
+ 275:device/usart_driver.c **** 		usart_data->usart->DATA = data;
+ 875               	.LM72:
+ 876 0024 C685      		ldd r28,Z+14
+ 275:device/usart_driver.c **** 		usart_data->usart->DATA = data;
+ 878               	.LM73:
+ 879 0026 CE0F      		add r28,r30
+ 880 0028 DF2F      		mov r29,r31
+ 881 002a D11D      		adc r29,__zero_reg__
+ 882 002c 8F81      		ldd r24,Y+7
+ 276:device/usart_driver.c **** 
+ 884               	.LM74:
+ 885 002e 8C93      		st X,r24
+ 279:device/usart_driver.c **** 	}
+ 887               	.LM75:
+ 888 0030 8685      		ldd r24,Z+14
+ 279:device/usart_driver.c **** 	}
+ 890               	.LM76:
+ 891 0032 8F5F      		subi r24,lo8(-(1))
+ 279:device/usart_driver.c **** 	}
+ 893               	.LM77:
+ 894 0034 8370      		andi r24,lo8(3)
+ 279:device/usart_driver.c **** 	}
+ 896               	.LM78:
+ 897 0036 8687      		std Z+14,r24
+ 898               	.LBE3:
+ 281:device/usart_driver.c **** 
+ 900               	.LM79:
+ 901 0038 00C0      		rjmp .L20
+ 909               	.Lscope9:
+ 910               		.section	.text.USART_NineBits_PutChar,"ax",@progbits
+ 914               	.global	USART_NineBits_PutChar
+ 916               	USART_NineBits_PutChar:
+ 293:device/usart_driver.c **** 	if(data & 0x0100) {
+ 918               	.LM80:
+ 919               	.LFBB10:
+ 920               	/* prologue: function */
+ 921               	/* frame size = 0 */
+ 922               	/* stack size = 0 */
+ 923               	.L__stack_usage = 0
+ 924 0000 FC01      		movw r30,r24
+ 925 0002 CB01      		movw r24,r22
+ 295:device/usart_driver.c **** 	}else {
+ 927               	.LM81:
+ 928 0004 2481      		ldd r18,Z+4
+ 294:device/usart_driver.c **** 		usart->CTRLB |= USART_TXB8_bm;
+ 930               	.LM82:
+ 931 0006 70FF      		sbrs r23,0
+ 932 0008 00C0      		rjmp .L24
+ 295:device/usart_driver.c **** 	}else {
+ 934               	.LM83:
+ 935 000a 2160      		ori r18,lo8(1)
+ 936               	.L26:
+ 297:device/usart_driver.c **** 	}
+ 938               	.LM84:
+ 939 000c 2483      		std Z+4,r18
+ 300:device/usart_driver.c **** }
+ 941               	.LM85:
+ 942 000e 8083      		st Z,r24
+ 943               	/* epilogue start */
+ 301:device/usart_driver.c **** 
+ 945               	.LM86:
+ 946 0010 0895      		ret
+ 947               	.L24:
+ 297:device/usart_driver.c **** 	}
+ 949               	.LM87:
+ 950 0012 2E7F      		andi r18,lo8(-2)
+ 951 0014 00C0      		rjmp .L26
+ 953               	.Lscope10:
+ 954               		.section	.text.USART_NineBits_GetChar,"ax",@progbits
+ 957               	.global	USART_NineBits_GetChar
+ 959               	USART_NineBits_GetChar:
+ 314:device/usart_driver.c **** 	if(usart->CTRLB & USART_RXB8_bm) {
+ 961               	.LM88:
+ 962               	.LFBB11:
+ 963               	/* prologue: function */
+ 964               	/* frame size = 0 */
+ 965               	/* stack size = 0 */
+ 966               	.L__stack_usage = 0
+ 967 0000 FC01      		movw r30,r24
+ 315:device/usart_driver.c **** 		return(0x0100 | usart->DATA);
+ 969               	.LM89:
+ 970 0002 8481      		ldd r24,Z+4
+ 315:device/usart_driver.c **** 		return(0x0100 | usart->DATA);
+ 972               	.LM90:
+ 973 0004 80FF      		sbrs r24,0
+ 974 0006 00C0      		rjmp .L28
+ 316:device/usart_driver.c **** 	}else {
+ 976               	.LM91:
+ 977 0008 8081      		ld r24,Z
+ 978 000a 90E0      		ldi r25,0
+ 316:device/usart_driver.c **** 	}else {
+ 980               	.LM92:
+ 981 000c 9160      		ori r25,1
+ 982 000e 0895      		ret
+ 983               	.L28:
+ 318:device/usart_driver.c **** 	}
+ 985               	.LM93:
+ 986 0010 8081      		ld r24,Z
+ 987 0012 90E0      		ldi r25,0
+ 988               	/* epilogue start */
+ 320:device/usart_driver.c **** 
+ 990               	.LM94:
+ 991 0014 0895      		ret
+ 993               	.Lscope11:
+ 994               		.section	.text.USARTinit,"ax",@progbits
+ 996               	.global	USARTinit
+ 998               	USARTinit:
+ 323:device/usart_driver.c **** 	/* This PORT setting is only valid to USARTC0 if other USARTs is used a
+ 1000               	.LM95:
+ 1001               	.LFBB12:
+ 1002               	/* prologue: function */
+ 1003               	/* frame size = 0 */
+ 1004               	/* stack size = 0 */
+ 1005               	.L__stack_usage = 0
+ 327:device/usart_driver.c **** 
+ 1007               	.LM96:
+ 1008 0000 E0E4      		ldi r30,lo8(64)
+ 1009 0002 F6E0      		ldi r31,lo8(6)
+ 1010 0004 88E0      		ldi r24,lo8(8)
+ 1011 0006 8183      		std Z+1,r24
+ 330:device/usart_driver.c **** 
+ 1013               	.LM97:
+ 1014 0008 84E0      		ldi r24,lo8(4)
+ 1015 000a 8283      		std Z+2,r24
+ 333:device/usart_driver.c **** 
+ 1017               	.LM98:
+ 1018 000c E0EA      		ldi r30,lo8(-96)
+ 1019 000e F8E0      		ldi r31,lo8(8)
+ 1020 0010 83E0      		ldi r24,lo8(3)
+ 1021 0012 8583      		std Z+5,r24
+ 343:device/usart_driver.c **** 
+ 1023               	.LM99:
+ 1024 0014 8FEC      		ldi r24,lo8(-49)
+ 1025 0016 8683      		std Z+6,r24
+ 1026 0018 1782      		std Z+7,__zero_reg__
+ 346:device/usart_driver.c **** 	USART_Tx_Enable(&USART);
+ 1028               	.LM100:
+ 1029 001a 8481      		ldd r24,Z+4
+ 1030 001c 8061      		ori r24,lo8(16)
+ 1031 001e 8483      		std Z+4,r24
+ 347:device/usart_driver.c **** 	
+ 1033               	.LM101:
+ 1034 0020 8481      		ldd r24,Z+4
+ 1035 0022 8860      		ori r24,lo8(8)
+ 1036 0024 8483      		std Z+4,r24
+ 349:device/usart_driver.c **** }
+ 1038               	.LM102:
+ 1039 0026 80E0      		ldi r24,lo8(mystdout)
+ 1040 0028 90E0      		ldi r25,hi8(mystdout)
+ 1041 002a 8093 0000 		sts __iob+2,r24
+ 1042 002e 9093 0000 		sts __iob+2+1,r25
+ 1043               	/* epilogue start */
+ 350:device/usart_driver.c **** 
+ 1045               	.LM103:
+ 1046 0032 0895      		ret
+ 1048               	.Lscope12:
+ 1049               		.section	.text.USARTsend,"ax",@progbits
+ 1052               	.global	USARTsend
+ 1054               	USARTsend:
+ 353:device/usart_driver.c **** 	/* Send one char. */
+ 1056               	.LM104:
+ 1057               	.LFBB13:
+ 1058               	/* prologue: function */
+ 1059               	/* frame size = 0 */
+ 1060               	/* stack size = 0 */
+ 1061               	.L__stack_usage = 0
+ 1062               	.L32:
+ 358:device/usart_driver.c **** 	USART_PutChar(&USART, c);
+ 1064               	.LM105:
+ 1065 0000 9091 A108 		lds r25,2209
+ 358:device/usart_driver.c **** 	USART_PutChar(&USART, c);
+ 1067               	.LM106:
+ 1068 0004 95FF      		sbrs r25,5
+ 1069 0006 00C0      		rjmp .L32
+ 359:device/usart_driver.c **** }
+ 1071               	.LM107:
+ 1072 0008 8093 A008 		sts 2208,r24
+ 1073               	/* epilogue start */
+ 360:device/usart_driver.c **** 
+ 1075               	.LM108:
+ 1076 000c 0895      		ret
+ 1078               	.Lscope13:
+ 1079               		.section	.text.USARTsend16b,"ax",@progbits
+ 1081               	.global	USARTsend16b
+ 1083               	USARTsend16b:
+ 363:device/usart_driver.c **** 	USARTsend((uint8_t)(c>>8));
+ 1085               	.LM109:
+ 1086               	.LFBB14:
+ 1087 0000 CF93      		push r28
+ 1088               	/* prologue: function */
+ 1089               	/* frame size = 0 */
+ 1090               	/* stack size = 1 */
+ 1091               	.L__stack_usage = 1
+ 1092 0002 C82F      		mov r28,r24
+ 1093 0004 892F      		mov r24,r25
+ 364:device/usart_driver.c **** 	USARTsend((uint8_t)(c%512));
+ 1095               	.LM110:
+ 1096 0006 0E94 0000 		call USARTsend
+ 365:device/usart_driver.c **** }
+ 1098               	.LM111:
+ 1099 000a 8C2F      		mov r24,r28
+ 1100               	/* epilogue start */
+ 366:device/usart_driver.c **** 
+ 1102               	.LM112:
+ 1103 000c CF91      		pop r28
+ 365:device/usart_driver.c **** }
+ 1105               	.LM113:
+ 1106 000e 0C94 0000 		jmp USARTsend
+ 1108               	.Lscope14:
+ 1109               		.section	.text.USARTsendStr,"ax",@progbits
+ 1113               	.global	USARTsendStr
+ 1115               	USARTsendStr:
+ 387:device/usart_driver.c **** 
+ 1117               	.LM114:
+ 1118               	.LFBB15:
+ 1119 0000 0F93      		push r16
+ 1120 0002 1F93      		push r17
+ 1121 0004 CF93      		push r28
+ 1122               	/* prologue: function */
+ 1123               	/* frame size = 0 */
+ 1124               	/* stack size = 3 */
+ 1125               	.L__stack_usage = 3
+ 1126 0006 8C01      		movw r16,r24
+ 1127 0008 C62F      		mov r28,r22
+ 1128               	.L37:
+ 389:device/usart_driver.c ****     USARTsend(str[0]);
+ 1130               	.LM115:
+ 1131 000a C111      		cpse r28,__zero_reg__
+ 1132 000c 00C0      		rjmp .L38
+ 1133               	/* epilogue start */
+ 395:device/usart_driver.c **** 
+ 1135               	.LM116:
+ 1136 000e CF91      		pop r28
+ 1137 0010 1F91      		pop r17
+ 1138 0012 0F91      		pop r16
+ 1139 0014 0895      		ret
+ 1140               	.L38:
+ 390:device/usart_driver.c ****     str++;
+ 1142               	.LM117:
+ 1143 0016 F801      		movw r30,r16
+ 1144 0018 8191      		ld r24,Z+
+ 1145 001a 8F01      		movw r16,r30
+ 1146 001c 0E94 0000 		call USARTsend
+ 392:device/usart_driver.c ****   }
+ 1148               	.LM118:
+ 1149 0020 C150      		subi r28,lo8(-(-1))
+ 1150 0022 00C0      		rjmp .L37
+ 1152               	.Lscope15:
+ 1153               		.section	.data.mystdout,"aw"
+ 1156               	mystdout:
+ 1157 0000 0000 00   		.zero	3
+ 1158 0003 02        		.byte	2
+ 1159 0004 0000 0000 		.zero	4
+ 1160 0008 0000      		.word	gs(uart_putchar)
+ 1161 000a 0000      		.word	0
+ 1162 000c 0000      		.word	0
+ 1164               		.text
+ 1166               	.Letext0:
+ 1167               		.ident	"GCC: (GNU) 9.1.0"
+ 1168               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 usart_driver.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:464    .text.uart_putchar:0000000000000000 uart_putchar
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:496    .text.USART_InterruptDriver_Initialize:0000000000000000 USART_InterruptDriver_Initialize
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:536    .text.USART_InterruptDriver_DreInterruptLevel_Set:0000000000000000 USART_InterruptDriver_DreInterruptLevel_Set
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:559    .text.USART_TXBuffer_FreeSpace:0000000000000000 USART_TXBuffer_FreeSpace
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:602    .text.USART_TXBuffer_PutByte:0000000000000000 USART_TXBuffer_PutByte
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:676    .text.USART_RXBufferData_Available:0000000000000000 USART_RXBufferData_Available
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:713    .text.USART_RXBuffer_GetByte:0000000000000000 USART_RXBuffer_GetByte
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:758    .text.USART_RXComplete:0000000000000000 USART_RXComplete
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:828    .text.USART_DataRegEmpty:0000000000000000 USART_DataRegEmpty
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:916    .text.USART_NineBits_PutChar:0000000000000000 USART_NineBits_PutChar
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:959    .text.USART_NineBits_GetChar:0000000000000000 USART_NineBits_GetChar
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:998    .text.USARTinit:0000000000000000 USARTinit
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:1156   .data.mystdout:0000000000000000 mystdout
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:1054   .text.USARTsend:0000000000000000 USARTsend
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:1083   .text.USARTsend16b:0000000000000000 USARTsend16b
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccFaJqgT.s:1115   .text.USARTsendStr:0000000000000000 USARTsendStr
+
+UNDEFINED SYMBOLS
+__iob
+__do_copy_data

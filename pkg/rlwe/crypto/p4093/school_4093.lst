@@ -1,0 +1,1362 @@
+   1               		.file	"school_4093.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 435               		.section	.text.school_4093_without_flash,"ax",@progbits
+ 439               	.global	school_4093_without_flash
+ 441               	school_4093_without_flash:
+   1:crypto/p4093/school_4093.c **** #include <inttypes.h>
+   2:crypto/p4093/school_4093.c **** #include <avr/pgmspace.h>
+   3:crypto/p4093/school_4093.c **** 
+   4:crypto/p4093/school_4093.c **** #include "school_4093.h"
+   5:crypto/p4093/school_4093.c **** #include "../sampler/cdf_sampler.h"
+   6:crypto/p4093/school_4093.c **** #include "math_asm_4093.h"
+   7:crypto/p4093/school_4093.c **** 
+   8:crypto/p4093/school_4093.c **** 
+   9:crypto/p4093/school_4093.c **** //for debuggig purpose some functions are non-static
+  10:crypto/p4093/school_4093.c **** #define IS_STATIC 
+  11:crypto/p4093/school_4093.c **** 
+  12:crypto/p4093/school_4093.c **** #define paramQ 4093
+  13:crypto/p4093/school_4093.c **** 
+  14:crypto/p4093/school_4093.c **** 
+  15:crypto/p4093/school_4093.c **** 
+  16:crypto/p4093/school_4093.c **** 
+  17:crypto/p4093/school_4093.c **** 
+  18:crypto/p4093/school_4093.c **** 
+  19:crypto/p4093/school_4093.c **** 
+  20:crypto/p4093/school_4093.c **** #ifndef CODESIZE
+  21:crypto/p4093/school_4093.c **** IS_STATIC void school_4093_without_flash(const uint16_t* first, const uint16_t* second, int16_t* re
+  22:crypto/p4093/school_4093.c **** {
+ 443               	.LM0:
+ 444               	.LFBB1:
+ 445 0000 2F92      		push r2
+ 446 0002 3F92      		push r3
+ 447 0004 4F92      		push r4
+ 448 0006 5F92      		push r5
+ 449 0008 6F92      		push r6
+ 450 000a 7F92      		push r7
+ 451 000c 8F92      		push r8
+ 452 000e 9F92      		push r9
+ 453 0010 AF92      		push r10
+ 454 0012 BF92      		push r11
+ 455 0014 CF92      		push r12
+ 456 0016 DF92      		push r13
+ 457 0018 EF92      		push r14
+ 458 001a FF92      		push r15
+ 459 001c 0F93      		push r16
+ 460 001e 1F93      		push r17
+ 461 0020 CF93      		push r28
+ 462 0022 DF93      		push r29
+ 463 0024 CDB7      		in r28,__SP_L__
+ 464 0026 DEB7      		in r29,__SP_H__
+ 465 0028 2E97      		sbiw r28,14
+ 466 002a CDBF      		out __SP_L__,r28
+ 467 002c DEBF      		out __SP_H__,r29
+ 468               	/* prologue: function */
+ 469               	/* frame size = 14 */
+ 470               	/* stack size = 32 */
+ 471               	.L__stack_usage = 32
+ 472 002e 6B87      		std Y+11,r22
+ 473 0030 7C87      		std Y+12,r23
+ 474 0032 4D83      		std Y+5,r20
+ 475 0034 5E83      		std Y+6,r21
+ 476 0036 2D87      		std Y+13,r18
+ 477 0038 3E87      		std Y+14,r19
+ 478 003a ED81      		ldd r30,Y+5
+ 479 003c FE81      		ldd r31,Y+6
+ 480               	.LBB2:
+  23:crypto/p4093/school_4093.c ****   uint32_t q,d;
+  24:crypto/p4093/school_4093.c ****     
+  25:crypto/p4093/school_4093.c ****   //init with 0
+  26:crypto/p4093/school_4093.c ****   for(int16_t i = 0; i<paramN; i++)
+ 482               	.LM1:
+ 483 003e 30E0      		ldi r19,0
+ 484 0040 20E0      		ldi r18,0
+ 485               	.L2:
+ 487               	.LM2:
+ 488 0042 4D85      		ldd r20,Y+13
+ 489 0044 5E85      		ldd r21,Y+14
+ 490 0046 2417      		cp r18,r20
+ 491 0048 3507      		cpc r19,r21
+ 492 004a 01F4      		brne .L3
+ 493 004c 8983      		std Y+1,r24
+ 494 004e 9A83      		std Y+2,r25
+ 496               	.LM3:
+ 497 0050 1A01      		movw r2,r20
+ 498 0052 412C      		mov r4,__zero_reg__
+ 499 0054 512C      		mov r5,__zero_reg__
+ 500 0056 3201      		movw r6,r4
+ 501               	.LBE2:
+ 502               	.LBB3:
+ 503               	.LBB4:
+  27:crypto/p4093/school_4093.c ****     {
+  28:crypto/p4093/school_4093.c ****       res[i] = 0;
+  29:crypto/p4093/school_4093.c ****     }
+  30:crypto/p4093/school_4093.c ****       
+  31:crypto/p4093/school_4093.c ****   for(int16_t i = 0;i < paramN; i++)
+  32:crypto/p4093/school_4093.c ****     {	
+  33:crypto/p4093/school_4093.c ****       for(int16_t j = 0; j<paramN; j++)
+  34:crypto/p4093/school_4093.c **** 	{
+  35:crypto/p4093/school_4093.c **** 	  q = i+j;
+  36:crypto/p4093/school_4093.c **** 	  if(q>=paramN)
+ 505               	.LM4:
+ 506 0058 CA01      		movw r24,r20
+ 507 005a B0E0      		ldi r27,0
+ 508 005c A0E0      		ldi r26,0
+ 509 005e 8F83      		std Y+7,r24
+ 510 0060 9887      		std Y+8,r25
+ 511 0062 A987      		std Y+9,r26
+ 512 0064 BA87      		std Y+10,r27
+ 513               	.L4:
+ 514 0066 8201      		movw r16,r4
+ 515               	.LBE4:
+  31:crypto/p4093/school_4093.c ****     {	
+ 517               	.LM5:
+ 518 0068 AD85      		ldd r26,Y+13
+ 519 006a BE85      		ldd r27,Y+14
+ 520 006c 4A16      		cp r4,r26
+ 521 006e 5B06      		cpc r5,r27
+ 522 0070 00F0      		brlo .+2
+ 523 0072 00C0      		rjmp .L1
+ 524 0074 BB85      		ldd r27,Y+11
+ 525 0076 BB83      		std Y+3,r27
+ 526 0078 EC85      		ldd r30,Y+12
+ 527 007a EC83      		std Y+4,r30
+  31:crypto/p4093/school_4093.c ****     {	
+ 529               	.LM6:
+ 530 007c 5301      		movw r10,r6
+ 531 007e 4201      		movw r8,r4
+ 532 0080 00C0      		rjmp .L13
+ 533               	.L3:
+ 534               	.LBE3:
+ 535               	.LBB6:
+  28:crypto/p4093/school_4093.c ****     }
+ 537               	.LM7:
+ 538 0082 1192      		st Z+,__zero_reg__
+ 539 0084 1192      		st Z+,__zero_reg__
+  26:crypto/p4093/school_4093.c ****     {
+ 541               	.LM8:
+ 542 0086 2F5F      		subi r18,-1
+ 543 0088 3F4F      		sbci r19,-1
+ 544 008a 00C0      		rjmp .L2
+ 545               	.L11:
+ 546               	.LBE6:
+ 547               	.LBB7:
+ 548               	.LBB5:
+ 550               	.LM9:
+ 551 008c 8F81      		ldd r24,Y+7
+ 552 008e 9885      		ldd r25,Y+8
+ 553 0090 A985      		ldd r26,Y+9
+ 554 0092 BA85      		ldd r27,Y+10
+ 555 0094 7501      		movw r14,r10
+ 556 0096 6401      		movw r12,r8
+ 557 0098 8816      		cp r8,r24
+ 558 009a 9906      		cpc r9,r25
+ 559 009c AA06      		cpc r10,r26
+ 560 009e BB06      		cpc r11,r27
+ 561 00a0 00F0      		brlo .L5
+ 562 00a2 C81A      		sub r12,r24
+ 563 00a4 D90A      		sbc r13,r25
+ 564 00a6 EA0A      		sbc r14,r26
+ 565 00a8 FB0A      		sbc r15,r27
+ 566               	.L5:
+  37:crypto/p4093/school_4093.c **** 	    {
+  38:crypto/p4093/school_4093.c **** 	      q -= paramN;
+  39:crypto/p4093/school_4093.c **** 	    }
+  40:crypto/p4093/school_4093.c **** 		  
+  41:crypto/p4093/school_4093.c **** 	  //d =  (((uint32_t)first[i]) * second[j])%paramQ;
+  42:crypto/p4093/school_4093.c **** 	  d = call_mulRed_asm_4093(first[i],second[j]);
+ 568               	.LM10:
+ 569 00aa AB81      		ldd r26,Y+3
+ 570 00ac BC81      		ldd r27,Y+4
+ 571 00ae 6D91      		ld r22,X+
+ 572 00b0 7D91      		ld r23,X+
+ 573 00b2 AB83      		std Y+3,r26
+ 574 00b4 BC83      		std Y+4,r27
+ 575 00b6 E981      		ldd r30,Y+1
+ 576 00b8 FA81      		ldd r31,Y+2
+ 577 00ba 8081      		ld r24,Z
+ 578 00bc 0E94 0000 		call call_mulRed_asm_4093
+ 579 00c0 9C01      		movw r18,r24
+ 580 00c2 CC0C      		lsl r12
+ 581 00c4 DD1C      		rol r13
+ 582 00c6 ED81      		ldd r30,Y+5
+ 583 00c8 FE81      		ldd r31,Y+6
+ 584 00ca EC0D      		add r30,r12
+ 585 00cc FD1D      		adc r31,r13
+ 586 00ce 8081      		ld r24,Z
+ 587 00d0 9181      		ldd r25,Z+1
+  43:crypto/p4093/school_4093.c **** 		    
+  44:crypto/p4093/school_4093.c **** 	  if((i+j) >= paramN)
+ 589               	.LM11:
+ 590 00d2 4D85      		ldd r20,Y+13
+ 591 00d4 5E85      		ldd r21,Y+14
+ 592 00d6 0417      		cp r16,r20
+ 593 00d8 1507      		cpc r17,r21
+ 594 00da 00F0      		brlo .L6
+  45:crypto/p4093/school_4093.c **** 	    {
+  46:crypto/p4093/school_4093.c **** 	      res[q] -= d;
+ 596               	.LM12:
+ 597 00dc DC01      		movw r26,r24
+ 598 00de A21B      		sub r26,r18
+ 599 00e0 B30B      		sbc r27,r19
+ 600 00e2 9D01      		movw r18,r26
+  47:crypto/p4093/school_4093.c **** 	      if(res[q] < 0)
+ 602               	.LM13:
+ 603 00e4 B7FD      		sbrc r27,7
+ 604 00e6 00C0      		rjmp .L7
+ 605               	.L15:
+  48:crypto/p4093/school_4093.c **** 		{
+  49:crypto/p4093/school_4093.c **** 		  res[q] += paramQ;
+  50:crypto/p4093/school_4093.c **** 		}
+  51:crypto/p4093/school_4093.c **** 	    }
+  52:crypto/p4093/school_4093.c **** 	  else
+  53:crypto/p4093/school_4093.c **** 	    {
+  54:crypto/p4093/school_4093.c **** 	      res[q] += d;
+  55:crypto/p4093/school_4093.c **** 	      if(res[q] >= paramQ)
+  56:crypto/p4093/school_4093.c **** 		{
+  57:crypto/p4093/school_4093.c **** 		  res[q] -= paramQ;
+ 607               	.LM14:
+ 608 00e8 2083      		st Z,r18
+ 609 00ea 3183      		std Z+1,r19
+ 610 00ec EFEF      		ldi r30,-1
+ 611 00ee 8E1A      		sub r8,r30
+ 612 00f0 9E0A      		sbc r9,r30
+ 613 00f2 AE0A      		sbc r10,r30
+ 614 00f4 BE0A      		sbc r11,r30
+ 615 00f6 0F5F      		subi r16,-1
+ 616 00f8 1F4F      		sbci r17,-1
+ 617               	.L13:
+  33:crypto/p4093/school_4093.c **** 	{
+ 619               	.LM15:
+ 620 00fa 0215      		cp r16,r2
+ 621 00fc 1305      		cpc r17,r3
+ 622 00fe 01F4      		brne .L11
+ 623 0100 FFEF      		ldi r31,-1
+ 624 0102 4F1A      		sub r4,r31
+ 625 0104 5F0A      		sbc r5,r31
+ 626 0106 6F0A      		sbc r6,r31
+ 627 0108 7F0A      		sbc r7,r31
+ 628 010a 4FEF      		ldi r20,-1
+ 629 010c 241A      		sub r2,r20
+ 630 010e 340A      		sbc r3,r20
+ 631 0110 8981      		ldd r24,Y+1
+ 632 0112 9A81      		ldd r25,Y+2
+ 633 0114 0296      		adiw r24,2
+ 634 0116 8983      		std Y+1,r24
+ 635 0118 9A83      		std Y+2,r25
+ 636 011a 00C0      		rjmp .L4
+ 637               	.L7:
+  49:crypto/p4093/school_4093.c **** 		}
+ 639               	.LM16:
+ 640 011c 2350      		subi r18,3
+ 641 011e 304F      		sbci r19,-16
+ 642 0120 00C0      		rjmp .L15
+ 643               	.L6:
+  54:crypto/p4093/school_4093.c **** 	      if(res[q] >= paramQ)
+ 645               	.LM17:
+ 646 0122 280F      		add r18,r24
+ 647 0124 391F      		adc r19,r25
+  55:crypto/p4093/school_4093.c **** 		{
+ 649               	.LM18:
+ 650 0126 2D3F      		cpi r18,-3
+ 651 0128 BFE0      		ldi r27,15
+ 652 012a 3B07      		cpc r19,r27
+ 653 012c 04F0      		brlt .L15
+ 655               	.LM19:
+ 656 012e 2D5F      		subi r18,-3
+ 657 0130 3F40      		sbci r19,15
+ 658 0132 00C0      		rjmp .L15
+ 659               	.L1:
+ 660               	/* epilogue start */
+ 661               	.LBE5:
+ 662               	.LBE7:
+  58:crypto/p4093/school_4093.c **** 		}
+  59:crypto/p4093/school_4093.c **** 	    }
+  60:crypto/p4093/school_4093.c **** 	}
+  61:crypto/p4093/school_4093.c ****     }
+  62:crypto/p4093/school_4093.c **** }
+ 664               	.LM20:
+ 665 0134 2E96      		adiw r28,14
+ 666 0136 CDBF      		out __SP_L__,r28
+ 667 0138 DEBF      		out __SP_H__,r29
+ 668 013a DF91      		pop r29
+ 669 013c CF91      		pop r28
+ 670 013e 1F91      		pop r17
+ 671 0140 0F91      		pop r16
+ 672 0142 FF90      		pop r15
+ 673 0144 EF90      		pop r14
+ 674 0146 DF90      		pop r13
+ 675 0148 CF90      		pop r12
+ 676 014a BF90      		pop r11
+ 677 014c AF90      		pop r10
+ 678 014e 9F90      		pop r9
+ 679 0150 8F90      		pop r8
+ 680 0152 7F90      		pop r7
+ 681 0154 6F90      		pop r6
+ 682 0156 5F90      		pop r5
+ 683 0158 4F90      		pop r4
+ 684 015a 3F90      		pop r3
+ 685 015c 2F90      		pop r2
+ 686 015e 0895      		ret
+ 697               	.Lscope1:
+ 698               		.section	.text.school_4093_192,"ax",@progbits
+ 700               	.global	school_4093_192
+ 702               	school_4093_192:
+  63:crypto/p4093/school_4093.c **** #endif
+  64:crypto/p4093/school_4093.c **** 
+  65:crypto/p4093/school_4093.c **** 
+  66:crypto/p4093/school_4093.c **** 
+  67:crypto/p4093/school_4093.c **** 
+  68:crypto/p4093/school_4093.c **** 
+  69:crypto/p4093/school_4093.c **** 
+  70:crypto/p4093/school_4093.c **** IS_STATIC void school_4093_192(const uint16_t* first, const uint16_t* second, uint16_t* result)
+  71:crypto/p4093/school_4093.c **** {
+ 704               	.LM21:
+ 705               	.LFBB2:
+ 706 0000 CF92      		push r12
+ 707 0002 DF92      		push r13
+ 708 0004 EF92      		push r14
+ 709 0006 FF92      		push r15
+ 710 0008 0F93      		push r16
+ 711 000a 1F93      		push r17
+ 712 000c CF93      		push r28
+ 713 000e DF93      		push r29
+ 714 0010 0F92      		push __tmp_reg__
+ 715 0012 0F92      		push __tmp_reg__
+ 716 0014 CDB7      		in r28,__SP_L__
+ 717 0016 DEB7      		in r29,__SP_H__
+ 718               	/* prologue: function */
+ 719               	/* frame size = 2 */
+ 720               	/* stack size = 10 */
+ 721               	.L__stack_usage = 10
+ 722 0018 7A01      		movw r14,r20
+  72:crypto/p4093/school_4093.c ****   //We reqire a RAM address as first coefficient and a Flash address as second
+  73:crypto/p4093/school_4093.c ****   const uint16_t paramN = 192;
+  74:crypto/p4093/school_4093.c **** 	
+  75:crypto/p4093/school_4093.c ****   uint16_t res[paramN];
+  76:crypto/p4093/school_4093.c **** 
+  77:crypto/p4093/school_4093.c ****   //init with 0
+  78:crypto/p4093/school_4093.c ****   for(int16_t i = 0; i<paramN; i++)
+  79:crypto/p4093/school_4093.c ****     {
+  80:crypto/p4093/school_4093.c ****       res[i] = 0;
+  81:crypto/p4093/school_4093.c ****     }
+  82:crypto/p4093/school_4093.c **** 
+  83:crypto/p4093/school_4093.c ****   //polyMul_c_gauss_4093_192(first,second,res);
+  84:crypto/p4093/school_4093.c **** 
+  85:crypto/p4093/school_4093.c ****   polyMul_asm_4093_192(first,second,res);
+  86:crypto/p4093/school_4093.c **** 	
+  87:crypto/p4093/school_4093.c ****     for(int16_t i = 0; i<paramN; i++)
+  88:crypto/p4093/school_4093.c ****   {
+  89:crypto/p4093/school_4093.c ****   result[i] = res[i];
+  90:crypto/p4093/school_4093.c ****     }
+  91:crypto/p4093/school_4093.c **** }
+ 724               	.LM22:
+ 725 001a 2DB7      		in r18,__SP_L__
+ 726 001c 3EB7      		in r19,__SP_H__
+ 727 001e 2983      		std Y+1,r18
+ 728 0020 3A83      		std Y+2,r19
+  75:crypto/p4093/school_4093.c **** 
+ 730               	.LM23:
+ 731 0022 ADB7      		in r26,__SP_L__
+ 732 0024 BEB7      		in r27,__SP_H__
+ 733 0026 A058      		subi r26,-128
+ 734 0028 B140      		sbci r27,1
+ 735 002a ADBF      		out __SP_L__,r26
+ 736 002c BEBF      		out __SP_H__,r27
+ 737 002e 4DB7      		in r20,__SP_L__
+ 738 0030 5EB7      		in r21,__SP_H__
+ 739 0032 4F5F      		subi r20,-1
+ 740 0034 5F4F      		sbci r21,-1
+ 741 0036 8A01      		movw r16,r20
+ 742 0038 CDB6      		in r12,__SP_L__
+ 743 003a DEB6      		in r13,__SP_H__
+ 744 003c BFE7      		ldi r27,127
+ 745 003e CB1A      		sub r12,r27
+ 746 0040 BEEF      		ldi r27,-2
+ 747 0042 DB0A      		sbc r13,r27
+ 748 0044 FA01      		movw r30,r20
+ 749               	.L17:
+ 750               	.LBB8:
+  80:crypto/p4093/school_4093.c ****     }
+ 752               	.LM24:
+ 753 0046 1192      		st Z+,__zero_reg__
+ 754 0048 1192      		st Z+,__zero_reg__
+  78:crypto/p4093/school_4093.c ****     {
+ 756               	.LM25:
+ 757 004a EC15      		cp r30,r12
+ 758 004c FD05      		cpc r31,r13
+ 759 004e 01F4      		brne .L17
+ 760               	.LBE8:
+  85:crypto/p4093/school_4093.c **** 	
+ 762               	.LM26:
+ 763 0050 0E94 0000 		call polyMul_asm_4093_192
+ 764 0054 F701      		movw r30,r14
+ 765               	.L18:
+ 766               	.LBB9:
+  87:crypto/p4093/school_4093.c ****   {
+ 768               	.LM27:
+ 769 0056 0C15      		cp r16,r12
+ 770 0058 1D05      		cpc r17,r13
+ 771 005a 01F4      		brne .L19
+ 772               	.LBE9:
+ 774               	.LM28:
+ 775 005c 2981      		ldd r18,Y+1
+ 776 005e 3A81      		ldd r19,Y+2
+ 777 0060 2DBF      		out __SP_L__,r18
+ 778 0062 3EBF      		out __SP_H__,r19
+ 779               	/* epilogue start */
+ 780 0064 0F90      		pop __tmp_reg__
+ 781 0066 0F90      		pop __tmp_reg__
+ 782 0068 DF91      		pop r29
+ 783 006a CF91      		pop r28
+ 784 006c 1F91      		pop r17
+ 785 006e 0F91      		pop r16
+ 786 0070 FF90      		pop r15
+ 787 0072 EF90      		pop r14
+ 788 0074 DF90      		pop r13
+ 789 0076 CF90      		pop r12
+ 790 0078 0895      		ret
+ 791               	.L19:
+ 792               	.LBB10:
+  89:crypto/p4093/school_4093.c ****     }
+ 794               	.LM29:
+ 795 007a D801      		movw r26,r16
+ 796 007c 8D91      		ld r24,X+
+ 797 007e 9D91      		ld r25,X+
+ 798 0080 8D01      		movw r16,r26
+  89:crypto/p4093/school_4093.c ****     }
+ 800               	.LM30:
+ 801 0082 8193      		st Z+,r24
+ 802 0084 9193      		st Z+,r25
+ 803 0086 00C0      		rjmp .L18
+ 804               	.LBE10:
+ 806               	.Lscope2:
+ 807               		.section	.text.school_4093_256,"ax",@progbits
+ 809               	.global	school_4093_256
+ 811               	school_4093_256:
+  92:crypto/p4093/school_4093.c **** 
+  93:crypto/p4093/school_4093.c **** 
+  94:crypto/p4093/school_4093.c **** IS_STATIC void school_4093_256(const uint16_t* first, const uint16_t* second, uint16_t* result)
+  95:crypto/p4093/school_4093.c **** {	
+ 813               	.LM31:
+ 814               	.LFBB3:
+ 815 0000 CF92      		push r12
+ 816 0002 DF92      		push r13
+ 817 0004 EF92      		push r14
+ 818 0006 FF92      		push r15
+ 819 0008 0F93      		push r16
+ 820 000a 1F93      		push r17
+ 821 000c CF93      		push r28
+ 822 000e DF93      		push r29
+ 823 0010 0F92      		push __tmp_reg__
+ 824 0012 0F92      		push __tmp_reg__
+ 825 0014 CDB7      		in r28,__SP_L__
+ 826 0016 DEB7      		in r29,__SP_H__
+ 827               	/* prologue: function */
+ 828               	/* frame size = 2 */
+ 829               	/* stack size = 10 */
+ 830               	.L__stack_usage = 10
+ 831 0018 7A01      		movw r14,r20
+  96:crypto/p4093/school_4093.c ****   const uint16_t paramN = 256;
+  97:crypto/p4093/school_4093.c ****     
+  98:crypto/p4093/school_4093.c ****   uint16_t res[paramN];
+  99:crypto/p4093/school_4093.c ****       
+ 100:crypto/p4093/school_4093.c ****   //init with 0
+ 101:crypto/p4093/school_4093.c ****   for(int16_t i = 0; i<paramN; i++)
+ 102:crypto/p4093/school_4093.c ****     {
+ 103:crypto/p4093/school_4093.c ****       res[i] = 0;
+ 104:crypto/p4093/school_4093.c ****     }
+ 105:crypto/p4093/school_4093.c **** 	
+ 106:crypto/p4093/school_4093.c ****   polyMul_asm_4093_256(first,second,res);
+ 107:crypto/p4093/school_4093.c **** 	
+ 108:crypto/p4093/school_4093.c ****   for(int16_t i = 0; i<paramN; i++)
+ 109:crypto/p4093/school_4093.c ****     {
+ 110:crypto/p4093/school_4093.c ****       result[i] = res[i];
+ 111:crypto/p4093/school_4093.c ****     }
+ 112:crypto/p4093/school_4093.c **** }
+ 833               	.LM32:
+ 834 001a 2DB7      		in r18,__SP_L__
+ 835 001c 3EB7      		in r19,__SP_H__
+ 836 001e 2983      		std Y+1,r18
+ 837 0020 3A83      		std Y+2,r19
+  98:crypto/p4093/school_4093.c ****       
+ 839               	.LM33:
+ 840 0022 ADB7      		in r26,__SP_L__
+ 841 0024 BEB7      		in r27,__SP_H__
+ 842 0026 B250      		subi r27,2
+ 843 0028 ADBF      		out __SP_L__,r26
+ 844 002a BEBF      		out __SP_H__,r27
+ 845 002c 4DB7      		in r20,__SP_L__
+ 846 002e 5EB7      		in r21,__SP_H__
+ 847 0030 4F5F      		subi r20,-1
+ 848 0032 5F4F      		sbci r21,-1
+ 849 0034 8A01      		movw r16,r20
+ 850 0036 CDB6      		in r12,__SP_L__
+ 851 0038 DEB6      		in r13,__SP_H__
+ 852 003a BFEF      		ldi r27,-1
+ 853 003c CB1A      		sub r12,r27
+ 854 003e BDEF      		ldi r27,-3
+ 855 0040 DB0A      		sbc r13,r27
+ 856 0042 FA01      		movw r30,r20
+ 857               	.L22:
+ 858               	.LBB11:
+ 103:crypto/p4093/school_4093.c ****     }
+ 860               	.LM34:
+ 861 0044 1192      		st Z+,__zero_reg__
+ 862 0046 1192      		st Z+,__zero_reg__
+ 101:crypto/p4093/school_4093.c ****     {
+ 864               	.LM35:
+ 865 0048 EC15      		cp r30,r12
+ 866 004a FD05      		cpc r31,r13
+ 867 004c 01F4      		brne .L22
+ 868               	.LBE11:
+ 106:crypto/p4093/school_4093.c **** 	
+ 870               	.LM36:
+ 871 004e 0E94 0000 		call polyMul_asm_4093_256
+ 872 0052 F701      		movw r30,r14
+ 873               	.L23:
+ 874               	.LBB12:
+ 108:crypto/p4093/school_4093.c ****     {
+ 876               	.LM37:
+ 877 0054 0C15      		cp r16,r12
+ 878 0056 1D05      		cpc r17,r13
+ 879 0058 01F4      		brne .L24
+ 880               	.LBE12:
+ 882               	.LM38:
+ 883 005a 2981      		ldd r18,Y+1
+ 884 005c 3A81      		ldd r19,Y+2
+ 885 005e 2DBF      		out __SP_L__,r18
+ 886 0060 3EBF      		out __SP_H__,r19
+ 887               	/* epilogue start */
+ 888 0062 0F90      		pop __tmp_reg__
+ 889 0064 0F90      		pop __tmp_reg__
+ 890 0066 DF91      		pop r29
+ 891 0068 CF91      		pop r28
+ 892 006a 1F91      		pop r17
+ 893 006c 0F91      		pop r16
+ 894 006e FF90      		pop r15
+ 895 0070 EF90      		pop r14
+ 896 0072 DF90      		pop r13
+ 897 0074 CF90      		pop r12
+ 898 0076 0895      		ret
+ 899               	.L24:
+ 900               	.LBB13:
+ 110:crypto/p4093/school_4093.c ****     }
+ 902               	.LM39:
+ 903 0078 D801      		movw r26,r16
+ 904 007a 8D91      		ld r24,X+
+ 905 007c 9D91      		ld r25,X+
+ 906 007e 8D01      		movw r16,r26
+ 110:crypto/p4093/school_4093.c ****     }
+ 908               	.LM40:
+ 909 0080 8193      		st Z+,r24
+ 910 0082 9193      		st Z+,r25
+ 911 0084 00C0      		rjmp .L23
+ 912               	.LBE13:
+ 914               	.Lscope3:
+ 915               		.section	.text.school_4093_320,"ax",@progbits
+ 917               	.global	school_4093_320
+ 919               	school_4093_320:
+ 113:crypto/p4093/school_4093.c **** 
+ 114:crypto/p4093/school_4093.c **** 
+ 115:crypto/p4093/school_4093.c **** IS_STATIC void school_4093_320(const uint16_t* first, const uint16_t* second, uint16_t* result)
+ 116:crypto/p4093/school_4093.c **** {
+ 921               	.LM41:
+ 922               	.LFBB4:
+ 923 0000 CF92      		push r12
+ 924 0002 DF92      		push r13
+ 925 0004 EF92      		push r14
+ 926 0006 FF92      		push r15
+ 927 0008 0F93      		push r16
+ 928 000a 1F93      		push r17
+ 929 000c CF93      		push r28
+ 930 000e DF93      		push r29
+ 931 0010 0F92      		push __tmp_reg__
+ 932 0012 0F92      		push __tmp_reg__
+ 933 0014 CDB7      		in r28,__SP_L__
+ 934 0016 DEB7      		in r29,__SP_H__
+ 935               	/* prologue: function */
+ 936               	/* frame size = 2 */
+ 937               	/* stack size = 10 */
+ 938               	.L__stack_usage = 10
+ 939 0018 7A01      		movw r14,r20
+ 117:crypto/p4093/school_4093.c ****   // 	uint32_t q,d;
+ 118:crypto/p4093/school_4093.c ****   // 	
+ 119:crypto/p4093/school_4093.c ****   // 	const uint16_t paramN = 320;
+ 120:crypto/p4093/school_4093.c ****   // 	
+ 121:crypto/p4093/school_4093.c ****   // 	int16_t res[paramN];
+ 122:crypto/p4093/school_4093.c ****   
+ 123:crypto/p4093/school_4093.c ****   //init with 0
+ 124:crypto/p4093/school_4093.c ****   // 	for(int16_t i = 0; i<paramN; i++)
+ 125:crypto/p4093/school_4093.c ****   // 	{
+ 126:crypto/p4093/school_4093.c ****   // 		res[i] = 0;
+ 127:crypto/p4093/school_4093.c ****   // 	}
+ 128:crypto/p4093/school_4093.c ****   // 
+ 129:crypto/p4093/school_4093.c ****   // 	for(int16_t i = 0;i < paramN; i++)
+ 130:crypto/p4093/school_4093.c ****   // 	{	
+ 131:crypto/p4093/school_4093.c ****   // 		for(int16_t j = 0; j<paramN; j++)
+ 132:crypto/p4093/school_4093.c ****   // 		{
+ 133:crypto/p4093/school_4093.c ****   // 			q = i+j;
+ 134:crypto/p4093/school_4093.c ****   // 			if(q>=paramN)
+ 135:crypto/p4093/school_4093.c ****   // 			{
+ 136:crypto/p4093/school_4093.c ****   // 				q -= paramN;
+ 137:crypto/p4093/school_4093.c ****   // 			}
+ 138:crypto/p4093/school_4093.c ****   // 
+ 139:crypto/p4093/school_4093.c ****   // 			//d =  (((uint32_t)first[i]) * pgm_read_word(&second[j]))%paramQ;
+ 140:crypto/p4093/school_4093.c ****   // 			d = call_mulRed_asm_4093(first[i],pgm_read_word(&second[j]));
+ 141:crypto/p4093/school_4093.c ****   // 
+ 142:crypto/p4093/school_4093.c ****   // 			if((i+j) >= paramN)
+ 143:crypto/p4093/school_4093.c ****   // 			{
+ 144:crypto/p4093/school_4093.c ****   // 				res[q] -= d;
+ 145:crypto/p4093/school_4093.c ****   // 				if(res[q] < 0)
+ 146:crypto/p4093/school_4093.c ****   // 				{
+ 147:crypto/p4093/school_4093.c ****   // 					res[q] += paramQ;
+ 148:crypto/p4093/school_4093.c ****   // 				}
+ 149:crypto/p4093/school_4093.c ****   // 			}
+ 150:crypto/p4093/school_4093.c ****   // 			else
+ 151:crypto/p4093/school_4093.c ****   // 			{
+ 152:crypto/p4093/school_4093.c ****   // 				res[q] += d;
+ 153:crypto/p4093/school_4093.c ****   // 				if(res[q] >= paramQ)
+ 154:crypto/p4093/school_4093.c ****   // 				{
+ 155:crypto/p4093/school_4093.c ****   // 					res[q] -= paramQ;
+ 156:crypto/p4093/school_4093.c ****   // 				}
+ 157:crypto/p4093/school_4093.c ****   // 			}
+ 158:crypto/p4093/school_4093.c ****   // 		}
+ 159:crypto/p4093/school_4093.c ****   // 	
+ 160:crypto/p4093/school_4093.c ****   // 	for(int16_t i = 0; i<paramN; i++)
+ 161:crypto/p4093/school_4093.c ****   // 	{
+ 162:crypto/p4093/school_4093.c ****   // 		result[i] = res[i];
+ 163:crypto/p4093/school_4093.c ****   // }
+ 164:crypto/p4093/school_4093.c ****   const uint16_t paramN = 320;
+ 165:crypto/p4093/school_4093.c ****     
+ 166:crypto/p4093/school_4093.c ****   uint16_t res[paramN];
+ 167:crypto/p4093/school_4093.c ****       
+ 168:crypto/p4093/school_4093.c ****   //init with 0
+ 169:crypto/p4093/school_4093.c ****   for(int16_t i = 0; i<paramN; i++)
+ 170:crypto/p4093/school_4093.c ****     {
+ 171:crypto/p4093/school_4093.c ****       res[i] = 0;
+ 172:crypto/p4093/school_4093.c ****     }
+ 173:crypto/p4093/school_4093.c **** 	
+ 174:crypto/p4093/school_4093.c ****   polyMul_asm_4093_320(first,second,res);
+ 175:crypto/p4093/school_4093.c **** 	
+ 176:crypto/p4093/school_4093.c ****   for(int16_t i = 0; i<paramN; i++)
+ 177:crypto/p4093/school_4093.c ****     {
+ 178:crypto/p4093/school_4093.c ****       result[i] = res[i];
+ 179:crypto/p4093/school_4093.c ****     }
+ 180:crypto/p4093/school_4093.c **** }
+ 941               	.LM42:
+ 942 001a 2DB7      		in r18,__SP_L__
+ 943 001c 3EB7      		in r19,__SP_H__
+ 944 001e 2983      		std Y+1,r18
+ 945 0020 3A83      		std Y+2,r19
+ 166:crypto/p4093/school_4093.c ****       
+ 947               	.LM43:
+ 948 0022 ADB7      		in r26,__SP_L__
+ 949 0024 BEB7      		in r27,__SP_H__
+ 950 0026 A058      		subi r26,-128
+ 951 0028 B240      		sbci r27,2
+ 952 002a ADBF      		out __SP_L__,r26
+ 953 002c BEBF      		out __SP_H__,r27
+ 954 002e 4DB7      		in r20,__SP_L__
+ 955 0030 5EB7      		in r21,__SP_H__
+ 956 0032 4F5F      		subi r20,-1
+ 957 0034 5F4F      		sbci r21,-1
+ 958 0036 8A01      		movw r16,r20
+ 959 0038 CDB6      		in r12,__SP_L__
+ 960 003a DEB6      		in r13,__SP_H__
+ 961 003c BFE7      		ldi r27,127
+ 962 003e CB1A      		sub r12,r27
+ 963 0040 BDEF      		ldi r27,-3
+ 964 0042 DB0A      		sbc r13,r27
+ 965 0044 FA01      		movw r30,r20
+ 966               	.L27:
+ 967               	.LBB14:
+ 171:crypto/p4093/school_4093.c ****     }
+ 969               	.LM44:
+ 970 0046 1192      		st Z+,__zero_reg__
+ 971 0048 1192      		st Z+,__zero_reg__
+ 169:crypto/p4093/school_4093.c ****     {
+ 973               	.LM45:
+ 974 004a EC15      		cp r30,r12
+ 975 004c FD05      		cpc r31,r13
+ 976 004e 01F4      		brne .L27
+ 977               	.LBE14:
+ 174:crypto/p4093/school_4093.c **** 	
+ 979               	.LM46:
+ 980 0050 0E94 0000 		call polyMul_asm_4093_320
+ 981 0054 F701      		movw r30,r14
+ 982               	.L28:
+ 983               	.LBB15:
+ 176:crypto/p4093/school_4093.c ****     {
+ 985               	.LM47:
+ 986 0056 0C15      		cp r16,r12
+ 987 0058 1D05      		cpc r17,r13
+ 988 005a 01F4      		brne .L29
+ 989               	.LBE15:
+ 991               	.LM48:
+ 992 005c 2981      		ldd r18,Y+1
+ 993 005e 3A81      		ldd r19,Y+2
+ 994 0060 2DBF      		out __SP_L__,r18
+ 995 0062 3EBF      		out __SP_H__,r19
+ 996               	/* epilogue start */
+ 997 0064 0F90      		pop __tmp_reg__
+ 998 0066 0F90      		pop __tmp_reg__
+ 999 0068 DF91      		pop r29
+ 1000 006a CF91      		pop r28
+ 1001 006c 1F91      		pop r17
+ 1002 006e 0F91      		pop r16
+ 1003 0070 FF90      		pop r15
+ 1004 0072 EF90      		pop r14
+ 1005 0074 DF90      		pop r13
+ 1006 0076 CF90      		pop r12
+ 1007 0078 0895      		ret
+ 1008               	.L29:
+ 1009               	.LBB16:
+ 178:crypto/p4093/school_4093.c ****     }
+ 1011               	.LM49:
+ 1012 007a D801      		movw r26,r16
+ 1013 007c 8D91      		ld r24,X+
+ 1014 007e 9D91      		ld r25,X+
+ 1015 0080 8D01      		movw r16,r26
+ 178:crypto/p4093/school_4093.c ****     }
+ 1017               	.LM50:
+ 1018 0082 8193      		st Z+,r24
+ 1019 0084 9193      		st Z+,r25
+ 1020 0086 00C0      		rjmp .L28
+ 1021               	.LBE16:
+ 1023               	.Lscope4:
+ 1024               		.section	.text.add_encode_4093,"ax",@progbits
+ 1029               	.global	add_encode_4093
+ 1031               	add_encode_4093:
+ 181:crypto/p4093/school_4093.c **** 
+ 182:crypto/p4093/school_4093.c **** 
+ 183:crypto/p4093/school_4093.c **** 
+ 184:crypto/p4093/school_4093.c **** void encrypt_4093(const uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* a, const ui
+ 185:crypto/p4093/school_4093.c **** {		
+ 186:crypto/p4093/school_4093.c ****   get_gauss_poly_4093(c1,0, paramN);
+ 187:crypto/p4093/school_4093.c ****     
+ 188:crypto/p4093/school_4093.c **** 
+ 189:crypto/p4093/school_4093.c ****   if(paramN == 192)
+ 190:crypto/p4093/school_4093.c ****     {
+ 191:crypto/p4093/school_4093.c ****       school_4093_192(c1, p, c2);
+ 192:crypto/p4093/school_4093.c ****       school_4093_192(c1, a, c1);
+ 193:crypto/p4093/school_4093.c ****     }
+ 194:crypto/p4093/school_4093.c **** 
+ 195:crypto/p4093/school_4093.c ****   
+ 196:crypto/p4093/school_4093.c **** 
+ 197:crypto/p4093/school_4093.c ****   if(paramN == 256)
+ 198:crypto/p4093/school_4093.c ****     {
+ 199:crypto/p4093/school_4093.c ****       school_4093_256(c1, p, c2);
+ 200:crypto/p4093/school_4093.c ****       school_4093_256(c1, a, c1);
+ 201:crypto/p4093/school_4093.c ****     }	
+ 202:crypto/p4093/school_4093.c **** 
+ 203:crypto/p4093/school_4093.c **** 
+ 204:crypto/p4093/school_4093.c **** 
+ 205:crypto/p4093/school_4093.c ****   if(paramN == 320)
+ 206:crypto/p4093/school_4093.c ****     {
+ 207:crypto/p4093/school_4093.c ****       school_4093_320(c1, p, c2);
+ 208:crypto/p4093/school_4093.c ****       school_4093_320(c1, a, c1);
+ 209:crypto/p4093/school_4093.c ****     }	
+ 210:crypto/p4093/school_4093.c **** 
+ 211:crypto/p4093/school_4093.c ****       
+ 212:crypto/p4093/school_4093.c ****   get_gauss_poly_4093(c1,1, paramN);
+ 213:crypto/p4093/school_4093.c ****   get_gauss_poly_4093(c2,1, paramN);
+ 214:crypto/p4093/school_4093.c ****   
+ 215:crypto/p4093/school_4093.c ****   add_encode_4093(plaintext, c2, paramN);
+ 216:crypto/p4093/school_4093.c **** }
+ 217:crypto/p4093/school_4093.c **** 
+ 218:crypto/p4093/school_4093.c **** 
+ 219:crypto/p4093/school_4093.c **** void decrypt_4093(uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* r2, const uint16_
+ 220:crypto/p4093/school_4093.c **** {	
+ 221:crypto/p4093/school_4093.c **** 
+ 222:crypto/p4093/school_4093.c ****   if(paramN == 192)
+ 223:crypto/p4093/school_4093.c ****     {
+ 224:crypto/p4093/school_4093.c ****       school_4093_192(c1, r2, c1);
+ 225:crypto/p4093/school_4093.c ****     }
+ 226:crypto/p4093/school_4093.c **** 
+ 227:crypto/p4093/school_4093.c ****   if(paramN == 256)
+ 228:crypto/p4093/school_4093.c ****     {
+ 229:crypto/p4093/school_4093.c ****       school_4093_256(c1, r2, c1);
+ 230:crypto/p4093/school_4093.c ****     }	
+ 231:crypto/p4093/school_4093.c **** 
+ 232:crypto/p4093/school_4093.c ****   if(paramN == 320)
+ 233:crypto/p4093/school_4093.c ****     {
+ 234:crypto/p4093/school_4093.c ****       school_4093_320(c1, r2, c1);
+ 235:crypto/p4093/school_4093.c ****     }
+ 236:crypto/p4093/school_4093.c **** 
+ 237:crypto/p4093/school_4093.c ****   
+ 238:crypto/p4093/school_4093.c ****   //Add c2
+ 239:crypto/p4093/school_4093.c ****   for(int i = 0; i<paramN; i++){
+ 240:crypto/p4093/school_4093.c ****     c1[i] = (uint16_t) ((c1[i] + c2[i]));
+ 241:crypto/p4093/school_4093.c ****     if (c1[i]>paramQ){
+ 242:crypto/p4093/school_4093.c ****       c1[i]=c1[i]-paramQ;
+ 243:crypto/p4093/school_4093.c ****     }
+ 244:crypto/p4093/school_4093.c ****   }
+ 245:crypto/p4093/school_4093.c ****   
+ 246:crypto/p4093/school_4093.c ****   decode_4093(c1, plaintext, paramN);
+ 247:crypto/p4093/school_4093.c **** }
+ 248:crypto/p4093/school_4093.c **** 
+ 249:crypto/p4093/school_4093.c **** IS_STATIC void add_encode_4093(const uint8_t* msg, uint16_t* encodedpoly, const uint16_t paramN)
+ 250:crypto/p4093/school_4093.c **** {
+ 1033               	.LM51:
+ 1034               	.LFBB5:
+ 1035 0000 CF93      		push r28
+ 1036 0002 DF93      		push r29
+ 1037               	/* prologue: function */
+ 1038               	/* frame size = 0 */
+ 1039               	/* stack size = 2 */
+ 1040               	.L__stack_usage = 2
+ 1041 0004 DC01      		movw r26,r24
+ 1042 0006 FB01      		movw r30,r22
+ 251:crypto/p4093/school_4093.c ****   uint16_t i = 0;
+ 1044               	.LM52:
+ 1045 0008 90E0      		ldi r25,0
+ 1046 000a 80E0      		ldi r24,0
+ 252:crypto/p4093/school_4093.c **** 			
+ 253:crypto/p4093/school_4093.c ****   do 
+ 254:crypto/p4093/school_4093.c ****     {		
+ 255:crypto/p4093/school_4093.c ****       //encodedpoly[i] = (msg[(int)(i>>3)] & (1<<(i%8))? ((encodedpoly[i]+paramQ/2)%paramQ) : encod
+ 256:crypto/p4093/school_4093.c **** 
+ 257:crypto/p4093/school_4093.c ****       if (msg[(i>>3)] & (1<<(i%8))){
+ 258:crypto/p4093/school_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 259:crypto/p4093/school_4093.c **** 	if (encodedpoly[i]>paramQ){
+ 260:crypto/p4093/school_4093.c **** 	  encodedpoly[i]=encodedpoly[i]-paramQ;
+ 261:crypto/p4093/school_4093.c **** 	}
+ 262:crypto/p4093/school_4093.c ****       }
+ 263:crypto/p4093/school_4093.c **** 	
+ 264:crypto/p4093/school_4093.c ****       if(i == (paramN)-1)
+ 1048               	.LM53:
+ 1049 000c 4150      		subi r20,1
+ 1050 000e 5109      		sbc r21,__zero_reg__
+ 1051               	.L37:
+ 257:crypto/p4093/school_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1053               	.LM54:
+ 1054 0010 EC01      		movw r28,r24
+ 1055 0012 23E0      		ldi r18,3
+ 1056               		1:
+ 1057 0014 D695      		lsr r29
+ 1058 0016 C795      		ror r28
+ 1059 0018 2A95      		dec r18
+ 1060 001a 01F4      		brne 1b
+ 257:crypto/p4093/school_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1062               	.LM55:
+ 1063 001c CA0F      		add r28,r26
+ 1064 001e DB1F      		adc r29,r27
+ 1065 0020 2881      		ld r18,Y
+ 1066 0022 30E0      		ldi r19,0
+ 257:crypto/p4093/school_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1068               	.LM56:
+ 1069 0024 BC01      		movw r22,r24
+ 1070 0026 6770      		andi r22,7
+ 1071 0028 7727      		clr r23
+ 257:crypto/p4093/school_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1073               	.LM57:
+ 1074 002a 00C0      		rjmp 2f
+ 1075               		1:
+ 1076 002c 3595      		asr r19
+ 1077 002e 2795      		ror r18
+ 1078               		2:
+ 1079 0030 6A95      		dec r22
+ 1080 0032 02F4      		brpl 1b
+ 257:crypto/p4093/school_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1082               	.LM58:
+ 1083 0034 20FF      		sbrs r18,0
+ 1084 0036 00C0      		rjmp .L33
+ 258:crypto/p4093/school_4093.c **** 	if (encodedpoly[i]>paramQ){
+ 1086               	.LM59:
+ 1087 0038 2081      		ld r18,Z
+ 1088 003a 3181      		ldd r19,Z+1
+ 258:crypto/p4093/school_4093.c **** 	if (encodedpoly[i]>paramQ){
+ 1090               	.LM60:
+ 1091 003c B901      		movw r22,r18
+ 1092 003e 6250      		subi r22,2
+ 1093 0040 784F      		sbci r23,-8
+ 259:crypto/p4093/school_4093.c **** 	  encodedpoly[i]=encodedpoly[i]-paramQ;
+ 1095               	.LM61:
+ 1096 0042 6E3F      		cpi r22,-2
+ 1097 0044 CFE0      		ldi r28,15
+ 1098 0046 7C07      		cpc r23,r28
+ 1099 0048 00F4      		brsh .L34
+ 258:crypto/p4093/school_4093.c **** 	if (encodedpoly[i]>paramQ){
+ 1101               	.LM62:
+ 1102 004a 6083      		st Z,r22
+ 1103 004c 7183      		std Z+1,r23
+ 1104               	.L33:
+ 1105 004e 3296      		adiw r30,2
+ 1107               	.LM63:
+ 1108 0050 4817      		cp r20,r24
+ 1109 0052 5907      		cpc r21,r25
+ 1110 0054 01F0      		breq .L31
+ 265:crypto/p4093/school_4093.c **** 	break;
+ 266:crypto/p4093/school_4093.c **** 			
+ 267:crypto/p4093/school_4093.c ****       i++;
+ 1112               	.LM64:
+ 1113 0056 0196      		adiw r24,1
+ 257:crypto/p4093/school_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1115               	.LM65:
+ 1116 0058 00C0      		rjmp .L37
+ 1117               	.L34:
+ 260:crypto/p4093/school_4093.c **** 	}
+ 1119               	.LM66:
+ 1120 005a 2F5F      		subi r18,-1
+ 1121 005c 3740      		sbci r19,7
+ 260:crypto/p4093/school_4093.c **** 	}
+ 1123               	.LM67:
+ 1124 005e 2083      		st Z,r18
+ 1125 0060 3183      		std Z+1,r19
+ 1126 0062 00C0      		rjmp .L33
+ 1127               	.L31:
+ 1128               	/* epilogue start */
+ 268:crypto/p4093/school_4093.c ****     } while (1);
+ 269:crypto/p4093/school_4093.c **** }
+ 1130               	.LM68:
+ 1131 0064 DF91      		pop r29
+ 1132 0066 CF91      		pop r28
+ 1133 0068 0895      		ret
+ 1138               	.Lscope5:
+ 1139               		.section	.text.encrypt_4093,"ax",@progbits
+ 1142               	.global	encrypt_4093
+ 1144               	encrypt_4093:
+ 185:crypto/p4093/school_4093.c ****   get_gauss_poly_4093(c1,0, paramN);
+ 1146               	.LM69:
+ 1147               	.LFBB6:
+ 1148 0000 6F92      		push r6
+ 1149 0002 7F92      		push r7
+ 1150 0004 8F92      		push r8
+ 1151 0006 9F92      		push r9
+ 1152 0008 AF92      		push r10
+ 1153 000a BF92      		push r11
+ 1154 000c CF92      		push r12
+ 1155 000e DF92      		push r13
+ 1156 0010 EF92      		push r14
+ 1157 0012 FF92      		push r15
+ 1158 0014 0F93      		push r16
+ 1159 0016 1F93      		push r17
+ 1160 0018 CF93      		push r28
+ 1161 001a DF93      		push r29
+ 1162               	/* prologue: function */
+ 1163               	/* frame size = 0 */
+ 1164               	/* stack size = 14 */
+ 1165               	.L__stack_usage = 14
+ 1166 001c 3C01      		movw r6,r24
+ 1167 001e D62F      		mov r29,r22
+ 1168 0020 C72F      		mov r28,r23
+ 1169 0022 5A01      		movw r10,r20
+ 1170 0024 4901      		movw r8,r18
+ 1171 0026 6701      		movw r12,r14
+ 186:crypto/p4093/school_4093.c ****     
+ 1173               	.LM70:
+ 1174 0028 A701      		movw r20,r14
+ 1175 002a 70E0      		ldi r23,0
+ 1176 002c 60E0      		ldi r22,0
+ 1177 002e 8D2F      		mov r24,r29
+ 1178 0030 9C2F      		mov r25,r28
+ 1179 0032 0E94 0000 		call get_gauss_poly_4093
+ 189:crypto/p4093/school_4093.c ****     {
+ 1181               	.LM71:
+ 1182 0036 80EC      		ldi r24,-64
+ 1183 0038 E816      		cp r14,r24
+ 1184 003a F104      		cpc r15,__zero_reg__
+ 1185 003c 01F4      		brne .L39
+ 191:crypto/p4093/school_4093.c ****       school_4093_192(c1, a, c1);
+ 1187               	.LM72:
+ 1188 003e A501      		movw r20,r10
+ 1189 0040 B801      		movw r22,r16
+ 1190 0042 8D2F      		mov r24,r29
+ 1191 0044 9C2F      		mov r25,r28
+ 1192 0046 0E94 0000 		call school_4093_192
+ 192:crypto/p4093/school_4093.c ****     }
+ 1194               	.LM73:
+ 1195 004a 4D2F      		mov r20,r29
+ 1196 004c 5C2F      		mov r21,r28
+ 1197 004e B401      		movw r22,r8
+ 1198 0050 8D2F      		mov r24,r29
+ 1199 0052 9C2F      		mov r25,r28
+ 1200 0054 0E94 0000 		call school_4093_192
+ 1201               	.L40:
+ 212:crypto/p4093/school_4093.c ****   get_gauss_poly_4093(c2,1, paramN);
+ 1203               	.LM74:
+ 1204 0058 A601      		movw r20,r12
+ 1205 005a 61E0      		ldi r22,lo8(1)
+ 1206 005c 70E0      		ldi r23,0
+ 1207 005e 8D2F      		mov r24,r29
+ 1208 0060 9C2F      		mov r25,r28
+ 1209 0062 0E94 0000 		call get_gauss_poly_4093
+ 213:crypto/p4093/school_4093.c ****   
+ 1211               	.LM75:
+ 1212 0066 A601      		movw r20,r12
+ 1213 0068 61E0      		ldi r22,lo8(1)
+ 1214 006a 70E0      		ldi r23,0
+ 1215 006c C501      		movw r24,r10
+ 1216 006e 0E94 0000 		call get_gauss_poly_4093
+ 215:crypto/p4093/school_4093.c **** }
+ 1218               	.LM76:
+ 1219 0072 A601      		movw r20,r12
+ 1220 0074 B501      		movw r22,r10
+ 1221 0076 C301      		movw r24,r6
+ 1222               	/* epilogue start */
+ 216:crypto/p4093/school_4093.c **** 
+ 1224               	.LM77:
+ 1225 0078 DF91      		pop r29
+ 1226 007a CF91      		pop r28
+ 1227 007c 1F91      		pop r17
+ 1228 007e 0F91      		pop r16
+ 1229 0080 FF90      		pop r15
+ 1230 0082 EF90      		pop r14
+ 1231 0084 DF90      		pop r13
+ 1232 0086 CF90      		pop r12
+ 1233 0088 BF90      		pop r11
+ 1234 008a AF90      		pop r10
+ 1235 008c 9F90      		pop r9
+ 1236 008e 8F90      		pop r8
+ 1237 0090 7F90      		pop r7
+ 1238 0092 6F90      		pop r6
+ 215:crypto/p4093/school_4093.c **** }
+ 1240               	.LM78:
+ 1241 0094 0C94 0000 		jmp add_encode_4093
+ 1242               	.L39:
+ 197:crypto/p4093/school_4093.c ****     {
+ 1244               	.LM79:
+ 1245 0098 E114      		cp r14,__zero_reg__
+ 1246 009a 81E0      		ldi r24,1
+ 1247 009c F806      		cpc r15,r24
+ 1248 009e 01F0      		breq .L41
+ 205:crypto/p4093/school_4093.c ****     {
+ 1250               	.LM80:
+ 1251 00a0 80E4      		ldi r24,64
+ 1252 00a2 E816      		cp r14,r24
+ 1253 00a4 81E0      		ldi r24,1
+ 1254 00a6 F806      		cpc r15,r24
+ 1255 00a8 01F4      		brne .L40
+ 207:crypto/p4093/school_4093.c ****       school_4093_320(c1, a, c1);
+ 1257               	.LM81:
+ 1258 00aa A501      		movw r20,r10
+ 1259 00ac B801      		movw r22,r16
+ 1260 00ae 8D2F      		mov r24,r29
+ 1261 00b0 9C2F      		mov r25,r28
+ 1262 00b2 0E94 0000 		call school_4093_320
+ 208:crypto/p4093/school_4093.c ****     }	
+ 1264               	.LM82:
+ 1265 00b6 4D2F      		mov r20,r29
+ 1266 00b8 5C2F      		mov r21,r28
+ 1267 00ba B401      		movw r22,r8
+ 1268 00bc 8D2F      		mov r24,r29
+ 1269 00be 9C2F      		mov r25,r28
+ 1270 00c0 0E94 0000 		call school_4093_320
+ 1271 00c4 00C0      		rjmp .L40
+ 1272               	.L41:
+ 199:crypto/p4093/school_4093.c ****       school_4093_256(c1, a, c1);
+ 1274               	.LM83:
+ 1275 00c6 A501      		movw r20,r10
+ 1276 00c8 B801      		movw r22,r16
+ 1277 00ca 8D2F      		mov r24,r29
+ 1278 00cc 9C2F      		mov r25,r28
+ 1279 00ce 0E94 0000 		call school_4093_256
+ 200:crypto/p4093/school_4093.c ****     }	
+ 1281               	.LM84:
+ 1282 00d2 4D2F      		mov r20,r29
+ 1283 00d4 5C2F      		mov r21,r28
+ 1284 00d6 B401      		movw r22,r8
+ 1285 00d8 8D2F      		mov r24,r29
+ 1286 00da 9C2F      		mov r25,r28
+ 1287 00dc 0E94 0000 		call school_4093_256
+ 1288 00e0 00C0      		rjmp .L40
+ 1290               	.Lscope6:
+ 1291               		.section	.text.decode_4093,"ax",@progbits
+ 1296               	.global	decode_4093
+ 1298               	decode_4093:
+ 270:crypto/p4093/school_4093.c **** 
+ 271:crypto/p4093/school_4093.c **** 
+ 272:crypto/p4093/school_4093.c **** 
+ 273:crypto/p4093/school_4093.c **** // decoding
+ 274:crypto/p4093/school_4093.c **** IS_STATIC void decode_4093(uint16_t* cipherpoly, uint8_t* plaintext, const uint16_t paramN)
+ 275:crypto/p4093/school_4093.c **** {		
+ 1300               	.LM85:
+ 1301               	.LFBB7:
+ 1302 0000 0F93      		push r16
+ 1303 0002 1F93      		push r17
+ 1304 0004 CF93      		push r28
+ 1305 0006 DF93      		push r29
+ 1306               	/* prologue: function */
+ 1307               	/* frame size = 0 */
+ 1308               	/* stack size = 4 */
+ 1309               	.L__stack_usage = 4
+ 1310 0008 9B01      		movw r18,r22
+ 1311 000a FC01      		movw r30,r24
+ 276:crypto/p4093/school_4093.c ****   uint16_t i = 0;
+ 1313               	.LM86:
+ 1314 000c 90E0      		ldi r25,0
+ 1315 000e 80E0      		ldi r24,0
+ 277:crypto/p4093/school_4093.c **** 		
+ 278:crypto/p4093/school_4093.c ****   do 
+ 279:crypto/p4093/school_4093.c ****     {		
+ 280:crypto/p4093/school_4093.c ****       // Decode(m) = 1 if m between q/4,-q/4, 0 else
+ 281:crypto/p4093/school_4093.c ****       if((cipherpoly[i] < paramQ>>2) || (cipherpoly[i] >= 3*paramQ>>2))
+ 282:crypto/p4093/school_4093.c **** 	{
+ 283:crypto/p4093/school_4093.c **** 	  plaintext[i >> 3] = (plaintext[i >> 3] | (0 << (i%8)));
+ 284:crypto/p4093/school_4093.c **** 	}
+ 285:crypto/p4093/school_4093.c ****       else
+ 286:crypto/p4093/school_4093.c **** 	{
+ 287:crypto/p4093/school_4093.c **** 	  plaintext[i >> 3] = (plaintext[i >> 3] | (1 << (i%8)));
+ 1317               	.LM87:
+ 1318 0010 C1E0      		ldi r28,lo8(1)
+ 1319 0012 D0E0      		ldi r29,0
+ 288:crypto/p4093/school_4093.c **** 	}
+ 289:crypto/p4093/school_4093.c **** 		
+ 290:crypto/p4093/school_4093.c ****       if(i == (paramN)-1)
+ 1321               	.LM88:
+ 1322 0014 4150      		subi r20,1
+ 1323 0016 5109      		sbc r21,__zero_reg__
+ 1324               	.L46:
+ 281:crypto/p4093/school_4093.c **** 	{
+ 1326               	.LM89:
+ 1327 0018 6191      		ld r22,Z+
+ 1328 001a 7191      		ld r23,Z+
+ 281:crypto/p4093/school_4093.c **** 	{
+ 1330               	.LM90:
+ 1331 001c 6F5F      		subi r22,-1
+ 1332 001e 7340      		sbci r23,3
+ 281:crypto/p4093/school_4093.c **** 	{
+ 1334               	.LM91:
+ 1335 0020 6E3F      		cpi r22,-2
+ 1336 0022 7740      		sbci r23,7
+ 1337 0024 00F4      		brsh .L44
+ 287:crypto/p4093/school_4093.c **** 	}
+ 1339               	.LM92:
+ 1340 0026 DC01      		movw r26,r24
+ 1341 0028 63E0      		ldi r22,3
+ 1342               		1:
+ 1343 002a B695      		lsr r27
+ 1344 002c A795      		ror r26
+ 1345 002e 6A95      		dec r22
+ 1346 0030 01F4      		brne 1b
+ 287:crypto/p4093/school_4093.c **** 	}
+ 1348               	.LM93:
+ 1349 0032 A20F      		add r26,r18
+ 1350 0034 B31F      		adc r27,r19
+ 287:crypto/p4093/school_4093.c **** 	}
+ 1352               	.LM94:
+ 1353 0036 BC01      		movw r22,r24
+ 1354 0038 6770      		andi r22,7
+ 1355 003a 7727      		clr r23
+ 287:crypto/p4093/school_4093.c **** 	}
+ 1357               	.LM95:
+ 1358 003c 8E01      		movw r16,r28
+ 1359 003e 00C0      		rjmp 2f
+ 1360               		1:
+ 1361 0040 000F      		lsl r16
+ 1362               		2:
+ 1363 0042 6A95      		dec r22
+ 1364 0044 02F4      		brpl 1b
+ 287:crypto/p4093/school_4093.c **** 	}
+ 1366               	.LM96:
+ 1367 0046 6C91      		ld r22,X
+ 1368 0048 602B      		or r22,r16
+ 287:crypto/p4093/school_4093.c **** 	}
+ 1370               	.LM97:
+ 1371 004a 6C93      		st X,r22
+ 1372               	.L44:
+ 1374               	.LM98:
+ 1375 004c 4817      		cp r20,r24
+ 1376 004e 5907      		cpc r21,r25
+ 1377 0050 01F0      		breq .L43
+ 291:crypto/p4093/school_4093.c **** 	break;
+ 292:crypto/p4093/school_4093.c **** 			
+ 293:crypto/p4093/school_4093.c ****       i++;
+ 1379               	.LM99:
+ 1380 0052 0196      		adiw r24,1
+ 281:crypto/p4093/school_4093.c **** 	{
+ 1382               	.LM100:
+ 1383 0054 00C0      		rjmp .L46
+ 1384               	.L43:
+ 1385               	/* epilogue start */
+ 294:crypto/p4093/school_4093.c ****     } while (1);
+ 295:crypto/p4093/school_4093.c **** }
+ 1387               	.LM101:
+ 1388 0056 DF91      		pop r29
+ 1389 0058 CF91      		pop r28
+ 1390 005a 1F91      		pop r17
+ 1391 005c 0F91      		pop r16
+ 1392 005e 0895      		ret
+ 1397               	.Lscope7:
+ 1398               		.section	.text.decrypt_4093,"ax",@progbits
+ 1401               	.global	decrypt_4093
+ 1403               	decrypt_4093:
+ 220:crypto/p4093/school_4093.c **** 
+ 1405               	.LM102:
+ 1406               	.LFBB8:
+ 1407 0000 AF92      		push r10
+ 1408 0002 BF92      		push r11
+ 1409 0004 CF92      		push r12
+ 1410 0006 DF92      		push r13
+ 1411 0008 EF92      		push r14
+ 1412 000a FF92      		push r15
+ 1413 000c 0F93      		push r16
+ 1414 000e 1F93      		push r17
+ 1415 0010 CF93      		push r28
+ 1416 0012 DF93      		push r29
+ 1417               	/* prologue: function */
+ 1418               	/* frame size = 0 */
+ 1419               	/* stack size = 10 */
+ 1420               	.L__stack_usage = 10
+ 1421 0014 6C01      		movw r12,r24
+ 1422 0016 D62F      		mov r29,r22
+ 1423 0018 C72F      		mov r28,r23
+ 1424 001a 5A01      		movw r10,r20
+ 1425 001c B901      		movw r22,r18
+ 1426 001e 7801      		movw r14,r16
+ 222:crypto/p4093/school_4093.c ****     {
+ 1428               	.LM103:
+ 1429 0020 003C      		cpi r16,-64
+ 1430 0022 1105      		cpc r17,__zero_reg__
+ 1431 0024 01F4      		brne .L48
+ 224:crypto/p4093/school_4093.c ****     }
+ 1433               	.LM104:
+ 1434 0026 4D2F      		mov r20,r29
+ 1435 0028 5C2F      		mov r21,r28
+ 1436 002a 8D2F      		mov r24,r29
+ 1437 002c 9C2F      		mov r25,r28
+ 1438 002e 0E94 0000 		call school_4093_192
+ 1439               	.L49:
+ 1440 0032 ED2F      		mov r30,r29
+ 1441 0034 FC2F      		mov r31,r28
+ 1442 0036 D501      		movw r26,r10
+ 220:crypto/p4093/school_4093.c **** 
+ 1444               	.LM105:
+ 1445 0038 50E0      		ldi r21,0
+ 1446 003a 40E0      		ldi r20,0
+ 1447               	.L52:
+ 1448               	.LBB17:
+ 239:crypto/p4093/school_4093.c ****     c1[i] = (uint16_t) ((c1[i] + c2[i]));
+ 1450               	.LM106:
+ 1451 003c 4E15      		cp r20,r14
+ 1452 003e 5F05      		cpc r21,r15
+ 1453 0040 01F4      		brne .L55
+ 1454               	.LBE17:
+ 246:crypto/p4093/school_4093.c **** }
+ 1456               	.LM107:
+ 1457 0042 B601      		movw r22,r12
+ 1458 0044 8D2F      		mov r24,r29
+ 1459 0046 9C2F      		mov r25,r28
+ 1460               	/* epilogue start */
+ 247:crypto/p4093/school_4093.c **** 
+ 1462               	.LM108:
+ 1463 0048 DF91      		pop r29
+ 1464 004a CF91      		pop r28
+ 1465 004c 1F91      		pop r17
+ 1466 004e 0F91      		pop r16
+ 1467 0050 FF90      		pop r15
+ 1468 0052 EF90      		pop r14
+ 1469 0054 DF90      		pop r13
+ 1470 0056 CF90      		pop r12
+ 1471 0058 BF90      		pop r11
+ 1472 005a AF90      		pop r10
+ 246:crypto/p4093/school_4093.c **** }
+ 1474               	.LM109:
+ 1475 005c 0C94 0000 		jmp decode_4093
+ 1476               	.L48:
+ 227:crypto/p4093/school_4093.c ****     {
+ 1478               	.LM110:
+ 1479 0060 0115      		cp r16,__zero_reg__
+ 1480 0062 81E0      		ldi r24,1
+ 1481 0064 1807      		cpc r17,r24
+ 1482 0066 01F0      		breq .L50
+ 232:crypto/p4093/school_4093.c ****     {
+ 1484               	.LM111:
+ 1485 0068 0034      		cpi r16,64
+ 1486 006a 1140      		sbci r17,1
+ 1487 006c 01F4      		brne .L49
+ 234:crypto/p4093/school_4093.c ****     }
+ 1489               	.LM112:
+ 1490 006e 4D2F      		mov r20,r29
+ 1491 0070 5C2F      		mov r21,r28
+ 1492 0072 8D2F      		mov r24,r29
+ 1493 0074 9C2F      		mov r25,r28
+ 1494 0076 0E94 0000 		call school_4093_320
+ 1495 007a 00C0      		rjmp .L49
+ 1496               	.L50:
+ 229:crypto/p4093/school_4093.c ****     }	
+ 1498               	.LM113:
+ 1499 007c 4D2F      		mov r20,r29
+ 1500 007e 5C2F      		mov r21,r28
+ 1501 0080 8D2F      		mov r24,r29
+ 1502 0082 9C2F      		mov r25,r28
+ 1503 0084 0E94 0000 		call school_4093_256
+ 1504 0088 00C0      		rjmp .L49
+ 1505               	.L55:
+ 1506               	.LBB18:
+ 240:crypto/p4093/school_4093.c ****     if (c1[i]>paramQ){
+ 1508               	.LM114:
+ 1509 008a 2D91      		ld r18,X+
+ 1510 008c 3D91      		ld r19,X+
+ 240:crypto/p4093/school_4093.c ****     if (c1[i]>paramQ){
+ 1512               	.LM115:
+ 1513 008e 8081      		ld r24,Z
+ 1514 0090 9181      		ldd r25,Z+1
+ 1515 0092 280F      		add r18,r24
+ 1516 0094 391F      		adc r19,r25
+ 241:crypto/p4093/school_4093.c ****       c1[i]=c1[i]-paramQ;
+ 1518               	.LM116:
+ 1519 0096 2E3F      		cpi r18,-2
+ 1520 0098 8FE0      		ldi r24,15
+ 1521 009a 3807      		cpc r19,r24
+ 1522 009c 00F4      		brsh .L53
+ 1523               	.L56:
+ 242:crypto/p4093/school_4093.c ****     }
+ 1525               	.LM117:
+ 1526 009e 2083      		st Z,r18
+ 1527 00a0 3183      		std Z+1,r19
+ 239:crypto/p4093/school_4093.c ****     c1[i] = (uint16_t) ((c1[i] + c2[i]));
+ 1529               	.LM118:
+ 1530 00a2 4F5F      		subi r20,-1
+ 1531 00a4 5F4F      		sbci r21,-1
+ 1532 00a6 3296      		adiw r30,2
+ 1533 00a8 00C0      		rjmp .L52
+ 1534               	.L53:
+ 242:crypto/p4093/school_4093.c ****     }
+ 1536               	.LM119:
+ 1537 00aa 2D5F      		subi r18,-3
+ 1538 00ac 3F40      		sbci r19,15
+ 1539 00ae 00C0      		rjmp .L56
+ 1540               	.LBE18:
+ 1548               	.Lscope8:
+ 1549               		.text
+ 1551               	.Letext0:
+ 1552               		.ident	"GCC: (GNU) 9.1.0"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 school_4093.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:441    .text.school_4093_without_flash:0000000000000000 school_4093_without_flash
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:702    .text.school_4093_192:0000000000000000 school_4093_192
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:811    .text.school_4093_256:0000000000000000 school_4093_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:919    .text.school_4093_320:0000000000000000 school_4093_320
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:1031   .text.add_encode_4093:0000000000000000 add_encode_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:1144   .text.encrypt_4093:0000000000000000 encrypt_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:1298   .text.decode_4093:0000000000000000 decode_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc7aHsJY.s:1403   .text.decrypt_4093:0000000000000000 decrypt_4093
+
+UNDEFINED SYMBOLS
+call_mulRed_asm_4093
+polyMul_asm_4093_192
+polyMul_asm_4093_256
+polyMul_asm_4093_320
+get_gauss_poly_4093

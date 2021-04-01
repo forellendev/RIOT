@@ -1,0 +1,272 @@
+   1               		.file	"aes_prng.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 443               		.section	.text.init_pool,"ax",@progbits
+ 446               	.global	init_pool
+ 448               	init_pool:
+   1:crypto/rng/aes_prng.c **** #include <inttypes.h>
+   2:crypto/rng/aes_prng.c **** #include "aes_prng.h"
+   3:crypto/rng/aes_prng.c **** #include "AES_driver.h"
+   4:crypto/rng/aes_prng.c **** 
+   5:crypto/rng/aes_prng.c **** //#include "../../device/avr_compiler.h"
+   6:crypto/rng/aes_prng.c **** 
+   7:crypto/rng/aes_prng.c **** 
+   8:crypto/rng/aes_prng.c **** //First 16 byte are plaintext, next 16 bytes are key
+   9:crypto/rng/aes_prng.c **** 
+  10:crypto/rng/aes_prng.c **** static uint32_t pool[8];
+  11:crypto/rng/aes_prng.c **** static uint8_t output[16];
+  12:crypto/rng/aes_prng.c **** 
+  13:crypto/rng/aes_prng.c **** 
+  14:crypto/rng/aes_prng.c **** void init_pool(uint32_t val,uint8_t word){
+ 450               	.LM0:
+ 451               	.LFBB1:
+ 452               	/* prologue: function */
+ 453               	/* frame size = 0 */
+ 454               	/* stack size = 0 */
+ 455               	.L__stack_usage = 0
+  15:crypto/rng/aes_prng.c ****   //Initialize a word in the pool
+  16:crypto/rng/aes_prng.c ****   if(word<8){
+ 457               	.LM1:
+ 458 0000 4830      		cpi r20,lo8(8)
+ 459 0002 00F4      		brsh .L1
+  17:crypto/rng/aes_prng.c ****     pool[word] = val;
+ 461               	.LM2:
+ 462 0004 24E0      		ldi r18,lo8(4)
+ 463 0006 429F      		mul r20,r18
+ 464 0008 F001      		movw r30,r0
+ 465 000a 1124      		clr __zero_reg__
+ 466 000c E050      		subi r30,lo8(-(pool))
+ 467 000e F040      		sbci r31,hi8(-(pool))
+ 468 0010 6083      		st Z,r22
+ 469 0012 7183      		std Z+1,r23
+ 470 0014 8283      		std Z+2,r24
+ 471 0016 9383      		std Z+3,r25
+ 472               	.L1:
+ 473               	/* epilogue start */
+  18:crypto/rng/aes_prng.c ****   }
+  19:crypto/rng/aes_prng.c **** }
+ 475               	.LM3:
+ 476 0018 0895      		ret
+ 478               	.Lscope1:
+ 479               		.section	.text.update_pool,"ax",@progbits
+ 483               	.global	update_pool
+ 485               	update_pool:
+  20:crypto/rng/aes_prng.c **** 
+  21:crypto/rng/aes_prng.c **** void update_pool(uint32_t val,uint8_t word){
+ 487               	.LM4:
+ 488               	.LFBB2:
+ 489 0000 0F93      		push r16
+ 490 0002 1F93      		push r17
+ 491               	/* prologue: function */
+ 492               	/* frame size = 0 */
+ 493               	/* stack size = 2 */
+ 494               	.L__stack_usage = 2
+ 495 0004 8B01      		movw r16,r22
+ 496 0006 9C01      		movw r18,r24
+  22:crypto/rng/aes_prng.c ****   //Update the pool with data
+  23:crypto/rng/aes_prng.c ****   if(word<8){
+ 498               	.LM5:
+ 499 0008 4830      		cpi r20,lo8(8)
+ 500 000a 00F4      		brsh .L3
+  24:crypto/rng/aes_prng.c ****     pool[word] ^= val;
+ 502               	.LM6:
+ 503 000c 84E0      		ldi r24,lo8(4)
+ 504 000e 489F      		mul r20,r24
+ 505 0010 F001      		movw r30,r0
+ 506 0012 1124      		clr __zero_reg__
+ 507 0014 E050      		subi r30,lo8(-(pool))
+ 508 0016 F040      		sbci r31,hi8(-(pool))
+ 509 0018 8081      		ld r24,Z
+ 510 001a 9181      		ldd r25,Z+1
+ 511 001c A281      		ldd r26,Z+2
+ 512 001e B381      		ldd r27,Z+3
+ 513 0020 8627      		eor r24,r22
+ 514 0022 9127      		eor r25,r17
+ 515 0024 A227      		eor r26,r18
+ 516 0026 B327      		eor r27,r19
+ 517 0028 8083      		st Z,r24
+ 518 002a 9183      		std Z+1,r25
+ 519 002c A283      		std Z+2,r26
+ 520 002e B383      		std Z+3,r27
+ 521               	.L3:
+ 522               	/* epilogue start */
+  25:crypto/rng/aes_prng.c ****   }
+  26:crypto/rng/aes_prng.c **** }
+ 524               	.LM7:
+ 525 0030 1F91      		pop r17
+ 526 0032 0F91      		pop r16
+ 527 0034 0895      		ret
+ 529               	.Lscope2:
+ 530               		.section	.text.get_pool,"ax",@progbits
+ 532               	.global	get_pool
+ 534               	get_pool:
+  27:crypto/rng/aes_prng.c **** 
+  28:crypto/rng/aes_prng.c **** uint8_t * get_pool(){
+ 536               	.LM8:
+ 537               	.LFBB3:
+ 538               	/* prologue: function */
+ 539               	/* frame size = 0 */
+ 540               	/* stack size = 0 */
+ 541               	.L__stack_usage = 0
+  29:crypto/rng/aes_prng.c ****   //Just return a pointer to the pool
+  30:crypto/rng/aes_prng.c ****   return (uint8_t *) pool;
+  31:crypto/rng/aes_prng.c **** }
+ 543               	.LM9:
+ 544 0000 80E0      		ldi r24,lo8(pool)
+ 545 0002 90E0      		ldi r25,hi8(pool)
+ 546               	/* epilogue start */
+ 547 0004 0895      		ret
+ 549               	.Lscope3:
+ 550               		.section	.text.next_block,"ax",@progbits
+ 552               	.global	next_block
+ 554               	next_block:
+  32:crypto/rng/aes_prng.c **** 
+  33:crypto/rng/aes_prng.c **** void next_block()
+  34:crypto/rng/aes_prng.c **** {
+ 556               	.LM10:
+ 557               	.LFBB4:
+ 558               	/* prologue: function */
+ 559               	/* frame size = 0 */
+ 560               	/* stack size = 0 */
+ 561               	.L__stack_usage = 0
+  35:crypto/rng/aes_prng.c ****   //AES_encrypt(uint8_t * plaintext, uint8_t * ciphertext, uint8_t * key)   
+  36:crypto/rng/aes_prng.c ****   AES_encrypt((uint8_t *)&pool[0], output, &((uint8_t *)(pool))[16]);
+ 563               	.LM11:
+ 564 0000 40E0      		ldi r20,lo8(pool+16)
+ 565 0002 50E0      		ldi r21,hi8(pool+16)
+ 566 0004 60E0      		ldi r22,lo8(output)
+ 567 0006 70E0      		ldi r23,hi8(output)
+ 568 0008 80E0      		ldi r24,lo8(pool)
+ 569 000a 90E0      		ldi r25,hi8(pool)
+ 570 000c 0E94 0000 		call AES_encrypt
+  37:crypto/rng/aes_prng.c **** 
+  38:crypto/rng/aes_prng.c ****   //Update the counter (plaintext)
+  39:crypto/rng/aes_prng.c ****   pool[0] = pool[0] + 1;
+ 572               	.LM12:
+ 573 0010 E0E0      		ldi r30,lo8(pool)
+ 574 0012 F0E0      		ldi r31,hi8(pool)
+ 576               	.LM13:
+ 577 0014 8081      		ld r24,Z
+ 578 0016 9181      		ldd r25,Z+1
+ 579 0018 A281      		ldd r26,Z+2
+ 580 001a B381      		ldd r27,Z+3
+ 581 001c 0196      		adiw r24,1
+ 582 001e A11D      		adc r26,__zero_reg__
+ 583 0020 B11D      		adc r27,__zero_reg__
+ 585               	.LM14:
+ 586 0022 8083      		st Z,r24
+ 587 0024 9183      		std Z+1,r25
+ 588 0026 A283      		std Z+2,r26
+ 589 0028 B383      		std Z+3,r27
+ 590               	/* epilogue start */
+  40:crypto/rng/aes_prng.c **** }
+ 592               	.LM15:
+ 593 002a 0895      		ret
+ 595               	.Lscope4:
+ 596               		.section	.text.next_block_ptr,"ax",@progbits
+ 598               	.global	next_block_ptr
+ 600               	next_block_ptr:
+  41:crypto/rng/aes_prng.c **** 
+  42:crypto/rng/aes_prng.c **** void next_block_ptr(uint8_t* out_ptr)
+  43:crypto/rng/aes_prng.c **** {
+ 602               	.LM16:
+ 603               	.LFBB5:
+ 604               	/* prologue: function */
+ 605               	/* frame size = 0 */
+ 606               	/* stack size = 0 */
+ 607               	.L__stack_usage = 0
+ 608 0000 BC01      		movw r22,r24
+  44:crypto/rng/aes_prng.c ****   //AES_encrypt(uint8_t * plaintext, uint8_t * ciphertext, uint8_t * key)   
+  45:crypto/rng/aes_prng.c ****   AES_encrypt((uint8_t *)&pool[0], out_ptr, &((uint8_t *)(pool))[16]);
+ 610               	.LM17:
+ 611 0002 40E0      		ldi r20,lo8(pool+16)
+ 612 0004 50E0      		ldi r21,hi8(pool+16)
+ 613 0006 80E0      		ldi r24,lo8(pool)
+ 614 0008 90E0      		ldi r25,hi8(pool)
+ 615 000a 0E94 0000 		call AES_encrypt
+  46:crypto/rng/aes_prng.c **** 
+  47:crypto/rng/aes_prng.c ****   //Update the counter (plaintext)
+  48:crypto/rng/aes_prng.c ****   pool[0] = pool[0] + 1;
+ 617               	.LM18:
+ 618 000e E0E0      		ldi r30,lo8(pool)
+ 619 0010 F0E0      		ldi r31,hi8(pool)
+ 621               	.LM19:
+ 622 0012 8081      		ld r24,Z
+ 623 0014 9181      		ldd r25,Z+1
+ 624 0016 A281      		ldd r26,Z+2
+ 625 0018 B381      		ldd r27,Z+3
+ 626 001a 0196      		adiw r24,1
+ 627 001c A11D      		adc r26,__zero_reg__
+ 628 001e B11D      		adc r27,__zero_reg__
+ 630               	.LM20:
+ 631 0020 8083      		st Z,r24
+ 632 0022 9183      		std Z+1,r25
+ 633 0024 A283      		std Z+2,r26
+ 634 0026 B383      		std Z+3,r27
+ 635               	/* epilogue start */
+  49:crypto/rng/aes_prng.c **** }
+ 637               	.LM21:
+ 638 0028 0895      		ret
+ 640               	.Lscope5:
+ 641               		.section	.text.get_AES_pool,"ax",@progbits
+ 642               	.global	get_AES_pool
+ 644               	get_AES_pool:
+ 645               	/* prologue: function */
+ 646               	/* frame size = 0 */
+ 647               	/* stack size = 0 */
+ 648               	.L__stack_usage = 0
+ 649 0000 80E0      		ldi r24,lo8(pool)
+ 650 0002 90E0      		ldi r25,hi8(pool)
+ 651               	/* epilogue start */
+ 652 0004 0895      		ret
+ 654               		.section	.bss.output,"aw",@nobits
+ 657               	output:
+ 658 0000 0000 0000 		.zero	16
+ 658      0000 0000 
+ 658      0000 0000 
+ 658      0000 0000 
+ 660               		.section	.bss.pool,"aw",@nobits
+ 663               	pool:
+ 664 0000 0000 0000 		.zero	32
+ 664      0000 0000 
+ 664      0000 0000 
+ 664      0000 0000 
+ 664      0000 0000 
+ 666               		.text
+ 668               	.Letext0:
+ 669               		.ident	"GCC: (GNU) 9.1.0"
+ 670               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 aes_prng.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:448    .text.init_pool:0000000000000000 init_pool
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:663    .bss.pool:0000000000000000 pool
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:485    .text.update_pool:0000000000000000 update_pool
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:534    .text.get_pool:0000000000000000 get_pool
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:554    .text.next_block:0000000000000000 next_block
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:657    .bss.output:0000000000000000 output
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:600    .text.next_block_ptr:0000000000000000 next_block_ptr
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccJUrrWP.s:644    .text.get_AES_pool:0000000000000000 get_AES_pool
+
+UNDEFINED SYMBOLS
+AES_encrypt
+__do_clear_bss

@@ -1,0 +1,244 @@
+   1               		.file	"test_sampler.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 462               		.section	.rodata.main.str1.1,"aMS",@progbits,1
+ 463               	.LC0:
+ 464 0000 2564 2000 		.string	"%d "
+ 465               		.section	.text.startup.main,"ax",@progbits
+ 467               	.global	main
+ 469               	main:
+   1:test/test_sampler.c **** #include <avr/io.h> 
+   2:test/test_sampler.c **** #include <avr/pgmspace.h>
+   3:test/test_sampler.c **** 
+   4:test/test_sampler.c **** #include "../device/usart_driver.h"
+   5:test/test_sampler.c **** #include "../device/clksys_driver.h"
+   6:test/test_sampler.c **** #include "../crypto/p4093/ksuba_4093.h"
+   7:test/test_sampler.c **** #include "../crypto/p4093/school_4093.h"
+   8:test/test_sampler.c **** #include "../crypto/p12289/ntt_12289_512.h"
+   9:test/test_sampler.c **** #include "../crypto/p7681/ntt_7681_256.h"
+  10:test/test_sampler.c **** #include "../crypto/rng/avr_trng.h"
+  11:test/test_sampler.c **** #include "../crypto/rng/aes_prng.h"
+  12:test/test_sampler.c **** 
+  13:test/test_sampler.c **** //include key files
+  14:test/test_sampler.c **** #include "../keys/keypair_N_256_7681_1132.data"
+  15:test/test_sampler.c **** #include "../keys/keypair_N_512_12289_1218.data"
+  16:test/test_sampler.c **** 
+  17:test/test_sampler.c **** #include "../keys/keypair_S_192_4093_8000.data"
+  18:test/test_sampler.c **** #include "../keys/keypair_S_256_4093_8000.data"
+  19:test/test_sampler.c **** #include "../keys/keypair_S_320_4093_8000.data"
+  20:test/test_sampler.c **** 
+  21:test/test_sampler.c **** 
+  22:test/test_sampler.c **** int main(void ){
+ 471               	.LM0:
+ 472               	.LFBB1:
+ 473 0000 CDB7      		in r28,__SP_L__
+ 474 0002 DEB7      		in r29,__SP_H__
+ 475 0004 D450      		subi r29,4
+ 476 0006 CDBF      		out __SP_L__,r28
+ 477 0008 DEBF      		out __SP_H__,r29
+ 478               	/* prologue: function */
+ 479               	/* frame size = 1024 */
+ 480               	/* stack size = 1024 */
+ 481               	.L__stack_usage = 1024
+  23:test/test_sampler.c **** 
+  24:test/test_sampler.c ****   // Set frequency to 32 MHz
+  25:test/test_sampler.c ****   CLKSYS_Enable( OSC_RC32MEN_bm );
+ 483               	.LM1:
+ 484 000a 8091 5000 		lds r24,80
+ 485 000e 8260      		ori r24,lo8(2)
+ 486 0010 8093 5000 		sts 80,r24
+ 487               	.L2:
+  26:test/test_sampler.c ****   do {} while ( CLKSYS_IsReady( OSC_RC32MRDY_bm ) == 0 );
+ 489               	.LM2:
+ 490 0014 8091 5100 		lds r24,81
+ 492               	.LM3:
+ 493 0018 81FF      		sbrs r24,1
+ 494 001a 00C0      		rjmp .L2
+  27:test/test_sampler.c ****   CLKSYS_Main_ClockSource_Select( CLK_SCLKSEL_RC32M_gc );
+ 496               	.LM4:
+ 497 001c 81E0      		ldi r24,lo8(1)
+ 498 001e 0E94 0000 		call CLKSYS_Main_ClockSource_Select
+  28:test/test_sampler.c ****   CLKSYS_Disable( OSC_RC2MEN_bm | OSC_RC32KEN_bm );
+ 500               	.LM5:
+ 501 0022 85E0      		ldi r24,lo8(5)
+ 502 0024 0E94 0000 		call CLKSYS_Disable
+  29:test/test_sampler.c **** 	
+  30:test/test_sampler.c ****   USARTinit();
+ 504               	.LM6:
+ 505 0028 0E94 0000 		call USARTinit
+  31:test/test_sampler.c ****   avr_trng_init();
+ 507               	.LM7:
+ 508 002c 0E94 0000 		call avr_trng_init
+  32:test/test_sampler.c **** 
+  33:test/test_sampler.c ****   printf("\n");
+ 510               	.LM8:
+ 511 0030 8AE0      		ldi r24,lo8(10)
+ 512 0032 90E0      		ldi r25,0
+ 513 0034 0E94 0000 		call putchar
+ 514 0038 18EC      		ldi r17,lo8(-56)
+ 515               	.L3:
+ 516               	.LBB2:
+  34:test/test_sampler.c ****   for(uint8_t i=0; i<200; i++){
+  35:test/test_sampler.c ****     printf(" ");
+ 518               	.LM9:
+ 519 003a 80E2      		ldi r24,lo8(32)
+ 520 003c 90E0      		ldi r25,0
+ 521 003e 0E94 0000 		call putchar
+ 522 0042 1150      		subi r17,lo8(-(-1))
+  34:test/test_sampler.c ****   for(uint8_t i=0; i<200; i++){
+ 524               	.LM10:
+ 525 0044 01F4      		brne .L3
+ 526               	.LBE2:
+  36:test/test_sampler.c ****   }
+  37:test/test_sampler.c ****   printf("\n");
+ 528               	.LM11:
+ 529 0046 8AE0      		ldi r24,lo8(10)
+ 530 0048 90E0      		ldi r25,0
+ 531 004a 0E94 0000 		call putchar
+  38:test/test_sampler.c **** 
+  39:test/test_sampler.c ****   uint16_t retpoly[512];
+  40:test/test_sampler.c ****   get_gauss_poly_12289_512(retpoly, 0);
+ 533               	.LM12:
+ 534 004e 70E0      		ldi r23,0
+ 535 0050 60E0      		ldi r22,0
+ 536 0052 CE01      		movw r24,r28
+ 537 0054 0196      		adiw r24,1
+ 538 0056 0E94 0000 		call get_gauss_poly_12289_512
+ 539 005a CE01      		movw r24,r28
+ 540 005c 0196      		adiw r24,1
+ 541 005e 6C01      		movw r12,r24
+ 542 0060 7E01      		movw r14,r28
+ 543 0062 97EC      		ldi r25,-57
+ 544 0064 E91A      		sub r14,r25
+ 545 0066 9EEF      		ldi r25,-2
+ 546 0068 F90A      		sbc r15,r25
+ 547               	.LBB3:
+ 548               	.LBB4:
+  41:test/test_sampler.c **** 
+  42:test/test_sampler.c ****   for(uint16_t i=0; i<156;i++){
+  43:test/test_sampler.c ****     int32_t val = retpoly[i];
+  44:test/test_sampler.c ****     if (val >= 12289/2){
+  45:test/test_sampler.c ****       val = val -12289;
+  46:test/test_sampler.c ****     }
+  47:test/test_sampler.c ****     printf("%d ", (int)val);
+ 550               	.LM13:
+ 551 006a 00E0      		ldi r16,lo8(.LC0)
+ 552 006c 10E0      		ldi r17,hi8(.LC0)
+ 553               	.L5:
+  43:test/test_sampler.c ****     if (val >= 12289/2){
+ 555               	.LM14:
+ 556 006e F601      		movw r30,r12
+ 557 0070 8191      		ld r24,Z+
+ 558 0072 9191      		ld r25,Z+
+ 559 0074 6F01      		movw r12,r30
+  43:test/test_sampler.c ****     if (val >= 12289/2){
+ 561               	.LM15:
+ 562 0076 B0E0      		ldi r27,0
+ 563 0078 A0E0      		ldi r26,0
+  44:test/test_sampler.c ****       val = val -12289;
+ 565               	.LM16:
+ 566 007a 8115      		cp r24,__zero_reg__
+ 567 007c F8E1      		ldi r31,24
+ 568 007e 9F07      		cpc r25,r31
+ 569 0080 A105      		cpc r26,__zero_reg__
+ 570 0082 B105      		cpc r27,__zero_reg__
+ 571 0084 04F0      		brlt .L4
+  45:test/test_sampler.c ****     }
+ 573               	.LM17:
+ 574 0086 8150      		subi r24,1
+ 575 0088 9043      		sbci r25,48
+ 576 008a A109      		sbc r26,__zero_reg__
+ 577 008c B109      		sbc r27,__zero_reg__
+ 578               	.L4:
+ 580               	.LM18:
+ 581 008e 9F93      		push r25
+ 582 0090 8F93      		push r24
+ 583 0092 1F93      		push r17
+ 584 0094 0F93      		push r16
+ 585 0096 0E94 0000 		call printf
+ 586               	.LBE4:
+  42:test/test_sampler.c ****     int32_t val = retpoly[i];
+ 588               	.LM19:
+ 589 009a 0F90      		pop __tmp_reg__
+ 590 009c 0F90      		pop __tmp_reg__
+ 591 009e 0F90      		pop __tmp_reg__
+ 592 00a0 0F90      		pop __tmp_reg__
+ 593 00a2 CE14      		cp r12,r14
+ 594 00a4 DF04      		cpc r13,r15
+ 595 00a6 01F4      		brne .L5
+ 596               	.LBE3:
+  48:test/test_sampler.c ****   }
+  49:test/test_sampler.c **** 
+  50:test/test_sampler.c ****   printf("\n");
+ 598               	.LM20:
+ 599 00a8 8AE0      		ldi r24,lo8(10)
+ 600 00aa 90E0      		ldi r25,0
+ 601 00ac 0E94 0000 		call putchar
+ 602 00b0 18EC      		ldi r17,lo8(-56)
+ 603               	.L6:
+ 604               	.LBB5:
+  51:test/test_sampler.c ****   for(uint8_t i =0; i<200;i++){
+  52:test/test_sampler.c ****     printf(" ");
+ 606               	.LM21:
+ 607 00b2 80E2      		ldi r24,lo8(32)
+ 608 00b4 90E0      		ldi r25,0
+ 609 00b6 0E94 0000 		call putchar
+ 610 00ba 1150      		subi r17,lo8(-(-1))
+  51:test/test_sampler.c ****   for(uint8_t i =0; i<200;i++){
+ 612               	.LM22:
+ 613 00bc 01F4      		brne .L6
+ 614               	.LBE5:
+  53:test/test_sampler.c ****   }
+  54:test/test_sampler.c ****   printf("\n");
+ 616               	.LM23:
+ 617 00be 8AE0      		ldi r24,lo8(10)
+ 618 00c0 90E0      		ldi r25,0
+ 619 00c2 0E94 0000 		call putchar
+  55:test/test_sampler.c ****   
+  56:test/test_sampler.c **** }
+ 621               	.LM24:
+ 622 00c6 90E0      		ldi r25,0
+ 623 00c8 80E0      		ldi r24,0
+ 624               	/* epilogue start */
+ 625 00ca DC5F      		subi r29,-4
+ 626 00cc CDBF      		out __SP_L__,r28
+ 627 00ce DEBF      		out __SP_H__,r29
+ 628 00d0 0895      		ret
+ 636               	.Lscope1:
+ 637               		.text
+ 639               	.Letext0:
+ 640               		.ident	"GCC: (GNU) 9.1.0"
+ 641               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 test_sampler.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccE1nzh6.s:469    .text.startup.main:0000000000000000 main
+
+UNDEFINED SYMBOLS
+CLKSYS_Main_ClockSource_Select
+CLKSYS_Disable
+USARTinit
+avr_trng_init
+putchar
+get_gauss_poly_12289_512
+printf
+__do_copy_data

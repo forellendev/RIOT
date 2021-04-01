@@ -1,0 +1,938 @@
+   1               	# 1 "crypto/p4093/math_asm_4093.S"
+   1               	/* 
+   0               	
+   0               	
+   2               	mulRed_asm - computes multiplication of two 12 bit values mod 4093
+   3               	- R10, R9, R8, R6, R1, R0 must be pushed by calling function
+   4               	
+   5               	Parameters in R25:R24, R23:R22
+   6               	R24: a_low
+   7               	R25: a_high
+   8               	R22: b_low
+   9               	R23: b_high
+  10               	RetVal in R25:R24*/
+  11               	
+  12               	
+  13               	#define Res1 R6
+  14               	#define Res2 R17
+  15               	#define Res3 R8
+  16               	#define a_low R24
+  17               	#define a_high R25
+  18               	#define b_low R22
+  19               	#define b_high R23
+  20               	#define tmp R10
+  21               	#define tmpHL R9
+  22               	#define tmpHH R8
+  23               	#define tmpLL R6
+  24               	#define tmpLH R17 //has be one of the upper 16 registers because of ANDI
+  25               	
+  26               	.global mulRed_asm_4093
+  27               	mulRed_asm_4093:
+  28               	
+  29               		//multiplication of two 12 bit values
+  30:crypto/p4093/math_asm_4093.S **** 	clr tmp 
+  31:crypto/p4093/math_asm_4093.S **** 	mul a_high,b_high 
+  32:crypto/p4093/math_asm_4093.S **** 	mov Res3,R0
+  33:crypto/p4093/math_asm_4093.S **** 	mul a_low,b_low
+  34:crypto/p4093/math_asm_4093.S **** 	mov Res1,R0
+  35:crypto/p4093/math_asm_4093.S **** 	mov Res2,R1
+  36:crypto/p4093/math_asm_4093.S **** 	mul a_high,b_low 
+  37:crypto/p4093/math_asm_4093.S **** 	add Res2,R0
+  38:crypto/p4093/math_asm_4093.S **** 	adc Res3,R1
+  39:crypto/p4093/math_asm_4093.S **** 	mul a_low,b_high
+  40:crypto/p4093/math_asm_4093.S **** 	add Res2,R0
+  41:crypto/p4093/math_asm_4093.S **** 	adc Res3,R1
+  42               	
+  43               		//result of the multiplication is now stored in R8:R17:R16
+  44               	
+  45               		//temph = x >> 12;
+  46:crypto/p4093/math_asm_4093.S **** 	mov tmpHL, Res2 //tmpH = Res3:Res2
+  47               		
+  48               		//4 shifts left
+  49:crypto/p4093/math_asm_4093.S **** 	lsr tmpHH
+  50:crypto/p4093/math_asm_4093.S **** 	ror tmpHL
+  51:crypto/p4093/math_asm_4093.S **** 	lsr tmpHH
+  52:crypto/p4093/math_asm_4093.S **** 	ror tmpHL
+  53:crypto/p4093/math_asm_4093.S **** 	lsr tmpHH
+  54:crypto/p4093/math_asm_4093.S **** 	ror tmpHL
+  55:crypto/p4093/math_asm_4093.S **** 	lsr tmpHH
+  56:crypto/p4093/math_asm_4093.S **** 	ror tmpHL
+  57               		//12 bit value tmpH
+  58               	
+  59               		//templ = x & 0b111111111111;
+  60               		//tmpL = Res2:Res1
+  61:crypto/p4093/math_asm_4093.S **** 	andi tmpLH, 0b00001111
+  62               		//12 bit Value tmpL
+  63               	
+  64               		//Return Value in R24:R25
+  65:crypto/p4093/math_asm_4093.S **** 	mov R24, tmpHL
+  66:crypto/p4093/math_asm_4093.S **** 	mov R25, tmpHH
+  67               	
+  68               		//x = (temph<<1)+temph+templ;
+  69:crypto/p4093/math_asm_4093.S **** 	lsl R24
+  70:crypto/p4093/math_asm_4093.S **** 	rol R25
+  71               	
+  72:crypto/p4093/math_asm_4093.S **** 	add R24, tmpHL
+  73:crypto/p4093/math_asm_4093.S **** 	adc R25, tmpHH
+  74               	
+  75:crypto/p4093/math_asm_4093.S **** 	add R24, tmpLL
+  76:crypto/p4093/math_asm_4093.S **** 	adc R25, tmpLH
+  77               	
+  78               	//mod 4093
+  79               	test_reduction:
+  80:crypto/p4093/math_asm_4093.S **** 	cpi R25, 0b00001111
+  81:crypto/p4093/math_asm_4093.S **** 	brlo end_mul
+  82:crypto/p4093/math_asm_4093.S **** 	breq consider_reduction
+  83:crypto/p4093/math_asm_4093.S **** 	rjmp do_reduction
+  84               	
+  85               	consider_reduction:
+  86               	
+  87:crypto/p4093/math_asm_4093.S **** 	cpi R24, 0b11111101
+  88:crypto/p4093/math_asm_4093.S **** 	brlo end_mul
+  89               	
+  90               	do_reduction:
+  91               	
+  92:crypto/p4093/math_asm_4093.S **** 	subi R24, 0b11111101
+  93:crypto/p4093/math_asm_4093.S **** 	sbci R25, 0b00001111
+  94               		 
+  95:crypto/p4093/math_asm_4093.S **** 	RJMP test_reduction
+  96               	
+  97               	end_mul:
+  98               	
+  99:crypto/p4093/math_asm_4093.S **** 	ret
+ 100               	
+ 101               	
+ 102               	
+ 103               	/*
+ 104               	polyMul_asm_4093_256 - computes multiplication of two polynomials
+ 105               	-- the first polynomial is is loaded from SRAM, the second from FLASH memory
+ 106               	-- optimized for p = 256, q = 4093
+ 107               	-- wrapper function has to initialize the return polynomial with 0's
+ 108               	
+ 109               	Parameters in R25:R24, R23:R22
+ 110               	R24: low(&first[0])
+ 111               	R25: high(&first[0])
+ 112               	R22: low(&second[0])
+ 113               	R23: high(&second[0])
+ 114               	R21:R20 contains pointer to return polynomial
+ 115               	
+ 116               	X -> first polynomial
+ 117               	Z -> second polynomial
+ 118               	Y -> resulting polynomial
+ 119               	*/
+ 120               	
+ 121               	
+ 122               	#define XL R26
+ 123               	#define XH R27
+ 124               	#define YL R28
+ 125               	#define YH R29
+ 126               	#define ZL R30 
+ 127               	#define ZH R31
+ 128               	#define outercnt R16
+ 129               	#define innercnt R7
+ 130               	#define res_index R18 //q
+ 131               	#define temp R19
+ 132               	
+ 133               	.global polyMul_asm_4093_256
+ 134               	polyMul_asm_4093_256:
+ 135               		//R10, R9, R8, R6, R1, R0 are pushed for mulRed_asm
+ 136:crypto/p4093/math_asm_4093.S **** 	push R0
+ 137:crypto/p4093/math_asm_4093.S **** 	push R1
+ 138:crypto/p4093/math_asm_4093.S **** 	push R6
+ 139:crypto/p4093/math_asm_4093.S **** 	push R7
+ 140:crypto/p4093/math_asm_4093.S **** 	push R8
+ 141:crypto/p4093/math_asm_4093.S **** 	push R9
+ 142:crypto/p4093/math_asm_4093.S **** 	push R10
+ 143:crypto/p4093/math_asm_4093.S **** 	push R14
+ 144:crypto/p4093/math_asm_4093.S **** 	push R15
+ 145:crypto/p4093/math_asm_4093.S **** 	push R16
+ 146:crypto/p4093/math_asm_4093.S **** 	push R17
+ 147:crypto/p4093/math_asm_4093.S **** 	push R18
+ 148:crypto/p4093/math_asm_4093.S **** 	push R19
+ 149:crypto/p4093/math_asm_4093.S **** 	push R26
+ 150:crypto/p4093/math_asm_4093.S **** 	push R27
+ 151:crypto/p4093/math_asm_4093.S **** 	push R28
+ 152:crypto/p4093/math_asm_4093.S **** 	push R29
+ 153:crypto/p4093/math_asm_4093.S **** 	push R30
+ 154:crypto/p4093/math_asm_4093.S **** 	push R31
+ 155               	
+ 156               	
+ 157:crypto/p4093/math_asm_4093.S **** 	clr outercnt
+ 158:crypto/p4093/math_asm_4093.S **** 	clr innercnt
+ 159:crypto/p4093/math_asm_4093.S **** 	clr temp
+ 160               	
+ 161:crypto/p4093/math_asm_4093.S **** 	movw XL, R24
+ 162:crypto/p4093/math_asm_4093.S **** 	movw ZL, R22
+ 163               	
+ 164:crypto/p4093/math_asm_4093.S **** 	movw R14, R22 //save adress of second[0] for later use
+ 165               	
+ 166               	outer_loop:
+ 167               	
+ 168               	
+ 169               	inner_loop:
+ 170               	
+ 171               		//q = (i + j) % 256
+ 172:crypto/p4093/math_asm_4093.S **** 	clr res_index
+ 173:crypto/p4093/math_asm_4093.S **** 	add res_index, outercnt
+ 174:crypto/p4093/math_asm_4093.S **** 	add res_index, innercnt
+ 175               		
+ 176:crypto/p4093/math_asm_4093.S **** 	brcc no_carry //i+j < nP = 256
+ 177               	
+ 178               		//mulRed_asm(first[i], second[j]);
+ 179               		//load parameters for multiplication
+ 180:crypto/p4093/math_asm_4093.S **** 	ld R24, X+
+ 181:crypto/p4093/math_asm_4093.S **** 	ld R25, X
+ 182               	
+ 183:crypto/p4093/math_asm_4093.S **** 	lpm R22, Z+
+ 184:crypto/p4093/math_asm_4093.S **** 	lpm R23, Z+
+ 185               	
+ 186:crypto/p4093/math_asm_4093.S **** 	call mulRed_asm_4093
+ 187               		//result in R25:R24
+ 188               	
+ 189               		//make Y point to res[q]
+ 190:crypto/p4093/math_asm_4093.S **** 	movw YL, R20 //reset Y to res[0]
+ 191               		//add 2*q
+ 192:crypto/p4093/math_asm_4093.S **** 	add YL, res_index
+ 193:crypto/p4093/math_asm_4093.S **** 	adc YH, temp //temp is cleared
+ 194:crypto/p4093/math_asm_4093.S **** 	add YL, res_index
+ 195:crypto/p4093/math_asm_4093.S **** 	adc YH, temp //temp is cleared
+ 196               	
+ 197               	
+ 198               		//res[q] -= d;
+ 199:crypto/p4093/math_asm_4093.S **** 	ld R22, Y+
+ 200:crypto/p4093/math_asm_4093.S **** 	ld R23, Y
+ 201               		//res[q] now stored in R23:R22
+ 202               	
+ 203:crypto/p4093/math_asm_4093.S **** 	sub R22, R24
+ 204:crypto/p4093/math_asm_4093.S **** 	sbc R23, R25
+ 205               	
+ 206               	//mod 4093
+ 207:crypto/p4093/math_asm_4093.S **** 	brcc end //value still positive
+ 208               		//add 4093 otherwise
+ 209:crypto/p4093/math_asm_4093.S **** 	ldi temp, 0xFD
+ 210:crypto/p4093/math_asm_4093.S **** 	add R22, temp
+ 211:crypto/p4093/math_asm_4093.S **** 	ldi temp, 0x0F
+ 212:crypto/p4093/math_asm_4093.S **** 	adc R23, temp
+ 213:crypto/p4093/math_asm_4093.S **** 	clr temp
+ 214               		
+ 215:crypto/p4093/math_asm_4093.S **** 	rjmp end	
+ 216               	
+ 217               	no_carry:
+ 218               	
+ 219               		//mulRed_asm(first[i], second[j]);
+ 220:crypto/p4093/math_asm_4093.S **** 	ld R24, X+
+ 221:crypto/p4093/math_asm_4093.S **** 	ld R25, X
+ 222               	
+ 223:crypto/p4093/math_asm_4093.S **** 	lpm R22, Z+
+ 224:crypto/p4093/math_asm_4093.S **** 	lpm R23, Z+
+ 225               	
+ 226:crypto/p4093/math_asm_4093.S **** 	rcall mulRed_asm_4093
+ 227               		//result in R25:R24
+ 228               	
+ 229               		//make Y point to res[q]
+ 230:crypto/p4093/math_asm_4093.S **** 	movw YL, R20 //reset Y to res[0]
+ 231               		//add 2*q
+ 232:crypto/p4093/math_asm_4093.S **** 	add YL, res_index
+ 233:crypto/p4093/math_asm_4093.S **** 	adc YH, temp //temp is cleared
+ 234:crypto/p4093/math_asm_4093.S **** 	add YL, res_index
+ 235:crypto/p4093/math_asm_4093.S **** 	adc YH, temp //temp is cleared
+ 236               	
+ 237:crypto/p4093/math_asm_4093.S **** 	ld R22, Y+
+ 238:crypto/p4093/math_asm_4093.S **** 	ld R23, Y
+ 239               		//res[q] now stored in R23:R22
+ 240               	
+ 241               		//res[q] += d;
+ 242:crypto/p4093/math_asm_4093.S **** 	add R22, R24
+ 243:crypto/p4093/math_asm_4093.S **** 	adc R23, R25
+ 244               	
+ 245               	//mod 4093
+ 246               	test_reduction3:
+ 247:crypto/p4093/math_asm_4093.S **** 	cpi R23, 0b00001111
+ 248:crypto/p4093/math_asm_4093.S **** 	brlo end
+ 249:crypto/p4093/math_asm_4093.S **** 	breq consider_reduction3
+ 250:crypto/p4093/math_asm_4093.S **** 	rjmp do_reduction3
+ 251               	
+ 252               	consider_reduction3:
+ 253               	
+ 254:crypto/p4093/math_asm_4093.S **** 	cpi R22, 0b11111101
+ 255:crypto/p4093/math_asm_4093.S **** 	brlo end
+ 256               	
+ 257               	do_reduction3:
+ 258               	
+ 259:crypto/p4093/math_asm_4093.S **** 	subi R22, 0b11111101
+ 260:crypto/p4093/math_asm_4093.S **** 	sbci R23, 0b00001111
+ 261               	
+ 262               	end:
+ 263               	
+ 264               		//store result
+ 265:crypto/p4093/math_asm_4093.S **** 	st -Y, R22
+ 266:crypto/p4093/math_asm_4093.S **** 	adiw YL, 1
+ 267:crypto/p4093/math_asm_4093.S **** 	st Y, R23
+ 268               	
+ 269:crypto/p4093/math_asm_4093.S **** 	sbiw XL, 1 //X still points to first[outercnt]
+ 270               	
+ 271               		//loop counters
+ 272:crypto/p4093/math_asm_4093.S **** 	inc innercnt
+ 273:crypto/p4093/math_asm_4093.S **** 	brne inner_loop
+ 274               	
+ 275               		//end of inner loop
+ 276               		
+ 277:crypto/p4093/math_asm_4093.S **** 	adiw XL, 2	 //X points to next element	
+ 278:crypto/p4093/math_asm_4093.S **** 	movw ZL, R14 //reset Z pointer to second[0]
+ 279               	
+ 280:crypto/p4093/math_asm_4093.S **** 	inc outercnt
+ 281:crypto/p4093/math_asm_4093.S **** 	brne outer_loop
+ 282               	
+ 283               		//end of outer loop
+ 284               	
+ 285               	
+ 286:crypto/p4093/math_asm_4093.S **** 	pop R31
+ 287:crypto/p4093/math_asm_4093.S **** 	pop R30
+ 288:crypto/p4093/math_asm_4093.S **** 	pop R29
+ 289:crypto/p4093/math_asm_4093.S **** 	pop R28
+ 290:crypto/p4093/math_asm_4093.S **** 	pop R27
+ 291:crypto/p4093/math_asm_4093.S **** 	pop R26
+ 292:crypto/p4093/math_asm_4093.S **** 	pop R19
+ 293:crypto/p4093/math_asm_4093.S **** 	pop R18
+ 294:crypto/p4093/math_asm_4093.S **** 	pop R17
+ 295:crypto/p4093/math_asm_4093.S **** 	pop R16
+ 296:crypto/p4093/math_asm_4093.S **** 	pop R15
+ 297:crypto/p4093/math_asm_4093.S **** 	pop R14
+ 298:crypto/p4093/math_asm_4093.S **** 	pop R10
+ 299:crypto/p4093/math_asm_4093.S **** 	pop R9
+ 300:crypto/p4093/math_asm_4093.S **** 	pop R8
+ 301:crypto/p4093/math_asm_4093.S **** 	pop R7
+ 302:crypto/p4093/math_asm_4093.S **** 	pop R6
+ 303:crypto/p4093/math_asm_4093.S **** 	pop R1
+ 304:crypto/p4093/math_asm_4093.S **** 	pop R0
+ 305:crypto/p4093/math_asm_4093.S **** ret
+ 306               	
+ 307               	
+ 308               	/*
+ 309               	polyMul_asm_4093_192 - computes multiplication of two polynomials
+ 310               	-- the first polynomial is is loaded from SRAM, the second from FLASH memory
+ 311               	-- optimized for p = 192, q = 4093
+ 312               	-- wrapper function has to initialize the return polynomial with 0's
+ 313               	
+ 314               	Parameters in R25:R24, R23:R22
+ 315               	R24: low(&first[0])
+ 316               	R25: high(&first[0])
+ 317               	R22: low(&second[0])
+ 318               	R23: high(&second[0])
+ 319               	R21:R20 contains pointer to return polynomial
+ 320               	
+ 321               	X -> first polynomial
+ 322               	Z -> second polynomial
+ 323               	Y -> resulting polynomial
+ 324               	*/
+ 325               	
+ 326               	
+ 327               		
+ 328               	#define XL R26
+ 329               	#define XH R27
+ 330               	#define YL R28
+ 331               	#define YH R29
+ 332               	#define ZL R30 
+ 333               	#define ZH R31
+ 334               	#define outercnt R16
+ 335               	#define innercnt R7
+ 336               	#define res_index R18 //q
+ 337               	#define temp R19
+ 338               	#define paramN R2
+ 339               	
+ 340               	.global polyMul_asm_4093_192
+ 341               	polyMul_asm_4093_192:
+ 342               		//R10, R9, R8, R6, R1, R0 are pushed for mulRed_asm
+ 343:crypto/p4093/math_asm_4093.S **** 	push R0
+ 344:crypto/p4093/math_asm_4093.S **** 	push R1
+ 345:crypto/p4093/math_asm_4093.S **** 	push R2
+ 346:crypto/p4093/math_asm_4093.S **** 	push R6
+ 347:crypto/p4093/math_asm_4093.S **** 	push R7
+ 348:crypto/p4093/math_asm_4093.S **** 	push R8
+ 349:crypto/p4093/math_asm_4093.S **** 	push R9
+ 350:crypto/p4093/math_asm_4093.S **** 	push R10
+ 351:crypto/p4093/math_asm_4093.S **** 	push R14
+ 352:crypto/p4093/math_asm_4093.S **** 	push R15
+ 353:crypto/p4093/math_asm_4093.S **** 	push R16
+ 354:crypto/p4093/math_asm_4093.S **** 	push R17
+ 355:crypto/p4093/math_asm_4093.S **** 	push R18
+ 356:crypto/p4093/math_asm_4093.S **** 	push R19
+ 357:crypto/p4093/math_asm_4093.S **** 	push R26
+ 358:crypto/p4093/math_asm_4093.S **** 	push R27
+ 359:crypto/p4093/math_asm_4093.S **** 	push R28
+ 360:crypto/p4093/math_asm_4093.S **** 	push R29
+ 361:crypto/p4093/math_asm_4093.S **** 	push R30
+ 362:crypto/p4093/math_asm_4093.S **** 	push R31
+ 363               	
+ 364:crypto/p4093/math_asm_4093.S **** 	ldi temp, 192
+ 365:crypto/p4093/math_asm_4093.S **** 	mov paramN, temp
+ 366               	
+ 367:crypto/p4093/math_asm_4093.S **** 	clr outercnt
+ 368:crypto/p4093/math_asm_4093.S **** 	clr innercnt
+ 369:crypto/p4093/math_asm_4093.S **** 	clr temp
+ 370               	
+ 371:crypto/p4093/math_asm_4093.S **** 	movw XL, R24
+ 372:crypto/p4093/math_asm_4093.S **** 	movw ZL, R22
+ 373               	
+ 374:crypto/p4093/math_asm_4093.S **** 	movw R14, R22 //save adress of second[0] for later use
+ 375               	
+ 376               	outer_loop_192:
+ 377               	
+ 378               	
+ 379               	inner_loop_192:
+ 380               	
+ 381               		//q = (i + j) % 256
+ 382:crypto/p4093/math_asm_4093.S **** 	clr res_index
+ 383:crypto/p4093/math_asm_4093.S **** 	add res_index, outercnt
+ 384:crypto/p4093/math_asm_4093.S **** 	add res_index, innercnt
+ 385               		
+ 386:crypto/p4093/math_asm_4093.S **** 	brcs greater_equal_192 //i+j > 256
+ 387               	
+ 388:crypto/p4093/math_asm_4093.S **** 	cp res_index, paramN
+ 389               	
+ 390:crypto/p4093/math_asm_4093.S **** 	brsh greater_equal_192
+ 391               	
+ 392               		//mulRed_asm(first[i], second[j]);
+ 393:crypto/p4093/math_asm_4093.S **** 	ld R24, X+
+ 394:crypto/p4093/math_asm_4093.S **** 	ld R25, X
+ 395               	
+ 396:crypto/p4093/math_asm_4093.S **** 	lpm R22, Z+
+ 397:crypto/p4093/math_asm_4093.S **** 	lpm R23, Z+
+ 398               	
+ 399:crypto/p4093/math_asm_4093.S **** 	rcall mulRed_asm_4093
+ 400               		//result in R25:R24
+ 401               	
+ 402               		//make Y point to res[q]
+ 403:crypto/p4093/math_asm_4093.S **** 	movw YL, R20 //reset Y to res[0]
+ 404               		//add 2*q
+ 405:crypto/p4093/math_asm_4093.S **** 	add YL, res_index
+ 406:crypto/p4093/math_asm_4093.S **** 	adc YH, temp //temp is cleared
+ 407:crypto/p4093/math_asm_4093.S **** 	add YL, res_index
+ 408:crypto/p4093/math_asm_4093.S **** 	adc YH, temp //temp is cleared
+ 409               	
+ 410:crypto/p4093/math_asm_4093.S **** 	ld R22, Y+
+ 411:crypto/p4093/math_asm_4093.S **** 	ld R23, Y
+ 412               		//res[q] now stored in R23:R22
+ 413               	
+ 414               		//res[q] += d;
+ 415:crypto/p4093/math_asm_4093.S **** 	add R22, R24
+ 416:crypto/p4093/math_asm_4093.S **** 	adc R23, R25
+ 417               	
+ 418               	//mod 4093
+ 419               	test_reduction3_192:
+ 420:crypto/p4093/math_asm_4093.S **** 	cpi R23, 0b00001111
+ 421:crypto/p4093/math_asm_4093.S **** 	brlo end_192
+ 422:crypto/p4093/math_asm_4093.S **** 	breq consider_reduction3_192
+ 423:crypto/p4093/math_asm_4093.S **** 	rjmp do_reduction3_192
+ 424               	
+ 425               	consider_reduction3_192:
+ 426               	
+ 427:crypto/p4093/math_asm_4093.S **** 	cpi R22, 0b11111101
+ 428:crypto/p4093/math_asm_4093.S **** 	brlo end_192
+ 429               	
+ 430               	do_reduction3_192:
+ 431               	
+ 432:crypto/p4093/math_asm_4093.S **** 	subi R22, 0b11111101
+ 433:crypto/p4093/math_asm_4093.S **** 	sbci R23, 0b00001111	
+ 434               	
+ 435:crypto/p4093/math_asm_4093.S **** 	rjmp end_192
+ 436               	
+ 437               	greater_equal_192:
+ 438               	
+ 439               		//q = i + j % 192
+ 440:crypto/p4093/math_asm_4093.S **** 	sub res_index, paramN
+ 441               	
+ 442               		//mulRed_asm(first[i], second[j]);
+ 443               		//load parameters for multiplication
+ 444:crypto/p4093/math_asm_4093.S **** 	ld R24, X+
+ 445:crypto/p4093/math_asm_4093.S **** 	ld R25, X
+ 446               	
+ 447:crypto/p4093/math_asm_4093.S **** 	lpm R22, Z+
+ 448:crypto/p4093/math_asm_4093.S **** 	lpm R23, Z+
+ 449               	
+ 450:crypto/p4093/math_asm_4093.S **** 	call mulRed_asm_4093
+ 451               		//result in R25:R24
+ 452               	
+ 453               		//make Y point to res[q]
+ 454:crypto/p4093/math_asm_4093.S **** 	movw YL, R20 //reset Y to res[0]
+ 455               		//add 2*q
+ 456:crypto/p4093/math_asm_4093.S **** 	add YL, res_index
+ 457:crypto/p4093/math_asm_4093.S **** 	adc YH, temp //temp is cleared
+ 458:crypto/p4093/math_asm_4093.S ****  	add YL, res_index
+ 459:crypto/p4093/math_asm_4093.S **** 	adc YH, temp //temp is cleared
+ 460               	
+ 461               	
+ 462               		//res[q] -= d;
+ 463:crypto/p4093/math_asm_4093.S **** 	ld R22, Y+
+ 464:crypto/p4093/math_asm_4093.S **** 	ld R23, Y
+ 465               		//res[q] now stored in R23:R22
+ 466               	
+ 467:crypto/p4093/math_asm_4093.S **** 	sub R22, R24
+ 468:crypto/p4093/math_asm_4093.S **** 	sbc R23, R25
+ 469               	
+ 470               		//mod 4093
+ 471:crypto/p4093/math_asm_4093.S **** 	brcc end_192 //value still positive
+ 472               		//add 4093 otherwise
+ 473:crypto/p4093/math_asm_4093.S **** 	ldi temp, 0xFD
+ 474:crypto/p4093/math_asm_4093.S **** 	add R22, temp
+ 475:crypto/p4093/math_asm_4093.S **** 	ldi temp, 0x0F
+ 476:crypto/p4093/math_asm_4093.S **** 	adc R23, temp
+ 477:crypto/p4093/math_asm_4093.S **** 	clr temp
+ 478               	
+ 479               	end_192:
+ 480               	
+ 481               		//store result
+ 482:crypto/p4093/math_asm_4093.S **** 	st -Y, R22
+ 483:crypto/p4093/math_asm_4093.S **** 	adiw YL, 1
+ 484:crypto/p4093/math_asm_4093.S **** 	st Y, R23
+ 485               	
+ 486:crypto/p4093/math_asm_4093.S **** 	sbiw XL, 1 //X still points to first[outercnt]
+ 487               	
+ 488               		//loop counters
+ 489:crypto/p4093/math_asm_4093.S **** 	inc innercnt
+ 490:crypto/p4093/math_asm_4093.S **** 	cp innercnt, paramN
+ 491:crypto/p4093/math_asm_4093.S **** 	brne inner_loop_192
+ 492               	
+ 493               		//end of inner loop
+ 494               		
+ 495:crypto/p4093/math_asm_4093.S **** 	clr innercnt
+ 496:crypto/p4093/math_asm_4093.S **** 	adiw XL, 2	 //X points to next element	
+ 497:crypto/p4093/math_asm_4093.S **** 	movw ZL, R14 //reset Z pointer to second[0]
+ 498               	
+ 499:crypto/p4093/math_asm_4093.S **** 	inc outercnt
+ 500:crypto/p4093/math_asm_4093.S **** 	cp outercnt, paramN
+ 501:crypto/p4093/math_asm_4093.S **** 	brne outer_loop_192
+ 502               	
+ 503               		//end of outer loop
+ 504               	
+ 505               	
+ 506:crypto/p4093/math_asm_4093.S **** 	pop R31
+ 507:crypto/p4093/math_asm_4093.S **** 	pop R30
+ 508:crypto/p4093/math_asm_4093.S **** 	pop R29
+ 509:crypto/p4093/math_asm_4093.S **** 	pop R28
+ 510:crypto/p4093/math_asm_4093.S **** 	pop R27
+ 511:crypto/p4093/math_asm_4093.S **** 	pop R26
+ 512:crypto/p4093/math_asm_4093.S **** 	pop R19
+ 513:crypto/p4093/math_asm_4093.S **** 	pop R18
+ 514:crypto/p4093/math_asm_4093.S **** 	pop R17
+ 515:crypto/p4093/math_asm_4093.S **** 	pop R16
+ 516:crypto/p4093/math_asm_4093.S **** 	pop R15
+ 517:crypto/p4093/math_asm_4093.S **** 	pop R14
+ 518:crypto/p4093/math_asm_4093.S **** 	pop R10
+ 519:crypto/p4093/math_asm_4093.S **** 	pop R9
+ 520:crypto/p4093/math_asm_4093.S **** 	pop R8
+ 521:crypto/p4093/math_asm_4093.S **** 	pop R7
+ 522:crypto/p4093/math_asm_4093.S **** 	pop R6
+ 523:crypto/p4093/math_asm_4093.S **** 	pop R2
+ 524:crypto/p4093/math_asm_4093.S **** 	pop R1
+ 525:crypto/p4093/math_asm_4093.S **** 	pop R0
+ 526:crypto/p4093/math_asm_4093.S **** ret
+ 527               	
+ 528               		
+ 529               	/*
+ 530               	polyMul_asm_4093_320 - computes multiplication of two polynomials
+ 531               	-- the first polynomial is is loaded from SRAM, the second from FLASH memory
+ 532               	-- optimized for p = 320, q = 4093
+ 533               	-- wrapper function has to initialize the return polynomial with 0's
+ 534               	-- T-flag ist used to store the MSB of inner_loop_cnt
+ 535               	
+ 536               	Parameters in R25:R24, R23:R22
+ 537               	R24: low(&first[0])
+ 538               	R25: high(&first[0])
+ 539               	R22: low(&second[0])
+ 540               	R23: high(&second[0])
+ 541               	R21:R20 contains pointer to return polynomial
+ 542               	
+ 543               	X -> first polynomial
+ 544               	Z -> second polynomial
+ 545               	Y -> resulting polynomial
+ 546               	*/
+ 547               	
+ 548               	
+ 549               		
+ 550               	#define XL R26
+ 551               	#define XH R27
+ 552               	#define YL R28
+ 553               	#define YH R29
+ 554               	#define ZL R30 
+ 555               	#define ZH R31
+ 556               	#define outercnt_l R11
+ 557               	#define outercnt_h R12
+ 558               	#define innercnt_l R4
+ 559               	#define res_index_h R18 //q
+ 560               	#define res_index_l R16
+ 561               	#define temp R19
+ 562               	#define paramN_l R2
+ 563               	#define paramN_h R3
+ 564               	
+ 565               	.global polyMul_asm_4093_320
+ 566               	polyMul_asm_4093_320:
+ 567               		//R10, R9, R8, R6, R1, R0 are pushed for mulRed_asm
+ 568:crypto/p4093/math_asm_4093.S **** 	push R0
+ 569:crypto/p4093/math_asm_4093.S **** 	push R1
+ 570:crypto/p4093/math_asm_4093.S **** 	push R2
+ 571:crypto/p4093/math_asm_4093.S **** 	push R3
+ 572:crypto/p4093/math_asm_4093.S **** 	push R4
+ 573:crypto/p4093/math_asm_4093.S **** 	push R6
+ 574:crypto/p4093/math_asm_4093.S **** 	push R8
+ 575:crypto/p4093/math_asm_4093.S **** 	push R9
+ 576:crypto/p4093/math_asm_4093.S **** 	push R10
+ 577:crypto/p4093/math_asm_4093.S **** 	push R11
+ 578:crypto/p4093/math_asm_4093.S **** 	push R12
+ 579:crypto/p4093/math_asm_4093.S **** 	push R14
+ 580:crypto/p4093/math_asm_4093.S **** 	push R15
+ 581:crypto/p4093/math_asm_4093.S **** 	push R16
+ 582:crypto/p4093/math_asm_4093.S **** 	push R17
+ 583:crypto/p4093/math_asm_4093.S **** 	push R18
+ 584:crypto/p4093/math_asm_4093.S **** 	push R19
+ 585:crypto/p4093/math_asm_4093.S **** 	push R26
+ 586:crypto/p4093/math_asm_4093.S **** 	push R27
+ 587:crypto/p4093/math_asm_4093.S **** 	push R28
+ 588:crypto/p4093/math_asm_4093.S **** 	push R29
+ 589:crypto/p4093/math_asm_4093.S **** 	push R30
+ 590:crypto/p4093/math_asm_4093.S **** 	push R31
+ 591               	
+ 592               		//store 320 for later comparison
+ 593:crypto/p4093/math_asm_4093.S **** 	ldi temp, 0x40
+ 594:crypto/p4093/math_asm_4093.S **** 	mov paramN_l, temp
+ 595:crypto/p4093/math_asm_4093.S **** 	ldi temp, 0x01
+ 596:crypto/p4093/math_asm_4093.S **** 	mov paramN_h, temp
+ 597               	
+ 598:crypto/p4093/math_asm_4093.S **** 	clr outercnt_l
+ 599:crypto/p4093/math_asm_4093.S **** 	clr outercnt_h
+ 600:crypto/p4093/math_asm_4093.S **** 	clr innercnt_l
+ 601:crypto/p4093/math_asm_4093.S **** 	clr temp
+ 602               	
+ 603:crypto/p4093/math_asm_4093.S **** 	movw XL, R24
+ 604:crypto/p4093/math_asm_4093.S **** 	movw ZL, R22
+ 605               	
+ 606:crypto/p4093/math_asm_4093.S **** 	movw R14, R22 //save adress of second[0] for later use
+ 607               	
+ 608               	outer_loop_320:
+ 609               	
+ 610               	
+ 611               	inner_loop_320:
+ 612               	
+ 613               		//q = (i + j)
+ 614:crypto/p4093/math_asm_4093.S **** 	clr res_index_l
+ 615:crypto/p4093/math_asm_4093.S **** 	clr res_index_h
+ 616               	
+ 617:crypto/p4093/math_asm_4093.S **** 	add res_index_l, outercnt_l
+ 618:crypto/p4093/math_asm_4093.S **** 	adc res_index_h, outercnt_h
+ 619:crypto/p4093/math_asm_4093.S **** 	add res_index_l, innercnt_l
+ 620:crypto/p4093/math_asm_4093.S **** 	bld temp, 0
+ 621:crypto/p4093/math_asm_4093.S **** 	adc res_index_h, temp
+ 622               	
+ 623:crypto/p4093/math_asm_4093.S **** 	cp res_index_h, paramN_h
+ 624:crypto/p4093/math_asm_4093.S **** 	brlo smaller_320
+ 625:crypto/p4093/math_asm_4093.S **** 	brne greater_equal_320
+ 626               	
+ 627:crypto/p4093/math_asm_4093.S **** 	cp res_index_l, paramN_l
+ 628:crypto/p4093/math_asm_4093.S **** 	brlo smaller_320
+ 629               	
+ 630               	greater_equal_320:
+ 631               		
+ 632               		//q = i + j % 320
+ 633:crypto/p4093/math_asm_4093.S **** 	sub res_index_l, paramN_l
+ 634:crypto/p4093/math_asm_4093.S **** 	sbc res_index_h, paramN_h
+ 635               	
+ 636               		//mulRed_asm(first[i], second[j]);
+ 637               		//load parameters for multiplication
+ 638:crypto/p4093/math_asm_4093.S **** 	ld R24, X+
+ 639:crypto/p4093/math_asm_4093.S **** 	ld R25, X
+ 640               	
+ 641:crypto/p4093/math_asm_4093.S **** 	lpm R22, Z+
+ 642:crypto/p4093/math_asm_4093.S **** 	lpm R23, Z+
+ 643               	
+ 644:crypto/p4093/math_asm_4093.S **** 	call mulRed_asm_4093
+ 645               		//result in R25:R24
+ 646               	
+ 647               		//make Y point to res[q]
+ 648:crypto/p4093/math_asm_4093.S **** 	movw YL, R20 //reset Y to res[0]
+ 649               		//add 2*q
+ 650:crypto/p4093/math_asm_4093.S **** 	add YL, res_index_l
+ 651:crypto/p4093/math_asm_4093.S **** 	adc YH, res_index_h
+ 652:crypto/p4093/math_asm_4093.S **** 	add YL, res_index_l
+ 653:crypto/p4093/math_asm_4093.S **** 	adc YH, res_index_h
+ 654               	
+ 655               	
+ 656               		//res[q] -= d;
+ 657:crypto/p4093/math_asm_4093.S **** 	ld R22, Y+
+ 658:crypto/p4093/math_asm_4093.S **** 	ld R23, Y
+ 659               		//res[q] now stored in R23:R22
+ 660               	
+ 661:crypto/p4093/math_asm_4093.S **** 	sub R22, R24
+ 662:crypto/p4093/math_asm_4093.S **** 	sbc R23, R25
+ 663               	
+ 664               		//mod 4093
+ 665:crypto/p4093/math_asm_4093.S **** 	brcc end_320 //value still positive
+ 666               		//add 4093 otherwise
+ 667:crypto/p4093/math_asm_4093.S **** 	ldi temp, 0xFD
+ 668:crypto/p4093/math_asm_4093.S **** 	add R22, temp
+ 669:crypto/p4093/math_asm_4093.S **** 	ldi temp, 0x0F
+ 670:crypto/p4093/math_asm_4093.S **** 	adc R23, temp
+ 671:crypto/p4093/math_asm_4093.S **** 	clr temp
+ 672               	
+ 673:crypto/p4093/math_asm_4093.S **** 	rjmp end_320
+ 674               	
+ 675               	smaller_320:
+ 676               	
+ 677               		//mulRed_asm(first[i], second[j]);
+ 678:crypto/p4093/math_asm_4093.S **** 	ld R24, X+
+ 679:crypto/p4093/math_asm_4093.S **** 	ld R25, X
+ 680               	
+ 681:crypto/p4093/math_asm_4093.S **** 	lpm R22, Z+
+ 682:crypto/p4093/math_asm_4093.S **** 	lpm R23, Z+
+ 683               	
+ 684:crypto/p4093/math_asm_4093.S **** 	rcall mulRed_asm_4093
+ 685               		//result in R25:R24
+ 686               	
+ 687               		//make Y point to res[q]
+ 688:crypto/p4093/math_asm_4093.S **** 	movw YL, R20 //reset Y to res[0]
+ 689               		//add 2*q
+ 690:crypto/p4093/math_asm_4093.S **** 	add YL, res_index_l
+ 691:crypto/p4093/math_asm_4093.S **** 	adc YH, res_index_h
+ 692:crypto/p4093/math_asm_4093.S **** 	add YL, res_index_l
+ 693:crypto/p4093/math_asm_4093.S **** 	adc YH, res_index_h
+ 694               	
+ 695:crypto/p4093/math_asm_4093.S **** 	ld R22, Y+
+ 696:crypto/p4093/math_asm_4093.S **** 	ld R23, Y
+ 697               		//res[q] now stored in R23:R22
+ 698               	
+ 699               		//res[q] += d;
+ 700:crypto/p4093/math_asm_4093.S **** 	add R22, R24
+ 701:crypto/p4093/math_asm_4093.S **** 	adc R23, R25
+ 702               	
+ 703               	//mod 4093
+ 704               	test_reduction3_320:
+ 705:crypto/p4093/math_asm_4093.S **** 	cpi R23, 0b00001111
+ 706:crypto/p4093/math_asm_4093.S **** 	brlo end_320
+ 707:crypto/p4093/math_asm_4093.S **** 	breq consider_reduction3_320
+ 708:crypto/p4093/math_asm_4093.S **** 	rjmp do_reduction3_320
+ 709               	
+ 710               	consider_reduction3_320:
+ 711               	
+ 712:crypto/p4093/math_asm_4093.S **** 	cpi R22, 0b11111101
+ 713:crypto/p4093/math_asm_4093.S **** 	brlo end_320
+ 714               	
+ 715               	do_reduction3_320:
+ 716               	
+ 717:crypto/p4093/math_asm_4093.S **** 	subi R22, 0b11111101
+ 718:crypto/p4093/math_asm_4093.S **** 	sbci R23, 0b00001111	
+ 719               	
+ 720               	end_320:
+ 721               	
+ 722               		//store result
+ 723:crypto/p4093/math_asm_4093.S **** 	st -Y, R22
+ 724:crypto/p4093/math_asm_4093.S **** 	adiw YL, 1
+ 725:crypto/p4093/math_asm_4093.S **** 	st Y, R23
+ 726               	
+ 727:crypto/p4093/math_asm_4093.S **** 	sbiw XL, 1 //X still points to first[outercnt]
+ 728               	
+ 729               		// inc loop counter
+ 730:crypto/p4093/math_asm_4093.S **** 	inc innercnt_l
+ 731               	
+ 732:crypto/p4093/math_asm_4093.S **** 	brne skip_set_t		// set t flag if overflow occured
+ 733               	
+ 734:crypto/p4093/math_asm_4093.S **** 	set					// set t flag
+ 735               	
+ 736               	skip_set_t:
+ 737               	
+ 738:crypto/p4093/math_asm_4093.S **** 	brtc jmp_inner_loop_320	// branch if t flag is cleared -> loop counter < 0x140 = 320
+ 739               	
+ 740:crypto/p4093/math_asm_4093.S **** 	cp innercnt_l, paramN_l
+ 741:crypto/p4093/math_asm_4093.S **** 	breq skip_jmp_inner_loop_320
+ 742               	
+ 743               	jmp_inner_loop_320:
+ 744               	
+ 745:crypto/p4093/math_asm_4093.S **** 	rjmp inner_loop_320	
+ 746               	
+ 747               	skip_jmp_inner_loop_320:
+ 748               	
+ 749               		//end of inner loop
+ 750               		
+ 751:crypto/p4093/math_asm_4093.S **** 	clr innercnt_l
+ 752:crypto/p4093/math_asm_4093.S **** 	clt				// clear t flag
+ 753               	
+ 754:crypto/p4093/math_asm_4093.S **** 	adiw XL, 2	 //X points to next element	
+ 755:crypto/p4093/math_asm_4093.S **** 	movw ZL, R14 //reset Z pointer to second[0]
+ 756               	
+ 757               		// inc loop counter
+ 758:crypto/p4093/math_asm_4093.S **** 	inc outercnt_l
+ 759               	
+ 760:crypto/p4093/math_asm_4093.S **** 	brne skip_inc_outercnt_h	// set MSB only if outercnt_l overflows
+ 761:crypto/p4093/math_asm_4093.S **** 	inc outercnt_h
+ 762               	
+ 763               	skip_inc_outercnt_h:
+ 764               	
+ 765:crypto/p4093/math_asm_4093.S **** 	cp outercnt_h, paramN_h
+ 766:crypto/p4093/math_asm_4093.S **** 	brlo jmp_outer_loop_320
+ 767               	
+ 768:crypto/p4093/math_asm_4093.S **** 	cp outercnt_l, paramN_l
+ 769:crypto/p4093/math_asm_4093.S **** 	breq skip_jmp_outer_loop_320
+ 770               	
+ 771               	jmp_outer_loop_320:
+ 772               	
+ 773:crypto/p4093/math_asm_4093.S **** 	rjmp outer_loop_320	
+ 774               	
+ 775               	skip_jmp_outer_loop_320:
+ 776               	
+ 777               		//end of outer loop
+ 778               	
+ 779:crypto/p4093/math_asm_4093.S **** 	pop R31
+ 780:crypto/p4093/math_asm_4093.S **** 	pop R30
+ 781:crypto/p4093/math_asm_4093.S **** 	pop R29
+ 782:crypto/p4093/math_asm_4093.S **** 	pop R28
+ 783:crypto/p4093/math_asm_4093.S **** 	pop R27
+ 784:crypto/p4093/math_asm_4093.S **** 	pop R26
+ 785:crypto/p4093/math_asm_4093.S **** 	pop R19
+ 786:crypto/p4093/math_asm_4093.S **** 	pop R18
+ 787:crypto/p4093/math_asm_4093.S **** 	pop R17
+ 788:crypto/p4093/math_asm_4093.S **** 	pop R16
+ 789:crypto/p4093/math_asm_4093.S **** 	pop R15
+ 790:crypto/p4093/math_asm_4093.S **** 	pop R14
+ 791:crypto/p4093/math_asm_4093.S **** 	pop R12
+ 792:crypto/p4093/math_asm_4093.S **** 	pop R11
+ 793:crypto/p4093/math_asm_4093.S **** 	pop R10
+ 794:crypto/p4093/math_asm_4093.S **** 	pop R9
+ 795:crypto/p4093/math_asm_4093.S **** 	pop R8
+ 796:crypto/p4093/math_asm_4093.S **** 	pop R6
+ 797:crypto/p4093/math_asm_4093.S **** 	pop R4
+ 798:crypto/p4093/math_asm_4093.S **** 	pop R3
+ 799:crypto/p4093/math_asm_4093.S **** 	pop R2
+ 800:crypto/p4093/math_asm_4093.S **** 	pop R1
+ 801:crypto/p4093/math_asm_4093.S **** 	pop R0
+ 802:crypto/p4093/math_asm_4093.S **** ret
+ 803               	
+ 804               	
+ 805               	
+ 806               	
+ 807               	
+ 808               	
+ 809               	
+ 810               	
+ 811               	
+ 812               	
+ 813               	
+ 814               	
+ 815               	
+ 816               	
+ 817               	
+ 818               	
+ 819               	#define nRes1 r18
+ 820               	#define nRes2 R19
+ 821               	#define nRes3 R20
+ 822               	
+ 823               	#define na_low R24
+ 824               	#define nb_low R22
+ 825               	#define nb_high R23
+ 826               	
+ 827               	#define ntmpHL r22
+ 828               	#define ntmpHH nRes3
+ 829               	#define ntmpLL nRes1
+ 830               	#define ntmpLH nRes2 //has be one of the upper 16 registers because of ANDI
+ 831               	
+ 832               	
+ 833               	.global call_mulRed_asm_4093
+ 834               	call_mulRed_asm_4093:
+ 835               	
+ 836               	mulRed_asm_4093_k:
+ 837               	
+ 838               	
+ 839:crypto/p4093/math_asm_4093.S **** 	mov nRes3, na_low
+ 840:crypto/p4093/math_asm_4093.S **** 	mulsu nRes3,nb_low
+ 841:crypto/p4093/math_asm_4093.S **** 	mov nRes1,R0
+ 842:crypto/p4093/math_asm_4093.S **** 	mov nRes2,R1
+ 843               	
+ 844:crypto/p4093/math_asm_4093.S **** 	clr nRes3
+ 845:crypto/p4093/math_asm_4093.S **** 	tst R1
+ 846:crypto/p4093/math_asm_4093.S **** 	brpl skip
+ 847:crypto/p4093/math_asm_4093.S **** 	dec nRes3
+ 848               	skip:
+ 849               		
+ 850:crypto/p4093/math_asm_4093.S **** 	mov nb_low, na_low
+ 851:crypto/p4093/math_asm_4093.S **** 	mulsu nb_low, nb_high
+ 852               	
+ 853:crypto/p4093/math_asm_4093.S **** 	add nRes2,R0
+ 854:crypto/p4093/math_asm_4093.S **** 	adc nRes3,R1
+ 855               	
+ 856               		//result of the multiplication is now stored in R18:R17:R16
+ 857               		//temph = x >> 12;
+ 858:crypto/p4093/math_asm_4093.S **** 	mov ntmpHL, nRes2 //tmpH = Res3:Res2
+ 859               	
+ 860               		//4 shifts left
+ 861:crypto/p4093/math_asm_4093.S **** 	asr ntmpHH
+ 862:crypto/p4093/math_asm_4093.S **** 	ror ntmpHL
+ 863:crypto/p4093/math_asm_4093.S **** 	asr ntmpHH
+ 864:crypto/p4093/math_asm_4093.S **** 	ror ntmpHL
+ 865:crypto/p4093/math_asm_4093.S **** 	asr ntmpHH
+ 866:crypto/p4093/math_asm_4093.S **** 	ror ntmpHL
+ 867:crypto/p4093/math_asm_4093.S **** 	asr ntmpHH
+ 868:crypto/p4093/math_asm_4093.S **** 	ror ntmpHL	
+ 869               	
+ 870               		//12 bit value tmpH
+ 871               	
+ 872               		//templ = x & 0b111111111111;
+ 873               		//tmpL = Res2:Res1
+ 874:crypto/p4093/math_asm_4093.S **** 	andi ntmpLH, 0b00001111
+ 875               		//12 bit Value tmpL
+ 876               	
+ 877               		//Return Value in R24:R25
+ 878:crypto/p4093/math_asm_4093.S **** 	mov R24, ntmpHL
+ 879:crypto/p4093/math_asm_4093.S **** 	mov R25, ntmpHH
+ 880               	
+ 881               		//x = (temph<<1)+temph+templ;
+ 882:crypto/p4093/math_asm_4093.S **** 	lsl R24
+ 883:crypto/p4093/math_asm_4093.S **** 	rol R25
+ 884               	
+ 885:crypto/p4093/math_asm_4093.S **** 	add R24, ntmpHL
+ 886:crypto/p4093/math_asm_4093.S **** 	adc R25, ntmpHH
+ 887               	
+ 888:crypto/p4093/math_asm_4093.S **** 	add R24, ntmpLL
+ 889:crypto/p4093/math_asm_4093.S **** 	adc R25, ntmpLH
+ 890               	
+ 891:crypto/p4093/math_asm_4093.S **** 	clr r1
+ 892               	
+ 893:crypto/p4093/math_asm_4093.S **** 	ret
+DEFINED SYMBOLS
+crypto/p4093/math_asm_4093.S:27     .text:0000000000000000 mulRed_asm_4093
+crypto/p4093/math_asm_4093.S:79     .text:000000000000003c test_reduction
+crypto/p4093/math_asm_4093.S:97     .text:000000000000004e end_mul
+crypto/p4093/math_asm_4093.S:85     .text:0000000000000044 consider_reduction
+crypto/p4093/math_asm_4093.S:90     .text:0000000000000048 do_reduction
+crypto/p4093/math_asm_4093.S:134    .text:0000000000000050 polyMul_asm_4093_256
+crypto/p4093/math_asm_4093.S:166    .text:0000000000000082 outer_loop
+crypto/p4093/math_asm_4093.S:169    .text:0000000000000082 inner_loop
+crypto/p4093/math_asm_4093.S:217    .text:00000000000000b6 no_carry
+crypto/p4093/math_asm_4093.S:262    .text:00000000000000e2 end
+crypto/p4093/math_asm_4093.S:246    .text:00000000000000d2 test_reduction3
+crypto/p4093/math_asm_4093.S:252    .text:00000000000000da consider_reduction3
+crypto/p4093/math_asm_4093.S:257    .text:00000000000000de do_reduction3
+crypto/p4093/math_asm_4093.S:341    .text:000000000000011e polyMul_asm_4093_192
+crypto/p4093/math_asm_4093.S:376    .text:0000000000000156 outer_loop_192
+crypto/p4093/math_asm_4093.S:379    .text:0000000000000156 inner_loop_192
+crypto/p4093/math_asm_4093.S:437    .text:0000000000000190 greater_equal_192
+crypto/p4093/math_asm_4093.S:419    .text:000000000000017e test_reduction3_192
+crypto/p4093/math_asm_4093.S:479    .text:00000000000001bc end_192
+crypto/p4093/math_asm_4093.S:425    .text:0000000000000186 consider_reduction3_192
+crypto/p4093/math_asm_4093.S:430    .text:000000000000018a do_reduction3_192
+crypto/p4093/math_asm_4093.S:566    .text:0000000000000200 polyMul_asm_4093_320
+crypto/p4093/math_asm_4093.S:608    .text:0000000000000244 outer_loop_320
+crypto/p4093/math_asm_4093.S:611    .text:0000000000000244 inner_loop_320
+crypto/p4093/math_asm_4093.S:675    .text:000000000000028c smaller_320
+crypto/p4093/math_asm_4093.S:630    .text:000000000000025c greater_equal_320
+crypto/p4093/math_asm_4093.S:720    .text:00000000000002b8 end_320
+crypto/p4093/math_asm_4093.S:704    .text:00000000000002a8 test_reduction3_320
+crypto/p4093/math_asm_4093.S:710    .text:00000000000002b0 consider_reduction3_320
+crypto/p4093/math_asm_4093.S:715    .text:00000000000002b4 do_reduction3_320
+crypto/p4093/math_asm_4093.S:736    .text:00000000000002c6 skip_set_t
+crypto/p4093/math_asm_4093.S:743    .text:00000000000002cc jmp_inner_loop_320
+crypto/p4093/math_asm_4093.S:747    .text:00000000000002ce skip_jmp_inner_loop_320
+crypto/p4093/math_asm_4093.S:763    .text:00000000000002dc skip_inc_outercnt_h
+crypto/p4093/math_asm_4093.S:771    .text:00000000000002e4 jmp_outer_loop_320
+crypto/p4093/math_asm_4093.S:775    .text:00000000000002e6 skip_jmp_outer_loop_320
+crypto/p4093/math_asm_4093.S:834    .text:0000000000000316 call_mulRed_asm_4093
+crypto/p4093/math_asm_4093.S:836    .text:0000000000000316 mulRed_asm_4093_k
+crypto/p4093/math_asm_4093.S:848    .text:0000000000000326 skip
+
+NO UNDEFINED SYMBOLS

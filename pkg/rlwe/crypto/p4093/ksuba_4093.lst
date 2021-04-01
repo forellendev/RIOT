@@ -1,0 +1,2029 @@
+   1               		.file	"ksuba_4093.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 435               		.section	.text.set_max_recursion_stages,"ax",@progbits
+ 438               	.global	set_max_recursion_stages
+ 440               	set_max_recursion_stages:
+   1:crypto/p4093/ksuba_4093.c **** #include <inttypes.h>
+   2:crypto/p4093/ksuba_4093.c **** #include <avr/pgmspace.h>
+   3:crypto/p4093/ksuba_4093.c **** #include "ksuba_4093.h"
+   4:crypto/p4093/ksuba_4093.c **** #include "math_asm_4093.h"
+   5:crypto/p4093/ksuba_4093.c **** #include "sampler_4093.h"
+   6:crypto/p4093/ksuba_4093.c **** 
+   7:crypto/p4093/ksuba_4093.c **** //for debuggig purpose some functions are non-static
+   8:crypto/p4093/ksuba_4093.c **** #define IS_STATIC 
+   9:crypto/p4093/ksuba_4093.c **** 
+  10:crypto/p4093/ksuba_4093.c **** #define paramQ 4093
+  11:crypto/p4093/ksuba_4093.c **** 
+  12:crypto/p4093/ksuba_4093.c **** uint8_t max_recursion_stages = 255;
+  13:crypto/p4093/ksuba_4093.c **** 
+  14:crypto/p4093/ksuba_4093.c **** void set_max_recursion_stages(uint8_t val)
+  15:crypto/p4093/ksuba_4093.c **** {
+ 442               	.LM0:
+ 443               	.LFBB1:
+ 444               	/* prologue: function */
+ 445               	/* frame size = 0 */
+ 446               	/* stack size = 0 */
+ 447               	.L__stack_usage = 0
+  16:crypto/p4093/ksuba_4093.c ****   max_recursion_stages = val;
+ 449               	.LM1:
+ 450 0000 8093 0000 		sts max_recursion_stages,r24
+ 451               	/* epilogue start */
+  17:crypto/p4093/ksuba_4093.c **** }
+ 453               	.LM2:
+ 454 0004 0895      		ret
+ 456               	.Lscope1:
+ 457               		.section	.text.call_call_mulRed_asm_4093,"ax",@progbits
+ 459               	.global	call_call_mulRed_asm_4093
+ 461               	call_call_mulRed_asm_4093:
+  18:crypto/p4093/ksuba_4093.c **** 
+  19:crypto/p4093/ksuba_4093.c **** //TODO: We should be able to get rid of this function
+  20:crypto/p4093/ksuba_4093.c **** //Karatsuba can be done in place
+  21:crypto/p4093/ksuba_4093.c **** 
+  22:crypto/p4093/ksuba_4093.c **** uint16_t call_call_mulRed_asm_4093(uint16_t a, uint16_t b)
+  23:crypto/p4093/ksuba_4093.c **** {
+ 463               	.LM3:
+ 464               	.LFBB2:
+ 465               	/* prologue: function */
+ 466               	/* frame size = 0 */
+ 467               	/* stack size = 0 */
+ 468               	.L__stack_usage = 0
+  24:crypto/p4093/ksuba_4093.c **** 	return call_mulRed_asm_4093((int8_t)a,b);
+ 470               	.LM4:
+ 471 0000 0C94 0000 		jmp call_mulRed_asm_4093
+ 473               	.Lscope2:
+ 474               		.section	.text.reduce,"ax",@progbits
+ 479               	.global	reduce
+ 481               	reduce:
+  25:crypto/p4093/ksuba_4093.c **** }
+  26:crypto/p4093/ksuba_4093.c **** 
+  27:crypto/p4093/ksuba_4093.c **** IS_STATIC void reduce(int16_t  * input, int16_t * output, uint16_t paramN)
+  28:crypto/p4093/ksuba_4093.c **** {
+ 483               	.LM5:
+ 484               	.LFBB3:
+ 485 0000 0F93      		push r16
+ 486 0002 1F93      		push r17
+ 487 0004 CF93      		push r28
+ 488 0006 DF93      		push r29
+ 489               	/* prologue: function */
+ 490               	/* frame size = 0 */
+ 491               	/* stack size = 4 */
+ 492               	.L__stack_usage = 4
+ 493 0008 8B01      		movw r16,r22
+ 494 000a BA01      		movw r22,r20
+ 495 000c FC01      		movw r30,r24
+ 496 000e EA01      		movw r28,r20
+ 497 0010 CC0F      		lsl r28
+ 498 0012 DD1F      		rol r29
+ 499 0014 C80F      		add r28,r24
+ 500 0016 D91F      		adc r29,r25
+ 501               	.LBB14:
+  29:crypto/p4093/ksuba_4093.c ****   for(int i = 0; i<paramN;i++)
+ 503               	.LM6:
+ 504 0018 50E0      		ldi r21,0
+ 505 001a 40E0      		ldi r20,0
+ 506               	.L4:
+ 508               	.LM7:
+ 509 001c 4617      		cp r20,r22
+ 510 001e 5707      		cpc r21,r23
+ 511 0020 01F4      		brne .L7
+ 512               	/* epilogue start */
+ 513               	.LBE14:
+  30:crypto/p4093/ksuba_4093.c ****     {
+  31:crypto/p4093/ksuba_4093.c ****       output[i] = input[i] - input[i+paramN];
+  32:crypto/p4093/ksuba_4093.c **** 
+  33:crypto/p4093/ksuba_4093.c ****       if(output[i] < 0)
+  34:crypto/p4093/ksuba_4093.c **** 	{
+  35:crypto/p4093/ksuba_4093.c **** 	  output[i] += paramQ;
+  36:crypto/p4093/ksuba_4093.c **** 	}
+  37:crypto/p4093/ksuba_4093.c ****     }
+  38:crypto/p4093/ksuba_4093.c **** }
+ 515               	.LM8:
+ 516 0022 DF91      		pop r29
+ 517 0024 CF91      		pop r28
+ 518 0026 1F91      		pop r17
+ 519 0028 0F91      		pop r16
+ 520 002a 0895      		ret
+ 521               	.L7:
+ 522               	.LBB15:
+  31:crypto/p4093/ksuba_4093.c **** 
+ 524               	.LM9:
+ 525 002c 8191      		ld r24,Z+
+ 526 002e 9191      		ld r25,Z+
+  31:crypto/p4093/ksuba_4093.c **** 
+ 528               	.LM10:
+ 529 0030 2991      		ld r18,Y+
+ 530 0032 3991      		ld r19,Y+
+  31:crypto/p4093/ksuba_4093.c **** 
+ 532               	.LM11:
+ 533 0034 821B      		sub r24,r18
+ 534 0036 930B      		sbc r25,r19
+ 535 0038 9A01      		movw r18,r20
+ 536 003a 220F      		lsl r18
+ 537 003c 331F      		rol r19
+  35:crypto/p4093/ksuba_4093.c **** 	}
+ 539               	.LM12:
+ 540 003e 200F      		add r18,r16
+ 541 0040 311F      		adc r19,r17
+  33:crypto/p4093/ksuba_4093.c **** 	{
+ 543               	.LM13:
+ 544 0042 97FD      		sbrc r25,7
+ 545 0044 00C0      		rjmp .L5
+ 546               	.L8:
+  35:crypto/p4093/ksuba_4093.c **** 	}
+ 548               	.LM14:
+ 549 0046 D901      		movw r26,r18
+ 550 0048 8D93      		st X+,r24
+ 551 004a 9C93      		st X,r25
+  29:crypto/p4093/ksuba_4093.c ****     {
+ 553               	.LM15:
+ 554 004c 4F5F      		subi r20,-1
+ 555 004e 5F4F      		sbci r21,-1
+ 556 0050 00C0      		rjmp .L4
+ 557               	.L5:
+  35:crypto/p4093/ksuba_4093.c **** 	}
+ 559               	.LM16:
+ 560 0052 8350      		subi r24,3
+ 561 0054 904F      		sbci r25,-16
+ 562 0056 00C0      		rjmp .L8
+ 563               	.LBE15:
+ 571               	.Lscope3:
+ 572               		.section	.text.karatsuba_recursive,"ax",@progbits
+ 579               	.global	karatsuba_recursive
+ 581               	karatsuba_recursive:
+  39:crypto/p4093/ksuba_4093.c **** 
+  40:crypto/p4093/ksuba_4093.c **** /*
+  41:crypto/p4093/ksuba_4093.c ****  *	w = D2*x^2n + [D1-D2-D0]*x^n + D0.
+  42:crypto/p4093/ksuba_4093.c ****  *	D0 = a0·b0
+  43:crypto/p4093/ksuba_4093.c ****  *	D1 = (a0+a1) * (b0+b1)
+  44:crypto/p4093/ksuba_4093.c ****  *	D2 = a1*b1
+  45:crypto/p4093/ksuba_4093.c ****  *
+  46:crypto/p4093/ksuba_4093.c ****  *	size of a - degree
+  47:crypto/p4093/ksuba_4093.c ****  *	size of b - degree
+  48:crypto/p4093/ksuba_4093.c ****  *	size of res - 2*degree
+  49:crypto/p4093/ksuba_4093.c ****  */
+  50:crypto/p4093/ksuba_4093.c **** IS_STATIC void karatsuba_recursive(const uint16_t* a, const uint16_t* b, int16_t* res, uint16_t deg
+  51:crypto/p4093/ksuba_4093.c **** {
+ 583               	.LM17:
+ 584               	.LFBB4:
+ 585 0000 2F92      		push r2
+ 586 0002 3F92      		push r3
+ 587 0004 4F92      		push r4
+ 588 0006 5F92      		push r5
+ 589 0008 6F92      		push r6
+ 590 000a 7F92      		push r7
+ 591 000c 8F92      		push r8
+ 592 000e 9F92      		push r9
+ 593 0010 AF92      		push r10
+ 594 0012 BF92      		push r11
+ 595 0014 CF92      		push r12
+ 596 0016 DF92      		push r13
+ 597 0018 EF92      		push r14
+ 598 001a FF92      		push r15
+ 599 001c 0F93      		push r16
+ 600 001e 1F93      		push r17
+ 601 0020 CF93      		push r28
+ 602 0022 DF93      		push r29
+ 603 0024 CDB7      		in r28,__SP_L__
+ 604 0026 DEB7      		in r29,__SP_H__
+ 605 0028 2897      		sbiw r28,8
+ 606 002a CDBF      		out __SP_L__,r28
+ 607 002c DEBF      		out __SP_H__,r29
+ 608               	/* prologue: function */
+ 609               	/* frame size = 8 */
+ 610               	/* stack size = 26 */
+ 611               	.L__stack_usage = 26
+ 612 002e 2C01      		movw r4,r24
+ 613 0030 3B01      		movw r6,r22
+ 614 0032 7A01      		movw r14,r20
+ 615 0034 5901      		movw r10,r18
+ 616 0036 102F      		mov r17,r16
+  52:crypto/p4093/ksuba_4093.c ****   uint16_t halfdegree = degree>>1;
+  53:crypto/p4093/ksuba_4093.c ****   int16_t temp[degree]; // used to store D2, D0, sums
+  54:crypto/p4093/ksuba_4093.c **** 
+  55:crypto/p4093/ksuba_4093.c ****   //schoolbook multiplication if !2|degree (paramN not always a power of 2)
+  56:crypto/p4093/ksuba_4093.c ****   if(degree%2 == 1 || recursion_stage == max_recursion_stages)
+  57:crypto/p4093/ksuba_4093.c ****     {
+  58:crypto/p4093/ksuba_4093.c ****       for(uint16_t i = 0; i<degree*2;i++)
+  59:crypto/p4093/ksuba_4093.c **** 	{
+  60:crypto/p4093/ksuba_4093.c **** 	  res[i] = 0;
+  61:crypto/p4093/ksuba_4093.c **** 	}			
+  62:crypto/p4093/ksuba_4093.c ****       for(uint16_t i = 0; i<degree;i++)
+  63:crypto/p4093/ksuba_4093.c **** 	{
+  64:crypto/p4093/ksuba_4093.c **** 	  for(uint16_t j = 0; j<degree;j++)
+  65:crypto/p4093/ksuba_4093.c **** 	    {
+  66:crypto/p4093/ksuba_4093.c **** 	      res[i+j] += call_call_mulRed_asm_4093(a[i],b[j]);
+  67:crypto/p4093/ksuba_4093.c **** 
+  68:crypto/p4093/ksuba_4093.c **** 	      if(res[i+j] >= paramQ)
+  69:crypto/p4093/ksuba_4093.c **** 		{
+  70:crypto/p4093/ksuba_4093.c **** 		  res[i+j] -= paramQ;
+  71:crypto/p4093/ksuba_4093.c **** 		}
+  72:crypto/p4093/ksuba_4093.c **** 	      else if((int16_t)res[i+j] < 0)
+  73:crypto/p4093/ksuba_4093.c **** 		{
+  74:crypto/p4093/ksuba_4093.c **** 		  res[i+j] += paramQ;
+  75:crypto/p4093/ksuba_4093.c **** 		}
+  76:crypto/p4093/ksuba_4093.c **** 	    }
+  77:crypto/p4093/ksuba_4093.c **** 	}
+  78:crypto/p4093/ksuba_4093.c ****       return;
+  79:crypto/p4093/ksuba_4093.c ****     }
+  80:crypto/p4093/ksuba_4093.c **** 	
+  81:crypto/p4093/ksuba_4093.c ****   // compute D1 = (x0+x1) * (y0+y1)
+  82:crypto/p4093/ksuba_4093.c ****   for(uint8_t i = 0; i<halfdegree;i++)
+  83:crypto/p4093/ksuba_4093.c ****     {
+  84:crypto/p4093/ksuba_4093.c ****       	temp[i] = a[i] + a[i+halfdegree];
+  85:crypto/p4093/ksuba_4093.c ****       	if((int16_t)temp[i] >= paramQ)
+  86:crypto/p4093/ksuba_4093.c ****       	{
+  87:crypto/p4093/ksuba_4093.c **** 	  	temp[i] -= paramQ;
+  88:crypto/p4093/ksuba_4093.c ****       	}
+  89:crypto/p4093/ksuba_4093.c ****       
+  90:crypto/p4093/ksuba_4093.c **** 		
+  91:crypto/p4093/ksuba_4093.c ****       	temp[i+halfdegree] = b[i] + b[i+halfdegree];
+  92:crypto/p4093/ksuba_4093.c ****       	if(temp[i+halfdegree] >= paramQ)
+  93:crypto/p4093/ksuba_4093.c **** 	{
+  94:crypto/p4093/ksuba_4093.c **** 	  temp[i+halfdegree] -= paramQ;
+  95:crypto/p4093/ksuba_4093.c **** 	}
+  96:crypto/p4093/ksuba_4093.c ****     }		
+  97:crypto/p4093/ksuba_4093.c ****   karatsuba_recursive((uint16_t*)temp,(uint16_t*)&temp[halfdegree],res,halfdegree,recursion_stage+1
+  98:crypto/p4093/ksuba_4093.c **** 	
+  99:crypto/p4093/ksuba_4093.c ****   // compute D2 = x1 * y1 and store it in result
+ 100:crypto/p4093/ksuba_4093.c ****   karatsuba_recursive((uint16_t*)&a[halfdegree],(uint16_t*)&b[halfdegree],&res[degree],halfdegree,r
+ 101:crypto/p4093/ksuba_4093.c **** 	
+ 102:crypto/p4093/ksuba_4093.c ****   // compute D1 - D2
+ 103:crypto/p4093/ksuba_4093.c ****   for(uint16_t i = 0; i<degree;i++)
+ 104:crypto/p4093/ksuba_4093.c ****     {
+ 105:crypto/p4093/ksuba_4093.c ****       res[i] -= res[i+degree];
+ 106:crypto/p4093/ksuba_4093.c ****       if(res[i] < 0)
+ 107:crypto/p4093/ksuba_4093.c **** 	{
+ 108:crypto/p4093/ksuba_4093.c **** 	  res[i] += paramQ;
+ 109:crypto/p4093/ksuba_4093.c **** 	}
+ 110:crypto/p4093/ksuba_4093.c ****     }
+ 111:crypto/p4093/ksuba_4093.c **** 	
+ 112:crypto/p4093/ksuba_4093.c ****   // compute D0 = x0 * y0
+ 113:crypto/p4093/ksuba_4093.c ****   karatsuba_recursive(a,b,temp,halfdegree,recursion_stage+1);
+ 114:crypto/p4093/ksuba_4093.c **** 	
+ 115:crypto/p4093/ksuba_4093.c ****   // compute (D1 - D2) - D0
+ 116:crypto/p4093/ksuba_4093.c ****   for(uint16_t i = 0; i<degree;i++)
+ 117:crypto/p4093/ksuba_4093.c ****     {
+ 118:crypto/p4093/ksuba_4093.c ****       res[i] -= temp[i];
+ 119:crypto/p4093/ksuba_4093.c ****       if(res[i] < 0)
+ 120:crypto/p4093/ksuba_4093.c **** 	{
+ 121:crypto/p4093/ksuba_4093.c **** 	  res[i] += paramQ;
+ 122:crypto/p4093/ksuba_4093.c **** 	}
+ 123:crypto/p4093/ksuba_4093.c ****     }	
+ 124:crypto/p4093/ksuba_4093.c **** 	
+ 125:crypto/p4093/ksuba_4093.c ****   // store D1 - D2 - D0 in result	
+ 126:crypto/p4093/ksuba_4093.c ****   for(uint16_t i = halfdegree; i<degree;i++)
+ 127:crypto/p4093/ksuba_4093.c ****     {	
+ 128:crypto/p4093/ksuba_4093.c ****       res[i+halfdegree] += res[i];
+ 129:crypto/p4093/ksuba_4093.c ****       if(res[i+halfdegree] >= paramQ)
+ 130:crypto/p4093/ksuba_4093.c **** 	{
+ 131:crypto/p4093/ksuba_4093.c **** 	  res[i+halfdegree] -= paramQ;
+ 132:crypto/p4093/ksuba_4093.c **** 	}	
+ 133:crypto/p4093/ksuba_4093.c ****     }	
+ 134:crypto/p4093/ksuba_4093.c ****   for(uint16_t i = 0; i<halfdegree;i++)
+ 135:crypto/p4093/ksuba_4093.c ****     {	
+ 136:crypto/p4093/ksuba_4093.c ****       res[i+halfdegree] = res[i];
+ 137:crypto/p4093/ksuba_4093.c ****     }		
+ 138:crypto/p4093/ksuba_4093.c **** 
+ 139:crypto/p4093/ksuba_4093.c ****   // store D0 in result
+ 140:crypto/p4093/ksuba_4093.c ****   for(uint16_t i = 0; i<halfdegree;i++)
+ 141:crypto/p4093/ksuba_4093.c ****     {	
+ 142:crypto/p4093/ksuba_4093.c ****       res[i] = temp[i];
+ 143:crypto/p4093/ksuba_4093.c ****     }
+ 144:crypto/p4093/ksuba_4093.c **** 	
+ 145:crypto/p4093/ksuba_4093.c ****   for(uint16_t i = halfdegree; i<degree;i++)
+ 146:crypto/p4093/ksuba_4093.c ****     {	
+ 147:crypto/p4093/ksuba_4093.c ****       res[i] += temp[i];
+ 148:crypto/p4093/ksuba_4093.c ****       if(res[i] >= paramQ)
+ 149:crypto/p4093/ksuba_4093.c **** 	{
+ 150:crypto/p4093/ksuba_4093.c **** 	  res[i] -= paramQ;
+ 151:crypto/p4093/ksuba_4093.c **** 	}	
+ 152:crypto/p4093/ksuba_4093.c ****     }		
+ 153:crypto/p4093/ksuba_4093.c **** }
+ 618               	.LM18:
+ 619 0038 8DB7      		in r24,__SP_L__
+ 620 003a 9EB7      		in r25,__SP_H__
+ 621 003c 8F83      		std Y+7,r24
+ 622 003e 9887      		std Y+8,r25
+  53:crypto/p4093/ksuba_4093.c **** 
+ 624               	.LM19:
+ 625 0040 1901      		movw r2,r18
+ 626 0042 220C      		lsl r2
+ 627 0044 331C      		rol r3
+ 628 0046 EDB7      		in r30,__SP_L__
+ 629 0048 FEB7      		in r31,__SP_H__
+ 630 004a E219      		sub r30,r2
+ 631 004c F309      		sbc r31,r3
+ 632 004e EDBF      		out __SP_L__,r30
+ 633 0050 FEBF      		out __SP_H__,r31
+ 634 0052 8DB7      		in r24,__SP_L__
+ 635 0054 9EB7      		in r25,__SP_H__
+ 636 0056 0196      		adiw r24,1
+ 637 0058 4C01      		movw r8,r24
+  56:crypto/p4093/ksuba_4093.c ****     {
+ 639               	.LM20:
+ 640 005a F901      		movw r30,r18
+ 641 005c E170      		andi r30,1
+ 642 005e FF27      		clr r31
+ 643 0060 ED83      		std Y+5,r30
+ 644 0062 FE83      		std Y+6,r31
+ 645 0064 20FD      		sbrc r18,0
+ 646 0066 00C0      		rjmp .L10
+  56:crypto/p4093/ksuba_4093.c ****     {
+ 648               	.LM21:
+ 649 0068 8091 0000 		lds r24,max_recursion_stages
+ 650 006c 8017      		cp r24,r16
+ 651 006e 01F4      		brne .+2
+ 652 0070 00C0      		rjmp .L10
+  52:crypto/p4093/ksuba_4093.c ****   uint16_t halfdegree = degree>>1;
+ 654               	.LM22:
+ 655 0072 6901      		movw r12,r18
+ 656 0074 D694      		lsr r13
+ 657 0076 C794      		ror r12
+ 658               	.LBB16:
+  82:crypto/p4093/ksuba_4093.c ****     {
+ 660               	.LM23:
+ 661 0078 60E0      		ldi r22,0
+ 662               	.L11:
+  82:crypto/p4093/ksuba_4093.c ****     {
+ 664               	.LM24:
+ 665 007a 862F      		mov r24,r22
+ 666 007c 90E0      		ldi r25,0
+  82:crypto/p4093/ksuba_4093.c ****     {
+ 668               	.LM25:
+ 669 007e 8C15      		cp r24,r12
+ 670 0080 9D05      		cpc r25,r13
+ 671 0082 00F4      		brsh .+2
+ 672 0084 00C0      		rjmp .L26
+ 673               	.LBE16:
+  97:crypto/p4093/ksuba_4093.c **** 	
+ 675               	.LM26:
+ 676 0086 1F5F      		subi r17,lo8(-(1))
+ 677 0088 C601      		movw r24,r12
+ 678 008a 880F      		lsl r24
+ 679 008c 991F      		rol r25
+ 680 008e 8983      		std Y+1,r24
+ 681 0090 9A83      		std Y+2,r25
+  97:crypto/p4093/ksuba_4093.c **** 	
+ 683               	.LM27:
+ 684 0092 BC01      		movw r22,r24
+ 685 0094 680D      		add r22,r8
+ 686 0096 791D      		adc r23,r9
+  97:crypto/p4093/ksuba_4093.c **** 	
+ 688               	.LM28:
+ 689 0098 012F      		mov r16,r17
+ 690 009a 9601      		movw r18,r12
+ 691 009c A701      		movw r20,r14
+ 692 009e C401      		movw r24,r8
+ 693 00a0 0E94 0000 		call karatsuba_recursive
+ 100:crypto/p4093/ksuba_4093.c **** 	
+ 695               	.LM29:
+ 696 00a4 6981      		ldd r22,Y+1
+ 697 00a6 7A81      		ldd r23,Y+2
+ 698 00a8 660D      		add r22,r6
+ 699 00aa 771D      		adc r23,r7
+ 700 00ac 9601      		movw r18,r12
+ 701 00ae A701      		movw r20,r14
+ 702 00b0 420D      		add r20,r2
+ 703 00b2 531D      		adc r21,r3
+ 704 00b4 8981      		ldd r24,Y+1
+ 705 00b6 9A81      		ldd r25,Y+2
+ 706 00b8 840D      		add r24,r4
+ 707 00ba 951D      		adc r25,r5
+ 708 00bc 0E94 0000 		call karatsuba_recursive
+ 709 00c0 EB82      		std Y+3,r14
+ 710 00c2 FC82      		std Y+4,r15
+ 711               	.LBB17:
+ 103:crypto/p4093/ksuba_4093.c ****     {
+ 713               	.LM30:
+ 714 00c4 F701      		movw r30,r14
+ 103:crypto/p4093/ksuba_4093.c ****     {
+ 716               	.LM31:
+ 717 00c6 30E0      		ldi r19,0
+ 718 00c8 20E0      		ldi r18,0
+ 719               	.L27:
+ 103:crypto/p4093/ksuba_4093.c ****     {
+ 721               	.LM32:
+ 722 00ca 2A15      		cp r18,r10
+ 723 00cc 3B05      		cpc r19,r11
+ 724 00ce 01F0      		breq .+2
+ 725 00d0 00C0      		rjmp .L30
+ 726               	.LBE17:
+ 113:crypto/p4093/ksuba_4093.c **** 	
+ 728               	.LM33:
+ 729 00d2 012F      		mov r16,r17
+ 730 00d4 9601      		movw r18,r12
+ 731 00d6 A401      		movw r20,r8
+ 732 00d8 B301      		movw r22,r6
+ 733 00da C201      		movw r24,r4
+ 734 00dc 0E94 0000 		call karatsuba_recursive
+ 735 00e0 B401      		movw r22,r8
+ 736               	.LBB18:
+ 116:crypto/p4093/ksuba_4093.c ****     {
+ 738               	.LM34:
+ 739 00e2 D401      		movw r26,r8
+ 740 00e4 F701      		movw r30,r14
+ 116:crypto/p4093/ksuba_4093.c ****     {
+ 742               	.LM35:
+ 743 00e6 30E0      		ldi r19,0
+ 744 00e8 20E0      		ldi r18,0
+ 745               	.L31:
+ 116:crypto/p4093/ksuba_4093.c ****     {
+ 747               	.LM36:
+ 748 00ea 2A15      		cp r18,r10
+ 749 00ec 3B05      		cpc r19,r11
+ 750 00ee 01F0      		breq .+2
+ 751 00f0 00C0      		rjmp .L34
+ 752 00f2 F601      		movw r30,r12
+ 753 00f4 EE0F      		lsl r30
+ 754 00f6 FF1F      		rol r31
+ 755 00f8 EE0F      		lsl r30
+ 756 00fa FF1F      		rol r31
+ 757 00fc EE0D      		add r30,r14
+ 758 00fe FF1D      		adc r31,r15
+ 116:crypto/p4093/ksuba_4093.c ****     {
+ 760               	.LM37:
+ 761 0100 9601      		movw r18,r12
+ 762               	.L35:
+ 763               	.LBE18:
+ 764               	.LBB19:
+ 126:crypto/p4093/ksuba_4093.c ****     {	
+ 766               	.LM38:
+ 767 0102 2A15      		cp r18,r10
+ 768 0104 3B05      		cpc r19,r11
+ 769 0106 00F4      		brsh .+2
+ 770 0108 00C0      		rjmp .L38
+ 771 010a A981      		ldd r26,Y+1
+ 772 010c BA81      		ldd r27,Y+2
+ 773 010e AE0D      		add r26,r14
+ 774 0110 BF1D      		adc r27,r15
+ 126:crypto/p4093/ksuba_4093.c ****     {	
+ 776               	.LM39:
+ 777 0112 CD01      		movw r24,r26
+ 778               	.LBE19:
+ 779               	.LBB20:
+ 134:crypto/p4093/ksuba_4093.c ****     {	
+ 781               	.LM40:
+ 782 0114 30E0      		ldi r19,0
+ 783 0116 20E0      		ldi r18,0
+ 784               	.L39:
+ 134:crypto/p4093/ksuba_4093.c ****     {	
+ 786               	.LM41:
+ 787 0118 2C15      		cp r18,r12
+ 788 011a 3D05      		cpc r19,r13
+ 789 011c 01F0      		breq .+2
+ 790 011e 00C0      		rjmp .L40
+ 791               	.L41:
+ 792               	.LBE20:
+ 793               	.LBB21:
+ 140:crypto/p4093/ksuba_4093.c ****     {	
+ 795               	.LM42:
+ 796 0120 ED81      		ldd r30,Y+5
+ 797 0122 FE81      		ldd r31,Y+6
+ 798 0124 EC15      		cp r30,r12
+ 799 0126 FD05      		cpc r31,r13
+ 800 0128 01F0      		breq .+2
+ 801 012a 00C0      		rjmp .L42
+ 802               	.L43:
+ 803               	.LBE21:
+ 804               	.LBB22:
+ 145:crypto/p4093/ksuba_4093.c ****     {	
+ 806               	.LM43:
+ 807 012c CA14      		cp r12,r10
+ 808 012e DB04      		cpc r13,r11
+ 809 0130 00F4      		brsh .+2
+ 810 0132 00C0      		rjmp .L46
+ 811               	.L54:
+ 812 0134 8F81      		ldd r24,Y+7
+ 813 0136 9885      		ldd r25,Y+8
+ 814 0138 8DBF      		out __SP_L__,r24
+ 815 013a 9EBF      		out __SP_H__,r25
+ 816               	.LBE22:
+ 818               	.LM44:
+ 819 013c EF81      		ldd r30,Y+7
+ 820 013e F885      		ldd r31,Y+8
+ 821 0140 EDBF      		out __SP_L__,r30
+ 822 0142 FEBF      		out __SP_H__,r31
+ 823               	/* epilogue start */
+ 824 0144 2896      		adiw r28,8
+ 825 0146 CDBF      		out __SP_L__,r28
+ 826 0148 DEBF      		out __SP_H__,r29
+ 827 014a DF91      		pop r29
+ 828 014c CF91      		pop r28
+ 829 014e 1F91      		pop r17
+ 830 0150 0F91      		pop r16
+ 831 0152 FF90      		pop r15
+ 832 0154 EF90      		pop r14
+ 833 0156 DF90      		pop r13
+ 834 0158 CF90      		pop r12
+ 835 015a BF90      		pop r11
+ 836 015c AF90      		pop r10
+ 837 015e 9F90      		pop r9
+ 838 0160 8F90      		pop r8
+ 839 0162 7F90      		pop r7
+ 840 0164 6F90      		pop r6
+ 841 0166 5F90      		pop r5
+ 842 0168 4F90      		pop r4
+ 843 016a 3F90      		pop r3
+ 844 016c 2F90      		pop r2
+ 845 016e 0895      		ret
+ 846               	.L10:
+  51:crypto/p4093/ksuba_4093.c ****   uint16_t halfdegree = degree>>1;
+ 848               	.LM45:
+ 849 0170 F701      		movw r30,r14
+ 850 0172 90E0      		ldi r25,0
+ 851 0174 80E0      		ldi r24,0
+ 852               	.L12:
+ 853               	.LBB23:
+  58:crypto/p4093/ksuba_4093.c **** 	{
+ 855               	.LM46:
+ 856 0176 8215      		cp r24,r2
+ 857 0178 9305      		cpc r25,r3
+ 858 017a 01F4      		brne .L13
+ 859 017c 1201      		movw r2,r4
+ 860               	.LBE23:
+ 861               	.LBB24:
+  62:crypto/p4093/ksuba_4093.c **** 	{
+ 863               	.LM47:
+ 864 017e 912C      		mov r9,__zero_reg__
+ 865 0180 812C      		mov r8,__zero_reg__
+ 866               	.L14:
+  62:crypto/p4093/ksuba_4093.c **** 	{
+ 868               	.LM48:
+ 869 0182 8A14      		cp r8,r10
+ 870 0184 9B04      		cpc r9,r11
+ 871 0186 01F0      		breq .L54
+ 872 0188 6401      		movw r12,r8
+ 873 018a CC0C      		lsl r12
+ 874 018c DD1C      		rol r13
+ 875 018e CE0C      		add r12,r14
+ 876 0190 DF1C      		adc r13,r15
+ 877 0192 8301      		movw r16,r6
+ 878               	.LBB25:
+  64:crypto/p4093/ksuba_4093.c **** 	    {
+ 880               	.LM49:
+ 881 0194 512C      		mov r5,__zero_reg__
+ 882 0196 412C      		mov r4,__zero_reg__
+ 883 0198 00C0      		rjmp .L20
+ 884               	.L13:
+ 885               	.LBE25:
+ 886               	.LBE24:
+ 887               	.LBB30:
+  60:crypto/p4093/ksuba_4093.c **** 	}			
+ 889               	.LM50:
+ 890 019a 1192      		st Z+,__zero_reg__
+ 891 019c 1192      		st Z+,__zero_reg__
+  58:crypto/p4093/ksuba_4093.c **** 	{
+ 893               	.LM51:
+ 894 019e 0196      		adiw r24,1
+ 895 01a0 00C0      		rjmp .L12
+ 896               	.L18:
+ 897               	.LBE30:
+ 898               	.LBB31:
+ 899               	.LBB28:
+  66:crypto/p4093/ksuba_4093.c **** 
+ 901               	.LM52:
+ 902 01a2 F801      		movw r30,r16
+ 903 01a4 6191      		ld r22,Z+
+ 904 01a6 7191      		ld r23,Z+
+ 905 01a8 8F01      		movw r16,r30
+ 906               	.LBB26:
+ 907               	.LBB27:
+  24:crypto/p4093/ksuba_4093.c **** }
+ 909               	.LM53:
+ 910 01aa F101      		movw r30,r2
+ 911 01ac 8081      		ld r24,Z
+ 912 01ae 0E94 0000 		call call_mulRed_asm_4093
+ 913               	.LBE27:
+ 914               	.LBE26:
+  66:crypto/p4093/ksuba_4093.c **** 
+ 916               	.LM54:
+ 917 01b2 F601      		movw r30,r12
+ 918 01b4 2081      		ld r18,Z
+ 919 01b6 3181      		ldd r19,Z+1
+ 920 01b8 820F      		add r24,r18
+ 921 01ba 931F      		adc r25,r19
+  68:crypto/p4093/ksuba_4093.c **** 		{
+ 923               	.LM55:
+ 924 01bc 8D3F      		cpi r24,-3
+ 925 01be FFE0      		ldi r31,15
+ 926 01c0 9F07      		cpc r25,r31
+ 927 01c2 04F0      		brlt .L15
+  70:crypto/p4093/ksuba_4093.c **** 		}
+ 929               	.LM56:
+ 930 01c4 8D5F      		subi r24,-3
+ 931 01c6 9F40      		sbci r25,15
+ 932               	.L47:
+  74:crypto/p4093/ksuba_4093.c **** 		}
+ 934               	.LM57:
+ 935 01c8 F601      		movw r30,r12
+ 936 01ca 8083      		st Z,r24
+ 937 01cc 9183      		std Z+1,r25
+  64:crypto/p4093/ksuba_4093.c **** 	    {
+ 939               	.LM58:
+ 940 01ce FFEF      		ldi r31,-1
+ 941 01d0 4F1A      		sub r4,r31
+ 942 01d2 5F0A      		sbc r5,r31
+ 943 01d4 22E0      		ldi r18,2
+ 944 01d6 C20E      		add r12,r18
+ 945 01d8 D11C      		adc r13,__zero_reg__
+ 946               	.L20:
+  64:crypto/p4093/ksuba_4093.c **** 	    {
+ 948               	.LM59:
+ 949 01da 4A14      		cp r4,r10
+ 950 01dc 5B04      		cpc r5,r11
+ 951 01de 01F4      		brne .L18
+ 952               	.LBE28:
+  62:crypto/p4093/ksuba_4093.c **** 	{
+ 954               	.LM60:
+ 955 01e0 4FEF      		ldi r20,-1
+ 956 01e2 841A      		sub r8,r20
+ 957 01e4 940A      		sbc r9,r20
+ 958 01e6 72E0      		ldi r23,2
+ 959 01e8 270E      		add r2,r23
+ 960 01ea 311C      		adc r3,__zero_reg__
+ 961 01ec 00C0      		rjmp .L14
+ 962               	.L15:
+ 963               	.LBB29:
+  72:crypto/p4093/ksuba_4093.c **** 		{
+ 965               	.LM61:
+ 966 01ee 97FF      		sbrs r25,7
+ 967 01f0 00C0      		rjmp .L47
+  74:crypto/p4093/ksuba_4093.c **** 		}
+ 969               	.LM62:
+ 970 01f2 8350      		subi r24,3
+ 971 01f4 904F      		sbci r25,-16
+ 972 01f6 00C0      		rjmp .L47
+ 973               	.L26:
+ 974               	.LBE29:
+ 975               	.LBE31:
+ 976               	.LBB32:
+  84:crypto/p4093/ksuba_4093.c ****       	if((int16_t)temp[i] >= paramQ)
+ 978               	.LM63:
+ 979 01f8 AC01      		movw r20,r24
+ 980 01fa 440F      		lsl r20
+ 981 01fc 551F      		rol r21
+  84:crypto/p4093/ksuba_4093.c ****       	if((int16_t)temp[i] >= paramQ)
+ 983               	.LM64:
+ 984 01fe 8C0D      		add r24,r12
+ 985 0200 9D1D      		adc r25,r13
+  84:crypto/p4093/ksuba_4093.c ****       	if((int16_t)temp[i] >= paramQ)
+ 987               	.LM65:
+ 988 0202 880F      		lsl r24
+ 989 0204 991F      		rol r25
+  84:crypto/p4093/ksuba_4093.c ****       	if((int16_t)temp[i] >= paramQ)
+ 991               	.LM66:
+ 992 0206 F201      		movw r30,r4
+ 993 0208 E40F      		add r30,r20
+ 994 020a F51F      		adc r31,r21
+  84:crypto/p4093/ksuba_4093.c ****       	if((int16_t)temp[i] >= paramQ)
+ 996               	.LM67:
+ 997 020c D201      		movw r26,r4
+ 998 020e A80F      		add r26,r24
+ 999 0210 B91F      		adc r27,r25
+  84:crypto/p4093/ksuba_4093.c ****       	if((int16_t)temp[i] >= paramQ)
+ 1001               	.LM68:
+ 1002 0212 0190      		ld __tmp_reg__,Z+
+ 1003 0214 F081      		ld r31,Z
+ 1004 0216 E02D      		mov r30,__tmp_reg__
+ 1005 0218 2D91      		ld r18,X+
+ 1006 021a 3C91      		ld r19,X
+ 1007 021c 2E0F      		add r18,r30
+ 1008 021e 3F1F      		adc r19,r31
+ 1009 0220 F401      		movw r30,r8
+ 1010 0222 E40F      		add r30,r20
+ 1011 0224 F51F      		adc r31,r21
+  85:crypto/p4093/ksuba_4093.c ****       	{
+ 1013               	.LM69:
+ 1014 0226 2D3F      		cpi r18,-3
+ 1015 0228 7FE0      		ldi r23,15
+ 1016 022a 3707      		cpc r19,r23
+ 1017 022c 04F4      		brge .L22
+ 1018               	.L48:
+  87:crypto/p4093/ksuba_4093.c ****       	}
+ 1020               	.LM70:
+ 1021 022e 2083      		st Z,r18
+ 1022 0230 3183      		std Z+1,r19
+  91:crypto/p4093/ksuba_4093.c ****       	if(temp[i+halfdegree] >= paramQ)
+ 1024               	.LM71:
+ 1025 0232 460D      		add r20,r6
+ 1026 0234 571D      		adc r21,r7
+  91:crypto/p4093/ksuba_4093.c ****       	if(temp[i+halfdegree] >= paramQ)
+ 1028               	.LM72:
+ 1029 0236 FA01      		movw r30,r20
+ 1030 0238 2081      		ld r18,Z
+ 1031 023a 3181      		ldd r19,Z+1
+ 1032 023c F301      		movw r30,r6
+ 1033 023e E80F      		add r30,r24
+ 1034 0240 F91F      		adc r31,r25
+ 1035 0242 4081      		ld r20,Z
+ 1036 0244 5181      		ldd r21,Z+1
+ 1037 0246 240F      		add r18,r20
+ 1038 0248 351F      		adc r19,r21
+  94:crypto/p4093/ksuba_4093.c **** 	}
+ 1040               	.LM73:
+ 1041 024a 880D      		add r24,r8
+ 1042 024c 991D      		adc r25,r9
+  92:crypto/p4093/ksuba_4093.c **** 	{
+ 1044               	.LM74:
+ 1045 024e 2D3F      		cpi r18,-3
+ 1046 0250 FFE0      		ldi r31,15
+ 1047 0252 3F07      		cpc r19,r31
+ 1048 0254 04F4      		brge .L24
+ 1049               	.L49:
+  94:crypto/p4093/ksuba_4093.c **** 	}
+ 1051               	.LM75:
+ 1052 0256 FC01      		movw r30,r24
+ 1053 0258 2083      		st Z,r18
+ 1054 025a 3183      		std Z+1,r19
+  82:crypto/p4093/ksuba_4093.c ****     {
+ 1056               	.LM76:
+ 1057 025c 6F5F      		subi r22,lo8(-(1))
+ 1058 025e 00C0      		rjmp .L11
+ 1059               	.L22:
+  87:crypto/p4093/ksuba_4093.c ****       	}
+ 1061               	.LM77:
+ 1062 0260 2D5F      		subi r18,-3
+ 1063 0262 3F40      		sbci r19,15
+ 1064 0264 00C0      		rjmp .L48
+ 1065               	.L24:
+  94:crypto/p4093/ksuba_4093.c **** 	}
+ 1067               	.LM78:
+ 1068 0266 2D5F      		subi r18,-3
+ 1069 0268 3F40      		sbci r19,15
+ 1070 026a 00C0      		rjmp .L49
+ 1071               	.L30:
+ 1072               	.LBE32:
+ 1073               	.LBB33:
+ 105:crypto/p4093/ksuba_4093.c ****       if(res[i] < 0)
+ 1075               	.LM79:
+ 1076 026c 8081      		ld r24,Z
+ 1077 026e 9181      		ldd r25,Z+1
+ 1078 0270 DF01      		movw r26,r30
+ 1079 0272 A20D      		add r26,r2
+ 1080 0274 B31D      		adc r27,r3
+ 1081 0276 4D91      		ld r20,X+
+ 1082 0278 5C91      		ld r21,X
+ 1083 027a 841B      		sub r24,r20
+ 1084 027c 950B      		sbc r25,r21
+ 106:crypto/p4093/ksuba_4093.c **** 	{
+ 1086               	.LM80:
+ 1087 027e 97FD      		sbrc r25,7
+ 1088 0280 00C0      		rjmp .L28
+ 1089               	.L50:
+ 108:crypto/p4093/ksuba_4093.c **** 	}
+ 1091               	.LM81:
+ 1092 0282 8083      		st Z,r24
+ 1093 0284 9183      		std Z+1,r25
+ 103:crypto/p4093/ksuba_4093.c ****     {
+ 1095               	.LM82:
+ 1096 0286 2F5F      		subi r18,-1
+ 1097 0288 3F4F      		sbci r19,-1
+ 1098 028a 3296      		adiw r30,2
+ 1099 028c 00C0      		rjmp .L27
+ 1100               	.L28:
+ 108:crypto/p4093/ksuba_4093.c **** 	}
+ 1102               	.LM83:
+ 1103 028e 8350      		subi r24,3
+ 1104 0290 904F      		sbci r25,-16
+ 1105 0292 00C0      		rjmp .L50
+ 1106               	.L34:
+ 1107               	.LBE33:
+ 1108               	.LBB34:
+ 118:crypto/p4093/ksuba_4093.c ****       if(res[i] < 0)
+ 1110               	.LM84:
+ 1111 0294 4D91      		ld r20,X+
+ 1112 0296 5D91      		ld r21,X+
+ 118:crypto/p4093/ksuba_4093.c ****       if(res[i] < 0)
+ 1114               	.LM85:
+ 1115 0298 8081      		ld r24,Z
+ 1116 029a 9181      		ldd r25,Z+1
+ 1117 029c 841B      		sub r24,r20
+ 1118 029e 950B      		sbc r25,r21
+ 119:crypto/p4093/ksuba_4093.c **** 	{
+ 1120               	.LM86:
+ 1121 02a0 97FD      		sbrc r25,7
+ 1122 02a2 00C0      		rjmp .L32
+ 1123               	.L51:
+ 121:crypto/p4093/ksuba_4093.c **** 	}
+ 1125               	.LM87:
+ 1126 02a4 8083      		st Z,r24
+ 1127 02a6 9183      		std Z+1,r25
+ 116:crypto/p4093/ksuba_4093.c ****     {
+ 1129               	.LM88:
+ 1130 02a8 2F5F      		subi r18,-1
+ 1131 02aa 3F4F      		sbci r19,-1
+ 1132 02ac 3296      		adiw r30,2
+ 1133 02ae 00C0      		rjmp .L31
+ 1134               	.L32:
+ 121:crypto/p4093/ksuba_4093.c **** 	}
+ 1136               	.LM89:
+ 1137 02b0 8350      		subi r24,3
+ 1138 02b2 904F      		sbci r25,-16
+ 1139 02b4 00C0      		rjmp .L51
+ 1140               	.L38:
+ 1141               	.LBE34:
+ 1142               	.LBB35:
+ 128:crypto/p4093/ksuba_4093.c ****       if(res[i+halfdegree] >= paramQ)
+ 1144               	.LM90:
+ 1145 02b6 D901      		movw r26,r18
+ 1146 02b8 AA0F      		lsl r26
+ 1147 02ba BB1F      		rol r27
+ 1148 02bc AE0D      		add r26,r14
+ 1149 02be BF1D      		adc r27,r15
+ 128:crypto/p4093/ksuba_4093.c ****       if(res[i+halfdegree] >= paramQ)
+ 1151               	.LM91:
+ 1152 02c0 8D91      		ld r24,X+
+ 1153 02c2 9C91      		ld r25,X
+ 1154 02c4 4081      		ld r20,Z
+ 1155 02c6 5181      		ldd r21,Z+1
+ 1156 02c8 840F      		add r24,r20
+ 1157 02ca 951F      		adc r25,r21
+ 129:crypto/p4093/ksuba_4093.c **** 	{
+ 1159               	.LM92:
+ 1160 02cc 8D3F      		cpi r24,-3
+ 1161 02ce 4FE0      		ldi r20,15
+ 1162 02d0 9407      		cpc r25,r20
+ 1163 02d2 04F4      		brge .L36
+ 1164               	.L52:
+ 131:crypto/p4093/ksuba_4093.c **** 	}	
+ 1166               	.LM93:
+ 1167 02d4 8083      		st Z,r24
+ 1168 02d6 9183      		std Z+1,r25
+ 126:crypto/p4093/ksuba_4093.c ****     {	
+ 1170               	.LM94:
+ 1171 02d8 2F5F      		subi r18,-1
+ 1172 02da 3F4F      		sbci r19,-1
+ 1173 02dc 3296      		adiw r30,2
+ 1174 02de 00C0      		rjmp .L35
+ 1175               	.L36:
+ 131:crypto/p4093/ksuba_4093.c **** 	}	
+ 1177               	.LM95:
+ 1178 02e0 8D5F      		subi r24,-3
+ 1179 02e2 9F40      		sbci r25,15
+ 1180 02e4 00C0      		rjmp .L52
+ 1181               	.L40:
+ 1182               	.LBE35:
+ 1183               	.LBB36:
+ 136:crypto/p4093/ksuba_4093.c ****     }		
+ 1185               	.LM96:
+ 1186 02e6 F701      		movw r30,r14
+ 1187 02e8 4191      		ld r20,Z+
+ 1188 02ea 5191      		ld r21,Z+
+ 1189 02ec 7F01      		movw r14,r30
+ 136:crypto/p4093/ksuba_4093.c ****     }		
+ 1191               	.LM97:
+ 1192 02ee FC01      		movw r30,r24
+ 1193 02f0 4193      		st Z+,r20
+ 1194 02f2 5193      		st Z+,r21
+ 1195 02f4 CF01      		movw r24,r30
+ 134:crypto/p4093/ksuba_4093.c ****     {	
+ 1197               	.LM98:
+ 1198 02f6 2F5F      		subi r18,-1
+ 1199 02f8 3F4F      		sbci r19,-1
+ 1200 02fa 00C0      		rjmp .L39
+ 1201               	.L42:
+ 1202               	.LBE36:
+ 1203               	.LBB37:
+ 142:crypto/p4093/ksuba_4093.c ****     }
+ 1205               	.LM99:
+ 1206 02fc FB01      		movw r30,r22
+ 1207 02fe 8191      		ld r24,Z+
+ 1208 0300 9191      		ld r25,Z+
+ 1209 0302 BF01      		movw r22,r30
+ 142:crypto/p4093/ksuba_4093.c ****     }
+ 1211               	.LM100:
+ 1212 0304 EB81      		ldd r30,Y+3
+ 1213 0306 FC81      		ldd r31,Y+4
+ 1214 0308 8193      		st Z+,r24
+ 1215 030a 9193      		st Z+,r25
+ 1216 030c EB83      		std Y+3,r30
+ 1217 030e FC83      		std Y+4,r31
+ 140:crypto/p4093/ksuba_4093.c ****     {	
+ 1219               	.LM101:
+ 1220 0310 8D81      		ldd r24,Y+5
+ 1221 0312 9E81      		ldd r25,Y+6
+ 1222 0314 0196      		adiw r24,1
+ 1223 0316 8D83      		std Y+5,r24
+ 1224 0318 9E83      		std Y+6,r25
+ 1225 031a 00C0      		rjmp .L41
+ 1226               	.L46:
+ 1227               	.LBE37:
+ 1228               	.LBB38:
+ 147:crypto/p4093/ksuba_4093.c ****       if(res[i] >= paramQ)
+ 1230               	.LM102:
+ 1231 031c F601      		movw r30,r12
+ 1232 031e EE0F      		lsl r30
+ 1233 0320 FF1F      		rol r31
+ 1234 0322 E80D      		add r30,r8
+ 1235 0324 F91D      		adc r31,r9
+ 147:crypto/p4093/ksuba_4093.c ****       if(res[i] >= paramQ)
+ 1237               	.LM103:
+ 1238 0326 8081      		ld r24,Z
+ 1239 0328 9181      		ldd r25,Z+1
+ 1240 032a 2D91      		ld r18,X+
+ 1241 032c 3C91      		ld r19,X
+ 1242 032e 1197      		sbiw r26,1
+ 1243 0330 820F      		add r24,r18
+ 1244 0332 931F      		adc r25,r19
+ 148:crypto/p4093/ksuba_4093.c **** 	{
+ 1246               	.LM104:
+ 1247 0334 8D3F      		cpi r24,-3
+ 1248 0336 FFE0      		ldi r31,15
+ 1249 0338 9F07      		cpc r25,r31
+ 1250 033a 04F4      		brge .L44
+ 1251               	.L53:
+ 150:crypto/p4093/ksuba_4093.c **** 	}	
+ 1253               	.LM105:
+ 1254 033c 8D93      		st X+,r24
+ 1255 033e 9C93      		st X,r25
+ 1256 0340 1197      		sbiw r26,1
+ 145:crypto/p4093/ksuba_4093.c ****     {	
+ 1258               	.LM106:
+ 1259 0342 2FEF      		ldi r18,-1
+ 1260 0344 C21A      		sub r12,r18
+ 1261 0346 D20A      		sbc r13,r18
+ 1262 0348 1296      		adiw r26,2
+ 1263 034a 00C0      		rjmp .L43
+ 1264               	.L44:
+ 150:crypto/p4093/ksuba_4093.c **** 	}	
+ 1266               	.LM107:
+ 1267 034c 8D5F      		subi r24,-3
+ 1268 034e 9F40      		sbci r25,15
+ 1269 0350 00C0      		rjmp .L53
+ 1270               	.LBE38:
+ 1338               	.Lscope4:
+ 1339               		.section	.text.karatsuba_4093_192,"ax",@progbits
+ 1343               	.global	karatsuba_4093_192
+ 1345               	karatsuba_4093_192:
+ 154:crypto/p4093/ksuba_4093.c **** 
+ 155:crypto/p4093/ksuba_4093.c **** 
+ 156:crypto/p4093/ksuba_4093.c **** IS_STATIC void karatsuba_4093_192(const uint16_t* first, const uint16_t* second, uint16_t * result,
+ 157:crypto/p4093/ksuba_4093.c **** {
+ 1347               	.LM108:
+ 1348               	.LFBB5:
+ 1349 0000 BF92      		push r11
+ 1350 0002 CF92      		push r12
+ 1351 0004 DF92      		push r13
+ 1352 0006 EF92      		push r14
+ 1353 0008 FF92      		push r15
+ 1354 000a 0F93      		push r16
+ 1355 000c 1F93      		push r17
+ 1356 000e CF93      		push r28
+ 1357 0010 DF93      		push r29
+ 1358 0012 CDB7      		in r28,__SP_L__
+ 1359 0014 DEB7      		in r29,__SP_H__
+ 1360 0016 C058      		subi r28,-128
+ 1361 0018 D440      		sbci r29,4
+ 1362 001a CDBF      		out __SP_L__,r28
+ 1363 001c DEBF      		out __SP_H__,r29
+ 1364               	/* prologue: function */
+ 1365               	/* frame size = 1152 */
+ 1366               	/* stack size = 1161 */
+ 1367               	.L__stack_usage = 1161
+ 1368 001e 6B01      		movw r12,r22
+ 1369 0020 F42E      		mov r15,r20
+ 1370 0022 152F      		mov r17,r21
+ 1371 0024 A901      		movw r20,r18
+ 1372 0026 DE01      		movw r26,r28
+ 1373 0028 AF5F      		subi r26,-1
+ 1374 002a BC4F      		sbci r27,-4
+ 1376               	.LM109:
+ 1377 002c 30E0      		ldi r19,0
+ 1378 002e 20E0      		ldi r18,0
+ 1379 0030 BA2E      		mov r11,r26
+ 1380 0032 EB2E      		mov r14,r27
+ 1381               	.L56:
+ 1382               	.LBB39:
+ 1383               	.LBB40:
+ 158:crypto/p4093/ksuba_4093.c ****   int16_t  tmp[2*192];
+ 159:crypto/p4093/ksuba_4093.c ****   uint16_t b[192];
+ 160:crypto/p4093/ksuba_4093.c **** 	
+ 161:crypto/p4093/ksuba_4093.c ****   for(int i = 0; i<192;i++)
+ 162:crypto/p4093/ksuba_4093.c ****     {
+ 163:crypto/p4093/ksuba_4093.c ****       b[i] = pgm_read_word(&second[i]);	
+ 1385               	.LM110:
+ 1386 0034 F601      		movw r30,r12
+ 1387 0036 E20F      		add r30,r18
+ 1388 0038 F31F      		adc r31,r19
+ 1389               	/* #APP */
+ 1390               	 ;  163 "crypto/p4093/ksuba_4093.c" 1
+ 1391 003a 6591      		lpm r22, Z+
+ 1392 003c 7491      		lpm r23, Z
+ 1393               		
+ 1394               	 ;  0 "" 2
+ 1395               	/* #NOAPP */
+ 1396               	.LBE40:
+ 1398               	.LM111:
+ 1399 003e 6D93      		st X+,r22
+ 1400 0040 7D93      		st X+,r23
+ 1401 0042 2E5F      		subi r18,-2
+ 1402 0044 3F4F      		sbci r19,-1
+ 161:crypto/p4093/ksuba_4093.c ****     {
+ 1404               	.LM112:
+ 1405 0046 2038      		cpi r18,-128
+ 1406 0048 61E0      		ldi r22,1
+ 1407 004a 3607      		cpc r19,r22
+ 1408 004c 01F4      		brne .L56
+ 1409               	.LBE39:
+ 164:crypto/p4093/ksuba_4093.c ****     }
+ 165:crypto/p4093/ksuba_4093.c **** 
+ 166:crypto/p4093/ksuba_4093.c ****   if(!swap_operands)
+ 167:crypto/p4093/ksuba_4093.c ****   {
+ 168:crypto/p4093/ksuba_4093.c ****   	karatsuba_recursive((uint16_t*)first, (uint16_t*)b, tmp, 192,0);
+ 1411               	.LM113:
+ 1412 004e 00E0      		ldi r16,0
+ 1413 0050 20EC      		ldi r18,lo8(-64)
+ 1414 0052 30E0      		ldi r19,0
+ 166:crypto/p4093/ksuba_4093.c ****   {
+ 1416               	.LM114:
+ 1417 0054 452B      		or r20,r21
+ 1418 0056 01F4      		brne .L57
+ 1420               	.LM115:
+ 1421 0058 AE01      		movw r20,r28
+ 1422 005a 4F5F      		subi r20,-1
+ 1423 005c 5F4F      		sbci r21,-1
+ 1424 005e 6B2D      		mov r22,r11
+ 1425 0060 7E2D      		mov r23,r14
+ 1426               	.L60:
+ 169:crypto/p4093/ksuba_4093.c ****   }
+ 170:crypto/p4093/ksuba_4093.c ****   else
+ 171:crypto/p4093/ksuba_4093.c ****   {
+ 172:crypto/p4093/ksuba_4093.c **** 	karatsuba_recursive((uint16_t*)b, (uint16_t*)first, tmp, 192,0);
+ 1428               	.LM116:
+ 1429 0062 0E94 0000 		call karatsuba_recursive
+ 173:crypto/p4093/ksuba_4093.c ****   }
+ 174:crypto/p4093/ksuba_4093.c **** 
+ 175:crypto/p4093/ksuba_4093.c ****   reduce(tmp, (int16_t*)result, 192);
+ 1431               	.LM117:
+ 1432 0066 40EC      		ldi r20,lo8(-64)
+ 1433 0068 50E0      		ldi r21,0
+ 1434 006a 6F2D      		mov r22,r15
+ 1435 006c 712F      		mov r23,r17
+ 1436 006e CE01      		movw r24,r28
+ 1437 0070 0196      		adiw r24,1
+ 1438 0072 0E94 0000 		call reduce
+ 1439               	/* epilogue start */
+ 176:crypto/p4093/ksuba_4093.c **** }
+ 1441               	.LM118:
+ 1442 0076 C058      		subi r28,-128
+ 1443 0078 DB4F      		sbci r29,-5
+ 1444 007a CDBF      		out __SP_L__,r28
+ 1445 007c DEBF      		out __SP_H__,r29
+ 1446 007e DF91      		pop r29
+ 1447 0080 CF91      		pop r28
+ 1448 0082 1F91      		pop r17
+ 1449 0084 0F91      		pop r16
+ 1450 0086 FF90      		pop r15
+ 1451 0088 EF90      		pop r14
+ 1452 008a DF90      		pop r13
+ 1453 008c CF90      		pop r12
+ 1454 008e BF90      		pop r11
+ 1455 0090 0895      		ret
+ 1456               	.L57:
+ 172:crypto/p4093/ksuba_4093.c ****   }
+ 1458               	.LM119:
+ 1459 0092 AE01      		movw r20,r28
+ 1460 0094 4F5F      		subi r20,-1
+ 1461 0096 5F4F      		sbci r21,-1
+ 1462 0098 BC01      		movw r22,r24
+ 1463 009a 8B2D      		mov r24,r11
+ 1464 009c 9E2D      		mov r25,r14
+ 1465 009e 00C0      		rjmp .L60
+ 1471               	.Lscope5:
+ 1472               		.section	.text.karatsuba_4093_256,"ax",@progbits
+ 1476               	.global	karatsuba_4093_256
+ 1478               	karatsuba_4093_256:
+ 177:crypto/p4093/ksuba_4093.c **** 
+ 178:crypto/p4093/ksuba_4093.c **** IS_STATIC void karatsuba_4093_256(const uint16_t* first, const uint16_t* second, uint16_t * result,
+ 179:crypto/p4093/ksuba_4093.c **** {
+ 1480               	.LM120:
+ 1481               	.LFBB6:
+ 1482 0000 BF92      		push r11
+ 1483 0002 CF92      		push r12
+ 1484 0004 DF92      		push r13
+ 1485 0006 EF92      		push r14
+ 1486 0008 FF92      		push r15
+ 1487 000a 0F93      		push r16
+ 1488 000c 1F93      		push r17
+ 1489 000e CF93      		push r28
+ 1490 0010 DF93      		push r29
+ 1491 0012 CDB7      		in r28,__SP_L__
+ 1492 0014 DEB7      		in r29,__SP_H__
+ 1493 0016 D650      		subi r29,6
+ 1494 0018 CDBF      		out __SP_L__,r28
+ 1495 001a DEBF      		out __SP_H__,r29
+ 1496               	/* prologue: function */
+ 1497               	/* frame size = 1536 */
+ 1498               	/* stack size = 1545 */
+ 1499               	.L__stack_usage = 1545
+ 1500 001c 6B01      		movw r12,r22
+ 1501 001e F42E      		mov r15,r20
+ 1502 0020 152F      		mov r17,r21
+ 1503 0022 A901      		movw r20,r18
+ 1504 0024 DE01      		movw r26,r28
+ 1505 0026 AF5F      		subi r26,-1
+ 1506 0028 BB4F      		sbci r27,-5
+ 1508               	.LM121:
+ 1509 002a 30E0      		ldi r19,0
+ 1510 002c 20E0      		ldi r18,0
+ 1511 002e BA2E      		mov r11,r26
+ 1512 0030 EB2E      		mov r14,r27
+ 1513               	.L62:
+ 1514               	.LBB41:
+ 1515               	.LBB42:
+ 180:crypto/p4093/ksuba_4093.c ****   int16_t  tmp[2*256];
+ 181:crypto/p4093/ksuba_4093.c ****   uint16_t b[256];
+ 182:crypto/p4093/ksuba_4093.c **** 	
+ 183:crypto/p4093/ksuba_4093.c ****   for(int i = 0; i<256;i++)
+ 184:crypto/p4093/ksuba_4093.c ****     {
+ 185:crypto/p4093/ksuba_4093.c ****       b[i] = pgm_read_word(&second[i]);		
+ 1517               	.LM122:
+ 1518 0032 F601      		movw r30,r12
+ 1519 0034 E20F      		add r30,r18
+ 1520 0036 F31F      		adc r31,r19
+ 1521               	/* #APP */
+ 1522               	 ;  185 "crypto/p4093/ksuba_4093.c" 1
+ 1523 0038 6591      		lpm r22, Z+
+ 1524 003a 7491      		lpm r23, Z
+ 1525               		
+ 1526               	 ;  0 "" 2
+ 1527               	/* #NOAPP */
+ 1528               	.LBE42:
+ 1530               	.LM123:
+ 1531 003c 6D93      		st X+,r22
+ 1532 003e 7D93      		st X+,r23
+ 1533 0040 2E5F      		subi r18,-2
+ 1534 0042 3F4F      		sbci r19,-1
+ 183:crypto/p4093/ksuba_4093.c ****     {
+ 1536               	.LM124:
+ 1537 0044 2115      		cp r18,__zero_reg__
+ 1538 0046 62E0      		ldi r22,2
+ 1539 0048 3607      		cpc r19,r22
+ 1540 004a 01F4      		brne .L62
+ 1541               	.LBE41:
+ 186:crypto/p4093/ksuba_4093.c ****     }
+ 187:crypto/p4093/ksuba_4093.c **** 
+ 188:crypto/p4093/ksuba_4093.c ****   if(!swap_operands)
+ 189:crypto/p4093/ksuba_4093.c ****   {
+ 190:crypto/p4093/ksuba_4093.c ****   	karatsuba_recursive((uint16_t*)first, (uint16_t*)b, tmp, 256,0);
+ 1543               	.LM125:
+ 1544 004c 00E0      		ldi r16,0
+ 1545 004e 20E0      		ldi r18,0
+ 1546 0050 31E0      		ldi r19,lo8(1)
+ 188:crypto/p4093/ksuba_4093.c ****   {
+ 1548               	.LM126:
+ 1549 0052 452B      		or r20,r21
+ 1550 0054 01F4      		brne .L63
+ 1552               	.LM127:
+ 1553 0056 AE01      		movw r20,r28
+ 1554 0058 4F5F      		subi r20,-1
+ 1555 005a 5F4F      		sbci r21,-1
+ 1556 005c 6B2D      		mov r22,r11
+ 1557 005e 7E2D      		mov r23,r14
+ 1558               	.L66:
+ 191:crypto/p4093/ksuba_4093.c ****   }
+ 192:crypto/p4093/ksuba_4093.c ****   else
+ 193:crypto/p4093/ksuba_4093.c ****   {
+ 194:crypto/p4093/ksuba_4093.c **** 	karatsuba_recursive((uint16_t*)b, (uint16_t*)first, tmp, 256,0);
+ 1560               	.LM128:
+ 1561 0060 0E94 0000 		call karatsuba_recursive
+ 195:crypto/p4093/ksuba_4093.c ****   }
+ 196:crypto/p4093/ksuba_4093.c **** 
+ 197:crypto/p4093/ksuba_4093.c ****   reduce(tmp, (int16_t*)result, 256);
+ 1563               	.LM129:
+ 1564 0064 40E0      		ldi r20,0
+ 1565 0066 51E0      		ldi r21,lo8(1)
+ 1566 0068 6F2D      		mov r22,r15
+ 1567 006a 712F      		mov r23,r17
+ 1568 006c CE01      		movw r24,r28
+ 1569 006e 0196      		adiw r24,1
+ 1570 0070 0E94 0000 		call reduce
+ 1571               	/* epilogue start */
+ 198:crypto/p4093/ksuba_4093.c **** }
+ 1573               	.LM130:
+ 1574 0074 DA5F      		subi r29,-6
+ 1575 0076 CDBF      		out __SP_L__,r28
+ 1576 0078 DEBF      		out __SP_H__,r29
+ 1577 007a DF91      		pop r29
+ 1578 007c CF91      		pop r28
+ 1579 007e 1F91      		pop r17
+ 1580 0080 0F91      		pop r16
+ 1581 0082 FF90      		pop r15
+ 1582 0084 EF90      		pop r14
+ 1583 0086 DF90      		pop r13
+ 1584 0088 CF90      		pop r12
+ 1585 008a BF90      		pop r11
+ 1586 008c 0895      		ret
+ 1587               	.L63:
+ 194:crypto/p4093/ksuba_4093.c ****   }
+ 1589               	.LM131:
+ 1590 008e AE01      		movw r20,r28
+ 1591 0090 4F5F      		subi r20,-1
+ 1592 0092 5F4F      		sbci r21,-1
+ 1593 0094 BC01      		movw r22,r24
+ 1594 0096 8B2D      		mov r24,r11
+ 1595 0098 9E2D      		mov r25,r14
+ 1596 009a 00C0      		rjmp .L66
+ 1602               	.Lscope6:
+ 1603               		.section	.text.karatsuba_4093_320,"ax",@progbits
+ 1607               	.global	karatsuba_4093_320
+ 1609               	karatsuba_4093_320:
+ 199:crypto/p4093/ksuba_4093.c **** 
+ 200:crypto/p4093/ksuba_4093.c **** 
+ 201:crypto/p4093/ksuba_4093.c **** 
+ 202:crypto/p4093/ksuba_4093.c **** 
+ 203:crypto/p4093/ksuba_4093.c **** IS_STATIC void karatsuba_4093_320(const uint16_t* first, const uint16_t* second, uint16_t * result,
+ 204:crypto/p4093/ksuba_4093.c **** {
+ 1611               	.LM132:
+ 1612               	.LFBB7:
+ 1613 0000 BF92      		push r11
+ 1614 0002 CF92      		push r12
+ 1615 0004 DF92      		push r13
+ 1616 0006 EF92      		push r14
+ 1617 0008 FF92      		push r15
+ 1618 000a 0F93      		push r16
+ 1619 000c 1F93      		push r17
+ 1620 000e CF93      		push r28
+ 1621 0010 DF93      		push r29
+ 1622 0012 CDB7      		in r28,__SP_L__
+ 1623 0014 DEB7      		in r29,__SP_H__
+ 1624 0016 C058      		subi r28,-128
+ 1625 0018 D740      		sbci r29,7
+ 1626 001a CDBF      		out __SP_L__,r28
+ 1627 001c DEBF      		out __SP_H__,r29
+ 1628               	/* prologue: function */
+ 1629               	/* frame size = 1920 */
+ 1630               	/* stack size = 1929 */
+ 1631               	.L__stack_usage = 1929
+ 1632 001e 6B01      		movw r12,r22
+ 1633 0020 F42E      		mov r15,r20
+ 1634 0022 152F      		mov r17,r21
+ 1635 0024 A901      		movw r20,r18
+ 1636 0026 DE01      		movw r26,r28
+ 1637 0028 AF5F      		subi r26,-1
+ 1638 002a BA4F      		sbci r27,-6
+ 1640               	.LM133:
+ 1641 002c 30E0      		ldi r19,0
+ 1642 002e 20E0      		ldi r18,0
+ 1643 0030 BA2E      		mov r11,r26
+ 1644 0032 EB2E      		mov r14,r27
+ 1645               	.L68:
+ 1646               	.LBB43:
+ 1647               	.LBB44:
+ 205:crypto/p4093/ksuba_4093.c ****   int16_t  tmp[2*320];
+ 206:crypto/p4093/ksuba_4093.c **** 	
+ 207:crypto/p4093/ksuba_4093.c ****   int16_t b[320];
+ 208:crypto/p4093/ksuba_4093.c **** 	
+ 209:crypto/p4093/ksuba_4093.c ****   for(int i = 0; i<320;i++)
+ 210:crypto/p4093/ksuba_4093.c ****   {
+ 211:crypto/p4093/ksuba_4093.c ****       b[i] = pgm_read_word(&second[i]);		
+ 1649               	.LM134:
+ 1650 0034 F601      		movw r30,r12
+ 1651 0036 E20F      		add r30,r18
+ 1652 0038 F31F      		adc r31,r19
+ 1653               	/* #APP */
+ 1654               	 ;  211 "crypto/p4093/ksuba_4093.c" 1
+ 1655 003a 6591      		lpm r22, Z+
+ 1656 003c 7491      		lpm r23, Z
+ 1657               		
+ 1658               	 ;  0 "" 2
+ 1659               	/* #NOAPP */
+ 1660               	.LBE44:
+ 1662               	.LM135:
+ 1663 003e 6D93      		st X+,r22
+ 1664 0040 7D93      		st X+,r23
+ 1665 0042 2E5F      		subi r18,-2
+ 1666 0044 3F4F      		sbci r19,-1
+ 209:crypto/p4093/ksuba_4093.c ****   {
+ 1668               	.LM136:
+ 1669 0046 2038      		cpi r18,-128
+ 1670 0048 62E0      		ldi r22,2
+ 1671 004a 3607      		cpc r19,r22
+ 1672 004c 01F4      		brne .L68
+ 1673               	.LBE43:
+ 212:crypto/p4093/ksuba_4093.c ****   }
+ 213:crypto/p4093/ksuba_4093.c **** 
+ 214:crypto/p4093/ksuba_4093.c ****   if(!swap_operands)
+ 215:crypto/p4093/ksuba_4093.c ****   {
+ 216:crypto/p4093/ksuba_4093.c ****   	karatsuba_recursive((uint16_t*)first, (uint16_t*)b, tmp, 320,0);
+ 1675               	.LM137:
+ 1676 004e 00E0      		ldi r16,0
+ 1677 0050 20E4      		ldi r18,lo8(64)
+ 1678 0052 31E0      		ldi r19,lo8(1)
+ 214:crypto/p4093/ksuba_4093.c ****   {
+ 1680               	.LM138:
+ 1681 0054 452B      		or r20,r21
+ 1682 0056 01F4      		brne .L69
+ 1684               	.LM139:
+ 1685 0058 AE01      		movw r20,r28
+ 1686 005a 4F5F      		subi r20,-1
+ 1687 005c 5F4F      		sbci r21,-1
+ 1688 005e 6B2D      		mov r22,r11
+ 1689 0060 7E2D      		mov r23,r14
+ 1690               	.L72:
+ 217:crypto/p4093/ksuba_4093.c ****   }
+ 218:crypto/p4093/ksuba_4093.c ****   else
+ 219:crypto/p4093/ksuba_4093.c ****   {
+ 220:crypto/p4093/ksuba_4093.c **** 	karatsuba_recursive((uint16_t*)b, (uint16_t*)first, tmp, 320,0);
+ 1692               	.LM140:
+ 1693 0062 0E94 0000 		call karatsuba_recursive
+ 221:crypto/p4093/ksuba_4093.c ****   }
+ 222:crypto/p4093/ksuba_4093.c **** 
+ 223:crypto/p4093/ksuba_4093.c ****   reduce(tmp, (int16_t*)result, 320);
+ 1695               	.LM141:
+ 1696 0066 40E4      		ldi r20,lo8(64)
+ 1697 0068 51E0      		ldi r21,lo8(1)
+ 1698 006a 6F2D      		mov r22,r15
+ 1699 006c 712F      		mov r23,r17
+ 1700 006e CE01      		movw r24,r28
+ 1701 0070 0196      		adiw r24,1
+ 1702 0072 0E94 0000 		call reduce
+ 1703               	/* epilogue start */
+ 224:crypto/p4093/ksuba_4093.c **** }
+ 1705               	.LM142:
+ 1706 0076 C058      		subi r28,-128
+ 1707 0078 D84F      		sbci r29,-8
+ 1708 007a CDBF      		out __SP_L__,r28
+ 1709 007c DEBF      		out __SP_H__,r29
+ 1710 007e DF91      		pop r29
+ 1711 0080 CF91      		pop r28
+ 1712 0082 1F91      		pop r17
+ 1713 0084 0F91      		pop r16
+ 1714 0086 FF90      		pop r15
+ 1715 0088 EF90      		pop r14
+ 1716 008a DF90      		pop r13
+ 1717 008c CF90      		pop r12
+ 1718 008e BF90      		pop r11
+ 1719 0090 0895      		ret
+ 1720               	.L69:
+ 220:crypto/p4093/ksuba_4093.c ****   }
+ 1722               	.LM143:
+ 1723 0092 AE01      		movw r20,r28
+ 1724 0094 4F5F      		subi r20,-1
+ 1725 0096 5F4F      		sbci r21,-1
+ 1726 0098 BC01      		movw r22,r24
+ 1727 009a 8B2D      		mov r24,r11
+ 1728 009c 9E2D      		mov r25,r14
+ 1729 009e 00C0      		rjmp .L72
+ 1735               	.Lscope7:
+ 1736               		.section	.text.add_encode_ksuba_4093,"ax",@progbits
+ 1741               	.global	add_encode_ksuba_4093
+ 1743               	add_encode_ksuba_4093:
+ 225:crypto/p4093/ksuba_4093.c **** 
+ 226:crypto/p4093/ksuba_4093.c **** 
+ 227:crypto/p4093/ksuba_4093.c **** 
+ 228:crypto/p4093/ksuba_4093.c **** 
+ 229:crypto/p4093/ksuba_4093.c **** void encrypt_ksuba_4093(const uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* a, co
+ 230:crypto/p4093/ksuba_4093.c **** {	
+ 231:crypto/p4093/ksuba_4093.c ****   //uint16_t temp[paramN];
+ 232:crypto/p4093/ksuba_4093.c **** 	
+ 233:crypto/p4093/ksuba_4093.c ****   get_gauss_poly_4093_posneg(c1,0, paramN);
+ 234:crypto/p4093/ksuba_4093.c **** 
+ 235:crypto/p4093/ksuba_4093.c **** 
+ 236:crypto/p4093/ksuba_4093.c ****   if(paramN == 192)
+ 237:crypto/p4093/ksuba_4093.c ****     {
+ 238:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_192(c1, p, c2,0);
+ 239:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_192(c1, a, c1,0);
+ 240:crypto/p4093/ksuba_4093.c ****     }
+ 241:crypto/p4093/ksuba_4093.c **** 
+ 242:crypto/p4093/ksuba_4093.c **** 
+ 243:crypto/p4093/ksuba_4093.c ****   if(paramN == 256)
+ 244:crypto/p4093/ksuba_4093.c ****     {
+ 245:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_256(c1, p, c2,0);
+ 246:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_256(c1, a, c1,0);
+ 247:crypto/p4093/ksuba_4093.c ****     }	
+ 248:crypto/p4093/ksuba_4093.c **** 
+ 249:crypto/p4093/ksuba_4093.c **** 
+ 250:crypto/p4093/ksuba_4093.c ****   if(paramN == 320)
+ 251:crypto/p4093/ksuba_4093.c ****     {
+ 252:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_320(c1, p, c2,0);
+ 253:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_320(c1, a, c1,0);
+ 254:crypto/p4093/ksuba_4093.c ****     }	
+ 255:crypto/p4093/ksuba_4093.c **** 
+ 256:crypto/p4093/ksuba_4093.c ****   get_gauss_poly_4093(c1,1, paramN);
+ 257:crypto/p4093/ksuba_4093.c ****   get_gauss_poly_4093(c2,1, paramN);
+ 258:crypto/p4093/ksuba_4093.c **** 
+ 259:crypto/p4093/ksuba_4093.c ****   
+ 260:crypto/p4093/ksuba_4093.c ****   add_encode_ksuba_4093(plaintext, c2, paramN);
+ 261:crypto/p4093/ksuba_4093.c **** }
+ 262:crypto/p4093/ksuba_4093.c **** 
+ 263:crypto/p4093/ksuba_4093.c **** 
+ 264:crypto/p4093/ksuba_4093.c **** void decrypt_ksuba_4093(uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* r2, const u
+ 265:crypto/p4093/ksuba_4093.c **** {	
+ 266:crypto/p4093/ksuba_4093.c **** 	
+ 267:crypto/p4093/ksuba_4093.c ****   if(paramN == 192)
+ 268:crypto/p4093/ksuba_4093.c ****     {
+ 269:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_192(c1, r2, c1,1);
+ 270:crypto/p4093/ksuba_4093.c ****     }
+ 271:crypto/p4093/ksuba_4093.c **** 
+ 272:crypto/p4093/ksuba_4093.c ****   if(paramN == 256)
+ 273:crypto/p4093/ksuba_4093.c ****     {
+ 274:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_256(c1, r2, c1,1);
+ 275:crypto/p4093/ksuba_4093.c ****     }
+ 276:crypto/p4093/ksuba_4093.c **** 
+ 277:crypto/p4093/ksuba_4093.c ****   if(paramN == 320)
+ 278:crypto/p4093/ksuba_4093.c ****     {
+ 279:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_320(c1, r2, c1,1);
+ 280:crypto/p4093/ksuba_4093.c ****     }
+ 281:crypto/p4093/ksuba_4093.c **** 
+ 282:crypto/p4093/ksuba_4093.c ****   //Add c2
+ 283:crypto/p4093/ksuba_4093.c ****   for(int i = 0; i<paramN; i++){
+ 284:crypto/p4093/ksuba_4093.c ****     if ((c1[i] + c2[i]) >  paramQ){
+ 285:crypto/p4093/ksuba_4093.c ****       c1[i] = (uint16_t) ((c1[i] + c2[i])) - paramQ ;//% paramQ;
+ 286:crypto/p4093/ksuba_4093.c ****     }else{
+ 287:crypto/p4093/ksuba_4093.c ****       c1[i] = (uint16_t) ((c1[i] + c2[i]));
+ 288:crypto/p4093/ksuba_4093.c ****     }
+ 289:crypto/p4093/ksuba_4093.c ****   }
+ 290:crypto/p4093/ksuba_4093.c ****   
+ 291:crypto/p4093/ksuba_4093.c ****   decode_ksuba_4093(c1, plaintext, paramN);
+ 292:crypto/p4093/ksuba_4093.c **** }
+ 293:crypto/p4093/ksuba_4093.c **** 
+ 294:crypto/p4093/ksuba_4093.c **** IS_STATIC void add_encode_ksuba_4093(const uint8_t* msg, uint16_t* encodedpoly, const uint16_t para
+ 295:crypto/p4093/ksuba_4093.c **** {
+ 1745               	.LM144:
+ 1746               	.LFBB8:
+ 1747 0000 CF93      		push r28
+ 1748 0002 DF93      		push r29
+ 1749               	/* prologue: function */
+ 1750               	/* frame size = 0 */
+ 1751               	/* stack size = 2 */
+ 1752               	.L__stack_usage = 2
+ 1753 0004 DC01      		movw r26,r24
+ 1754 0006 FB01      		movw r30,r22
+ 296:crypto/p4093/ksuba_4093.c ****   uint16_t i = 0;
+ 1756               	.LM145:
+ 1757 0008 90E0      		ldi r25,0
+ 1758 000a 80E0      		ldi r24,0
+ 297:crypto/p4093/ksuba_4093.c **** 			
+ 298:crypto/p4093/ksuba_4093.c ****   do 
+ 299:crypto/p4093/ksuba_4093.c ****     {		
+ 300:crypto/p4093/ksuba_4093.c ****       //encodedpoly[i] = (msg[(int)(i>>3)] & (1<<(i%8))? ((encodedpoly[i]+paramQ/2)%paramQ) : encod
+ 301:crypto/p4093/ksuba_4093.c **** 
+ 302:crypto/p4093/ksuba_4093.c ****       if (msg[(i>>3)] & (1<<(i%8))){
+ 303:crypto/p4093/ksuba_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 304:crypto/p4093/ksuba_4093.c **** 	if (encodedpoly[i]>paramQ){
+ 305:crypto/p4093/ksuba_4093.c **** 	  encodedpoly[i]=encodedpoly[i]-paramQ;
+ 306:crypto/p4093/ksuba_4093.c **** 	}
+ 307:crypto/p4093/ksuba_4093.c ****       }
+ 308:crypto/p4093/ksuba_4093.c **** 	
+ 309:crypto/p4093/ksuba_4093.c ****       if(i == (paramN)-1)
+ 1760               	.LM146:
+ 1761 000c 4150      		subi r20,1
+ 1762 000e 5109      		sbc r21,__zero_reg__
+ 1763               	.L79:
+ 302:crypto/p4093/ksuba_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1765               	.LM147:
+ 1766 0010 EC01      		movw r28,r24
+ 1767 0012 23E0      		ldi r18,3
+ 1768               		1:
+ 1769 0014 D695      		lsr r29
+ 1770 0016 C795      		ror r28
+ 1771 0018 2A95      		dec r18
+ 1772 001a 01F4      		brne 1b
+ 302:crypto/p4093/ksuba_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1774               	.LM148:
+ 1775 001c CA0F      		add r28,r26
+ 1776 001e DB1F      		adc r29,r27
+ 1777 0020 2881      		ld r18,Y
+ 1778 0022 30E0      		ldi r19,0
+ 302:crypto/p4093/ksuba_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1780               	.LM149:
+ 1781 0024 BC01      		movw r22,r24
+ 1782 0026 6770      		andi r22,7
+ 1783 0028 7727      		clr r23
+ 302:crypto/p4093/ksuba_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1785               	.LM150:
+ 1786 002a 00C0      		rjmp 2f
+ 1787               		1:
+ 1788 002c 3595      		asr r19
+ 1789 002e 2795      		ror r18
+ 1790               		2:
+ 1791 0030 6A95      		dec r22
+ 1792 0032 02F4      		brpl 1b
+ 302:crypto/p4093/ksuba_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1794               	.LM151:
+ 1795 0034 20FF      		sbrs r18,0
+ 1796 0036 00C0      		rjmp .L75
+ 303:crypto/p4093/ksuba_4093.c **** 	if (encodedpoly[i]>paramQ){
+ 1798               	.LM152:
+ 1799 0038 2081      		ld r18,Z
+ 1800 003a 3181      		ldd r19,Z+1
+ 303:crypto/p4093/ksuba_4093.c **** 	if (encodedpoly[i]>paramQ){
+ 1802               	.LM153:
+ 1803 003c B901      		movw r22,r18
+ 1804 003e 6250      		subi r22,2
+ 1805 0040 784F      		sbci r23,-8
+ 304:crypto/p4093/ksuba_4093.c **** 	  encodedpoly[i]=encodedpoly[i]-paramQ;
+ 1807               	.LM154:
+ 1808 0042 6E3F      		cpi r22,-2
+ 1809 0044 CFE0      		ldi r28,15
+ 1810 0046 7C07      		cpc r23,r28
+ 1811 0048 00F4      		brsh .L76
+ 303:crypto/p4093/ksuba_4093.c **** 	if (encodedpoly[i]>paramQ){
+ 1813               	.LM155:
+ 1814 004a 6083      		st Z,r22
+ 1815 004c 7183      		std Z+1,r23
+ 1816               	.L75:
+ 1817 004e 3296      		adiw r30,2
+ 1819               	.LM156:
+ 1820 0050 4817      		cp r20,r24
+ 1821 0052 5907      		cpc r21,r25
+ 1822 0054 01F0      		breq .L73
+ 310:crypto/p4093/ksuba_4093.c **** 	break;
+ 311:crypto/p4093/ksuba_4093.c **** 			
+ 312:crypto/p4093/ksuba_4093.c ****       i++;
+ 1824               	.LM157:
+ 1825 0056 0196      		adiw r24,1
+ 302:crypto/p4093/ksuba_4093.c **** 	encodedpoly[i] = encodedpoly[i]+paramQ/2;
+ 1827               	.LM158:
+ 1828 0058 00C0      		rjmp .L79
+ 1829               	.L76:
+ 305:crypto/p4093/ksuba_4093.c **** 	}
+ 1831               	.LM159:
+ 1832 005a 2F5F      		subi r18,-1
+ 1833 005c 3740      		sbci r19,7
+ 305:crypto/p4093/ksuba_4093.c **** 	}
+ 1835               	.LM160:
+ 1836 005e 2083      		st Z,r18
+ 1837 0060 3183      		std Z+1,r19
+ 1838 0062 00C0      		rjmp .L75
+ 1839               	.L73:
+ 1840               	/* epilogue start */
+ 313:crypto/p4093/ksuba_4093.c ****     } while (1);
+ 314:crypto/p4093/ksuba_4093.c **** }
+ 1842               	.LM161:
+ 1843 0064 DF91      		pop r29
+ 1844 0066 CF91      		pop r28
+ 1845 0068 0895      		ret
+ 1850               	.Lscope8:
+ 1851               		.section	.text.encrypt_ksuba_4093,"ax",@progbits
+ 1854               	.global	encrypt_ksuba_4093
+ 1856               	encrypt_ksuba_4093:
+ 230:crypto/p4093/ksuba_4093.c ****   //uint16_t temp[paramN];
+ 1858               	.LM162:
+ 1859               	.LFBB9:
+ 1860 0000 6F92      		push r6
+ 1861 0002 7F92      		push r7
+ 1862 0004 8F92      		push r8
+ 1863 0006 9F92      		push r9
+ 1864 0008 AF92      		push r10
+ 1865 000a BF92      		push r11
+ 1866 000c CF92      		push r12
+ 1867 000e DF92      		push r13
+ 1868 0010 EF92      		push r14
+ 1869 0012 FF92      		push r15
+ 1870 0014 0F93      		push r16
+ 1871 0016 1F93      		push r17
+ 1872 0018 CF93      		push r28
+ 1873 001a DF93      		push r29
+ 1874               	/* prologue: function */
+ 1875               	/* frame size = 0 */
+ 1876               	/* stack size = 14 */
+ 1877               	.L__stack_usage = 14
+ 1878 001c 3C01      		movw r6,r24
+ 1879 001e D62F      		mov r29,r22
+ 1880 0020 C72F      		mov r28,r23
+ 1881 0022 5A01      		movw r10,r20
+ 1882 0024 4901      		movw r8,r18
+ 1883 0026 6701      		movw r12,r14
+ 233:crypto/p4093/ksuba_4093.c **** 
+ 1885               	.LM163:
+ 1886 0028 A701      		movw r20,r14
+ 1887 002a 70E0      		ldi r23,0
+ 1888 002c 60E0      		ldi r22,0
+ 1889 002e 8D2F      		mov r24,r29
+ 1890 0030 9C2F      		mov r25,r28
+ 1891 0032 0E94 0000 		call get_gauss_poly_4093_posneg
+ 236:crypto/p4093/ksuba_4093.c ****     {
+ 1893               	.LM164:
+ 1894 0036 80EC      		ldi r24,-64
+ 1895 0038 E816      		cp r14,r24
+ 1896 003a F104      		cpc r15,__zero_reg__
+ 1897 003c 01F4      		brne .L81
+ 238:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_192(c1, a, c1,0);
+ 1899               	.LM165:
+ 1900 003e 30E0      		ldi r19,0
+ 1901 0040 20E0      		ldi r18,0
+ 1902 0042 A501      		movw r20,r10
+ 1903 0044 B801      		movw r22,r16
+ 1904 0046 8D2F      		mov r24,r29
+ 1905 0048 9C2F      		mov r25,r28
+ 1906 004a 0E94 0000 		call karatsuba_4093_192
+ 239:crypto/p4093/ksuba_4093.c ****     }
+ 1908               	.LM166:
+ 1909 004e 30E0      		ldi r19,0
+ 1910 0050 20E0      		ldi r18,0
+ 1911 0052 4D2F      		mov r20,r29
+ 1912 0054 5C2F      		mov r21,r28
+ 1913 0056 B401      		movw r22,r8
+ 1914 0058 8D2F      		mov r24,r29
+ 1915 005a 9C2F      		mov r25,r28
+ 1916 005c 0E94 0000 		call karatsuba_4093_192
+ 1917               	.L82:
+ 256:crypto/p4093/ksuba_4093.c ****   get_gauss_poly_4093(c2,1, paramN);
+ 1919               	.LM167:
+ 1920 0060 A601      		movw r20,r12
+ 1921 0062 61E0      		ldi r22,lo8(1)
+ 1922 0064 70E0      		ldi r23,0
+ 1923 0066 8D2F      		mov r24,r29
+ 1924 0068 9C2F      		mov r25,r28
+ 1925 006a 0E94 0000 		call get_gauss_poly_4093
+ 257:crypto/p4093/ksuba_4093.c **** 
+ 1927               	.LM168:
+ 1928 006e A601      		movw r20,r12
+ 1929 0070 61E0      		ldi r22,lo8(1)
+ 1930 0072 70E0      		ldi r23,0
+ 1931 0074 C501      		movw r24,r10
+ 1932 0076 0E94 0000 		call get_gauss_poly_4093
+ 260:crypto/p4093/ksuba_4093.c **** }
+ 1934               	.LM169:
+ 1935 007a A601      		movw r20,r12
+ 1936 007c B501      		movw r22,r10
+ 1937 007e C301      		movw r24,r6
+ 1938               	/* epilogue start */
+ 261:crypto/p4093/ksuba_4093.c **** 
+ 1940               	.LM170:
+ 1941 0080 DF91      		pop r29
+ 1942 0082 CF91      		pop r28
+ 1943 0084 1F91      		pop r17
+ 1944 0086 0F91      		pop r16
+ 1945 0088 FF90      		pop r15
+ 1946 008a EF90      		pop r14
+ 1947 008c DF90      		pop r13
+ 1948 008e CF90      		pop r12
+ 1949 0090 BF90      		pop r11
+ 1950 0092 AF90      		pop r10
+ 1951 0094 9F90      		pop r9
+ 1952 0096 8F90      		pop r8
+ 1953 0098 7F90      		pop r7
+ 1954 009a 6F90      		pop r6
+ 260:crypto/p4093/ksuba_4093.c **** }
+ 1956               	.LM171:
+ 1957 009c 0C94 0000 		jmp add_encode_ksuba_4093
+ 1958               	.L81:
+ 243:crypto/p4093/ksuba_4093.c ****     {
+ 1960               	.LM172:
+ 1961 00a0 E114      		cp r14,__zero_reg__
+ 1962 00a2 81E0      		ldi r24,1
+ 1963 00a4 F806      		cpc r15,r24
+ 1964 00a6 01F0      		breq .L83
+ 250:crypto/p4093/ksuba_4093.c ****     {
+ 1966               	.LM173:
+ 1967 00a8 80E4      		ldi r24,64
+ 1968 00aa E816      		cp r14,r24
+ 1969 00ac 81E0      		ldi r24,1
+ 1970 00ae F806      		cpc r15,r24
+ 1971 00b0 01F4      		brne .L82
+ 252:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_320(c1, a, c1,0);
+ 1973               	.LM174:
+ 1974 00b2 30E0      		ldi r19,0
+ 1975 00b4 20E0      		ldi r18,0
+ 1976 00b6 A501      		movw r20,r10
+ 1977 00b8 B801      		movw r22,r16
+ 1978 00ba 8D2F      		mov r24,r29
+ 1979 00bc 9C2F      		mov r25,r28
+ 1980 00be 0E94 0000 		call karatsuba_4093_320
+ 253:crypto/p4093/ksuba_4093.c ****     }	
+ 1982               	.LM175:
+ 1983 00c2 30E0      		ldi r19,0
+ 1984 00c4 20E0      		ldi r18,0
+ 1985 00c6 4D2F      		mov r20,r29
+ 1986 00c8 5C2F      		mov r21,r28
+ 1987 00ca B401      		movw r22,r8
+ 1988 00cc 8D2F      		mov r24,r29
+ 1989 00ce 9C2F      		mov r25,r28
+ 1990 00d0 0E94 0000 		call karatsuba_4093_320
+ 1991 00d4 00C0      		rjmp .L82
+ 1992               	.L83:
+ 245:crypto/p4093/ksuba_4093.c ****       karatsuba_4093_256(c1, a, c1,0);
+ 1994               	.LM176:
+ 1995 00d6 30E0      		ldi r19,0
+ 1996 00d8 20E0      		ldi r18,0
+ 1997 00da A501      		movw r20,r10
+ 1998 00dc B801      		movw r22,r16
+ 1999 00de 8D2F      		mov r24,r29
+ 2000 00e0 9C2F      		mov r25,r28
+ 2001 00e2 0E94 0000 		call karatsuba_4093_256
+ 246:crypto/p4093/ksuba_4093.c ****     }	
+ 2003               	.LM177:
+ 2004 00e6 30E0      		ldi r19,0
+ 2005 00e8 20E0      		ldi r18,0
+ 2006 00ea 4D2F      		mov r20,r29
+ 2007 00ec 5C2F      		mov r21,r28
+ 2008 00ee B401      		movw r22,r8
+ 2009 00f0 8D2F      		mov r24,r29
+ 2010 00f2 9C2F      		mov r25,r28
+ 2011 00f4 0E94 0000 		call karatsuba_4093_256
+ 2012 00f8 00C0      		rjmp .L82
+ 2014               	.Lscope9:
+ 2015               		.section	.text.decode_ksuba_4093,"ax",@progbits
+ 2020               	.global	decode_ksuba_4093
+ 2022               	decode_ksuba_4093:
+ 315:crypto/p4093/ksuba_4093.c **** 
+ 316:crypto/p4093/ksuba_4093.c **** 
+ 317:crypto/p4093/ksuba_4093.c **** 
+ 318:crypto/p4093/ksuba_4093.c **** // decoding
+ 319:crypto/p4093/ksuba_4093.c **** IS_STATIC void decode_ksuba_4093(uint16_t* cipherpoly, uint8_t* plaintext, const uint16_t paramN)
+ 320:crypto/p4093/ksuba_4093.c **** {		
+ 2024               	.LM178:
+ 2025               	.LFBB10:
+ 2026 0000 0F93      		push r16
+ 2027 0002 1F93      		push r17
+ 2028 0004 CF93      		push r28
+ 2029 0006 DF93      		push r29
+ 2030               	/* prologue: function */
+ 2031               	/* frame size = 0 */
+ 2032               	/* stack size = 4 */
+ 2033               	.L__stack_usage = 4
+ 2034 0008 9B01      		movw r18,r22
+ 2035 000a FC01      		movw r30,r24
+ 321:crypto/p4093/ksuba_4093.c ****   uint16_t i = 0;
+ 2037               	.LM179:
+ 2038 000c 90E0      		ldi r25,0
+ 2039 000e 80E0      		ldi r24,0
+ 322:crypto/p4093/ksuba_4093.c **** 		
+ 323:crypto/p4093/ksuba_4093.c ****   do 
+ 324:crypto/p4093/ksuba_4093.c ****     {		
+ 325:crypto/p4093/ksuba_4093.c ****       // Decode(m) = 1 if m between q/4,-q/4, 0 else
+ 326:crypto/p4093/ksuba_4093.c ****       if((cipherpoly[i] < paramQ>>2) || (cipherpoly[i] >= 3*paramQ>>2))
+ 327:crypto/p4093/ksuba_4093.c **** 	{
+ 328:crypto/p4093/ksuba_4093.c **** 	  plaintext[i >> 3] = (plaintext[i >> 3] | (0 << (i%8)));
+ 329:crypto/p4093/ksuba_4093.c **** 	}
+ 330:crypto/p4093/ksuba_4093.c ****       else
+ 331:crypto/p4093/ksuba_4093.c **** 	{
+ 332:crypto/p4093/ksuba_4093.c **** 	  plaintext[i >> 3] = (plaintext[i >> 3] | (1 << (i%8)));
+ 2041               	.LM180:
+ 2042 0010 C1E0      		ldi r28,lo8(1)
+ 2043 0012 D0E0      		ldi r29,0
+ 333:crypto/p4093/ksuba_4093.c **** 	}
+ 334:crypto/p4093/ksuba_4093.c **** 		
+ 335:crypto/p4093/ksuba_4093.c ****       if(i == (paramN)-1)
+ 2045               	.LM181:
+ 2046 0014 4150      		subi r20,1
+ 2047 0016 5109      		sbc r21,__zero_reg__
+ 2048               	.L88:
+ 326:crypto/p4093/ksuba_4093.c **** 	{
+ 2050               	.LM182:
+ 2051 0018 6191      		ld r22,Z+
+ 2052 001a 7191      		ld r23,Z+
+ 326:crypto/p4093/ksuba_4093.c **** 	{
+ 2054               	.LM183:
+ 2055 001c 6F5F      		subi r22,-1
+ 2056 001e 7340      		sbci r23,3
+ 326:crypto/p4093/ksuba_4093.c **** 	{
+ 2058               	.LM184:
+ 2059 0020 6E3F      		cpi r22,-2
+ 2060 0022 7740      		sbci r23,7
+ 2061 0024 00F4      		brsh .L86
+ 332:crypto/p4093/ksuba_4093.c **** 	}
+ 2063               	.LM185:
+ 2064 0026 DC01      		movw r26,r24
+ 2065 0028 63E0      		ldi r22,3
+ 2066               		1:
+ 2067 002a B695      		lsr r27
+ 2068 002c A795      		ror r26
+ 2069 002e 6A95      		dec r22
+ 2070 0030 01F4      		brne 1b
+ 332:crypto/p4093/ksuba_4093.c **** 	}
+ 2072               	.LM186:
+ 2073 0032 A20F      		add r26,r18
+ 2074 0034 B31F      		adc r27,r19
+ 332:crypto/p4093/ksuba_4093.c **** 	}
+ 2076               	.LM187:
+ 2077 0036 BC01      		movw r22,r24
+ 2078 0038 6770      		andi r22,7
+ 2079 003a 7727      		clr r23
+ 332:crypto/p4093/ksuba_4093.c **** 	}
+ 2081               	.LM188:
+ 2082 003c 8E01      		movw r16,r28
+ 2083 003e 00C0      		rjmp 2f
+ 2084               		1:
+ 2085 0040 000F      		lsl r16
+ 2086               		2:
+ 2087 0042 6A95      		dec r22
+ 2088 0044 02F4      		brpl 1b
+ 332:crypto/p4093/ksuba_4093.c **** 	}
+ 2090               	.LM189:
+ 2091 0046 6C91      		ld r22,X
+ 2092 0048 602B      		or r22,r16
+ 332:crypto/p4093/ksuba_4093.c **** 	}
+ 2094               	.LM190:
+ 2095 004a 6C93      		st X,r22
+ 2096               	.L86:
+ 2098               	.LM191:
+ 2099 004c 4817      		cp r20,r24
+ 2100 004e 5907      		cpc r21,r25
+ 2101 0050 01F0      		breq .L85
+ 336:crypto/p4093/ksuba_4093.c **** 	break;
+ 337:crypto/p4093/ksuba_4093.c **** 			
+ 338:crypto/p4093/ksuba_4093.c ****       i++;
+ 2103               	.LM192:
+ 2104 0052 0196      		adiw r24,1
+ 326:crypto/p4093/ksuba_4093.c **** 	{
+ 2106               	.LM193:
+ 2107 0054 00C0      		rjmp .L88
+ 2108               	.L85:
+ 2109               	/* epilogue start */
+ 339:crypto/p4093/ksuba_4093.c ****     } while (1);
+ 340:crypto/p4093/ksuba_4093.c **** }
+ 2111               	.LM194:
+ 2112 0056 DF91      		pop r29
+ 2113 0058 CF91      		pop r28
+ 2114 005a 1F91      		pop r17
+ 2115 005c 0F91      		pop r16
+ 2116 005e 0895      		ret
+ 2121               	.Lscope10:
+ 2122               		.section	.text.decrypt_ksuba_4093,"ax",@progbits
+ 2125               	.global	decrypt_ksuba_4093
+ 2127               	decrypt_ksuba_4093:
+ 265:crypto/p4093/ksuba_4093.c **** 	
+ 2129               	.LM195:
+ 2130               	.LFBB11:
+ 2131 0000 AF92      		push r10
+ 2132 0002 BF92      		push r11
+ 2133 0004 CF92      		push r12
+ 2134 0006 DF92      		push r13
+ 2135 0008 EF92      		push r14
+ 2136 000a FF92      		push r15
+ 2137 000c 0F93      		push r16
+ 2138 000e 1F93      		push r17
+ 2139 0010 CF93      		push r28
+ 2140 0012 DF93      		push r29
+ 2141               	/* prologue: function */
+ 2142               	/* frame size = 0 */
+ 2143               	/* stack size = 10 */
+ 2144               	.L__stack_usage = 10
+ 2145 0014 6C01      		movw r12,r24
+ 2146 0016 D62F      		mov r29,r22
+ 2147 0018 C72F      		mov r28,r23
+ 2148 001a 5A01      		movw r10,r20
+ 2149 001c B901      		movw r22,r18
+ 2150 001e 7801      		movw r14,r16
+ 267:crypto/p4093/ksuba_4093.c ****     {
+ 2152               	.LM196:
+ 2153 0020 003C      		cpi r16,-64
+ 2154 0022 1105      		cpc r17,__zero_reg__
+ 2155 0024 01F4      		brne .L90
+ 269:crypto/p4093/ksuba_4093.c ****     }
+ 2157               	.LM197:
+ 2158 0026 21E0      		ldi r18,lo8(1)
+ 2159 0028 30E0      		ldi r19,0
+ 2160 002a 4D2F      		mov r20,r29
+ 2161 002c 5C2F      		mov r21,r28
+ 2162 002e 8D2F      		mov r24,r29
+ 2163 0030 9C2F      		mov r25,r28
+ 2164 0032 0E94 0000 		call karatsuba_4093_192
+ 2165               	.L91:
+ 2166 0036 ED2F      		mov r30,r29
+ 2167 0038 FC2F      		mov r31,r28
+ 2168 003a D501      		movw r26,r10
+ 265:crypto/p4093/ksuba_4093.c **** 	
+ 2170               	.LM198:
+ 2171 003c 50E0      		ldi r21,0
+ 2172 003e 40E0      		ldi r20,0
+ 2173               	.L94:
+ 2174               	.LBB45:
+ 283:crypto/p4093/ksuba_4093.c ****     if ((c1[i] + c2[i]) >  paramQ){
+ 2176               	.LM199:
+ 2177 0040 4E15      		cp r20,r14
+ 2178 0042 5F05      		cpc r21,r15
+ 2179 0044 01F4      		brne .L97
+ 2180               	.LBE45:
+ 291:crypto/p4093/ksuba_4093.c **** }
+ 2182               	.LM200:
+ 2183 0046 B601      		movw r22,r12
+ 2184 0048 8D2F      		mov r24,r29
+ 2185 004a 9C2F      		mov r25,r28
+ 2186               	/* epilogue start */
+ 292:crypto/p4093/ksuba_4093.c **** 
+ 2188               	.LM201:
+ 2189 004c DF91      		pop r29
+ 2190 004e CF91      		pop r28
+ 2191 0050 1F91      		pop r17
+ 2192 0052 0F91      		pop r16
+ 2193 0054 FF90      		pop r15
+ 2194 0056 EF90      		pop r14
+ 2195 0058 DF90      		pop r13
+ 2196 005a CF90      		pop r12
+ 2197 005c BF90      		pop r11
+ 2198 005e AF90      		pop r10
+ 291:crypto/p4093/ksuba_4093.c **** }
+ 2200               	.LM202:
+ 2201 0060 0C94 0000 		jmp decode_ksuba_4093
+ 2202               	.L90:
+ 272:crypto/p4093/ksuba_4093.c ****     {
+ 2204               	.LM203:
+ 2205 0064 0115      		cp r16,__zero_reg__
+ 2206 0066 81E0      		ldi r24,1
+ 2207 0068 1807      		cpc r17,r24
+ 2208 006a 01F0      		breq .L92
+ 277:crypto/p4093/ksuba_4093.c ****     {
+ 2210               	.LM204:
+ 2211 006c 0034      		cpi r16,64
+ 2212 006e 1140      		sbci r17,1
+ 2213 0070 01F4      		brne .L91
+ 279:crypto/p4093/ksuba_4093.c ****     }
+ 2215               	.LM205:
+ 2216 0072 21E0      		ldi r18,lo8(1)
+ 2217 0074 30E0      		ldi r19,0
+ 2218 0076 4D2F      		mov r20,r29
+ 2219 0078 5C2F      		mov r21,r28
+ 2220 007a 8D2F      		mov r24,r29
+ 2221 007c 9C2F      		mov r25,r28
+ 2222 007e 0E94 0000 		call karatsuba_4093_320
+ 2223 0082 00C0      		rjmp .L91
+ 2224               	.L92:
+ 274:crypto/p4093/ksuba_4093.c ****     }
+ 2226               	.LM206:
+ 2227 0084 21E0      		ldi r18,lo8(1)
+ 2228 0086 30E0      		ldi r19,0
+ 2229 0088 4D2F      		mov r20,r29
+ 2230 008a 5C2F      		mov r21,r28
+ 2231 008c 8D2F      		mov r24,r29
+ 2232 008e 9C2F      		mov r25,r28
+ 2233 0090 0E94 0000 		call karatsuba_4093_256
+ 2234 0094 00C0      		rjmp .L91
+ 2235               	.L97:
+ 2236               	.LBB46:
+ 284:crypto/p4093/ksuba_4093.c ****       c1[i] = (uint16_t) ((c1[i] + c2[i])) - paramQ ;//% paramQ;
+ 2238               	.LM207:
+ 2239 0096 2D91      		ld r18,X+
+ 2240 0098 3D91      		ld r19,X+
+ 284:crypto/p4093/ksuba_4093.c ****       c1[i] = (uint16_t) ((c1[i] + c2[i])) - paramQ ;//% paramQ;
+ 2242               	.LM208:
+ 2243 009a 8081      		ld r24,Z
+ 2244 009c 9181      		ldd r25,Z+1
+ 2245 009e 280F      		add r18,r24
+ 2246 00a0 391F      		adc r19,r25
+ 284:crypto/p4093/ksuba_4093.c ****       c1[i] = (uint16_t) ((c1[i] + c2[i])) - paramQ ;//% paramQ;
+ 2248               	.LM209:
+ 2249 00a2 2E3F      		cpi r18,-2
+ 2250 00a4 8FE0      		ldi r24,15
+ 2251 00a6 3807      		cpc r19,r24
+ 2252 00a8 00F0      		brlo .L95
+ 285:crypto/p4093/ksuba_4093.c ****     }else{
+ 2254               	.LM210:
+ 2255 00aa 2D5F      		subi r18,-3
+ 2256 00ac 3F40      		sbci r19,15
+ 2257               	.L95:
+ 287:crypto/p4093/ksuba_4093.c ****     }
+ 2259               	.LM211:
+ 2260 00ae 2083      		st Z,r18
+ 2261 00b0 3183      		std Z+1,r19
+ 283:crypto/p4093/ksuba_4093.c ****     if ((c1[i] + c2[i]) >  paramQ){
+ 2263               	.LM212:
+ 2264 00b2 4F5F      		subi r20,-1
+ 2265 00b4 5F4F      		sbci r21,-1
+ 2266 00b6 3296      		adiw r30,2
+ 2267 00b8 00C0      		rjmp .L94
+ 2268               	.LBE46:
+ 2276               	.Lscope11:
+ 2277               	.global	max_recursion_stages
+ 2278               		.section	.data.max_recursion_stages,"aw"
+ 2281               	max_recursion_stages:
+ 2282 0000 FF        		.byte	-1
+ 2284               		.text
+ 2286               	.Letext0:
+ 2287               		.ident	"GCC: (GNU) 9.1.0"
+ 2288               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ksuba_4093.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:440    .text.set_max_recursion_stages:0000000000000000 set_max_recursion_stages
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:2281   .data.max_recursion_stages:0000000000000000 max_recursion_stages
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:461    .text.call_call_mulRed_asm_4093:0000000000000000 call_call_mulRed_asm_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:481    .text.reduce:0000000000000000 reduce
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:581    .text.karatsuba_recursive:0000000000000000 karatsuba_recursive
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:1345   .text.karatsuba_4093_192:0000000000000000 karatsuba_4093_192
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:1478   .text.karatsuba_4093_256:0000000000000000 karatsuba_4093_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:1609   .text.karatsuba_4093_320:0000000000000000 karatsuba_4093_320
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:1743   .text.add_encode_ksuba_4093:0000000000000000 add_encode_ksuba_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:1856   .text.encrypt_ksuba_4093:0000000000000000 encrypt_ksuba_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:2022   .text.decode_ksuba_4093:0000000000000000 decode_ksuba_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccwQeYFr.s:2127   .text.decrypt_ksuba_4093:0000000000000000 decrypt_ksuba_4093
+
+UNDEFINED SYMBOLS
+call_mulRed_asm_4093
+get_gauss_poly_4093_posneg
+get_gauss_poly_4093
+__do_copy_data

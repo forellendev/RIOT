@@ -1,0 +1,860 @@
+   1               		.file	"measure_reduction.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 114               		.section	.rodata.do_measurement_reduction_7681_c.str1.1,"aMS",@progbits,1
+ 115               	.LC0:
+ 116 0000 4D65 6173 		.string	"Measure C based multiplication\n\r"
+ 116      7572 6520 
+ 116      4320 6261 
+ 116      7365 6420 
+ 116      6D75 6C74 
+ 117               	.LC1:
+ 118 0021 4D6F 6475 		.string	"Modular Reduction: "
+ 118      6C61 7220 
+ 118      5265 6475 
+ 118      6374 696F 
+ 118      6E3A 2000 
+ 119               		.section	.text.do_measurement_reduction_7681_c,"ax",@progbits
+ 121               	.global	do_measurement_reduction_7681_c
+ 123               	do_measurement_reduction_7681_c:
+   1:profiling/measure_reduction.c **** #include <inttypes.h>
+   2:profiling/measure_reduction.c **** 
+   3:profiling/measure_reduction.c **** #include "profiling.h"
+   4:profiling/measure_reduction.c **** #include "../crypto/p7681/mm7681.h"
+   5:profiling/measure_reduction.c **** #include "../crypto/p12289/mm12289.h"
+   6:profiling/measure_reduction.c **** #include "mm24578.h"
+   7:profiling/measure_reduction.c **** #include <stdio.h>
+   8:profiling/measure_reduction.c **** #include <string.h>
+   9:profiling/measure_reduction.c **** 
+  10:profiling/measure_reduction.c **** #define paramQ 7681
+  11:profiling/measure_reduction.c **** 
+  12:profiling/measure_reduction.c **** 
+  13:profiling/measure_reduction.c **** 
+  14:profiling/measure_reduction.c **** int do_measurement_reduction_7681_c(void){
+ 125               	.LM0:
+ 126               	.LFBB1:
+ 127 0000 4F92      		push r4
+ 128 0002 5F92      		push r5
+ 129 0004 6F92      		push r6
+ 130 0006 7F92      		push r7
+ 131 0008 AF92      		push r10
+ 132 000a BF92      		push r11
+ 133 000c CF92      		push r12
+ 134 000e DF92      		push r13
+ 135 0010 EF92      		push r14
+ 136 0012 FF92      		push r15
+ 137 0014 0F93      		push r16
+ 138 0016 1F93      		push r17
+ 139 0018 CF93      		push r28
+ 140 001a DF93      		push r29
+ 141 001c CDB7      		in r28,__SP_L__
+ 142 001e DEB7      		in r29,__SP_H__
+ 143 0020 2E97      		sbiw r28,14
+ 144 0022 CDBF      		out __SP_L__,r28
+ 145 0024 DEBF      		out __SP_H__,r29
+ 146               	/* prologue: function */
+ 147               	/* frame size = 14 */
+ 148               	/* stack size = 28 */
+ 149               	.L__stack_usage = 28
+  15:profiling/measure_reduction.c ****     volatile  uint16_t c;
+  16:profiling/measure_reduction.c ****     uint64_t mean = 0;
+ 151               	.LM1:
+ 152 0026 1982      		std Y+1,__zero_reg__
+ 153 0028 1A82      		std Y+2,__zero_reg__
+ 154 002a 1B82      		std Y+3,__zero_reg__
+ 155 002c 1C82      		std Y+4,__zero_reg__
+ 156 002e 1D82      		std Y+5,__zero_reg__
+ 157 0030 1E82      		std Y+6,__zero_reg__
+ 158 0032 1F82      		std Y+7,__zero_reg__
+ 159 0034 1886      		std Y+8,__zero_reg__
+  17:profiling/measure_reduction.c ****     uint16_t a=0,b=0;
+  18:profiling/measure_reduction.c **** 
+  19:profiling/measure_reduction.c ****   printf("Measure C based multiplication\n\r");
+ 161               	.LM2:
+ 162 0036 80E0      		ldi r24,lo8(.LC0)
+ 163 0038 90E0      		ldi r25,hi8(.LC0)
+ 164 003a 9F93      		push r25
+ 165 003c 8F93      		push r24
+ 166 003e 0E94 0000 		call printf
+ 167 0042 0F90      		pop __tmp_reg__
+ 168 0044 0F90      		pop __tmp_reg__
+ 169 0046 04E6      		ldi r16,lo8(100)
+ 170 0048 10E0      		ldi r17,0
+ 171               	.LBB2:
+  20:profiling/measure_reduction.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+  21:profiling/measure_reduction.c ****     {	     
+  22:profiling/measure_reduction.c **** 
+  23:profiling/measure_reduction.c ****       a=3840;
+  24:profiling/measure_reduction.c ****       b=1337;
+  25:profiling/measure_reduction.c ****       c=7521;
+ 173               	.LM3:
+ 174 004a 81E6      		ldi r24,lo8(97)
+ 175 004c A82E      		mov r10,r24
+ 176 004e 8DE1      		ldi r24,lo8(29)
+ 177 0050 B82E      		mov r11,r24
+  26:profiling/measure_reduction.c **** 
+  27:profiling/measure_reduction.c **** 	b =  mm7681(a,b);
+  28:profiling/measure_reduction.c **** 	a =  mm7681(a,c);
+  29:profiling/measure_reduction.c **** 
+  30:profiling/measure_reduction.c ****         startMeasurement();			
+  31:profiling/measure_reduction.c **** 	c = ((uint32_t)a*b) % 7681;
+ 179               	.LM4:
+ 180 0052 4424      		clr r4
+ 181 0054 4394      		inc r4
+ 182 0056 9EE1      		ldi r25,lo8(30)
+ 183 0058 592E      		mov r5,r25
+ 184 005a 612C      		mov r6,__zero_reg__
+ 185 005c 712C      		mov r7,__zero_reg__
+ 186               	.L2:
+  25:profiling/measure_reduction.c **** 
+ 188               	.LM5:
+ 189 005e A986      		std Y+9,r10
+ 190 0060 BA86      		std Y+10,r11
+  27:profiling/measure_reduction.c **** 	a =  mm7681(a,c);
+ 192               	.LM6:
+ 193 0062 69E3      		ldi r22,lo8(57)
+ 194 0064 75E0      		ldi r23,lo8(5)
+ 195 0066 80E0      		ldi r24,0
+ 196 0068 9FE0      		ldi r25,lo8(15)
+ 197 006a 0E94 0000 		call mm7681
+ 198 006e 7C01      		movw r14,r24
+  28:profiling/measure_reduction.c **** 
+ 200               	.LM7:
+ 201 0070 6985      		ldd r22,Y+9
+ 202 0072 7A85      		ldd r23,Y+10
+ 203 0074 80E0      		ldi r24,0
+ 204 0076 9FE0      		ldi r25,lo8(15)
+ 205 0078 0E94 0000 		call mm7681
+ 206 007c 6C01      		movw r12,r24
+  30:profiling/measure_reduction.c **** 	c = ((uint32_t)a*b) % 7681;
+ 208               	.LM8:
+ 209 007e 0E94 0000 		call startMeasurement
+ 211               	.LM9:
+ 212 0082 9601      		movw r18,r12
+ 213 0084 D701      		movw r26,r14
+ 214 0086 0E94 0000 		call __umulhisi3
+ 216               	.LM10:
+ 217 008a A301      		movw r20,r6
+ 218 008c 9201      		movw r18,r4
+ 219 008e 0E94 0000 		call __udivmodsi4
+ 220 0092 6B87      		std Y+11,r22
+ 221 0094 7C87      		std Y+12,r23
+ 222 0096 8D87      		std Y+13,r24
+ 223 0098 9E87      		std Y+14,r25
+ 225               	.LM11:
+ 226 009a 8B85      		ldd r24,Y+11
+ 227 009c 9C85      		ldd r25,Y+12
+ 228 009e 8987      		std Y+9,r24
+ 229 00a0 9A87      		std Y+10,r25
+  32:profiling/measure_reduction.c **** 	stopMeasurement(&mean);		
+ 231               	.LM12:
+ 232 00a2 CE01      		movw r24,r28
+ 233 00a4 0196      		adiw r24,1
+ 234 00a6 0E94 0000 		call stopMeasurement
+ 235 00aa 0150      		subi r16,1
+ 236 00ac 1109      		sbc r17,__zero_reg__
+  20:profiling/measure_reduction.c ****     {	     
+ 238               	.LM13:
+ 239 00ae 01F4      		brne .L2
+ 240               	.LBE2:
+  33:profiling/measure_reduction.c ****     }
+  34:profiling/measure_reduction.c **** 
+  35:profiling/measure_reduction.c ****   printResult(&mean, "Modular Reduction: ");
+ 242               	.LM14:
+ 243 00b0 60E0      		ldi r22,lo8(.LC1)
+ 244 00b2 70E0      		ldi r23,hi8(.LC1)
+ 245 00b4 CE01      		movw r24,r28
+ 246 00b6 0196      		adiw r24,1
+ 247 00b8 0E94 0000 		call printResult
+  36:profiling/measure_reduction.c **** 
+  37:profiling/measure_reduction.c ****   return c;
+ 249               	.LM15:
+ 250 00bc 8985      		ldd r24,Y+9
+ 251 00be 9A85      		ldd r25,Y+10
+ 252               	/* epilogue start */
+  38:profiling/measure_reduction.c **** 
+  39:profiling/measure_reduction.c **** 
+  40:profiling/measure_reduction.c **** 
+  41:profiling/measure_reduction.c **** }
+ 254               	.LM16:
+ 255 00c0 2E96      		adiw r28,14
+ 256 00c2 CDBF      		out __SP_L__,r28
+ 257 00c4 DEBF      		out __SP_H__,r29
+ 258 00c6 DF91      		pop r29
+ 259 00c8 CF91      		pop r28
+ 260 00ca 1F91      		pop r17
+ 261 00cc 0F91      		pop r16
+ 262 00ce FF90      		pop r15
+ 263 00d0 EF90      		pop r14
+ 264 00d2 DF90      		pop r13
+ 265 00d4 CF90      		pop r12
+ 266 00d6 BF90      		pop r11
+ 267 00d8 AF90      		pop r10
+ 268 00da 7F90      		pop r7
+ 269 00dc 6F90      		pop r6
+ 270 00de 5F90      		pop r5
+ 271 00e0 4F90      		pop r4
+ 272 00e2 0895      		ret
+ 278               	.Lscope1:
+ 279               		.section	.rodata.do_measurement_reduction_7681_asm.str1.1,"aMS",@progbits,1
+ 280               	.LC2:
+ 281 0000 4D65 6173 		.string	"Measure ASM based multiplication\n\r"
+ 281      7572 6520 
+ 281      4153 4D20 
+ 281      6261 7365 
+ 281      6420 6D75 
+ 282               	.LC3:
+ 283 0023 4D6F 6475 		.string	"Modular Reduction (7681): "
+ 283      6C61 7220 
+ 283      5265 6475 
+ 283      6374 696F 
+ 283      6E20 2837 
+ 284               	.LC4:
+ 285 003e 4D6F 6475 		.string	"Modular Reduction (12289): "
+ 285      6C61 7220 
+ 285      5265 6475 
+ 285      6374 696F 
+ 285      6E20 2831 
+ 286               	.LC5:
+ 287 005a 4D6F 6475 		.string	"Modular Reduction (24578): "
+ 287      6C61 7220 
+ 287      5265 6475 
+ 287      6374 696F 
+ 287      6E20 2832 
+ 288               	.LC6:
+ 289 0076 4D65 6173 		.string	"Measurement overhead: "
+ 289      7572 656D 
+ 289      656E 7420 
+ 289      6F76 6572 
+ 289      6865 6164 
+ 290               	.LC7:
+ 291 008d 4D61 782E 		.string	"Max. cycles mm7681: %d\n\r"
+ 291      2063 7963 
+ 291      6C65 7320 
+ 291      6D6D 3736 
+ 291      3831 3A20 
+ 292               	.LC8:
+ 293 00a6 4D61 782E 		.string	"Max. cycles mm12289: %d\n\r"
+ 293      2063 7963 
+ 293      6C65 7320 
+ 293      6D6D 3132 
+ 293      3238 393A 
+ 294               	.LC9:
+ 295 00c0 4D61 782E 		.string	"Max. cycles mm24578: %d\n\r"
+ 295      2063 7963 
+ 295      6C65 7320 
+ 295      6D6D 3234 
+ 295      3537 383A 
+ 296               		.section	.text.do_measurement_reduction_7681_asm,"ax",@progbits
+ 298               	.global	do_measurement_reduction_7681_asm
+ 300               	do_measurement_reduction_7681_asm:
+  42:profiling/measure_reduction.c **** 
+  43:profiling/measure_reduction.c **** void  do_measurement_reduction_7681_asm(void){
+ 302               	.LM17:
+ 303               	.LFBB2:
+ 304 0000 6F92      		push r6
+ 305 0002 7F92      		push r7
+ 306 0004 8F92      		push r8
+ 307 0006 9F92      		push r9
+ 308 0008 AF92      		push r10
+ 309 000a BF92      		push r11
+ 310 000c CF92      		push r12
+ 311 000e DF92      		push r13
+ 312 0010 EF92      		push r14
+ 313 0012 FF92      		push r15
+ 314 0014 0F93      		push r16
+ 315 0016 1F93      		push r17
+ 316 0018 CF93      		push r28
+ 317 001a DF93      		push r29
+ 318 001c CDB7      		in r28,__SP_L__
+ 319 001e DEB7      		in r29,__SP_H__
+ 320 0020 6297      		sbiw r28,18
+ 321 0022 CDBF      		out __SP_L__,r28
+ 322 0024 DEBF      		out __SP_H__,r29
+ 323               	/* prologue: function */
+ 324               	/* frame size = 18 */
+ 325               	/* stack size = 32 */
+ 326               	.L__stack_usage = 32
+  44:profiling/measure_reduction.c ****   volatile  uint16_t c;
+  45:profiling/measure_reduction.c ****   uint64_t mean = 0;
+ 328               	.LM18:
+ 329 0026 1986      		std Y+9,__zero_reg__
+ 330 0028 1A86      		std Y+10,__zero_reg__
+ 331 002a 1B86      		std Y+11,__zero_reg__
+ 332 002c 1C86      		std Y+12,__zero_reg__
+ 333 002e 1D86      		std Y+13,__zero_reg__
+ 334 0030 1E86      		std Y+14,__zero_reg__
+ 335 0032 1F86      		std Y+15,__zero_reg__
+ 336 0034 188A      		std Y+16,__zero_reg__
+  46:profiling/measure_reduction.c ****   uint16_t a=0,b=0;
+  47:profiling/measure_reduction.c ****   uint64_t curr = 0;
+ 338               	.LM19:
+ 339 0036 1982      		std Y+1,__zero_reg__
+ 340 0038 1A82      		std Y+2,__zero_reg__
+ 341 003a 1B82      		std Y+3,__zero_reg__
+ 342 003c 1C82      		std Y+4,__zero_reg__
+ 343 003e 1D82      		std Y+5,__zero_reg__
+ 344 0040 1E82      		std Y+6,__zero_reg__
+ 345 0042 1F82      		std Y+7,__zero_reg__
+ 346 0044 1886      		std Y+8,__zero_reg__
+  48:profiling/measure_reduction.c ****   uint16_t max = 0;
+  49:profiling/measure_reduction.c **** 
+  50:profiling/measure_reduction.c ****   printf("Measure ASM based multiplication\n\r");
+ 348               	.LM20:
+ 349 0046 80E0      		ldi r24,lo8(.LC2)
+ 350 0048 90E0      		ldi r25,hi8(.LC2)
+ 351 004a 9F93      		push r25
+ 352 004c 8F93      		push r24
+ 353 004e 0E94 0000 		call printf
+ 354 0052 0F90      		pop __tmp_reg__
+ 355 0054 0F90      		pop __tmp_reg__
+ 356 0056 04E6      		ldi r16,lo8(100)
+ 357 0058 10E0      		ldi r17,0
+ 358               	.L5:
+ 359               	.LBB3:
+  51:profiling/measure_reduction.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+  52:profiling/measure_reduction.c ****     {	
+  53:profiling/measure_reduction.c **** 
+  54:profiling/measure_reduction.c ****       a=3840;
+  55:profiling/measure_reduction.c ****       b=1337;
+  56:profiling/measure_reduction.c **** 
+  57:profiling/measure_reduction.c ****       startMeasurement();		
+ 361               	.LM21:
+ 362 005a 0E94 0000 		call startMeasurement
+  58:profiling/measure_reduction.c **** 	c =  mm7681(a,b);
+ 364               	.LM22:
+ 365 005e 69E3      		ldi r22,lo8(57)
+ 366 0060 75E0      		ldi r23,lo8(5)
+ 367 0062 80E0      		ldi r24,0
+ 368 0064 9FE0      		ldi r25,lo8(15)
+ 369 0066 0E94 0000 		call mm7681
+ 371               	.LM23:
+ 372 006a 898B      		std Y+17,r24
+ 373 006c 9A8B      		std Y+18,r25
+  59:profiling/measure_reduction.c ****       stopMeasurement(&mean);
+ 375               	.LM24:
+ 376 006e CE01      		movw r24,r28
+ 377 0070 0996      		adiw r24,9
+ 378 0072 0E94 0000 		call stopMeasurement
+  60:profiling/measure_reduction.c **** 
+  61:profiling/measure_reduction.c **** 	b = ((uint32_t)a*b) % 7681;
+  62:profiling/measure_reduction.c **** 	a = ((uint32_t)a*c) % 7681;	
+ 380               	.LM25:
+ 381 0076 8989      		ldd r24,Y+17
+ 382 0078 9A89      		ldd r25,Y+18
+ 383 007a 0150      		subi r16,1
+ 384 007c 1109      		sbc r17,__zero_reg__
+  51:profiling/measure_reduction.c ****     {	
+ 386               	.LM26:
+ 387 007e 01F4      		brne .L5
+ 388               	.LBE3:
+  63:profiling/measure_reduction.c ****     }
+  64:profiling/measure_reduction.c **** 
+  65:profiling/measure_reduction.c ****   printResult(&mean, "Modular Reduction (7681): ");
+ 390               	.LM27:
+ 391 0080 60E0      		ldi r22,lo8(.LC3)
+ 392 0082 70E0      		ldi r23,hi8(.LC3)
+ 393 0084 CE01      		movw r24,r28
+ 394 0086 0996      		adiw r24,9
+ 395 0088 0E94 0000 		call printResult
+ 396 008c 04E6      		ldi r16,lo8(100)
+ 397 008e 10E0      		ldi r17,0
+ 398               	.L6:
+ 399               	.LBB4:
+  66:profiling/measure_reduction.c **** 
+  67:profiling/measure_reduction.c ****     for(int i = 0; i<MAX_MEASUREMENT;i++)
+  68:profiling/measure_reduction.c ****     {	
+  69:profiling/measure_reduction.c **** 
+  70:profiling/measure_reduction.c ****       a=3840;
+  71:profiling/measure_reduction.c ****       b=11337;
+  72:profiling/measure_reduction.c **** 
+  73:profiling/measure_reduction.c ****       startMeasurement();		
+ 401               	.LM28:
+ 402 0090 0E94 0000 		call startMeasurement
+  74:profiling/measure_reduction.c **** 	c =  mm12289(a,b);
+ 404               	.LM29:
+ 405 0094 69E4      		ldi r22,lo8(73)
+ 406 0096 7CE2      		ldi r23,lo8(44)
+ 407 0098 80E0      		ldi r24,0
+ 408 009a 9FE0      		ldi r25,lo8(15)
+ 409 009c 0E94 0000 		call mm12289
+ 411               	.LM30:
+ 412 00a0 898B      		std Y+17,r24
+ 413 00a2 9A8B      		std Y+18,r25
+  75:profiling/measure_reduction.c ****       stopMeasurement(&mean);
+ 415               	.LM31:
+ 416 00a4 CE01      		movw r24,r28
+ 417 00a6 0996      		adiw r24,9
+ 418 00a8 0E94 0000 		call stopMeasurement
+  76:profiling/measure_reduction.c **** 
+  77:profiling/measure_reduction.c **** 	b = ((uint32_t)a*b) % 12289;
+  78:profiling/measure_reduction.c **** 	a = ((uint32_t)a*c) % 12289;	
+ 420               	.LM32:
+ 421 00ac 8989      		ldd r24,Y+17
+ 422 00ae 9A89      		ldd r25,Y+18
+ 423 00b0 0150      		subi r16,1
+ 424 00b2 1109      		sbc r17,__zero_reg__
+  67:profiling/measure_reduction.c ****     {	
+ 426               	.LM33:
+ 427 00b4 01F4      		brne .L6
+ 428               	.LBE4:
+  79:profiling/measure_reduction.c ****     }
+  80:profiling/measure_reduction.c **** 
+  81:profiling/measure_reduction.c ****   printResult(&mean, "Modular Reduction (12289): ");
+ 430               	.LM34:
+ 431 00b6 60E0      		ldi r22,lo8(.LC4)
+ 432 00b8 70E0      		ldi r23,hi8(.LC4)
+ 433 00ba CE01      		movw r24,r28
+ 434 00bc 0996      		adiw r24,9
+ 435 00be 0E94 0000 		call printResult
+ 436 00c2 04E6      		ldi r16,lo8(100)
+ 437 00c4 10E0      		ldi r17,0
+ 438               	.L7:
+ 439               	.LBB5:
+  82:profiling/measure_reduction.c **** 
+  83:profiling/measure_reduction.c ****     for(int i = 0; i<MAX_MEASUREMENT;i++)
+  84:profiling/measure_reduction.c ****     {	
+  85:profiling/measure_reduction.c **** 
+  86:profiling/measure_reduction.c ****       a=13840;
+  87:profiling/measure_reduction.c ****       b=11337;
+  88:profiling/measure_reduction.c **** 
+  89:profiling/measure_reduction.c ****       startMeasurement();		
+ 441               	.LM35:
+ 442 00c6 0E94 0000 		call startMeasurement
+  90:profiling/measure_reduction.c **** 	c =  mm24578(a,b);
+ 444               	.LM36:
+ 445 00ca 69E4      		ldi r22,lo8(73)
+ 446 00cc 7CE2      		ldi r23,lo8(44)
+ 447 00ce 80E1      		ldi r24,lo8(16)
+ 448 00d0 96E3      		ldi r25,lo8(54)
+ 449 00d2 0E94 0000 		call mm24578
+ 451               	.LM37:
+ 452 00d6 898B      		std Y+17,r24
+ 453 00d8 9A8B      		std Y+18,r25
+  91:profiling/measure_reduction.c ****       stopMeasurement(&mean);
+ 455               	.LM38:
+ 456 00da CE01      		movw r24,r28
+ 457 00dc 0996      		adiw r24,9
+ 458 00de 0E94 0000 		call stopMeasurement
+  92:profiling/measure_reduction.c **** 
+  93:profiling/measure_reduction.c **** 	b = ((uint32_t)a*b) % 24578;
+  94:profiling/measure_reduction.c **** 	a = ((uint32_t)a*c) % 24578;	
+ 460               	.LM39:
+ 461 00e2 8989      		ldd r24,Y+17
+ 462 00e4 9A89      		ldd r25,Y+18
+ 463 00e6 0150      		subi r16,1
+ 464 00e8 1109      		sbc r17,__zero_reg__
+  83:profiling/measure_reduction.c ****     {	
+ 466               	.LM40:
+ 467 00ea 01F4      		brne .L7
+ 468               	.LBE5:
+  95:profiling/measure_reduction.c ****     }
+  96:profiling/measure_reduction.c **** 
+  97:profiling/measure_reduction.c ****   printResult(&mean, "Modular Reduction (24578): ");
+ 470               	.LM41:
+ 471 00ec 60E0      		ldi r22,lo8(.LC5)
+ 472 00ee 70E0      		ldi r23,hi8(.LC5)
+ 473 00f0 CE01      		movw r24,r28
+ 474 00f2 0996      		adiw r24,9
+ 475 00f4 0E94 0000 		call printResult
+ 476 00f8 34E6      		ldi r19,lo8(100)
+ 477 00fa 832E      		mov r8,r19
+ 478 00fc 912C      		mov r9,__zero_reg__
+ 479               	.L8:
+ 480               	.LBB6:
+  98:profiling/measure_reduction.c **** 
+  99:profiling/measure_reduction.c **** 
+ 100:profiling/measure_reduction.c ****     for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 101:profiling/measure_reduction.c ****     {	
+ 102:profiling/measure_reduction.c **** 
+ 103:profiling/measure_reduction.c ****       a=13840;
+ 104:profiling/measure_reduction.c ****       b=11337;
+ 105:profiling/measure_reduction.c **** 
+ 106:profiling/measure_reduction.c ****       startMeasurement();		
+ 482               	.LM42:
+ 483 00fe 0E94 0000 		call startMeasurement
+ 107:profiling/measure_reduction.c ****       stopMeasurement(&mean);
+ 485               	.LM43:
+ 486 0102 CE01      		movw r24,r28
+ 487 0104 0996      		adiw r24,9
+ 488 0106 0E94 0000 		call stopMeasurement
+ 108:profiling/measure_reduction.c **** 
+ 109:profiling/measure_reduction.c **** 	b = ((uint32_t)a*b) % 24578;
+ 110:profiling/measure_reduction.c **** 	a = ((uint32_t)a*c) % 24578;	
+ 490               	.LM44:
+ 491 010a 8989      		ldd r24,Y+17
+ 492 010c 9A89      		ldd r25,Y+18
+ 493 010e 81E0      		ldi r24,1
+ 494 0110 881A      		sub r8,r24
+ 495 0112 9108      		sbc r9,__zero_reg__
+ 100:profiling/measure_reduction.c ****     {	
+ 497               	.LM45:
+ 498 0114 01F4      		brne .L8
+ 499               	.LBE6:
+ 111:profiling/measure_reduction.c ****     }
+ 112:profiling/measure_reduction.c **** 
+ 113:profiling/measure_reduction.c ****   printResult(&mean, "Measurement overhead: ");
+ 501               	.LM46:
+ 502 0116 60E0      		ldi r22,lo8(.LC6)
+ 503 0118 70E0      		ldi r23,hi8(.LC6)
+ 504 011a CE01      		movw r24,r28
+ 505 011c 0996      		adiw r24,9
+ 506 011e 0E94 0000 		call printResult
+ 507 0122 24E6      		ldi r18,lo8(100)
+ 508 0124 622E      		mov r6,r18
+ 509 0126 712C      		mov r7,__zero_reg__
+ 510               	.L10:
+ 511               	.LBB7:
+ 114:profiling/measure_reduction.c **** 
+ 115:profiling/measure_reduction.c **** 	// #############################################
+ 116:profiling/measure_reduction.c **** 
+ 117:profiling/measure_reduction.c ****     for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 118:profiling/measure_reduction.c ****     {	
+ 119:profiling/measure_reduction.c **** 
+ 120:profiling/measure_reduction.c ****       a=7680;
+ 121:profiling/measure_reduction.c ****       b=7680;
+ 122:profiling/measure_reduction.c **** 
+ 123:profiling/measure_reduction.c ****       startMeasurement();		
+ 513               	.LM47:
+ 514 0128 0E94 0000 		call startMeasurement
+ 124:profiling/measure_reduction.c **** 	c =  mm7681(a,b);
+ 516               	.LM48:
+ 517 012c 60E0      		ldi r22,0
+ 518 012e 7EE1      		ldi r23,lo8(30)
+ 519 0130 80E0      		ldi r24,0
+ 520 0132 9EE1      		ldi r25,lo8(30)
+ 521 0134 0E94 0000 		call mm7681
+ 523               	.LM49:
+ 524 0138 898B      		std Y+17,r24
+ 525 013a 9A8B      		std Y+18,r25
+ 125:profiling/measure_reduction.c ****       stopMeasurement(&curr);
+ 527               	.LM50:
+ 528 013c CE01      		movw r24,r28
+ 529 013e 0196      		adiw r24,1
+ 530 0140 0E94 0000 		call stopMeasurement
+ 126:profiling/measure_reduction.c **** 	if(curr > max)
+ 532               	.LM51:
+ 533 0144 F981      		ldd r31,Y+1
+ 534 0146 EA81      		ldd r30,Y+2
+ 535 0148 CB80      		ldd r12,Y+3
+ 536 014a DC80      		ldd r13,Y+4
+ 537 014c ED80      		ldd r14,Y+5
+ 538 014e FE80      		ldd r15,Y+6
+ 539 0150 0F81      		ldd r16,Y+7
+ 540 0152 1885      		ldd r17,Y+8
+ 542               	.LM52:
+ 543 0154 9401      		movw r18,r8
+ 544 0156 40E0      		ldi r20,0
+ 545 0158 50E0      		ldi r21,0
+ 546 015a 60E0      		ldi r22,0
+ 547 015c 70E0      		ldi r23,0
+ 548 015e 80E0      		ldi r24,0
+ 549 0160 90E0      		ldi r25,0
+ 550 0162 AF2E      		mov r10,r31
+ 551 0164 BE2E      		mov r11,r30
+ 552 0166 0E94 0000 		call __cmpdi2
+ 553 016a 00F4      		brsh .L9
+ 127:profiling/measure_reduction.c **** 		max = curr;
+ 555               	.LM53:
+ 556 016c CF01      		movw r24,r30
+ 557 016e 892E      		mov r8,r25
+ 558 0170 982E      		mov r9,r24
+ 559               	.L9:
+ 128:profiling/measure_reduction.c **** 	curr = 0;
+ 561               	.LM54:
+ 562 0172 1982      		std Y+1,__zero_reg__
+ 563 0174 1A82      		std Y+2,__zero_reg__
+ 564 0176 1B82      		std Y+3,__zero_reg__
+ 565 0178 1C82      		std Y+4,__zero_reg__
+ 566 017a 1D82      		std Y+5,__zero_reg__
+ 567 017c 1E82      		std Y+6,__zero_reg__
+ 568 017e 1F82      		std Y+7,__zero_reg__
+ 569 0180 1886      		std Y+8,__zero_reg__
+ 129:profiling/measure_reduction.c **** 
+ 130:profiling/measure_reduction.c **** 	b = ((uint32_t)a*b) % 7681;
+ 131:profiling/measure_reduction.c **** 	a = ((uint32_t)a*c) % 7681;	
+ 571               	.LM55:
+ 572 0182 8989      		ldd r24,Y+17
+ 573 0184 9A89      		ldd r25,Y+18
+ 574 0186 81E0      		ldi r24,1
+ 575 0188 681A      		sub r6,r24
+ 576 018a 7108      		sbc r7,__zero_reg__
+ 117:profiling/measure_reduction.c ****     {	
+ 578               	.LM56:
+ 579 018c 01F4      		brne .L10
+ 580               	.LBE7:
+ 132:profiling/measure_reduction.c ****     }
+ 133:profiling/measure_reduction.c **** 
+ 134:profiling/measure_reduction.c ****     printf("Max. cycles mm7681: %d\n\r", max);
+ 582               	.LM57:
+ 583 018e 9F92      		push r9
+ 584 0190 8F92      		push r8
+ 585 0192 80E0      		ldi r24,lo8(.LC7)
+ 586 0194 90E0      		ldi r25,hi8(.LC7)
+ 587 0196 9F93      		push r25
+ 588 0198 8F93      		push r24
+ 589 019a 0E94 0000 		call printf
+ 590 019e 0F90      		pop __tmp_reg__
+ 591 01a0 0F90      		pop __tmp_reg__
+ 592 01a2 0F90      		pop __tmp_reg__
+ 593 01a4 0F90      		pop __tmp_reg__
+ 594 01a6 94E6      		ldi r25,lo8(100)
+ 595 01a8 892E      		mov r8,r25
+ 596 01aa 912C      		mov r9,__zero_reg__
+ 597               	.L12:
+ 598               	.LBB8:
+ 135:profiling/measure_reduction.c ****     max = 0;
+ 136:profiling/measure_reduction.c **** 
+ 137:profiling/measure_reduction.c ****     for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 138:profiling/measure_reduction.c ****     {	
+ 139:profiling/measure_reduction.c **** 
+ 140:profiling/measure_reduction.c ****       a=12288;
+ 141:profiling/measure_reduction.c ****       b=12288;
+ 142:profiling/measure_reduction.c **** 
+ 143:profiling/measure_reduction.c ****       startMeasurement();		
+ 600               	.LM58:
+ 601 01ac 0E94 0000 		call startMeasurement
+ 144:profiling/measure_reduction.c **** 	c =  mm12289(a,b);
+ 603               	.LM59:
+ 604 01b0 60E0      		ldi r22,0
+ 605 01b2 70E3      		ldi r23,lo8(48)
+ 606 01b4 80E0      		ldi r24,0
+ 607 01b6 90E3      		ldi r25,lo8(48)
+ 608 01b8 0E94 0000 		call mm12289
+ 610               	.LM60:
+ 611 01bc 898B      		std Y+17,r24
+ 612 01be 9A8B      		std Y+18,r25
+ 145:profiling/measure_reduction.c ****       stopMeasurement(&curr);
+ 614               	.LM61:
+ 615 01c0 CE01      		movw r24,r28
+ 616 01c2 0196      		adiw r24,1
+ 617 01c4 0E94 0000 		call stopMeasurement
+ 146:profiling/measure_reduction.c **** 	if(curr > max)
+ 619               	.LM62:
+ 620 01c8 F981      		ldd r31,Y+1
+ 621 01ca EA81      		ldd r30,Y+2
+ 622 01cc CB80      		ldd r12,Y+3
+ 623 01ce DC80      		ldd r13,Y+4
+ 624 01d0 ED80      		ldd r14,Y+5
+ 625 01d2 FE80      		ldd r15,Y+6
+ 626 01d4 0F81      		ldd r16,Y+7
+ 627 01d6 1885      		ldd r17,Y+8
+ 629               	.LM63:
+ 630 01d8 9301      		movw r18,r6
+ 631 01da 40E0      		ldi r20,0
+ 632 01dc 50E0      		ldi r21,0
+ 633 01de 60E0      		ldi r22,0
+ 634 01e0 70E0      		ldi r23,0
+ 635 01e2 80E0      		ldi r24,0
+ 636 01e4 90E0      		ldi r25,0
+ 637 01e6 AF2E      		mov r10,r31
+ 638 01e8 BE2E      		mov r11,r30
+ 639 01ea 0E94 0000 		call __cmpdi2
+ 640 01ee 00F4      		brsh .L11
+ 147:profiling/measure_reduction.c **** 		max = curr;
+ 642               	.LM64:
+ 643 01f0 CF01      		movw r24,r30
+ 644 01f2 692E      		mov r6,r25
+ 645 01f4 782E      		mov r7,r24
+ 646               	.L11:
+ 148:profiling/measure_reduction.c **** 	curr = 0;
+ 648               	.LM65:
+ 649 01f6 1982      		std Y+1,__zero_reg__
+ 650 01f8 1A82      		std Y+2,__zero_reg__
+ 651 01fa 1B82      		std Y+3,__zero_reg__
+ 652 01fc 1C82      		std Y+4,__zero_reg__
+ 653 01fe 1D82      		std Y+5,__zero_reg__
+ 654 0200 1E82      		std Y+6,__zero_reg__
+ 655 0202 1F82      		std Y+7,__zero_reg__
+ 656 0204 1886      		std Y+8,__zero_reg__
+ 149:profiling/measure_reduction.c **** 
+ 150:profiling/measure_reduction.c **** 	b = ((uint32_t)a*b) % 12289;
+ 151:profiling/measure_reduction.c **** 	a = ((uint32_t)a*c) % 12289;	
+ 658               	.LM66:
+ 659 0206 8989      		ldd r24,Y+17
+ 660 0208 9A89      		ldd r25,Y+18
+ 661 020a 81E0      		ldi r24,1
+ 662 020c 881A      		sub r8,r24
+ 663 020e 9108      		sbc r9,__zero_reg__
+ 137:profiling/measure_reduction.c ****     {	
+ 665               	.LM67:
+ 666 0210 01F4      		brne .L12
+ 667               	.LBE8:
+ 152:profiling/measure_reduction.c ****     }
+ 153:profiling/measure_reduction.c **** 
+ 154:profiling/measure_reduction.c ****   printf("Max. cycles mm12289: %d\n\r", max);
+ 669               	.LM68:
+ 670 0212 7F92      		push r7
+ 671 0214 6F92      		push r6
+ 672 0216 80E0      		ldi r24,lo8(.LC8)
+ 673 0218 90E0      		ldi r25,hi8(.LC8)
+ 674 021a 9F93      		push r25
+ 675 021c 8F93      		push r24
+ 676 021e 0E94 0000 		call printf
+ 677 0222 0F90      		pop __tmp_reg__
+ 678 0224 0F90      		pop __tmp_reg__
+ 679 0226 0F90      		pop __tmp_reg__
+ 680 0228 0F90      		pop __tmp_reg__
+ 681 022a 84E6      		ldi r24,lo8(100)
+ 682 022c 682E      		mov r6,r24
+ 683 022e 712C      		mov r7,__zero_reg__
+ 684               	.L14:
+ 685               	.LBB9:
+ 155:profiling/measure_reduction.c ****     max = 0;
+ 156:profiling/measure_reduction.c **** 
+ 157:profiling/measure_reduction.c ****     for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 158:profiling/measure_reduction.c ****     {	
+ 159:profiling/measure_reduction.c **** 
+ 160:profiling/measure_reduction.c ****       a=24577;
+ 161:profiling/measure_reduction.c ****       b=24577;
+ 162:profiling/measure_reduction.c **** 
+ 163:profiling/measure_reduction.c ****       startMeasurement();		
+ 687               	.LM69:
+ 688 0230 0E94 0000 		call startMeasurement
+ 164:profiling/measure_reduction.c **** 	c =  mm24578(a,b);
+ 690               	.LM70:
+ 691 0234 61E0      		ldi r22,lo8(1)
+ 692 0236 70E6      		ldi r23,lo8(96)
+ 693 0238 81E0      		ldi r24,lo8(1)
+ 694 023a 90E6      		ldi r25,lo8(96)
+ 695 023c 0E94 0000 		call mm24578
+ 697               	.LM71:
+ 698 0240 898B      		std Y+17,r24
+ 699 0242 9A8B      		std Y+18,r25
+ 165:profiling/measure_reduction.c ****       stopMeasurement(&curr);
+ 701               	.LM72:
+ 702 0244 CE01      		movw r24,r28
+ 703 0246 0196      		adiw r24,1
+ 704 0248 0E94 0000 		call stopMeasurement
+ 166:profiling/measure_reduction.c **** 	if(curr > max)
+ 706               	.LM73:
+ 707 024c F981      		ldd r31,Y+1
+ 708 024e EA81      		ldd r30,Y+2
+ 709 0250 CB80      		ldd r12,Y+3
+ 710 0252 DC80      		ldd r13,Y+4
+ 711 0254 ED80      		ldd r14,Y+5
+ 712 0256 FE80      		ldd r15,Y+6
+ 713 0258 0F81      		ldd r16,Y+7
+ 714 025a 1885      		ldd r17,Y+8
+ 716               	.LM74:
+ 717 025c 9401      		movw r18,r8
+ 718 025e 40E0      		ldi r20,0
+ 719 0260 50E0      		ldi r21,0
+ 720 0262 60E0      		ldi r22,0
+ 721 0264 70E0      		ldi r23,0
+ 722 0266 80E0      		ldi r24,0
+ 723 0268 90E0      		ldi r25,0
+ 724 026a AF2E      		mov r10,r31
+ 725 026c BE2E      		mov r11,r30
+ 726 026e 0E94 0000 		call __cmpdi2
+ 727 0272 00F4      		brsh .L13
+ 167:profiling/measure_reduction.c **** 		max = curr;
+ 729               	.LM75:
+ 730 0274 CF01      		movw r24,r30
+ 731 0276 892E      		mov r8,r25
+ 732 0278 982E      		mov r9,r24
+ 733               	.L13:
+ 168:profiling/measure_reduction.c **** 	curr = 0;
+ 735               	.LM76:
+ 736 027a 1982      		std Y+1,__zero_reg__
+ 737 027c 1A82      		std Y+2,__zero_reg__
+ 738 027e 1B82      		std Y+3,__zero_reg__
+ 739 0280 1C82      		std Y+4,__zero_reg__
+ 740 0282 1D82      		std Y+5,__zero_reg__
+ 741 0284 1E82      		std Y+6,__zero_reg__
+ 742 0286 1F82      		std Y+7,__zero_reg__
+ 743 0288 1886      		std Y+8,__zero_reg__
+ 169:profiling/measure_reduction.c **** 
+ 170:profiling/measure_reduction.c **** 	b = ((uint32_t)a*b) % 24578;
+ 171:profiling/measure_reduction.c **** 	a = ((uint32_t)a*c) % 24578;	
+ 745               	.LM77:
+ 746 028a 8989      		ldd r24,Y+17
+ 747 028c 9A89      		ldd r25,Y+18
+ 748 028e 81E0      		ldi r24,1
+ 749 0290 681A      		sub r6,r24
+ 750 0292 7108      		sbc r7,__zero_reg__
+ 157:profiling/measure_reduction.c ****     {	
+ 752               	.LM78:
+ 753 0294 01F4      		brne .L14
+ 754               	.LBE9:
+ 172:profiling/measure_reduction.c ****     }
+ 173:profiling/measure_reduction.c **** 
+ 174:profiling/measure_reduction.c ****   printf("Max. cycles mm24578: %d\n\r", max);
+ 756               	.LM79:
+ 757 0296 9F92      		push r9
+ 758 0298 8F92      		push r8
+ 759 029a 80E0      		ldi r24,lo8(.LC9)
+ 760 029c 90E0      		ldi r25,hi8(.LC9)
+ 761 029e 9F93      		push r25
+ 762 02a0 8F93      		push r24
+ 763 02a2 0E94 0000 		call printf
+ 175:profiling/measure_reduction.c ****     max = 0;
+ 176:profiling/measure_reduction.c **** 
+ 177:profiling/measure_reduction.c **** 
+ 178:profiling/measure_reduction.c **** }
+ 765               	.LM80:
+ 766 02a6 0F90      		pop __tmp_reg__
+ 767 02a8 0F90      		pop __tmp_reg__
+ 768 02aa 0F90      		pop __tmp_reg__
+ 769 02ac 0F90      		pop __tmp_reg__
+ 770               	/* epilogue start */
+ 771 02ae 6296      		adiw r28,18
+ 772 02b0 CDBF      		out __SP_L__,r28
+ 773 02b2 DEBF      		out __SP_H__,r29
+ 774 02b4 DF91      		pop r29
+ 775 02b6 CF91      		pop r28
+ 776 02b8 1F91      		pop r17
+ 777 02ba 0F91      		pop r16
+ 778 02bc FF90      		pop r15
+ 779 02be EF90      		pop r14
+ 780 02c0 DF90      		pop r13
+ 781 02c2 CF90      		pop r12
+ 782 02c4 BF90      		pop r11
+ 783 02c6 AF90      		pop r10
+ 784 02c8 9F90      		pop r9
+ 785 02ca 8F90      		pop r8
+ 786 02cc 7F90      		pop r7
+ 787 02ce 6F90      		pop r6
+ 788 02d0 0895      		ret
+ 795               	.Lscope2:
+ 796               		.text
+ 798               	.Letext0:
+ 799               		.ident	"GCC: (GNU) 9.1.0"
+ 800               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 measure_reduction.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:123    .text.do_measurement_reduction_7681_c:0000000000000000 do_measurement_reduction_7681_c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccQKjVqD.s:300    .text.do_measurement_reduction_7681_asm:0000000000000000 do_measurement_reduction_7681_asm
+
+UNDEFINED SYMBOLS
+printf
+mm7681
+startMeasurement
+__umulhisi3
+__udivmodsi4
+stopMeasurement
+printResult
+mm12289
+mm24578
+__cmpdi2
+__do_copy_data

@@ -1,0 +1,1086 @@
+   1               		.file	"KeccakF-1600-avr8.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 441               		.section	.text.KeccakF,"ax",@progbits
+ 444               	.global	KeccakF
+ 446               	KeccakF:
+   1:crypto/keccak/KeccakF-1600-avr8.c **** /*
+   2:crypto/keccak/KeccakF-1600-avr8.c **** The Keccak sponge function, designed by Guido Bertoni, Joan Daemen,
+   3:crypto/keccak/KeccakF-1600-avr8.c **** Michaël Peeters and Gilles Van Assche. For more information, feedback or
+   4:crypto/keccak/KeccakF-1600-avr8.c **** questions, please refer to our website: http://keccak.noekeon.org/
+   5:crypto/keccak/KeccakF-1600-avr8.c **** 
+   6:crypto/keccak/KeccakF-1600-avr8.c **** Implementation by Ronny Van Keer,
+   7:crypto/keccak/KeccakF-1600-avr8.c **** hereby denoted as "the implementer".
+   8:crypto/keccak/KeccakF-1600-avr8.c **** 
+   9:crypto/keccak/KeccakF-1600-avr8.c **** To the extent possible under law, the implementer has waived all copyright
+  10:crypto/keccak/KeccakF-1600-avr8.c **** and related or neighboring rights to the source code in this file.
+  11:crypto/keccak/KeccakF-1600-avr8.c **** http://creativecommons.org/publicdomain/zero/1.0/
+  12:crypto/keccak/KeccakF-1600-avr8.c **** */
+  13:crypto/keccak/KeccakF-1600-avr8.c **** 
+  14:crypto/keccak/KeccakF-1600-avr8.c **** #include <string.h>
+  15:crypto/keccak/KeccakF-1600-avr8.c **** #include <avr/pgmspace.h>
+  16:crypto/keccak/KeccakF-1600-avr8.c **** #include "AVR8-rotate64.h"
+  17:crypto/keccak/KeccakF-1600-avr8.c **** 
+  18:crypto/keccak/KeccakF-1600-avr8.c **** typedef unsigned char				UINT8;
+  19:crypto/keccak/KeccakF-1600-avr8.c **** typedef UINT8								tSmallUInt;
+  20:crypto/keccak/KeccakF-1600-avr8.c **** typedef unsigned long long  UINT64;
+  21:crypto/keccak/KeccakF-1600-avr8.c **** typedef UINT64 							tKeccakLane;
+  22:crypto/keccak/KeccakF-1600-avr8.c **** 
+  23:crypto/keccak/KeccakF-1600-avr8.c **** #define cKeccakLaneSizeInBits   (sizeof(tKeccakLane) * 8)
+  24:crypto/keccak/KeccakF-1600-avr8.c **** 
+  25:crypto/keccak/KeccakF-1600-avr8.c **** #define cKeccakNumberOfRounds   24
+  26:crypto/keccak/KeccakF-1600-avr8.c **** 
+  27:crypto/keccak/KeccakF-1600-avr8.c **** static const tKeccakLane KeccakF_RoundConstants[cKeccakNumberOfRounds] PROGMEM =
+  28:crypto/keccak/KeccakF-1600-avr8.c **** {
+  29:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x0000000000000001ULL,
+  30:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x0000000000008082ULL,
+  31:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x800000000000808aULL,
+  32:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000080008000ULL,
+  33:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x000000000000808bULL,
+  34:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x0000000080000001ULL,
+  35:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000080008081ULL,
+  36:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000000008009ULL,
+  37:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x000000000000008aULL,
+  38:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x0000000000000088ULL,
+  39:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x0000000080008009ULL,
+  40:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x000000008000000aULL,
+  41:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x000000008000808bULL,
+  42:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x800000000000008bULL,
+  43:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000000008089ULL,
+  44:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000000008003ULL,
+  45:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000000008002ULL,
+  46:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000000000080ULL,
+  47:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x000000000000800aULL,
+  48:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x800000008000000aULL,
+  49:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000080008081ULL,
+  50:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000000008080ULL,
+  51:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x0000000080000001ULL,
+  52:crypto/keccak/KeccakF-1600-avr8.c ****     (tKeccakLane)0x8000000080008008ULL
+  53:crypto/keccak/KeccakF-1600-avr8.c **** };
+  54:crypto/keccak/KeccakF-1600-avr8.c **** 
+  55:crypto/keccak/KeccakF-1600-avr8.c **** static const tSmallUInt KeccakF_RotationConstants[24] PROGMEM =
+  56:crypto/keccak/KeccakF-1600-avr8.c **** {
+  57:crypto/keccak/KeccakF-1600-avr8.c **** 	 ROT_CODE( 1), ROT_CODE( 3), ROT_CODE( 6), ROT_CODE(10), ROT_CODE(15),
+  58:crypto/keccak/KeccakF-1600-avr8.c **** 	 ROT_CODE(21), ROT_CODE(28), ROT_CODE(36), ROT_CODE(45), ROT_CODE(55),
+  59:crypto/keccak/KeccakF-1600-avr8.c **** 	 ROT_CODE( 2), ROT_CODE(14), ROT_CODE(27), ROT_CODE(41), ROT_CODE(56),
+  60:crypto/keccak/KeccakF-1600-avr8.c **** 	 ROT_CODE( 8), ROT_CODE(25), ROT_CODE(43), ROT_CODE(62), ROT_CODE(18),
+  61:crypto/keccak/KeccakF-1600-avr8.c **** 	 ROT_CODE(39), ROT_CODE(61), ROT_CODE(20), ROT_CODE(44)
+  62:crypto/keccak/KeccakF-1600-avr8.c **** };
+  63:crypto/keccak/KeccakF-1600-avr8.c **** 
+  64:crypto/keccak/KeccakF-1600-avr8.c **** static const tSmallUInt KeccakF_PiLane[24] PROGMEM =
+  65:crypto/keccak/KeccakF-1600-avr8.c **** {
+  66:crypto/keccak/KeccakF-1600-avr8.c ****     10,  7, 11, 17, 18,  3,  5, 16,  8, 21, 24,  4, 15, 23, 19, 13, 12,  2, 20, 14, 22,  9,  6,  1
+  67:crypto/keccak/KeccakF-1600-avr8.c **** };
+  68:crypto/keccak/KeccakF-1600-avr8.c **** 
+  69:crypto/keccak/KeccakF-1600-avr8.c **** static const tSmallUInt KeccakF_Mod5[10] PROGMEM =
+  70:crypto/keccak/KeccakF-1600-avr8.c **** {
+  71:crypto/keccak/KeccakF-1600-avr8.c ****     0, 1, 2, 3, 4, 0, 1, 2, 3, 4
+  72:crypto/keccak/KeccakF-1600-avr8.c **** };
+  73:crypto/keccak/KeccakF-1600-avr8.c **** 
+  74:crypto/keccak/KeccakF-1600-avr8.c **** 
+  75:crypto/keccak/KeccakF-1600-avr8.c **** void KeccakF( tKeccakLane * state )
+  76:crypto/keccak/KeccakF-1600-avr8.c **** {
+ 448               	.LM0:
+ 449               	.LFBB1:
+ 450 0000 2F92      		push r2
+ 451 0002 3F92      		push r3
+ 452 0004 4F92      		push r4
+ 453 0006 5F92      		push r5
+ 454 0008 6F92      		push r6
+ 455 000a 7F92      		push r7
+ 456 000c 8F92      		push r8
+ 457 000e 9F92      		push r9
+ 458 0010 AF92      		push r10
+ 459 0012 BF92      		push r11
+ 460 0014 CF92      		push r12
+ 461 0016 DF92      		push r13
+ 462 0018 EF92      		push r14
+ 463 001a FF92      		push r15
+ 464 001c 0F93      		push r16
+ 465 001e 1F93      		push r17
+ 466 0020 CF93      		push r28
+ 467 0022 DF93      		push r29
+ 468 0024 CDB7      		in r28,__SP_L__
+ 469 0026 DEB7      		in r29,__SP_H__
+ 470 0028 AF97      		sbiw r28,47
+ 471 002a CDBF      		out __SP_L__,r28
+ 472 002c DEBF      		out __SP_H__,r29
+ 473               	/* prologue: function */
+ 474               	/* frame size = 47 */
+ 475               	/* stack size = 65 */
+ 476               	.L__stack_usage = 65
+ 477 002e 6C01      		movw r12,r24
+ 478 0030 1C01      		movw r2,r24
+ 479 0032 80E5      		ldi r24,80
+ 480 0034 280E      		add r2,r24
+ 481 0036 311C      		adc r3,__zero_reg__
+ 482 0038 B601      		movw r22,r12
+ 483 003a 685D      		subi r22,-40
+ 484 003c 7F4F      		sbci r23,-1
+ 486               	.LM1:
+ 487 003e F601      		movw r30,r12
+ 488               	.LBB2:
+  77:crypto/keccak/KeccakF-1600-avr8.c **** 	tSmallUInt	round;
+  78:crypto/keccak/KeccakF-1600-avr8.c **** 	tKeccakLane	C[5];
+  79:crypto/keccak/KeccakF-1600-avr8.c **** 
+  80:crypto/keccak/KeccakF-1600-avr8.c **** 	// prepare Theta
+  81:crypto/keccak/KeccakF-1600-avr8.c **** 	{
+  82:crypto/keccak/KeccakF-1600-avr8.c **** 		tSmallUInt x;
+  83:crypto/keccak/KeccakF-1600-avr8.c **** 		tKeccakLane	* pC;
+  84:crypto/keccak/KeccakF-1600-avr8.c **** 		for ( x = 0, pC = C; x < 5; ++x, ++pC )
+ 490               	.LM2:
+ 491 0040 CE01      		movw r24,r28
+ 492 0042 0196      		adiw r24,1
+ 493               	.L2:
+  85:crypto/keccak/KeccakF-1600-avr8.c **** 		{
+  86:crypto/keccak/KeccakF-1600-avr8.c **** 			*pC = state[x] ^ state[5 + x] ^ state[10 + x] ^ state[15 + x] ^ state[20 + x];
+ 495               	.LM3:
+ 496 0044 9080      		ld r9,Z
+ 497 0046 4180      		ldd r4,Z+1
+ 498 0048 5280      		ldd r5,Z+2
+ 499 004a 6380      		ldd r6,Z+3
+ 500 004c 7480      		ldd r7,Z+4
+ 501 004e 8580      		ldd r8,Z+5
+ 502 0050 1681      		ldd r17,Z+6
+ 503 0052 4781      		ldd r20,Z+7
+ 504 0054 3896      		adiw r30,8
+ 506               	.LM4:
+ 507 0056 D101      		movw r26,r2
+ 508 0058 5C91      		ld r21,X
+ 509 005a 1196      		adiw r26,1
+ 510 005c AC90      		ld r10,X
+ 511 005e 1197      		sbiw r26,1
+ 512 0060 1296      		adiw r26,2
+ 513 0062 BC90      		ld r11,X
+ 514 0064 1297      		sbiw r26,2
+ 515 0066 1396      		adiw r26,3
+ 516 0068 EC90      		ld r14,X
+ 517 006a 1397      		sbiw r26,3
+ 518 006c 1496      		adiw r26,4
+ 519 006e FC90      		ld r15,X
+ 520 0070 1497      		sbiw r26,4
+ 521 0072 1596      		adiw r26,5
+ 522 0074 0C91      		ld r16,X
+ 523 0076 1597      		sbiw r26,5
+ 524 0078 1696      		adiw r26,6
+ 525 007a 3C91      		ld r19,X
+ 526 007c 1697      		sbiw r26,6
+ 527 007e 1796      		adiw r26,7
+ 528 0080 2C91      		ld r18,X
+ 529 0082 B8E0      		ldi r27,8
+ 530 0084 2B0E      		add r2,r27
+ 531 0086 311C      		adc r3,__zero_reg__
+ 533               	.LM5:
+ 534 0088 9526      		eor r9,r21
+ 535 008a A424      		eor r10,r4
+ 536 008c B524      		eor r11,r5
+ 537 008e E624      		eor r14,r6
+ 538 0090 F724      		eor r15,r7
+ 539 0092 0825      		eor r16,r8
+ 540 0094 1327      		eor r17,r19
+ 541 0096 2427      		eor r18,r20
+ 542 0098 50A1      		ldd r21,Z+32
+ 543 009a 9526      		eor r9,r21
+ 544 009c 51A1      		ldd r21,Z+33
+ 545 009e A526      		eor r10,r21
+ 546 00a0 52A1      		ldd r21,Z+34
+ 547 00a2 B526      		eor r11,r21
+ 548 00a4 53A1      		ldd r21,Z+35
+ 549 00a6 E526      		eor r14,r21
+ 550 00a8 54A1      		ldd r21,Z+36
+ 551 00aa F526      		eor r15,r21
+ 552 00ac 55A1      		ldd r21,Z+37
+ 553 00ae 0527      		eor r16,r21
+ 554 00b0 56A1      		ldd r21,Z+38
+ 555 00b2 1527      		eor r17,r21
+ 556 00b4 47A1      		ldd r20,Z+39
+ 557 00b6 2427      		eor r18,r20
+ 559               	.LM6:
+ 560 00b8 D101      		movw r26,r2
+ 561 00ba 9096      		adiw r26,32
+ 562 00bc 5C91      		ld r21,X
+ 563 00be 9097      		sbiw r26,32
+ 564 00c0 9526      		eor r9,r21
+ 565 00c2 9196      		adiw r26,33
+ 566 00c4 5C91      		ld r21,X
+ 567 00c6 9197      		sbiw r26,33
+ 568 00c8 A526      		eor r10,r21
+ 569 00ca 9296      		adiw r26,34
+ 570 00cc 5C91      		ld r21,X
+ 571 00ce 9297      		sbiw r26,34
+ 572 00d0 B526      		eor r11,r21
+ 573 00d2 9396      		adiw r26,35
+ 574 00d4 5C91      		ld r21,X
+ 575 00d6 9397      		sbiw r26,35
+ 576 00d8 E526      		eor r14,r21
+ 577 00da 9496      		adiw r26,36
+ 578 00dc 5C91      		ld r21,X
+ 579 00de 9497      		sbiw r26,36
+ 580 00e0 F526      		eor r15,r21
+ 581 00e2 9596      		adiw r26,37
+ 582 00e4 5C91      		ld r21,X
+ 583 00e6 9597      		sbiw r26,37
+ 584 00e8 0527      		eor r16,r21
+ 585 00ea 9696      		adiw r26,38
+ 586 00ec 5C91      		ld r21,X
+ 587 00ee 9697      		sbiw r26,38
+ 588 00f0 1527      		eor r17,r21
+ 589 00f2 9796      		adiw r26,39
+ 590 00f4 4C91      		ld r20,X
+ 591 00f6 4227      		eor r20,r18
+ 593               	.LM7:
+ 594 00f8 9F01      		movw r18,r30
+ 595 00fa 2856      		subi r18,104
+ 596 00fc 3F4F      		sbci r19,-1
+ 598               	.LM8:
+ 599 00fe D901      		movw r26,r18
+ 600 0100 5C91      		ld r21,X
+ 601 0102 5925      		eor r21,r9
+ 602 0104 DC01      		movw r26,r24
+ 603 0106 5C93      		st X,r21
+ 604 0108 D901      		movw r26,r18
+ 605 010a 1196      		adiw r26,1
+ 606 010c 5C91      		ld r21,X
+ 607 010e 5A25      		eor r21,r10
+ 608 0110 DC01      		movw r26,r24
+ 609 0112 1196      		adiw r26,1
+ 610 0114 5C93      		st X,r21
+ 611 0116 D901      		movw r26,r18
+ 612 0118 1296      		adiw r26,2
+ 613 011a 5C91      		ld r21,X
+ 614 011c 5B25      		eor r21,r11
+ 615 011e DC01      		movw r26,r24
+ 616 0120 1296      		adiw r26,2
+ 617 0122 5C93      		st X,r21
+ 618 0124 D901      		movw r26,r18
+ 619 0126 1396      		adiw r26,3
+ 620 0128 5C91      		ld r21,X
+ 621 012a 5E25      		eor r21,r14
+ 622 012c DC01      		movw r26,r24
+ 623 012e 1396      		adiw r26,3
+ 624 0130 5C93      		st X,r21
+ 625 0132 D901      		movw r26,r18
+ 626 0134 1496      		adiw r26,4
+ 627 0136 5C91      		ld r21,X
+ 628 0138 5F25      		eor r21,r15
+ 629 013a DC01      		movw r26,r24
+ 630 013c 1496      		adiw r26,4
+ 631 013e 5C93      		st X,r21
+ 632 0140 D901      		movw r26,r18
+ 633 0142 1596      		adiw r26,5
+ 634 0144 5C91      		ld r21,X
+ 635 0146 5027      		eor r21,r16
+ 636 0148 DC01      		movw r26,r24
+ 637 014a 1596      		adiw r26,5
+ 638 014c 5C93      		st X,r21
+ 639 014e D901      		movw r26,r18
+ 640 0150 1696      		adiw r26,6
+ 641 0152 5C91      		ld r21,X
+ 642 0154 5127      		eor r21,r17
+ 643 0156 DC01      		movw r26,r24
+ 644 0158 1696      		adiw r26,6
+ 645 015a 5C93      		st X,r21
+ 646 015c D901      		movw r26,r18
+ 647 015e 1796      		adiw r26,7
+ 648 0160 2C91      		ld r18,X
+ 649 0162 2427      		eor r18,r20
+ 650 0164 DC01      		movw r26,r24
+ 651 0166 1796      		adiw r26,7
+ 652 0168 2C93      		st X,r18
+  84:crypto/keccak/KeccakF-1600-avr8.c **** 		{
+ 654               	.LM9:
+ 655 016a 0896      		adiw r24,8
+  84:crypto/keccak/KeccakF-1600-avr8.c **** 		{
+ 657               	.LM10:
+ 658 016c 6E17      		cp r22,r30
+ 659 016e 7F07      		cpc r23,r31
+ 660 0170 01F0      		breq .+2
+ 661 0172 00C0      		rjmp .L2
+ 662 0174 312C      		mov r3,__zero_reg__
+ 663 0176 212C      		mov r2,__zero_reg__
+ 664 0178 F601      		movw r30,r12
+ 665 017a E853      		subi r30,56
+ 666 017c FF4F      		sbci r31,-1
+ 667 017e EAA7      		std Y+42,r30
+ 668 0180 FBA7      		std Y+43,r31
+ 669 0182 C601      		movw r24,r12
+ 670 0184 0896      		adiw r24,8
+ 671 0186 8CA7      		std Y+44,r24
+ 672 0188 9DA7      		std Y+45,r25
+ 673               	.L3:
+ 674 018a 00E0      		ldi r16,lo8(KeccakF_Mod5+1)
+ 675 018c 10E0      		ldi r17,hi8(KeccakF_Mod5+1)
+  84:crypto/keccak/KeccakF-1600-avr8.c **** 		{
+ 677               	.LM11:
+ 678 018e 5601      		movw r10,r12
+ 679 0190 F12C      		mov r15,__zero_reg__
+ 680 0192 E12C      		mov r14,__zero_reg__
+ 681               	.L5:
+ 682               	.LBE2:
+ 683               	.LBB3:
+ 684               	.LBB4:
+ 685               	.LBB5:
+  87:crypto/keccak/KeccakF-1600-avr8.c **** 		}
+  88:crypto/keccak/KeccakF-1600-avr8.c **** 	}
+  89:crypto/keccak/KeccakF-1600-avr8.c **** 
+  90:crypto/keccak/KeccakF-1600-avr8.c ****   for( round = 0; round < cKeccakNumberOfRounds; ++round )
+  91:crypto/keccak/KeccakF-1600-avr8.c ****   {
+  92:crypto/keccak/KeccakF-1600-avr8.c **** 		// Theta
+  93:crypto/keccak/KeccakF-1600-avr8.c ****   	{
+  94:crypto/keccak/KeccakF-1600-avr8.c **** 			tSmallUInt x;
+  95:crypto/keccak/KeccakF-1600-avr8.c **** 			for ( x = 0; x < 5; ++x )
+  96:crypto/keccak/KeccakF-1600-avr8.c **** 			{
+  97:crypto/keccak/KeccakF-1600-avr8.c **** 				tKeccakLane temp;
+  98:crypto/keccak/KeccakF-1600-avr8.c **** 				tSmallUInt y;
+  99:crypto/keccak/KeccakF-1600-avr8.c **** 				temp = rotate64_1bit_left( C[pgm_read_byte((KeccakF_Mod5+1)+x)] );
+ 687               	.LM12:
+ 688 0194 F801      		movw r30,r16
+ 689               	/* #APP */
+ 690               	 ;  99 "crypto/keccak/KeccakF-1600-avr8.c" 1
+ 691 0196 9491      		lpm r25, Z
+ 692               		
+ 693               	 ;  0 "" 2
+ 694               	/* #NOAPP */
+ 695               	.LBE5:
+ 697               	.LM13:
+ 698 0198 88E0      		ldi r24,lo8(8)
+ 699 019a 989F      		mul r25,r24
+ 700 019c F001      		movw r30,r0
+ 701 019e 1124      		clr __zero_reg__
+ 702 01a0 A1E0      		ldi r26,lo8(1)
+ 703 01a2 B0E0      		ldi r27,0
+ 704 01a4 AC0F      		add r26,r28
+ 705 01a6 BD1F      		adc r27,r29
+ 706 01a8 EA0F      		add r30,r26
+ 707 01aa FB1F      		adc r31,r27
+ 708 01ac 2081      		ld r18,Z
+ 709 01ae 3181      		ldd r19,Z+1
+ 710 01b0 4281      		ldd r20,Z+2
+ 711 01b2 5381      		ldd r21,Z+3
+ 712 01b4 6481      		ldd r22,Z+4
+ 713 01b6 7581      		ldd r23,Z+5
+ 714 01b8 8681      		ldd r24,Z+6
+ 715 01ba 9781      		ldd r25,Z+7
+ 716 01bc 0E94 0000 		call rotate64_1bit_left
+ 717               	.LBB6:
+ 100:crypto/keccak/KeccakF-1600-avr8.c **** 				temp ^= C[pgm_read_byte((KeccakF_Mod5+4)+x)];
+ 719               	.LM14:
+ 720 01c0 F801      		movw r30,r16
+ 721 01c2 3396      		adiw r30,3
+ 722               	/* #APP */
+ 723               	 ;  100 "crypto/keccak/KeccakF-1600-avr8.c" 1
+ 724 01c4 E491      		lpm r30, Z
+ 725               		
+ 726               	 ;  0 "" 2
+ 727               	/* #NOAPP */
+ 728               	.LBE6:
+ 730               	.LM15:
+ 731 01c6 B8E0      		ldi r27,lo8(8)
+ 732 01c8 EB9F      		mul r30,r27
+ 733 01ca F001      		movw r30,r0
+ 734 01cc 1124      		clr __zero_reg__
+ 735 01ce A1E0      		ldi r26,lo8(1)
+ 736 01d0 B0E0      		ldi r27,0
+ 737 01d2 AC0F      		add r26,r28
+ 738 01d4 BD1F      		adc r27,r29
+ 739 01d6 EA0F      		add r30,r26
+ 740 01d8 FB1F      		adc r31,r27
+ 742               	.LM16:
+ 743 01da A081      		ld r26,Z
+ 744 01dc 2A27      		eor r18,r26
+ 745 01de A181      		ldd r26,Z+1
+ 746 01e0 3A27      		eor r19,r26
+ 747 01e2 A281      		ldd r26,Z+2
+ 748 01e4 4A27      		eor r20,r26
+ 749 01e6 A381      		ldd r26,Z+3
+ 750 01e8 5A27      		eor r21,r26
+ 751 01ea A481      		ldd r26,Z+4
+ 752 01ec 6A27      		eor r22,r26
+ 753 01ee A581      		ldd r26,Z+5
+ 754 01f0 7A27      		eor r23,r26
+ 755 01f2 A681      		ldd r26,Z+6
+ 756 01f4 8A27      		eor r24,r26
+ 757 01f6 E781      		ldd r30,Z+7
+ 758 01f8 9E27      		eor r25,r30
+ 759 01fa F501      		movw r30,r10
+ 101:crypto/keccak/KeccakF-1600-avr8.c **** 				for ( y = 0; y < 25; y += 5 )
+ 761               	.LM17:
+ 762 01fc A0E0      		ldi r26,0
+ 763               	.L4:
+ 102:crypto/keccak/KeccakF-1600-avr8.c **** 				{
+ 103:crypto/keccak/KeccakF-1600-avr8.c **** 					state[y + x] ^= temp;
+ 765               	.LM18:
+ 766 01fe B081      		ld r27,Z
+ 767 0200 B227      		eor r27,r18
+ 768 0202 B083      		st Z,r27
+ 769 0204 B181      		ldd r27,Z+1
+ 770 0206 B327      		eor r27,r19
+ 771 0208 B183      		std Z+1,r27
+ 772 020a B281      		ldd r27,Z+2
+ 773 020c B427      		eor r27,r20
+ 774 020e B283      		std Z+2,r27
+ 775 0210 B381      		ldd r27,Z+3
+ 776 0212 B527      		eor r27,r21
+ 777 0214 B383      		std Z+3,r27
+ 778 0216 B481      		ldd r27,Z+4
+ 779 0218 B627      		eor r27,r22
+ 780 021a B483      		std Z+4,r27
+ 781 021c B581      		ldd r27,Z+5
+ 782 021e B727      		eor r27,r23
+ 783 0220 B583      		std Z+5,r27
+ 784 0222 B681      		ldd r27,Z+6
+ 785 0224 B827      		eor r27,r24
+ 786 0226 B683      		std Z+6,r27
+ 787 0228 B781      		ldd r27,Z+7
+ 788 022a B927      		eor r27,r25
+ 789 022c B783      		std Z+7,r27
+ 101:crypto/keccak/KeccakF-1600-avr8.c **** 				for ( y = 0; y < 25; y += 5 )
+ 791               	.LM19:
+ 792 022e AB5F      		subi r26,lo8(-(5))
+ 793 0230 B896      		adiw r30,40
+ 101:crypto/keccak/KeccakF-1600-avr8.c **** 				for ( y = 0; y < 25; y += 5 )
+ 795               	.LM20:
+ 796 0232 A931      		cpi r26,lo8(25)
+ 797 0234 01F4      		brne .L4
+ 798 0236 BFEF      		ldi r27,-1
+ 799 0238 EB1A      		sub r14,r27
+ 800 023a FB0A      		sbc r15,r27
+ 801 023c 0F5F      		subi r16,-1
+ 802 023e 1F4F      		sbci r17,-1
+ 803 0240 E8E0      		ldi r30,8
+ 804 0242 AE0E      		add r10,r30
+ 805 0244 B11C      		adc r11,__zero_reg__
+ 806               	.LBE4:
+  95:crypto/keccak/KeccakF-1600-avr8.c **** 			{
+ 808               	.LM21:
+ 809 0246 F5E0      		ldi r31,5
+ 810 0248 EF16      		cp r14,r31
+ 811 024a F104      		cpc r15,__zero_reg__
+ 812 024c 01F0      		breq .+2
+ 813 024e 00C0      		rjmp .L5
+ 814               	.LBE3:
+ 815               	.LBB7:
+ 104:crypto/keccak/KeccakF-1600-avr8.c **** 				}
+ 105:crypto/keccak/KeccakF-1600-avr8.c **** 			}
+ 106:crypto/keccak/KeccakF-1600-avr8.c **** 		}
+ 107:crypto/keccak/KeccakF-1600-avr8.c **** 
+ 108:crypto/keccak/KeccakF-1600-avr8.c ****     // Rho Pi
+ 109:crypto/keccak/KeccakF-1600-avr8.c ****     {
+ 110:crypto/keccak/KeccakF-1600-avr8.c **** 			tKeccakLane temp;
+ 111:crypto/keccak/KeccakF-1600-avr8.c **** 			tSmallUInt x;
+ 112:crypto/keccak/KeccakF-1600-avr8.c **** 
+ 113:crypto/keccak/KeccakF-1600-avr8.c **** 			temp = state[1];
+ 817               	.LM22:
+ 818 0250 D601      		movw r26,r12
+ 819 0252 1896      		adiw r26,8
+ 820 0254 BC91      		ld r27,X
+ 821 0256 B9A7      		std Y+41,r27
+ 822 0258 F601      		movw r30,r12
+ 823 025a 4184      		ldd r4,Z+9
+ 824 025c 5284      		ldd r5,Z+10
+ 825 025e 6384      		ldd r6,Z+11
+ 826 0260 7484      		ldd r7,Z+12
+ 827 0262 8584      		ldd r8,Z+13
+ 828 0264 9684      		ldd r9,Z+14
+ 829 0266 1785      		ldd r17,Z+15
+ 830 0268 B12C      		mov r11,__zero_reg__
+ 831 026a A12C      		mov r10,__zero_reg__
+ 832               	.L6:
+ 833               	.LBB8:
+ 834               	.LBB9:
+ 114:crypto/keccak/KeccakF-1600-avr8.c **** 			for ( x = 0; x < 24; ++x )
+ 115:crypto/keccak/KeccakF-1600-avr8.c **** 			{
+ 116:crypto/keccak/KeccakF-1600-avr8.c **** 				tSmallUInt t;
+ 117:crypto/keccak/KeccakF-1600-avr8.c **** 				tKeccakLane T[1];
+ 118:crypto/keccak/KeccakF-1600-avr8.c **** 				t = pgm_read_byte(&KeccakF_PiLane[x]);
+ 836               	.LM23:
+ 837 026c F501      		movw r30,r10
+ 838 026e E050      		subi r30,lo8(-(KeccakF_PiLane))
+ 839 0270 F040      		sbci r31,hi8(-(KeccakF_PiLane))
+ 840               	/* #APP */
+ 841               	 ;  118 "crypto/keccak/KeccakF-1600-avr8.c" 1
+ 842 0272 E490      		lpm r14, Z
+ 843               		
+ 844               	 ;  0 "" 2
+ 845               	/* #NOAPP */
+ 846               	.LBE9:
+ 119:crypto/keccak/KeccakF-1600-avr8.c **** 				T[0] = state[t];
+ 848               	.LM24:
+ 849 0274 F8E0      		ldi r31,lo8(8)
+ 850 0276 EF9E      		mul r14,r31
+ 851 0278 7001      		movw r14,r0
+ 852 027a 1124      		clr __zero_reg__
+ 853 027c EC0C      		add r14,r12
+ 854 027e FD1C      		adc r15,r13
+ 855 0280 29A5      		ldd r18,Y+41
+ 856 0282 342D      		mov r19,r4
+ 857 0284 452D      		mov r20,r5
+ 858 0286 562D      		mov r21,r6
+ 859 0288 672D      		mov r22,r7
+ 860 028a 782D      		mov r23,r8
+ 861 028c 892D      		mov r24,r9
+ 862 028e 912F      		mov r25,r17
+ 863 0290 D701      		movw r26,r14
+ 864 0292 BC91      		ld r27,X
+ 865 0294 B9A7      		std Y+41,r27
+ 866 0296 F701      		movw r30,r14
+ 867 0298 4180      		ldd r4,Z+1
+ 868 029a 5280      		ldd r5,Z+2
+ 869 029c 6380      		ldd r6,Z+3
+ 870 029e 7480      		ldd r7,Z+4
+ 871 02a0 8580      		ldd r8,Z+5
+ 872 02a2 9680      		ldd r9,Z+6
+ 873 02a4 1781      		ldd r17,Z+7
+ 874               	.LBB10:
+ 120:crypto/keccak/KeccakF-1600-avr8.c **** 				state[t] = rotate64left_code( temp, pgm_read_byte(&KeccakF_RotationConstants[x]) );
+ 876               	.LM25:
+ 877 02a6 F501      		movw r30,r10
+ 878 02a8 E050      		subi r30,lo8(-(KeccakF_RotationConstants))
+ 879 02aa F040      		sbci r31,hi8(-(KeccakF_RotationConstants))
+ 880               	/* #APP */
+ 881               	 ;  120 "crypto/keccak/KeccakF-1600-avr8.c" 1
+ 882 02ac 0491      		lpm r16, Z
+ 883               		
+ 884               	 ;  0 "" 2
+ 885               	/* #NOAPP */
+ 886               	.LBE10:
+ 888               	.LM26:
+ 889 02ae 0E94 0000 		call rotate64left_code
+ 891               	.LM27:
+ 892 02b2 D701      		movw r26,r14
+ 893 02b4 2C93      		st X,r18
+ 894 02b6 1196      		adiw r26,1
+ 895 02b8 3C93      		st X,r19
+ 896 02ba 1197      		sbiw r26,1
+ 897 02bc 1296      		adiw r26,2
+ 898 02be 4C93      		st X,r20
+ 899 02c0 1297      		sbiw r26,2
+ 900 02c2 1396      		adiw r26,3
+ 901 02c4 5C93      		st X,r21
+ 902 02c6 1397      		sbiw r26,3
+ 903 02c8 1496      		adiw r26,4
+ 904 02ca 6C93      		st X,r22
+ 905 02cc 1497      		sbiw r26,4
+ 906 02ce 1596      		adiw r26,5
+ 907 02d0 7C93      		st X,r23
+ 908 02d2 1597      		sbiw r26,5
+ 909 02d4 1696      		adiw r26,6
+ 910 02d6 8C93      		st X,r24
+ 911 02d8 1697      		sbiw r26,6
+ 912 02da 1796      		adiw r26,7
+ 913 02dc 9C93      		st X,r25
+ 914 02de BFEF      		ldi r27,-1
+ 915 02e0 AB1A      		sub r10,r27
+ 916 02e2 BB0A      		sbc r11,r27
+ 917               	.LBE8:
+ 114:crypto/keccak/KeccakF-1600-avr8.c **** 			for ( x = 0; x < 24; ++x )
+ 919               	.LM28:
+ 920 02e4 E8E1      		ldi r30,24
+ 921 02e6 AE16      		cp r10,r30
+ 922 02e8 B104      		cpc r11,__zero_reg__
+ 923 02ea 01F0      		breq .+2
+ 924 02ec 00C0      		rjmp .L6
+ 925 02ee C101      		movw r24,r2
+ 926 02f0 8050      		subi r24,lo8(-(KeccakF_RoundConstants))
+ 927 02f2 9040      		sbci r25,hi8(-(KeccakF_RoundConstants))
+ 928 02f4 8EA7      		std Y+46,r24
+ 929 02f6 9FA7      		std Y+47,r25
+ 930 02f8 6AA5      		ldd r22,Y+42
+ 931 02fa 7BA5      		ldd r23,Y+43
+ 114:crypto/keccak/KeccakF-1600-avr8.c **** 			for ( x = 0; x < 24; ++x )
+ 933               	.LM29:
+ 934 02fc A601      		movw r20,r12
+ 935               	.LBE7:
+ 936               	.LBB11:
+ 121:crypto/keccak/KeccakF-1600-avr8.c **** 				temp = T[0];
+ 122:crypto/keccak/KeccakF-1600-avr8.c **** 			}
+ 123:crypto/keccak/KeccakF-1600-avr8.c **** 		}
+ 124:crypto/keccak/KeccakF-1600-avr8.c **** 
+ 125:crypto/keccak/KeccakF-1600-avr8.c **** 		// Chi Iota Prepare Theta
+ 126:crypto/keccak/KeccakF-1600-avr8.c **** 		{
+ 127:crypto/keccak/KeccakF-1600-avr8.c **** 			tSmallUInt z;
+ 128:crypto/keccak/KeccakF-1600-avr8.c **** 			UINT8 * p = (unsigned char *)state;
+ 129:crypto/keccak/KeccakF-1600-avr8.c **** 			UINT8 * pC = (unsigned char *)C;
+ 938               	.LM30:
+ 939 02fe 9E01      		movw r18,r28
+ 940 0300 2F5F      		subi r18,-1
+ 941 0302 3F4F      		sbci r19,-1
+ 942               	.L7:
+ 943 0304 2A01      		movw r4,r20
+ 944               	.LBE11:
+ 945               	.LBB15:
+ 113:crypto/keccak/KeccakF-1600-avr8.c **** 			for ( x = 0; x < 24; ++x )
+ 947               	.LM31:
+ 948 0306 DA01      		movw r26,r20
+ 949               	.LBE15:
+ 950               	.LBB16:
+ 951               	.LBB12:
+ 130:crypto/keccak/KeccakF-1600-avr8.c **** 
+ 131:crypto/keccak/KeccakF-1600-avr8.c **** 			for( z = 0; z < 8; ++z, ++p, ++pC )
+ 132:crypto/keccak/KeccakF-1600-avr8.c **** 			{
+ 133:crypto/keccak/KeccakF-1600-avr8.c **** 				tSmallUInt y;
+ 134:crypto/keccak/KeccakF-1600-avr8.c **** 				UINT8 c0, c1, c2, c3, c4, t;
+ 135:crypto/keccak/KeccakF-1600-avr8.c **** 
+ 136:crypto/keccak/KeccakF-1600-avr8.c **** 				c0 = c1 = c2 = c3 = c4 = 0;
+ 953               	.LM32:
+ 954 0308 B12C      		mov r11,__zero_reg__
+ 956               	.LM33:
+ 957 030a E12C      		mov r14,__zero_reg__
+ 959               	.LM34:
+ 960 030c F12C      		mov r15,__zero_reg__
+ 962               	.LM35:
+ 963 030e 00E0      		ldi r16,0
+ 965               	.LM36:
+ 966 0310 10E0      		ldi r17,0
+ 967               	.L8:
+ 968               	.LBB13:
+ 137:crypto/keccak/KeccakF-1600-avr8.c **** 				for( y = 5; y != 0; --y, p += 40 )
+ 138:crypto/keccak/KeccakF-1600-avr8.c **** 				{
+ 139:crypto/keccak/KeccakF-1600-avr8.c **** 					UINT8 a0 = *p;
+ 140:crypto/keccak/KeccakF-1600-avr8.c **** 					UINT8 a1 = *(p+8);
+ 141:crypto/keccak/KeccakF-1600-avr8.c **** 					UINT8 a2 = *(p+16);
+ 142:crypto/keccak/KeccakF-1600-avr8.c **** 					UINT8 a3 = *(p+24);
+ 970               	.LM37:
+ 971 0312 5896      		adiw r26,24
+ 972 0314 8C90      		ld r8,X
+ 973 0316 5897      		sbiw r26,24
+ 143:crypto/keccak/KeccakF-1600-avr8.c **** 					UINT8 a4 = *(p+32);
+ 975               	.LM38:
+ 976 0318 9096      		adiw r26,32
+ 977 031a AC90      		ld r10,X
+ 978 031c 9097      		sbiw r26,32
+ 144:crypto/keccak/KeccakF-1600-avr8.c **** 
+ 145:crypto/keccak/KeccakF-1600-avr8.c **** 					*p			= t = a0 ^ ((~a1) & a2); c0 ^= t;
+ 980               	.LM39:
+ 981 031e 1896      		adiw r26,8
+ 982 0320 9C90      		ld r9,X
+ 983 0322 1897      		sbiw r26,8
+ 984 0324 5096      		adiw r26,16
+ 985 0326 7C90      		ld r7,X
+ 986 0328 5097      		sbiw r26,16
+ 988               	.LM40:
+ 989 032a 8C91      		ld r24,X
+ 991               	.LM41:
+ 992 032c 992D      		mov r25,r9
+ 993 032e 9095      		com r25
+ 994 0330 9721      		and r25,r7
+ 996               	.LM42:
+ 997 0332 9827      		eor r25,r24
+ 999               	.LM43:
+ 1000 0334 9C93      		st X,r25
+ 1002               	.LM44:
+ 1003 0336 1927      		eor r17,r25
+ 146:crypto/keccak/KeccakF-1600-avr8.c **** 					*(p+8)	= t = a1 ^ ((~a2) & a3); c1 ^= t;
+ 1005               	.LM45:
+ 1006 0338 972D      		mov r25,r7
+ 1007 033a 9095      		com r25
+ 1008 033c 9821      		and r25,r8
+ 1010               	.LM46:
+ 1011 033e 9925      		eor r25,r9
+ 1013               	.LM47:
+ 1014 0340 1896      		adiw r26,8
+ 1015 0342 9C93      		st X,r25
+ 1016 0344 1897      		sbiw r26,8
+ 1018               	.LM48:
+ 1019 0346 0927      		eor r16,r25
+ 147:crypto/keccak/KeccakF-1600-avr8.c **** 					*(p+16) = a2 ^= ((~a3) & a4); c2 ^= a2;
+ 1021               	.LM49:
+ 1022 0348 982D      		mov r25,r8
+ 1023 034a 9095      		com r25
+ 1024 034c 9A21      		and r25,r10
+ 1026               	.LM50:
+ 1027 034e 9725      		eor r25,r7
+ 1029               	.LM51:
+ 1030 0350 5096      		adiw r26,16
+ 1031 0352 9C93      		st X,r25
+ 1032 0354 5097      		sbiw r26,16
+ 1034               	.LM52:
+ 1035 0356 F926      		eor r15,r25
+ 148:crypto/keccak/KeccakF-1600-avr8.c **** 					*(p+24) = a3 ^= ((~a4) & a0); c3 ^= a3;
+ 1037               	.LM53:
+ 1038 0358 9A2D      		mov r25,r10
+ 1039 035a 9095      		com r25
+ 1040 035c 9823      		and r25,r24
+ 1042               	.LM54:
+ 1043 035e 8926      		eor r8,r25
+ 1045               	.LM55:
+ 1046 0360 5896      		adiw r26,24
+ 1047 0362 8C92      		st X,r8
+ 1048 0364 5897      		sbiw r26,24
+ 1050               	.LM56:
+ 1051 0366 E824      		eor r14,r8
+ 149:crypto/keccak/KeccakF-1600-avr8.c **** 					*(p+32) = a4 ^= ((~a0) & a1); c4 ^= a4;
+ 1053               	.LM57:
+ 1054 0368 8095      		com r24
+ 1055 036a 9822      		and r9,r24
+ 1057               	.LM58:
+ 1058 036c 9A24      		eor r9,r10
+ 1060               	.LM59:
+ 1061 036e 9096      		adiw r26,32
+ 1062 0370 9C92      		st X,r9
+ 1063 0372 9097      		sbiw r26,32
+ 1065               	.LM60:
+ 1066 0374 B924      		eor r11,r9
+ 1067               	.LBE13:
+ 137:crypto/keccak/KeccakF-1600-avr8.c **** 				{
+ 1069               	.LM61:
+ 1070 0376 9896      		adiw r26,40
+ 137:crypto/keccak/KeccakF-1600-avr8.c **** 				{
+ 1072               	.LM62:
+ 1073 0378 A617      		cp r26,r22
+ 1074 037a B707      		cpc r27,r23
+ 1075 037c 01F4      		brne .L8
+ 1076               	.LBB14:
+ 150:crypto/keccak/KeccakF-1600-avr8.c **** 				}
+ 151:crypto/keccak/KeccakF-1600-avr8.c **** 				p -= 5 * 5 * 8;
+ 152:crypto/keccak/KeccakF-1600-avr8.c **** 				y = pgm_read_byte( (UINT8 *)(KeccakF_RoundConstants+round) + z );
+ 1078               	.LM63:
+ 1079 037e EEA5      		ldd r30,Y+46
+ 1080 0380 FFA5      		ldd r31,Y+47
+ 1081               	/* #APP */
+ 1082               	 ;  152 "crypto/keccak/KeccakF-1600-avr8.c" 1
+ 1083 0382 6491      		lpm r22, Z
+ 1084               		
+ 1085               	 ;  0 "" 2
+ 1086               	/* #NOAPP */
+ 1087 0384 4F5F      		subi r20,-1
+ 1088 0386 5F4F      		sbci r21,-1
+ 1089               	.LBE14:
+ 153:crypto/keccak/KeccakF-1600-avr8.c **** 				*p ^= y;
+ 1091               	.LM64:
+ 1092 0388 CA01      		movw r24,r20
+ 1093 038a 0197      		sbiw r24,1
+ 1094 038c F201      		movw r30,r4
+ 1095 038e 7081      		ld r23,Z
+ 1096 0390 7627      		eor r23,r22
+ 1097 0392 FC01      		movw r30,r24
+ 1098 0394 7083      		st Z,r23
+ 154:crypto/keccak/KeccakF-1600-avr8.c **** 				*pC 			= c0 ^ y;
+ 1100               	.LM65:
+ 1101 0396 1627      		eor r17,r22
+ 1102 0398 F901      		movw r30,r18
+ 1103 039a 1083      		st Z,r17
+ 155:crypto/keccak/KeccakF-1600-avr8.c **** 				*(pC+ 8)	= c1;
+ 1105               	.LM66:
+ 1106 039c 0087      		std Z+8,r16
+ 156:crypto/keccak/KeccakF-1600-avr8.c **** 				*(pC+16)	= c2;
+ 1108               	.LM67:
+ 1109 039e F08A      		std Z+16,r15
+ 157:crypto/keccak/KeccakF-1600-avr8.c **** 				*(pC+24)	= c3;
+ 1111               	.LM68:
+ 1112 03a0 E08E      		std Z+24,r14
+ 158:crypto/keccak/KeccakF-1600-avr8.c **** 				*(pC+32)	= c4;
+ 1114               	.LM69:
+ 1115 03a2 B0A2      		std Z+32,r11
+ 1116               	.LBE12:
+ 131:crypto/keccak/KeccakF-1600-avr8.c **** 			{
+ 1118               	.LM70:
+ 1119 03a4 2F5F      		subi r18,-1
+ 1120 03a6 3F4F      		sbci r19,-1
+ 1121 03a8 8EA5      		ldd r24,Y+46
+ 1122 03aa 9FA5      		ldd r25,Y+47
+ 1123 03ac 0196      		adiw r24,1
+ 1124 03ae 8EA7      		std Y+46,r24
+ 1125 03b0 9FA7      		std Y+47,r25
+ 1126 03b2 BD01      		movw r22,r26
+ 1127 03b4 6F5F      		subi r22,-1
+ 1128 03b6 7F4F      		sbci r23,-1
+ 131:crypto/keccak/KeccakF-1600-avr8.c **** 			{
+ 1130               	.LM71:
+ 1131 03b8 ACA5      		ldd r26,Y+44
+ 1132 03ba BDA5      		ldd r27,Y+45
+ 1133 03bc A417      		cp r26,r20
+ 1134 03be B507      		cpc r27,r21
+ 1135 03c0 01F0      		breq .+2
+ 1136 03c2 00C0      		rjmp .L7
+ 1137 03c4 B8E0      		ldi r27,8
+ 1138 03c6 2B0E      		add r2,r27
+ 1139 03c8 311C      		adc r3,__zero_reg__
+ 1140               	.LBE16:
+  90:crypto/keccak/KeccakF-1600-avr8.c ****   {
+ 1142               	.LM72:
+ 1143 03ca E0EC      		ldi r30,-64
+ 1144 03cc 2E16      		cp r2,r30
+ 1145 03ce 3104      		cpc r3,__zero_reg__
+ 1146 03d0 01F0      		breq .+2
+ 1147 03d2 00C0      		rjmp .L3
+ 1148               	/* epilogue start */
+ 159:crypto/keccak/KeccakF-1600-avr8.c **** 			}
+ 160:crypto/keccak/KeccakF-1600-avr8.c **** 		}
+ 161:crypto/keccak/KeccakF-1600-avr8.c ****   }
+ 162:crypto/keccak/KeccakF-1600-avr8.c **** 
+ 163:crypto/keccak/KeccakF-1600-avr8.c **** }
+ 1150               	.LM73:
+ 1151 03d4 AF96      		adiw r28,47
+ 1152 03d6 CDBF      		out __SP_L__,r28
+ 1153 03d8 DEBF      		out __SP_H__,r29
+ 1154 03da DF91      		pop r29
+ 1155 03dc CF91      		pop r28
+ 1156 03de 1F91      		pop r17
+ 1157 03e0 0F91      		pop r16
+ 1158 03e2 FF90      		pop r15
+ 1159 03e4 EF90      		pop r14
+ 1160 03e6 DF90      		pop r13
+ 1161 03e8 CF90      		pop r12
+ 1162 03ea BF90      		pop r11
+ 1163 03ec AF90      		pop r10
+ 1164 03ee 9F90      		pop r9
+ 1165 03f0 8F90      		pop r8
+ 1166 03f2 7F90      		pop r7
+ 1167 03f4 6F90      		pop r6
+ 1168 03f6 5F90      		pop r5
+ 1169 03f8 4F90      		pop r4
+ 1170 03fa 3F90      		pop r3
+ 1171 03fc 2F90      		pop r2
+ 1172 03fe 0895      		ret
+ 1196               	.Lscope1:
+ 1197               		.section	.progmem.data.KeccakF_Mod5,"a"
+ 1200               	KeccakF_Mod5:
+ 1201 0000 00        		.string	""
+ 1202 0001 0102 0304 		.string	"\001\002\003\004"
+ 1202      00
+ 1203 0006 0102 0304 		.ascii	"\001\002\003\004"
+ 1205               		.section	.progmem.data.KeccakF_PiLane,"a"
+ 1208               	KeccakF_PiLane:
+ 1209 0000 0A07 0B11 		.ascii	"\n\007\013\021\022\003\005\020\b\025\030\004\017\027\023\r\f"
+ 1209      1203 0510 
+ 1209      0815 1804 
+ 1209      0F17 130D 
+ 1209      0C
+ 1210 0011 0214 0E16 		.ascii	"\002\024\016\026\t\006\001"
+ 1210      0906 01
+ 1212               		.section	.progmem.data.KeccakF_RotationConstants,"a"
+ 1215               	KeccakF_RotationConstants:
+ 1216 0000 0103 1612 		.ascii	"\001\003\026\022'54Dew\002&3Qp\0201S\206\"W\205$T"
+ 1216      2735 3444 
+ 1216      6577 0226 
+ 1216      3351 7010 
+ 1216      3153 8622 
+ 1218               		.section	.progmem.data.KeccakF_RoundConstants,"a"
+ 1221               	KeccakF_RoundConstants:
+ 1222 0000 01        		.byte	1
+ 1223 0001 00        		.byte	0
+ 1224 0002 00        		.byte	0
+ 1225 0003 00        		.byte	0
+ 1226 0004 00        		.byte	0
+ 1227 0005 00        		.byte	0
+ 1228 0006 00        		.byte	0
+ 1229 0007 00        		.byte	0
+ 1230 0008 82        		.byte	-126
+ 1231 0009 80        		.byte	-128
+ 1232 000a 00        		.byte	0
+ 1233 000b 00        		.byte	0
+ 1234 000c 00        		.byte	0
+ 1235 000d 00        		.byte	0
+ 1236 000e 00        		.byte	0
+ 1237 000f 00        		.byte	0
+ 1238 0010 8A        		.byte	-118
+ 1239 0011 80        		.byte	-128
+ 1240 0012 00        		.byte	0
+ 1241 0013 00        		.byte	0
+ 1242 0014 00        		.byte	0
+ 1243 0015 00        		.byte	0
+ 1244 0016 00        		.byte	0
+ 1245 0017 80        		.byte	-128
+ 1246 0018 00        		.byte	0
+ 1247 0019 80        		.byte	-128
+ 1248 001a 00        		.byte	0
+ 1249 001b 80        		.byte	-128
+ 1250 001c 00        		.byte	0
+ 1251 001d 00        		.byte	0
+ 1252 001e 00        		.byte	0
+ 1253 001f 80        		.byte	-128
+ 1254 0020 8B        		.byte	-117
+ 1255 0021 80        		.byte	-128
+ 1256 0022 00        		.byte	0
+ 1257 0023 00        		.byte	0
+ 1258 0024 00        		.byte	0
+ 1259 0025 00        		.byte	0
+ 1260 0026 00        		.byte	0
+ 1261 0027 00        		.byte	0
+ 1262 0028 01        		.byte	1
+ 1263 0029 00        		.byte	0
+ 1264 002a 00        		.byte	0
+ 1265 002b 80        		.byte	-128
+ 1266 002c 00        		.byte	0
+ 1267 002d 00        		.byte	0
+ 1268 002e 00        		.byte	0
+ 1269 002f 00        		.byte	0
+ 1270 0030 81        		.byte	-127
+ 1271 0031 80        		.byte	-128
+ 1272 0032 00        		.byte	0
+ 1273 0033 80        		.byte	-128
+ 1274 0034 00        		.byte	0
+ 1275 0035 00        		.byte	0
+ 1276 0036 00        		.byte	0
+ 1277 0037 80        		.byte	-128
+ 1278 0038 09        		.byte	9
+ 1279 0039 80        		.byte	-128
+ 1280 003a 00        		.byte	0
+ 1281 003b 00        		.byte	0
+ 1282 003c 00        		.byte	0
+ 1283 003d 00        		.byte	0
+ 1284 003e 00        		.byte	0
+ 1285 003f 80        		.byte	-128
+ 1286 0040 8A        		.byte	-118
+ 1287 0041 00        		.byte	0
+ 1288 0042 00        		.byte	0
+ 1289 0043 00        		.byte	0
+ 1290 0044 00        		.byte	0
+ 1291 0045 00        		.byte	0
+ 1292 0046 00        		.byte	0
+ 1293 0047 00        		.byte	0
+ 1294 0048 88        		.byte	-120
+ 1295 0049 00        		.byte	0
+ 1296 004a 00        		.byte	0
+ 1297 004b 00        		.byte	0
+ 1298 004c 00        		.byte	0
+ 1299 004d 00        		.byte	0
+ 1300 004e 00        		.byte	0
+ 1301 004f 00        		.byte	0
+ 1302 0050 09        		.byte	9
+ 1303 0051 80        		.byte	-128
+ 1304 0052 00        		.byte	0
+ 1305 0053 80        		.byte	-128
+ 1306 0054 00        		.byte	0
+ 1307 0055 00        		.byte	0
+ 1308 0056 00        		.byte	0
+ 1309 0057 00        		.byte	0
+ 1310 0058 0A        		.byte	10
+ 1311 0059 00        		.byte	0
+ 1312 005a 00        		.byte	0
+ 1313 005b 80        		.byte	-128
+ 1314 005c 00        		.byte	0
+ 1315 005d 00        		.byte	0
+ 1316 005e 00        		.byte	0
+ 1317 005f 00        		.byte	0
+ 1318 0060 8B        		.byte	-117
+ 1319 0061 80        		.byte	-128
+ 1320 0062 00        		.byte	0
+ 1321 0063 80        		.byte	-128
+ 1322 0064 00        		.byte	0
+ 1323 0065 00        		.byte	0
+ 1324 0066 00        		.byte	0
+ 1325 0067 00        		.byte	0
+ 1326 0068 8B        		.byte	-117
+ 1327 0069 00        		.byte	0
+ 1328 006a 00        		.byte	0
+ 1329 006b 00        		.byte	0
+ 1330 006c 00        		.byte	0
+ 1331 006d 00        		.byte	0
+ 1332 006e 00        		.byte	0
+ 1333 006f 80        		.byte	-128
+ 1334 0070 89        		.byte	-119
+ 1335 0071 80        		.byte	-128
+ 1336 0072 00        		.byte	0
+ 1337 0073 00        		.byte	0
+ 1338 0074 00        		.byte	0
+ 1339 0075 00        		.byte	0
+ 1340 0076 00        		.byte	0
+ 1341 0077 80        		.byte	-128
+ 1342 0078 03        		.byte	3
+ 1343 0079 80        		.byte	-128
+ 1344 007a 00        		.byte	0
+ 1345 007b 00        		.byte	0
+ 1346 007c 00        		.byte	0
+ 1347 007d 00        		.byte	0
+ 1348 007e 00        		.byte	0
+ 1349 007f 80        		.byte	-128
+ 1350 0080 02        		.byte	2
+ 1351 0081 80        		.byte	-128
+ 1352 0082 00        		.byte	0
+ 1353 0083 00        		.byte	0
+ 1354 0084 00        		.byte	0
+ 1355 0085 00        		.byte	0
+ 1356 0086 00        		.byte	0
+ 1357 0087 80        		.byte	-128
+ 1358 0088 80        		.byte	-128
+ 1359 0089 00        		.byte	0
+ 1360 008a 00        		.byte	0
+ 1361 008b 00        		.byte	0
+ 1362 008c 00        		.byte	0
+ 1363 008d 00        		.byte	0
+ 1364 008e 00        		.byte	0
+ 1365 008f 80        		.byte	-128
+ 1366 0090 0A        		.byte	10
+ 1367 0091 80        		.byte	-128
+ 1368 0092 00        		.byte	0
+ 1369 0093 00        		.byte	0
+ 1370 0094 00        		.byte	0
+ 1371 0095 00        		.byte	0
+ 1372 0096 00        		.byte	0
+ 1373 0097 00        		.byte	0
+ 1374 0098 0A        		.byte	10
+ 1375 0099 00        		.byte	0
+ 1376 009a 00        		.byte	0
+ 1377 009b 80        		.byte	-128
+ 1378 009c 00        		.byte	0
+ 1379 009d 00        		.byte	0
+ 1380 009e 00        		.byte	0
+ 1381 009f 80        		.byte	-128
+ 1382 00a0 81        		.byte	-127
+ 1383 00a1 80        		.byte	-128
+ 1384 00a2 00        		.byte	0
+ 1385 00a3 80        		.byte	-128
+ 1386 00a4 00        		.byte	0
+ 1387 00a5 00        		.byte	0
+ 1388 00a6 00        		.byte	0
+ 1389 00a7 80        		.byte	-128
+ 1390 00a8 80        		.byte	-128
+ 1391 00a9 80        		.byte	-128
+ 1392 00aa 00        		.byte	0
+ 1393 00ab 00        		.byte	0
+ 1394 00ac 00        		.byte	0
+ 1395 00ad 00        		.byte	0
+ 1396 00ae 00        		.byte	0
+ 1397 00af 80        		.byte	-128
+ 1398 00b0 01        		.byte	1
+ 1399 00b1 00        		.byte	0
+ 1400 00b2 00        		.byte	0
+ 1401 00b3 80        		.byte	-128
+ 1402 00b4 00        		.byte	0
+ 1403 00b5 00        		.byte	0
+ 1404 00b6 00        		.byte	0
+ 1405 00b7 00        		.byte	0
+ 1406 00b8 08        		.byte	8
+ 1407 00b9 80        		.byte	-128
+ 1408 00ba 00        		.byte	0
+ 1409 00bb 80        		.byte	-128
+ 1410 00bc 00        		.byte	0
+ 1411 00bd 00        		.byte	0
+ 1412 00be 00        		.byte	0
+ 1413 00bf 80        		.byte	-128
+ 1415               		.text
+ 1417               	.Letext0:
+ 1418               		.ident	"GCC: (GNU) 9.1.0"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 KeccakF-1600-avr8.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:446    .text.KeccakF:0000000000000000 KeccakF
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:1200   .progmem.data.KeccakF_Mod5:0000000000000000 KeccakF_Mod5
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:1208   .progmem.data.KeccakF_PiLane:0000000000000000 KeccakF_PiLane
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:1215   .progmem.data.KeccakF_RotationConstants:0000000000000000 KeccakF_RotationConstants
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccOLqiKr.s:1221   .progmem.data.KeccakF_RoundConstants:0000000000000000 KeccakF_RoundConstants
+
+UNDEFINED SYMBOLS
+rotate64_1bit_left
+rotate64left_code

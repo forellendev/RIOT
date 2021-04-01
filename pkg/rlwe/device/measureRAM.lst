@@ -1,0 +1,106 @@
+   1               	# 1 "device/measureRAM.S"
+   1               	//#include	"ATxmega128A1def.inc"
+   0               	
+   0               	
+   2               	
+   3               	#define XL r26
+   4               	#define XH r27
+   5               	#define temp R16
+   6               	#define temp2 R17
+   7               	#define cnt R18
+   8               	
+   9               	.global startRAM
+  10               	startRAM:
+  11:device/measureRAM.S **** 	PUSH XL
+  12:device/measureRAM.S **** 	PUSH XH
+  13:device/measureRAM.S **** 	PUSH temp
+  14               	
+  15:device/measureRAM.S **** 	 IN XL, 61  //SPL
+  16:device/measureRAM.S **** 	 IN XH, 62  //SPH
+  17               		; ldi r24, __heap_start
+  18               		 ;MOV R24, XL
+  19               		; MOV R25, XH
+  20:device/measureRAM.S **** 	 LDI temp, 0xE7
+  21               	
+  22               	RAMSTARTLOOP:
+  23:device/measureRAM.S **** 	CP XH, R25  
+  24:device/measureRAM.S **** 	BRNE DO_START_LOOP
+  25:device/measureRAM.S **** 	CP XL, R24 
+  26:device/measureRAM.S **** 	BREQ END
+  27               	
+  28               	DO_START_LOOP:
+  29:device/measureRAM.S **** 	ST X, temp
+  30:device/measureRAM.S **** 	SBIW XL, 1
+  31:device/measureRAM.S **** 	RJMP RAMSTARTLOOP
+  32               	
+  33               	END:
+  34:device/measureRAM.S **** 	IN R24, 61
+  35:device/measureRAM.S **** 	IN R25, 62
+  36:device/measureRAM.S **** 	POP temp
+  37:device/measureRAM.S **** 	POP XH
+  38:device/measureRAM.S **** 	POP XL	
+  39:device/measureRAM.S **** 	 ret
+  40               	
+  41               	
+  42               	.global endRAM
+  43               	endRAM:
+  44:device/measureRAM.S **** 	PUSH XL
+  45:device/measureRAM.S **** 	PUSH XH
+  46:device/measureRAM.S **** 	PUSH temp
+  47:device/measureRAM.S **** 	PUSH temp2
+  48:device/measureRAM.S **** 	PUSH cnt
+  49               	
+  50:device/measureRAM.S **** 	 IN XL, 61  //SPL
+  51:device/measureRAM.S **** 	 IN XH, 62  //SPH
+  52:device/measureRAM.S **** 	 LDI temp, 0xE7
+  53               	
+  54:device/measureRAM.S **** 	 LDI cnt, 0
+  55               	
+  56               	RAMENDLOOP:
+  57:device/measureRAM.S **** 	CPI XH, 0x27  //hi(0x2000)
+  58:device/measureRAM.S **** 	BRNE DO_END_LOOP
+  59:device/measureRAM.S **** 	CPI XL, 0x00 //lo(0x2000)
+  60:device/measureRAM.S **** 	BREQ END_E
+  61               	
+  62               	DO_END_LOOP:
+  63:device/measureRAM.S **** 	LD temp2, X
+  64:device/measureRAM.S **** 	SBIW XL, 1
+  65               	
+  66:device/measureRAM.S **** 	CPI temp2, 0xE7
+  67:device/measureRAM.S **** 	BRNE NO_HIT
+  68               	
+  69:device/measureRAM.S **** 	INC cnt
+  70               	
+  71:device/measureRAM.S **** 	CPI cnt, 16
+  72:device/measureRAM.S **** 	BREQ END_E
+  73               	
+  74:device/measureRAM.S **** 	RJMP RAMENDLOOP
+  75               	
+  76               	NO_HIT:
+  77:device/measureRAM.S **** 	LDI cnt, 0
+  78:device/measureRAM.S **** 	RJMP RAMENDLOOP
+  79               	
+  80               	END_E:
+  81:device/measureRAM.S **** 	MOV R24, XL
+  82:device/measureRAM.S **** 	MOV R25, XH
+  83               	
+  84:device/measureRAM.S **** 	SBIW XL, 15
+  85               	
+  86:device/measureRAM.S **** 	POP cnt
+  87:device/measureRAM.S **** 	POP temp2
+  88:device/measureRAM.S **** 	POP temp
+  89:device/measureRAM.S **** 	POP XH
+  90:device/measureRAM.S **** 	POP XL	
+  91:device/measureRAM.S **** 	 ret
+DEFINED SYMBOLS
+ device/measureRAM.S:10     .text:0000000000000000 startRAM
+ device/measureRAM.S:22     .text:000000000000000c RAMSTARTLOOP
+ device/measureRAM.S:28     .text:0000000000000014 DO_START_LOOP
+ device/measureRAM.S:33     .text:000000000000001a END
+ device/measureRAM.S:43     .text:0000000000000026 endRAM
+ device/measureRAM.S:56     .text:0000000000000038 RAMENDLOOP
+ device/measureRAM.S:62     .text:0000000000000040 DO_END_LOOP
+ device/measureRAM.S:80     .text:0000000000000054 END_E
+ device/measureRAM.S:76     .text:0000000000000050 NO_HIT
+
+NO UNDEFINED SYMBOLS

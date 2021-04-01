@@ -1,0 +1,3279 @@
+   1               		.file	"ntt_7681_256.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 437               		.section	.text.get_gauss_poly_7681_256,"ax",@progbits
+ 441               	.global	get_gauss_poly_7681_256
+ 443               	get_gauss_poly_7681_256:
+   1:crypto/p7681/ntt_7681_256.c **** 
+   2:crypto/p7681/ntt_7681_256.c **** 
+   3:crypto/p7681/ntt_7681_256.c **** #include <inttypes.h>
+   4:crypto/p7681/ntt_7681_256.c **** #include "param_256_7681.h"
+   5:crypto/p7681/ntt_7681_256.c ****  
+   6:crypto/p7681/ntt_7681_256.c **** #include "ntt_7681_256.h"
+   7:crypto/p7681/ntt_7681_256.c **** #include "../sampler/cdf_sampler.h"
+   8:crypto/p7681/ntt_7681_256.c **** #include "../rng/aes_prng.h"
+   9:crypto/p7681/ntt_7681_256.c **** #include "ntt_7681_256_const.data"
+  10:crypto/p7681/ntt_7681_256.c **** #include "mm7681.h"
+  11:crypto/p7681/ntt_7681_256.c **** 
+  12:crypto/p7681/ntt_7681_256.c **** 
+  13:crypto/p7681/ntt_7681_256.c **** #include "cdf_table_7681_1132.data"
+  14:crypto/p7681/ntt_7681_256.c **** 
+  15:crypto/p7681/ntt_7681_256.c **** 
+  16:crypto/p7681/ntt_7681_256.c **** //for debuggig purpose some functions are non-static
+  17:crypto/p7681/ntt_7681_256.c **** #define IS_STATIC 
+  18:crypto/p7681/ntt_7681_256.c **** 
+  19:crypto/p7681/ntt_7681_256.c **** #define MAX_BUF 48
+  20:crypto/p7681/ntt_7681_256.c **** 
+  21:crypto/p7681/ntt_7681_256.c **** void get_gauss_poly_7681_256(uint16_t* retpoly, uint16_t add){
+ 445               	.LM0:
+ 446               	.LFBB1:
+ 447 0000 9F92      		push r9
+ 448 0002 AF92      		push r10
+ 449 0004 BF92      		push r11
+ 450 0006 CF92      		push r12
+ 451 0008 DF92      		push r13
+ 452 000a EF92      		push r14
+ 453 000c FF92      		push r15
+ 454 000e 0F93      		push r16
+ 455 0010 1F93      		push r17
+ 456 0012 CF93      		push r28
+ 457 0014 DF93      		push r29
+ 458 0016 CDB7      		in r28,__SP_L__
+ 459 0018 DEB7      		in r29,__SP_H__
+ 460 001a E197      		sbiw r28,49
+ 461 001c CDBF      		out __SP_L__,r28
+ 462 001e DEBF      		out __SP_H__,r29
+ 463               	/* prologue: function */
+ 464               	/* frame size = 49 */
+ 465               	/* stack size = 60 */
+ 466               	.L__stack_usage = 60
+ 467 0020 6B01      		movw r12,r22
+  22:crypto/p7681/ntt_7681_256.c ****   //Generates or adds Gaussian noise to an array
+  23:crypto/p7681/ntt_7681_256.c ****   int8_t ret;
+  24:crypto/p7681/ntt_7681_256.c ****   int16_t val=0;
+  25:crypto/p7681/ntt_7681_256.c **** 
+  26:crypto/p7681/ntt_7681_256.c ****   uint8_t rand_buf[MAX_BUF];
+  27:crypto/p7681/ntt_7681_256.c ****   uint8_t rand_consumed = 254;
+  28:crypto/p7681/ntt_7681_256.c ****   uint8_t rand_consumed_func= 0;
+ 469               	.LM1:
+ 470 0022 19AA      		std Y+49,__zero_reg__
+ 471 0024 7C01      		movw r14,r24
+ 472 0026 5C01      		movw r10,r24
+ 473 0028 2EEF      		ldi r18,-2
+ 474 002a B21A      		sub r11,r18
+  27:crypto/p7681/ntt_7681_256.c ****   uint8_t rand_consumed_func= 0;
+ 476               	.LM2:
+ 477 002c 8EEF      		ldi r24,lo8(-2)
+ 478 002e 982E      		mov r9,r24
+ 479               	.L6:
+ 480               	.LBB2:
+  29:crypto/p7681/ntt_7681_256.c **** 
+  30:crypto/p7681/ntt_7681_256.c ****   for (uint16_t i = 0; i< 256; i++){
+  31:crypto/p7681/ntt_7681_256.c ****     if (rand_consumed > (MAX_BUF-13)){
+ 482               	.LM3:
+ 483 0030 83E2      		ldi r24,lo8(35)
+ 484 0032 8915      		cp r24,r9
+ 485 0034 00F4      		brsh .L2
+ 486               	.LBB3:
+  32:crypto/p7681/ntt_7681_256.c ****       for(uint16_t j = 0; j < MAX_BUF/16; j++){
+  33:crypto/p7681/ntt_7681_256.c **** 	//AES writes 128 bit = 16 byte into the buffer
+  34:crypto/p7681/ntt_7681_256.c **** 	next_block_ptr(rand_buf+16*j);
+ 488               	.LM4:
+ 489 0036 CE01      		movw r24,r28
+ 490 0038 0196      		adiw r24,1
+ 491 003a 0E94 0000 		call next_block_ptr
+ 492 003e CE01      		movw r24,r28
+ 493 0040 4196      		adiw r24,17
+ 494 0042 0E94 0000 		call next_block_ptr
+ 495 0046 CE01      		movw r24,r28
+ 496 0048 8196      		adiw r24,33
+ 497 004a 0E94 0000 		call next_block_ptr
+ 498               	.LBE3:
+  35:crypto/p7681/ntt_7681_256.c ****       }
+  36:crypto/p7681/ntt_7681_256.c ****       rand_consumed=0;
+ 500               	.LM5:
+ 501 004e 912C      		mov r9,__zero_reg__
+ 502               	.L2:
+  37:crypto/p7681/ntt_7681_256.c ****     }
+  38:crypto/p7681/ntt_7681_256.c **** 
+  39:crypto/p7681/ntt_7681_256.c ****     ret = sample_gauss(CDF_ROWS, CDF_COLUMNS, &cdf_table_7681_1132[0][0],  (uint8_t*) rand_buf+rand
+ 504               	.LM6:
+ 505 0050 21E0      		ldi r18,lo8(1)
+ 506 0052 30E0      		ldi r19,0
+ 507 0054 2C0F      		add r18,r28
+ 508 0056 3D1F      		adc r19,r29
+ 509 0058 290D      		add r18,r9
+ 510 005a 311D      		adc r19,__zero_reg__
+ 511 005c 8E01      		movw r16,r28
+ 512 005e 0F5C      		subi r16,-49
+ 513 0060 1F4F      		sbci r17,-1
+ 514 0062 40E0      		ldi r20,lo8(cdf_table_7681_1132)
+ 515 0064 50E0      		ldi r21,hi8(cdf_table_7681_1132)
+ 516 0066 6CE0      		ldi r22,lo8(12)
+ 517 0068 84E3      		ldi r24,lo8(52)
+ 518 006a 0E94 0000 		call sample_gauss
+  40:crypto/p7681/ntt_7681_256.c ****     rand_consumed += rand_consumed_func;
+ 520               	.LM7:
+ 521 006e 99A9      		ldd r25,Y+49
+ 522 0070 990E      		add r9,r25
+ 523 0072 082E      		mov __tmp_reg__,r24
+ 524 0074 000C      		lsl r0
+ 525 0076 990B      		sbc r25,r25
+  41:crypto/p7681/ntt_7681_256.c **** 
+  42:crypto/p7681/ntt_7681_256.c ****     val = ret;
+  43:crypto/p7681/ntt_7681_256.c ****     
+  44:crypto/p7681/ntt_7681_256.c ****     if(add == 1){
+ 527               	.LM8:
+ 528 0078 E1E0      		ldi r30,1
+ 529 007a CE16      		cp r12,r30
+ 530 007c D104      		cpc r13,__zero_reg__
+ 531 007e 01F4      		brne .L3
+  45:crypto/p7681/ntt_7681_256.c ****       if ( (retpoly[i]+val) >= paramQ){
+ 533               	.LM9:
+ 534 0080 F701      		movw r30,r14
+ 535 0082 2081      		ld r18,Z
+ 536 0084 3181      		ldd r19,Z+1
+ 537 0086 820F      		add r24,r18
+ 538 0088 931F      		adc r25,r19
+ 540               	.LM10:
+ 541 008a 8130      		cpi r24,1
+ 542 008c FEE1      		ldi r31,30
+ 543 008e 9F07      		cpc r25,r31
+ 544 0090 00F0      		brlo .L3
+  46:crypto/p7681/ntt_7681_256.c **** 	retpoly[i] = retpoly[i]+val - paramQ;
+ 546               	.LM11:
+ 547 0092 8150      		subi r24,1
+ 548 0094 9E41      		sbci r25,30
+ 549               	.L3:
+  47:crypto/p7681/ntt_7681_256.c ****       }
+  48:crypto/p7681/ntt_7681_256.c ****       else if( (retpoly[i]+val) < 0)
+  49:crypto/p7681/ntt_7681_256.c ****       {
+  50:crypto/p7681/ntt_7681_256.c **** 	retpoly[i] = retpoly[i]+val + paramQ;
+  51:crypto/p7681/ntt_7681_256.c ****       }
+  52:crypto/p7681/ntt_7681_256.c ****       else{
+  53:crypto/p7681/ntt_7681_256.c **** 	retpoly[i] = retpoly[i]+val;
+  54:crypto/p7681/ntt_7681_256.c ****       }
+  55:crypto/p7681/ntt_7681_256.c **** 
+  56:crypto/p7681/ntt_7681_256.c ****     }else{
+  57:crypto/p7681/ntt_7681_256.c ****       retpoly[i] = val;
+ 551               	.LM12:
+ 552 0096 F701      		movw r30,r14
+ 553 0098 8083      		st Z,r24
+ 554 009a 9183      		std Z+1,r25
+ 555 009c F2E0      		ldi r31,2
+ 556 009e EF0E      		add r14,r31
+ 557 00a0 F11C      		adc r15,__zero_reg__
+  30:crypto/p7681/ntt_7681_256.c ****     if (rand_consumed > (MAX_BUF-13)){
+ 559               	.LM13:
+ 560 00a2 EA14      		cp r14,r10
+ 561 00a4 FB04      		cpc r15,r11
+ 562 00a6 01F4      		brne .L6
+ 563               	/* epilogue start */
+ 564               	.LBE2:
+  58:crypto/p7681/ntt_7681_256.c ****     }
+  59:crypto/p7681/ntt_7681_256.c ****   }
+  60:crypto/p7681/ntt_7681_256.c **** }
+ 566               	.LM14:
+ 567 00a8 E196      		adiw r28,49
+ 568 00aa CDBF      		out __SP_L__,r28
+ 569 00ac DEBF      		out __SP_H__,r29
+ 570 00ae DF91      		pop r29
+ 571 00b0 CF91      		pop r28
+ 572 00b2 1F91      		pop r17
+ 573 00b4 0F91      		pop r16
+ 574 00b6 FF90      		pop r15
+ 575 00b8 EF90      		pop r14
+ 576 00ba DF90      		pop r13
+ 577 00bc CF90      		pop r12
+ 578 00be BF90      		pop r11
+ 579 00c0 AF90      		pop r10
+ 580 00c2 9F90      		pop r9
+ 581 00c4 0895      		ret
+ 588               	.Lscope1:
+ 589               		.section	.text.first_stage_GS,"ax",@progbits
+ 593               	.global	first_stage_GS
+ 595               	first_stage_GS:
+  61:crypto/p7681/ntt_7681_256.c **** 
+  62:crypto/p7681/ntt_7681_256.c **** void first_stage_GS(int16_t* a, const uint16_t* psi)
+  63:crypto/p7681/ntt_7681_256.c **** {
+ 597               	.LM15:
+ 598               	.LFBB2:
+ 599 0000 EF92      		push r14
+ 600 0002 FF92      		push r15
+ 601 0004 0F93      		push r16
+ 602 0006 1F93      		push r17
+ 603 0008 CF93      		push r28
+ 604 000a DF93      		push r29
+ 605               	/* prologue: function */
+ 606               	/* frame size = 0 */
+ 607               	/* stack size = 6 */
+ 608               	.L__stack_usage = 6
+ 609 000c 8B01      		movw r16,r22
+ 610 000e 1395      		inc r17
+ 611 0010 EC01      		movw r28,r24
+ 612 0012 7C01      		movw r14,r24
+ 613 0014 8EEF      		ldi r24,-2
+ 614 0016 F81A      		sub r15,r24
+ 615               	.L12:
+ 616               	.LBB4:
+ 617               	.LBB5:
+  64:crypto/p7681/ntt_7681_256.c **** 	uint16_t j = 0, jTwiddle = paramN/2;
+  65:crypto/p7681/ntt_7681_256.c **** 	while(j < paramN - 1)
+  66:crypto/p7681/ntt_7681_256.c **** 	{
+  67:crypto/p7681/ntt_7681_256.c **** 		uint16_t W = pgm_read_word(&psi[jTwiddle]);
+ 619               	.LM16:
+ 620 0018 F801      		movw r30,r16
+ 621               	/* #APP */
+ 622               	 ;  67 "crypto/p7681/ntt_7681_256.c" 1
+ 623 001a 8591      		lpm r24, Z+
+ 624 001c 9491      		lpm r25, Z
+ 625               		
+ 626               	 ;  0 "" 2
+ 627               	/* #NOAPP */
+ 628               	.LBE5:
+  68:crypto/p7681/ntt_7681_256.c **** 
+  69:crypto/p7681/ntt_7681_256.c **** 		int16_t temp = a[j];
+ 630               	.LM17:
+ 631 001e 6881      		ld r22,Y
+ 632 0020 7981      		ldd r23,Y+1
+  70:crypto/p7681/ntt_7681_256.c **** 		a[j] = temp + a[j + 1];
+ 634               	.LM18:
+ 635 0022 4A81      		ldd r20,Y+2
+ 636 0024 5B81      		ldd r21,Y+3
+ 637 0026 9B01      		movw r18,r22
+ 638 0028 240F      		add r18,r20
+ 639 002a 351F      		adc r19,r21
+  71:crypto/p7681/ntt_7681_256.c **** 		if(a[j] >= paramQ)
+ 641               	.LM19:
+ 642 002c 2130      		cpi r18,1
+ 643 002e EEE1      		ldi r30,30
+ 644 0030 3E07      		cpc r19,r30
+ 645 0032 04F4      		brge .L9
+ 646               	.L14:
+  72:crypto/p7681/ntt_7681_256.c **** 			a[j] -= paramQ;
+ 648               	.LM20:
+ 649 0034 2883      		st Y,r18
+ 650 0036 3983      		std Y+1,r19
+  73:crypto/p7681/ntt_7681_256.c **** 
+  74:crypto/p7681/ntt_7681_256.c **** 		temp = temp - a[j + 1];
+ 652               	.LM21:
+ 653 0038 641B      		sub r22,r20
+ 654 003a 750B      		sbc r23,r21
+  75:crypto/p7681/ntt_7681_256.c **** 		if(temp < 0)
+ 656               	.LM22:
+ 657 003c 77FF      		sbrs r23,7
+ 658 003e 00C0      		rjmp .L11
+  76:crypto/p7681/ntt_7681_256.c **** 			temp += paramQ;
+ 660               	.LM23:
+ 661 0040 6F5F      		subi r22,-1
+ 662 0042 714E      		sbci r23,-31
+ 663               	.L11:
+  77:crypto/p7681/ntt_7681_256.c **** 
+  78:crypto/p7681/ntt_7681_256.c **** 		a[j + 1] = mm7681(W, temp);
+ 665               	.LM24:
+ 666 0044 0E94 0000 		call mm7681
+ 668               	.LM25:
+ 669 0048 8A83      		std Y+2,r24
+ 670 004a 9B83      		std Y+3,r25
+ 671 004c 0E5F      		subi r16,-2
+ 672 004e 1F4F      		sbci r17,-1
+ 673 0050 2496      		adiw r28,4
+ 674               	.LBE4:
+  65:crypto/p7681/ntt_7681_256.c **** 	{
+ 676               	.LM26:
+ 677 0052 EC16      		cp r14,r28
+ 678 0054 FD06      		cpc r15,r29
+ 679 0056 01F4      		brne .L12
+ 680               	/* epilogue start */
+  79:crypto/p7681/ntt_7681_256.c **** 
+  80:crypto/p7681/ntt_7681_256.c **** 		jTwiddle++;
+  81:crypto/p7681/ntt_7681_256.c **** 		j = j + 2;
+  82:crypto/p7681/ntt_7681_256.c **** 	}
+  83:crypto/p7681/ntt_7681_256.c **** }
+ 682               	.LM27:
+ 683 0058 DF91      		pop r29
+ 684 005a CF91      		pop r28
+ 685 005c 1F91      		pop r17
+ 686 005e 0F91      		pop r16
+ 687 0060 FF90      		pop r15
+ 688 0062 EF90      		pop r14
+ 689 0064 0895      		ret
+ 690               	.L9:
+ 691               	.LBB6:
+  72:crypto/p7681/ntt_7681_256.c **** 
+ 693               	.LM28:
+ 694 0066 2150      		subi r18,1
+ 695 0068 3E41      		sbci r19,30
+ 696 006a 00C0      		rjmp .L14
+ 697               	.LBE6:
+ 699               	.Lscope2:
+ 700               		.section	.text.last_stage_GS,"ax",@progbits
+ 703               	.global	last_stage_GS
+ 705               	last_stage_GS:
+  84:crypto/p7681/ntt_7681_256.c **** 
+  85:crypto/p7681/ntt_7681_256.c **** void last_stage_GS(int16_t* a, const uint16_t* psi)
+  86:crypto/p7681/ntt_7681_256.c **** {
+ 707               	.LM29:
+ 708               	.LFBB3:
+ 709 0000 AF92      		push r10
+ 710 0002 BF92      		push r11
+ 711 0004 CF92      		push r12
+ 712 0006 DF92      		push r13
+ 713 0008 EF92      		push r14
+ 714 000a FF92      		push r15
+ 715 000c 0F93      		push r16
+ 716 000e 1F93      		push r17
+ 717 0010 CF93      		push r28
+ 718 0012 DF93      		push r29
+ 719               	/* prologue: function */
+ 720               	/* frame size = 0 */
+ 721               	/* stack size = 10 */
+ 722               	.L__stack_usage = 10
+ 723               	.LBB7:
+  87:crypto/p7681/ntt_7681_256.c **** 	uint16_t distance = paramN/2;
+  88:crypto/p7681/ntt_7681_256.c **** 
+  89:crypto/p7681/ntt_7681_256.c **** 	uint16_t jFirst;
+  90:crypto/p7681/ntt_7681_256.c **** 	uint16_t W = pgm_read_word(&psi[1]);
+ 725               	.LM30:
+ 726 0014 FB01      		movw r30,r22
+ 727 0016 3296      		adiw r30,2
+ 728               	/* #APP */
+ 729               	 ;  90 "crypto/p7681/ntt_7681_256.c" 1
+ 730 0018 A590      		lpm r10, Z+
+ 731 001a B490      		lpm r11, Z
+ 732               		
+ 733               	 ;  0 "" 2
+ 734               	/* #NOAPP */
+ 735 001c EC01      		movw r28,r24
+ 736 001e 8C01      		movw r16,r24
+ 737 0020 1395      		inc r17
+ 738 0022 6801      		movw r12,r16
+ 739               	.L19:
+ 740               	.LBE7:
+ 741               	.LBB8:
+  91:crypto/p7681/ntt_7681_256.c **** 
+  92:crypto/p7681/ntt_7681_256.c **** 	for(jFirst = 0; jFirst < paramN/2;jFirst++)
+  93:crypto/p7681/ntt_7681_256.c **** 	{
+  94:crypto/p7681/ntt_7681_256.c **** 		uint16_t j = jFirst;
+  95:crypto/p7681/ntt_7681_256.c **** 		int16_t temp = a[j];
+ 743               	.LM31:
+ 744 0024 6991      		ld r22,Y+
+ 745 0026 7991      		ld r23,Y+
+  96:crypto/p7681/ntt_7681_256.c **** 		a[j] = temp + a[j + distance];
+ 747               	.LM32:
+ 748 0028 F801      		movw r30,r16
+ 749 002a 8191      		ld r24,Z+
+ 750 002c 9191      		ld r25,Z+
+ 751 002e 8F01      		movw r16,r30
+ 753               	.LM33:
+ 754 0030 860F      		add r24,r22
+ 755 0032 971F      		adc r25,r23
+ 756 0034 FE01      		movw r30,r28
+ 757 0036 3297      		sbiw r30,2
+  97:crypto/p7681/ntt_7681_256.c **** 		if(a[j] >= paramQ)
+ 759               	.LM34:
+ 760 0038 8130      		cpi r24,1
+ 761 003a 2EE1      		ldi r18,30
+ 762 003c 9207      		cpc r25,r18
+ 763 003e 04F4      		brge .L16
+ 764               	.L21:
+  98:crypto/p7681/ntt_7681_256.c **** 			a[j] -= paramQ;
+ 766               	.LM35:
+ 767 0040 8083      		st Z,r24
+ 768 0042 9183      		std Z+1,r25
+  99:crypto/p7681/ntt_7681_256.c **** 
+ 100:crypto/p7681/ntt_7681_256.c **** 		temp = temp - a[j + distance];
+ 770               	.LM36:
+ 771 0044 F801      		movw r30,r16
+ 772 0046 9291      		ld r25,-Z
+ 773 0048 8291      		ld r24,-Z
+ 774 004a 7F01      		movw r14,r30
+ 775 004c 681B      		sub r22,r24
+ 776 004e 790B      		sbc r23,r25
+ 101:crypto/p7681/ntt_7681_256.c **** 		if(temp < 0)
+ 778               	.LM37:
+ 779 0050 77FF      		sbrs r23,7
+ 780 0052 00C0      		rjmp .L18
+ 102:crypto/p7681/ntt_7681_256.c **** 			temp += paramQ;
+ 782               	.LM38:
+ 783 0054 6F5F      		subi r22,-1
+ 784 0056 714E      		sbci r23,-31
+ 785               	.L18:
+ 103:crypto/p7681/ntt_7681_256.c **** 
+ 104:crypto/p7681/ntt_7681_256.c **** 		a[j + distance] = mm7681(W, temp);
+ 787               	.LM39:
+ 788 0058 C501      		movw r24,r10
+ 789 005a 0E94 0000 		call mm7681
+ 791               	.LM40:
+ 792 005e F701      		movw r30,r14
+ 793 0060 8083      		st Z,r24
+ 794 0062 9183      		std Z+1,r25
+ 795               	.LBE8:
+  92:crypto/p7681/ntt_7681_256.c **** 	{
+ 797               	.LM41:
+ 798 0064 CC15      		cp r28,r12
+ 799 0066 DD05      		cpc r29,r13
+ 800 0068 01F4      		brne .L19
+ 801               	/* epilogue start */
+ 105:crypto/p7681/ntt_7681_256.c **** 	}
+ 106:crypto/p7681/ntt_7681_256.c **** }
+ 803               	.LM42:
+ 804 006a DF91      		pop r29
+ 805 006c CF91      		pop r28
+ 806 006e 1F91      		pop r17
+ 807 0070 0F91      		pop r16
+ 808 0072 FF90      		pop r15
+ 809 0074 EF90      		pop r14
+ 810 0076 DF90      		pop r13
+ 811 0078 CF90      		pop r12
+ 812 007a BF90      		pop r11
+ 813 007c AF90      		pop r10
+ 814 007e 0895      		ret
+ 815               	.L16:
+ 816               	.LBB9:
+  98:crypto/p7681/ntt_7681_256.c **** 
+ 818               	.LM43:
+ 819 0080 8150      		subi r24,1
+ 820 0082 9E41      		sbci r25,30
+ 821 0084 00C0      		rjmp .L21
+ 822               	.LBE9:
+ 827               	.Lscope3:
+ 828               		.section	.text.ntt_GS_bo_to_no_incl_invpsi_7681_256,"ax",@progbits
+ 832               	.global	ntt_GS_bo_to_no_incl_invpsi_7681_256
+ 834               	ntt_GS_bo_to_no_incl_invpsi_7681_256:
+ 107:crypto/p7681/ntt_7681_256.c **** 
+ 108:crypto/p7681/ntt_7681_256.c **** void ntt_GS_bo_to_no_incl_invpsi_7681_256(int16_t* a, const uint16_t* psi)
+ 109:crypto/p7681/ntt_7681_256.c **** {
+ 836               	.LM44:
+ 837               	.LFBB4:
+ 838 0000 2F92      		push r2
+ 839 0002 3F92      		push r3
+ 840 0004 4F92      		push r4
+ 841 0006 5F92      		push r5
+ 842 0008 6F92      		push r6
+ 843 000a 7F92      		push r7
+ 844 000c 8F92      		push r8
+ 845 000e 9F92      		push r9
+ 846 0010 AF92      		push r10
+ 847 0012 BF92      		push r11
+ 848 0014 CF92      		push r12
+ 849 0016 DF92      		push r13
+ 850 0018 EF92      		push r14
+ 851 001a FF92      		push r15
+ 852 001c 0F93      		push r16
+ 853 001e 1F93      		push r17
+ 854 0020 CF93      		push r28
+ 855 0022 DF93      		push r29
+ 856 0024 CDB7      		in r28,__SP_L__
+ 857 0026 DEB7      		in r29,__SP_H__
+ 858 0028 2A97      		sbiw r28,10
+ 859 002a CDBF      		out __SP_L__,r28
+ 860 002c DEBF      		out __SP_H__,r29
+ 861               	/* prologue: function */
+ 862               	/* frame size = 10 */
+ 863               	/* stack size = 28 */
+ 864               	.L__stack_usage = 28
+ 865 002e 8C01      		movw r16,r24
+ 866 0030 6B01      		movw r12,r22
+ 110:crypto/p7681/ntt_7681_256.c **** 	uint16_t numOfProblems = 1, problemSize = paramN/2, distance = 1;
+ 111:crypto/p7681/ntt_7681_256.c **** 	
+ 112:crypto/p7681/ntt_7681_256.c **** 	first_stage_GS(a,psi);
+ 868               	.LM45:
+ 869 0032 0E94 0000 		call first_stage_GS
+ 870 0036 26E0      		ldi r18,lo8(6)
+ 871 0038 30E0      		ldi r19,0
+ 872 003a 2D83      		std Y+5,r18
+ 873 003c 3E83      		std Y+6,r19
+ 113:crypto/p7681/ntt_7681_256.c **** 
+ 114:crypto/p7681/ntt_7681_256.c **** 	numOfProblems = numOfProblems * 2;
+ 115:crypto/p7681/ntt_7681_256.c **** 	problemSize = problemSize/2;
+ 875               	.LM46:
+ 876 003e 80E4      		ldi r24,lo8(64)
+ 877 0040 90E0      		ldi r25,0
+ 878 0042 8983      		std Y+1,r24
+ 879 0044 9A83      		std Y+2,r25
+ 114:crypto/p7681/ntt_7681_256.c **** 	problemSize = problemSize/2;
+ 881               	.LM47:
+ 882 0046 72E0      		ldi r23,lo8(2)
+ 883 0048 A72E      		mov r10,r23
+ 884 004a B12C      		mov r11,__zero_reg__
+ 885               	.L23:
+ 886 004c 4501      		movw r8,r10
+ 887               	.LBB10:
+ 888               	.LBB11:
+ 116:crypto/p7681/ntt_7681_256.c **** 	distance = distance * 2;
+ 117:crypto/p7681/ntt_7681_256.c **** 
+ 118:crypto/p7681/ntt_7681_256.c **** 	while(problemSize > 1)
+ 119:crypto/p7681/ntt_7681_256.c **** 	{
+ 120:crypto/p7681/ntt_7681_256.c **** 		uint16_t i;
+ 121:crypto/p7681/ntt_7681_256.c **** 		uint16_t offset = 0;
+ 122:crypto/p7681/ntt_7681_256.c **** 
+ 123:crypto/p7681/ntt_7681_256.c **** 		for(i = 0; i < problemSize;i++)
+ 124:crypto/p7681/ntt_7681_256.c **** 		{
+ 125:crypto/p7681/ntt_7681_256.c **** 			uint16_t j;			
+ 126:crypto/p7681/ntt_7681_256.c **** 			uint16_t W = pgm_read_word(&psi[problemSize + i]);			
+ 127:crypto/p7681/ntt_7681_256.c **** 
+ 128:crypto/p7681/ntt_7681_256.c **** 			for(j=offset;j<offset+numOfProblems;j++)
+ 129:crypto/p7681/ntt_7681_256.c **** 			{
+ 130:crypto/p7681/ntt_7681_256.c **** 				int16_t temp = a[j];
+ 131:crypto/p7681/ntt_7681_256.c **** 				a[j] = temp + a[j + distance];
+ 132:crypto/p7681/ntt_7681_256.c **** 				if(a[j] >= paramQ)
+ 133:crypto/p7681/ntt_7681_256.c **** 					a[j] -= paramQ;
+ 134:crypto/p7681/ntt_7681_256.c **** 
+ 135:crypto/p7681/ntt_7681_256.c **** 				temp = temp - a[j + distance];
+ 136:crypto/p7681/ntt_7681_256.c **** 				if(temp < 0)
+ 137:crypto/p7681/ntt_7681_256.c **** 					temp += paramQ;
+ 138:crypto/p7681/ntt_7681_256.c **** 
+ 139:crypto/p7681/ntt_7681_256.c **** 				a[j + distance] = mm7681(W, temp);
+ 140:crypto/p7681/ntt_7681_256.c **** 			}
+ 141:crypto/p7681/ntt_7681_256.c **** 
+ 142:crypto/p7681/ntt_7681_256.c **** 			offset += 2*numOfProblems;			
+ 890               	.LM48:
+ 891 004e AA0C      		lsl r10
+ 892 0050 BB1C      		rol r11
+ 893 0052 8981      		ldd r24,Y+1
+ 894 0054 9A81      		ldd r25,Y+2
+ 895 0056 880F      		lsl r24
+ 896 0058 991F      		rol r25
+ 897 005a F601      		movw r30,r12
+ 898 005c E80F      		add r30,r24
+ 899 005e F91F      		adc r31,r25
+ 900 0060 EB83      		std Y+3,r30
+ 901 0062 FC83      		std Y+4,r31
+ 902               	.LBE11:
+ 121:crypto/p7681/ntt_7681_256.c **** 
+ 904               	.LM49:
+ 905 0064 712C      		mov r7,__zero_reg__
+ 906 0066 612C      		mov r6,__zero_reg__
+ 123:crypto/p7681/ntt_7681_256.c **** 		{
+ 908               	.LM50:
+ 909 0068 512C      		mov r5,__zero_reg__
+ 910 006a 412C      		mov r4,__zero_reg__
+ 911               	.L29:
+ 912               	.LBB15:
+ 913               	.LBB12:
+ 126:crypto/p7681/ntt_7681_256.c **** 
+ 915               	.LM51:
+ 916 006c EB81      		ldd r30,Y+3
+ 917 006e FC81      		ldd r31,Y+4
+ 918               	/* #APP */
+ 919               	 ;  126 "crypto/p7681/ntt_7681_256.c" 1
+ 920 0070 2591      		lpm r18, Z+
+ 921 0072 3491      		lpm r19, Z
+ 922               		
+ 923               	 ;  0 "" 2
+ 924               	/* #NOAPP */
+ 925 0074 2F83      		std Y+7,r18
+ 926 0076 3887      		std Y+8,r19
+ 927 0078 7401      		movw r14,r8
+ 928 007a EE0C      		lsl r14
+ 929 007c FF1C      		rol r15
+ 930 007e E00E      		add r14,r16
+ 931 0080 F11E      		adc r15,r17
+ 932 0082 C301      		movw r24,r6
+ 933 0084 880F      		lsl r24
+ 934 0086 991F      		rol r25
+ 935 0088 800F      		add r24,r16
+ 936 008a 911F      		adc r25,r17
+ 937 008c 8987      		std Y+9,r24
+ 938 008e 9A87      		std Y+10,r25
+ 939               	.LBE12:
+ 128:crypto/p7681/ntt_7681_256.c **** 			{
+ 941               	.LM52:
+ 942 0090 1301      		movw r2,r6
+ 943               	.L24:
+ 128:crypto/p7681/ntt_7681_256.c **** 			{
+ 945               	.LM53:
+ 946 0092 2814      		cp r2,r8
+ 947 0094 3904      		cpc r3,r9
+ 948 0096 00F0      		brlo .L28
+ 950               	.LM54:
+ 951 0098 6A0C      		add r6,r10
+ 952 009a 7B1C      		adc r7,r11
+ 953               	.LBE15:
+ 123:crypto/p7681/ntt_7681_256.c **** 		{
+ 955               	.LM55:
+ 956 009c 3FEF      		ldi r19,-1
+ 957 009e 431A      		sub r4,r19
+ 958 00a0 530A      		sbc r5,r19
+ 959 00a2 8B81      		ldd r24,Y+3
+ 960 00a4 9C81      		ldd r25,Y+4
+ 961 00a6 0296      		adiw r24,2
+ 962 00a8 8B83      		std Y+3,r24
+ 963 00aa 9C83      		std Y+4,r25
+ 964 00ac 8A0C      		add r8,r10
+ 965 00ae 9B1C      		adc r9,r11
+ 123:crypto/p7681/ntt_7681_256.c **** 		{
+ 967               	.LM56:
+ 968 00b0 E981      		ldd r30,Y+1
+ 969 00b2 FA81      		ldd r31,Y+2
+ 970 00b4 4E16      		cp r4,r30
+ 971 00b6 5F06      		cpc r5,r31
+ 972 00b8 01F4      		brne .L29
+ 143:crypto/p7681/ntt_7681_256.c **** 		}
+ 144:crypto/p7681/ntt_7681_256.c **** 
+ 145:crypto/p7681/ntt_7681_256.c **** 		numOfProblems = numOfProblems * 2;
+ 146:crypto/p7681/ntt_7681_256.c **** 		problemSize = problemSize/2;
+ 974               	.LM57:
+ 975 00ba 9201      		movw r18,r4
+ 976 00bc 3695      		lsr r19
+ 977 00be 2795      		ror r18
+ 978 00c0 2983      		std Y+1,r18
+ 979 00c2 3A83      		std Y+2,r19
+ 980 00c4 8D81      		ldd r24,Y+5
+ 981 00c6 9E81      		ldd r25,Y+6
+ 982 00c8 0197      		sbiw r24,1
+ 983 00ca 8D83      		std Y+5,r24
+ 984 00cc 9E83      		std Y+6,r25
+ 985               	.LBE10:
+ 118:crypto/p7681/ntt_7681_256.c **** 	{
+ 987               	.LM58:
+ 988 00ce 892B      		or r24,r25
+ 989 00d0 01F0      		breq .+2
+ 990 00d2 00C0      		rjmp .L23
+ 147:crypto/p7681/ntt_7681_256.c **** 		distance = distance * 2;
+ 148:crypto/p7681/ntt_7681_256.c **** 	}
+ 149:crypto/p7681/ntt_7681_256.c **** 
+ 150:crypto/p7681/ntt_7681_256.c **** 	last_stage_GS(a, psi);
+ 992               	.LM59:
+ 993 00d4 B601      		movw r22,r12
+ 994 00d6 C801      		movw r24,r16
+ 995               	/* epilogue start */
+ 151:crypto/p7681/ntt_7681_256.c **** }
+ 997               	.LM60:
+ 998 00d8 2A96      		adiw r28,10
+ 999 00da CDBF      		out __SP_L__,r28
+ 1000 00dc DEBF      		out __SP_H__,r29
+ 1001 00de DF91      		pop r29
+ 1002 00e0 CF91      		pop r28
+ 1003 00e2 1F91      		pop r17
+ 1004 00e4 0F91      		pop r16
+ 1005 00e6 FF90      		pop r15
+ 1006 00e8 EF90      		pop r14
+ 1007 00ea DF90      		pop r13
+ 1008 00ec CF90      		pop r12
+ 1009 00ee BF90      		pop r11
+ 1010 00f0 AF90      		pop r10
+ 1011 00f2 9F90      		pop r9
+ 1012 00f4 8F90      		pop r8
+ 1013 00f6 7F90      		pop r7
+ 1014 00f8 6F90      		pop r6
+ 1015 00fa 5F90      		pop r5
+ 1016 00fc 4F90      		pop r4
+ 1017 00fe 3F90      		pop r3
+ 1018 0100 2F90      		pop r2
+ 150:crypto/p7681/ntt_7681_256.c **** }
+ 1020               	.LM61:
+ 1021 0102 0C94 0000 		jmp last_stage_GS
+ 1022               	.L28:
+ 1023               	.LBB17:
+ 1024               	.LBB16:
+ 1025               	.LBB13:
+ 130:crypto/p7681/ntt_7681_256.c **** 				a[j] = temp + a[j + distance];
+ 1027               	.LM62:
+ 1028 0106 E985      		ldd r30,Y+9
+ 1029 0108 FA85      		ldd r31,Y+10
+ 1030 010a 6081      		ld r22,Z
+ 1031 010c 7181      		ldd r23,Z+1
+ 131:crypto/p7681/ntt_7681_256.c **** 				if(a[j] >= paramQ)
+ 1033               	.LM63:
+ 1034 010e F701      		movw r30,r14
+ 1035 0110 8081      		ld r24,Z
+ 1036 0112 9181      		ldd r25,Z+1
+ 1037 0114 860F      		add r24,r22
+ 1038 0116 971F      		adc r25,r23
+ 132:crypto/p7681/ntt_7681_256.c **** 					a[j] -= paramQ;
+ 1040               	.LM64:
+ 1041 0118 8130      		cpi r24,1
+ 1042 011a FEE1      		ldi r31,30
+ 1043 011c 9F07      		cpc r25,r31
+ 1044 011e 04F4      		brge .L25
+ 1045               	.L32:
+ 133:crypto/p7681/ntt_7681_256.c **** 
+ 1047               	.LM65:
+ 1048 0120 E985      		ldd r30,Y+9
+ 1049 0122 FA85      		ldd r31,Y+10
+ 1050 0124 8083      		st Z,r24
+ 1051 0126 9183      		std Z+1,r25
+ 135:crypto/p7681/ntt_7681_256.c **** 				if(temp < 0)
+ 1053               	.LM66:
+ 1054 0128 F701      		movw r30,r14
+ 1055 012a 8081      		ld r24,Z
+ 1056 012c 9181      		ldd r25,Z+1
+ 1057 012e 681B      		sub r22,r24
+ 1058 0130 790B      		sbc r23,r25
+ 136:crypto/p7681/ntt_7681_256.c **** 					temp += paramQ;
+ 1060               	.LM67:
+ 1061 0132 77FF      		sbrs r23,7
+ 1062 0134 00C0      		rjmp .L27
+ 137:crypto/p7681/ntt_7681_256.c **** 
+ 1064               	.LM68:
+ 1065 0136 6F5F      		subi r22,-1
+ 1066 0138 714E      		sbci r23,-31
+ 1067               	.L27:
+ 139:crypto/p7681/ntt_7681_256.c **** 			}
+ 1069               	.LM69:
+ 1070 013a 8F81      		ldd r24,Y+7
+ 1071 013c 9885      		ldd r25,Y+8
+ 1072 013e 0E94 0000 		call mm7681
+ 139:crypto/p7681/ntt_7681_256.c **** 			}
+ 1074               	.LM70:
+ 1075 0142 F701      		movw r30,r14
+ 1076 0144 8193      		st Z+,r24
+ 1077 0146 9193      		st Z+,r25
+ 1078 0148 7F01      		movw r14,r30
+ 1079               	.LBE13:
+ 128:crypto/p7681/ntt_7681_256.c **** 			{
+ 1081               	.LM71:
+ 1082 014a FFEF      		ldi r31,-1
+ 1083 014c 2F1A      		sub r2,r31
+ 1084 014e 3F0A      		sbc r3,r31
+ 1085 0150 2985      		ldd r18,Y+9
+ 1086 0152 3A85      		ldd r19,Y+10
+ 1087 0154 2E5F      		subi r18,-2
+ 1088 0156 3F4F      		sbci r19,-1
+ 1089 0158 2987      		std Y+9,r18
+ 1090 015a 3A87      		std Y+10,r19
+ 1091 015c 00C0      		rjmp .L24
+ 1092               	.L25:
+ 1093               	.LBB14:
+ 133:crypto/p7681/ntt_7681_256.c **** 
+ 1095               	.LM72:
+ 1096 015e 8150      		subi r24,1
+ 1097 0160 9E41      		sbci r25,30
+ 1098 0162 00C0      		rjmp .L32
+ 1099               	.LBE14:
+ 1100               	.LBE16:
+ 1101               	.LBE17:
+ 1123               	.Lscope4:
+ 1124               		.section	.text.print_counter,"ax",@progbits
+ 1126               	.global	print_counter
+ 1128               	print_counter:
+ 152:crypto/p7681/ntt_7681_256.c **** 
+ 153:crypto/p7681/ntt_7681_256.c **** //#define COUNT_LOOKUPS
+ 154:crypto/p7681/ntt_7681_256.c **** 
+ 155:crypto/p7681/ntt_7681_256.c **** #ifdef COUNT_LOOKUPS
+ 156:crypto/p7681/ntt_7681_256.c **** uint16_t num_lookups = 0;
+ 157:crypto/p7681/ntt_7681_256.c **** uint16_t num_total = 0;
+ 158:crypto/p7681/ntt_7681_256.c **** 
+ 159:crypto/p7681/ntt_7681_256.c **** void print_counter(void)
+ 160:crypto/p7681/ntt_7681_256.c **** {
+ 161:crypto/p7681/ntt_7681_256.c **** 	printf("Total: %u, Look-ups: %u\n", num_total, num_lookups);
+ 162:crypto/p7681/ntt_7681_256.c **** }
+ 163:crypto/p7681/ntt_7681_256.c **** 
+ 164:crypto/p7681/ntt_7681_256.c **** #else
+ 165:crypto/p7681/ntt_7681_256.c **** void print_counter(void)
+ 166:crypto/p7681/ntt_7681_256.c **** {
+ 1130               	.LM73:
+ 1131               	.LFBB5:
+ 1132               	/* prologue: function */
+ 1133               	/* frame size = 0 */
+ 1134               	/* stack size = 0 */
+ 1135               	.L__stack_usage = 0
+ 1136               	/* epilogue start */
+ 167:crypto/p7681/ntt_7681_256.c **** 	
+ 168:crypto/p7681/ntt_7681_256.c **** }
+ 1138               	.LM74:
+ 1139 0000 0895      		ret
+ 1141               	.Lscope5:
+ 1142               		.section	.text.first_stage_CT,"ax",@progbits
+ 1145               	.global	first_stage_CT
+ 1147               	first_stage_CT:
+ 169:crypto/p7681/ntt_7681_256.c **** #endif
+ 170:crypto/p7681/ntt_7681_256.c **** 
+ 171:crypto/p7681/ntt_7681_256.c **** void first_stage_CT(int16_t * a)
+ 172:crypto/p7681/ntt_7681_256.c **** {
+ 1149               	.LM75:
+ 1150               	.LFBB6:
+ 1151 0000 CF92      		push r12
+ 1152 0002 DF92      		push r13
+ 1153 0004 EF92      		push r14
+ 1154 0006 FF92      		push r15
+ 1155 0008 0F93      		push r16
+ 1156 000a 1F93      		push r17
+ 1157 000c CF93      		push r28
+ 1158 000e DF93      		push r29
+ 1159               	/* prologue: function */
+ 1160               	/* frame size = 0 */
+ 1161               	/* stack size = 8 */
+ 1162               	.L__stack_usage = 8
+ 1163 0010 EC01      		movw r28,r24
+ 1164 0012 8C01      		movw r16,r24
+ 1165 0014 1395      		inc r17
+ 1166 0016 7801      		movw r14,r16
+ 1167               	.LBB18:
+ 173:crypto/p7681/ntt_7681_256.c **** 	uint16_t distance=paramN/2;
+ 174:crypto/p7681/ntt_7681_256.c **** 
+ 175:crypto/p7681/ntt_7681_256.c **** 	uint16_t j;
+ 176:crypto/p7681/ntt_7681_256.c **** 			
+ 177:crypto/p7681/ntt_7681_256.c **** 	for(j=0; j<paramN/2; j++)
+ 178:crypto/p7681/ntt_7681_256.c **** 	{
+ 179:crypto/p7681/ntt_7681_256.c **** 		int16_t temp;
+ 180:crypto/p7681/ntt_7681_256.c **** 
+ 181:crypto/p7681/ntt_7681_256.c **** #ifdef COUNT_LOOKUPS
+ 182:crypto/p7681/ntt_7681_256.c **** 		num_total++;
+ 183:crypto/p7681/ntt_7681_256.c **** #endif
+ 184:crypto/p7681/ntt_7681_256.c **** 
+ 185:crypto/p7681/ntt_7681_256.c **** 		if(a[j + distance] < 0)
+ 186:crypto/p7681/ntt_7681_256.c **** 		{ 
+ 187:crypto/p7681/ntt_7681_256.c **** 			if(a[j + distance] < -15)
+ 188:crypto/p7681/ntt_7681_256.c **** 			{
+ 189:crypto/p7681/ntt_7681_256.c **** 				temp = mm7681(4298, (-1) * a[j + distance]);
+ 190:crypto/p7681/ntt_7681_256.c **** 			}
+ 191:crypto/p7681/ntt_7681_256.c **** 			else
+ 192:crypto/p7681/ntt_7681_256.c **** 			{
+ 193:crypto/p7681/ntt_7681_256.c **** 				temp = pgm_read_word(&omegamultiples_7681_256[(-1) * a[j + distance]]);
+ 194:crypto/p7681/ntt_7681_256.c **** #ifdef COUNT_LOOKUPS
+ 195:crypto/p7681/ntt_7681_256.c **** 				num_lookups++;
+ 196:crypto/p7681/ntt_7681_256.c **** #endif
+ 197:crypto/p7681/ntt_7681_256.c **** 			}
+ 198:crypto/p7681/ntt_7681_256.c **** 			temp = ((-1) * temp) + paramQ;
+ 1169               	.LM76:
+ 1170 0018 CC24      		clr r12
+ 1171 001a C394      		inc r12
+ 1172 001c 2EE1      		ldi r18,lo8(30)
+ 1173 001e D22E      		mov r13,r18
+ 1174               	.L46:
+ 185:crypto/p7681/ntt_7681_256.c **** 		{ 
+ 1176               	.LM77:
+ 1177 0020 D801      		movw r26,r16
+ 1178 0022 ED91      		ld r30,X+
+ 1179 0024 FD91      		ld r31,X+
+ 1180 0026 8D01      		movw r16,r26
+ 185:crypto/p7681/ntt_7681_256.c **** 		{ 
+ 1182               	.LM78:
+ 1183 0028 F7FF      		sbrs r31,7
+ 1184 002a 00C0      		rjmp .L35
+ 1185 002c 6627      		clr r22
+ 1186 002e 7727      		clr r23
+ 1187 0030 6E1B      		sub r22,r30
+ 1188 0032 7F0B      		sbc r23,r31
+ 187:crypto/p7681/ntt_7681_256.c **** 			{
+ 1190               	.LM79:
+ 1191 0034 E13F      		cpi r30,-15
+ 1192 0036 FF4F      		sbci r31,-1
+ 1193 0038 04F4      		brge .L36
+ 189:crypto/p7681/ntt_7681_256.c **** 			}
+ 1195               	.LM80:
+ 1196 003a 8AEC      		ldi r24,lo8(-54)
+ 1197 003c 90E1      		ldi r25,lo8(16)
+ 1198 003e 0E94 0000 		call mm7681
+ 1199 0042 9C01      		movw r18,r24
+ 1200               	.L37:
+ 1202               	.LM81:
+ 1203 0044 C601      		movw r24,r12
+ 1204 0046 821B      		sub r24,r18
+ 1205 0048 930B      		sbc r25,r19
+ 1206 004a 9C01      		movw r18,r24
+ 1207               	.L38:
+ 199:crypto/p7681/ntt_7681_256.c **** 		}
+ 200:crypto/p7681/ntt_7681_256.c **** 		else
+ 201:crypto/p7681/ntt_7681_256.c **** 		{
+ 202:crypto/p7681/ntt_7681_256.c **** 			if(a[j + distance] > 15)
+ 203:crypto/p7681/ntt_7681_256.c **** 			{
+ 204:crypto/p7681/ntt_7681_256.c **** 				temp = mm7681(4298, a[j + distance]);
+ 205:crypto/p7681/ntt_7681_256.c **** 			}
+ 206:crypto/p7681/ntt_7681_256.c **** 			else
+ 207:crypto/p7681/ntt_7681_256.c **** 			{
+ 208:crypto/p7681/ntt_7681_256.c **** 				temp = pgm_read_word(&omegamultiples_7681_256[a[j + distance]]);
+ 209:crypto/p7681/ntt_7681_256.c **** #ifdef COUNT_LOOKUPS
+ 210:crypto/p7681/ntt_7681_256.c **** 				num_lookups++;
+ 211:crypto/p7681/ntt_7681_256.c **** #endif
+ 212:crypto/p7681/ntt_7681_256.c **** 			}
+ 213:crypto/p7681/ntt_7681_256.c **** 		}			
+ 214:crypto/p7681/ntt_7681_256.c **** 
+ 215:crypto/p7681/ntt_7681_256.c **** 		a[j + distance] = a[j] - temp;
+ 1209               	.LM82:
+ 1210 004c 8881      		ld r24,Y
+ 1211 004e 9981      		ldd r25,Y+1
+ 1212 0050 821B      		sub r24,r18
+ 1213 0052 930B      		sbc r25,r19
+ 1214 0054 F801      		movw r30,r16
+ 1215 0056 3297      		sbiw r30,2
+ 216:crypto/p7681/ntt_7681_256.c **** 		if(a[j + distance] < 0)
+ 1217               	.LM83:
+ 1218 0058 97FD      		sbrc r25,7
+ 1219 005a 00C0      		rjmp .L40
+ 1220               	.L48:
+ 217:crypto/p7681/ntt_7681_256.c **** 			a[j+distance] += paramQ;
+ 1222               	.LM84:
+ 1223 005c 8083      		st Z,r24
+ 1224 005e 9183      		std Z+1,r25
+ 218:crypto/p7681/ntt_7681_256.c **** 		if(a[j + distance] < 0)
+ 1226               	.LM85:
+ 1227 0060 8081      		ld r24,Z
+ 1228 0062 9181      		ldd r25,Z+1
+ 1230               	.LM86:
+ 1231 0064 97FF      		sbrs r25,7
+ 1232 0066 00C0      		rjmp .L42
+ 219:crypto/p7681/ntt_7681_256.c **** 			a[j+distance] += paramQ;
+ 1234               	.LM87:
+ 1235 0068 8F5F      		subi r24,-1
+ 1236 006a 914E      		sbci r25,-31
+ 1237 006c 8083      		st Z,r24
+ 1238 006e 9183      		std Z+1,r25
+ 1239               	.L42:
+ 220:crypto/p7681/ntt_7681_256.c **** 
+ 221:crypto/p7681/ntt_7681_256.c **** 		a[j] = a[j] + temp;
+ 1241               	.LM88:
+ 1242 0070 8881      		ld r24,Y
+ 1243 0072 9981      		ldd r25,Y+1
+ 1244 0074 280F      		add r18,r24
+ 1245 0076 391F      		adc r19,r25
+ 222:crypto/p7681/ntt_7681_256.c **** 		if(a[j] >= paramQ)
+ 1247               	.LM89:
+ 1248 0078 2130      		cpi r18,1
+ 1249 007a 9EE1      		ldi r25,30
+ 1250 007c 3907      		cpc r19,r25
+ 1251 007e 04F4      		brge .L43
+ 1252               	.L49:
+ 223:crypto/p7681/ntt_7681_256.c **** 			a[j] -= paramQ;
+ 1254               	.LM90:
+ 1255 0080 2883      		st Y,r18
+ 1256 0082 3983      		std Y+1,r19
+ 224:crypto/p7681/ntt_7681_256.c **** 		if(a[j] < 0)
+ 1258               	.LM91:
+ 1259 0084 8881      		ld r24,Y
+ 1260 0086 9981      		ldd r25,Y+1
+ 1262               	.LM92:
+ 1263 0088 97FF      		sbrs r25,7
+ 1264 008a 00C0      		rjmp .L45
+ 225:crypto/p7681/ntt_7681_256.c **** 			a[j] += paramQ;
+ 1266               	.LM93:
+ 1267 008c 8F5F      		subi r24,-1
+ 1268 008e 914E      		sbci r25,-31
+ 1269 0090 8883      		st Y,r24
+ 1270 0092 9983      		std Y+1,r25
+ 1271               	.L45:
+ 1272 0094 2296      		adiw r28,2
+ 1273               	.LBE18:
+ 177:crypto/p7681/ntt_7681_256.c **** 	{
+ 1275               	.LM94:
+ 1276 0096 EC16      		cp r14,r28
+ 1277 0098 FD06      		cpc r15,r29
+ 1278 009a 01F4      		brne .L46
+ 1279               	/* epilogue start */
+ 226:crypto/p7681/ntt_7681_256.c **** 	}
+ 227:crypto/p7681/ntt_7681_256.c **** }
+ 1281               	.LM95:
+ 1282 009c DF91      		pop r29
+ 1283 009e CF91      		pop r28
+ 1284 00a0 1F91      		pop r17
+ 1285 00a2 0F91      		pop r16
+ 1286 00a4 FF90      		pop r15
+ 1287 00a6 EF90      		pop r14
+ 1288 00a8 DF90      		pop r13
+ 1289 00aa CF90      		pop r12
+ 1290 00ac 0895      		ret
+ 1291               	.L36:
+ 1292               	.LBB21:
+ 1293               	.LBB19:
+ 193:crypto/p7681/ntt_7681_256.c **** #ifdef COUNT_LOOKUPS
+ 1295               	.LM96:
+ 1296 00ae FB01      		movw r30,r22
+ 1297 00b0 EE0F      		lsl r30
+ 1298 00b2 FF1F      		rol r31
+ 1299 00b4 E050      		subi r30,lo8(-(omegamultiples_7681_256))
+ 1300 00b6 F040      		sbci r31,hi8(-(omegamultiples_7681_256))
+ 1301               	/* #APP */
+ 1302               	 ;  193 "crypto/p7681/ntt_7681_256.c" 1
+ 1303 00b8 2591      		lpm r18, Z+
+ 1304 00ba 3491      		lpm r19, Z
+ 1305               		
+ 1306               	 ;  0 "" 2
+ 1307               	/* #NOAPP */
+ 1308 00bc 00C0      		rjmp .L37
+ 1309               	.L35:
+ 1310               	.LBE19:
+ 202:crypto/p7681/ntt_7681_256.c **** 			{
+ 1312               	.LM97:
+ 1313 00be E031      		cpi r30,16
+ 1314 00c0 F105      		cpc r31,__zero_reg__
+ 1315 00c2 04F0      		brlt .L39
+ 204:crypto/p7681/ntt_7681_256.c **** 			}
+ 1317               	.LM98:
+ 1318 00c4 BF01      		movw r22,r30
+ 1319 00c6 8AEC      		ldi r24,lo8(-54)
+ 1320 00c8 90E1      		ldi r25,lo8(16)
+ 1321 00ca 0E94 0000 		call mm7681
+ 1322 00ce 9C01      		movw r18,r24
+ 1323 00d0 00C0      		rjmp .L38
+ 1324               	.L39:
+ 1325               	.LBB20:
+ 208:crypto/p7681/ntt_7681_256.c **** #ifdef COUNT_LOOKUPS
+ 1327               	.LM99:
+ 1328 00d2 EE0F      		lsl r30
+ 1329 00d4 FF1F      		rol r31
+ 1330 00d6 E050      		subi r30,lo8(-(omegamultiples_7681_256))
+ 1331 00d8 F040      		sbci r31,hi8(-(omegamultiples_7681_256))
+ 1332               	/* #APP */
+ 1333               	 ;  208 "crypto/p7681/ntt_7681_256.c" 1
+ 1334 00da 2591      		lpm r18, Z+
+ 1335 00dc 3491      		lpm r19, Z
+ 1336               		
+ 1337               	 ;  0 "" 2
+ 1338               	/* #NOAPP */
+ 1339 00de 00C0      		rjmp .L38
+ 1340               	.L40:
+ 1341               	.LBE20:
+ 217:crypto/p7681/ntt_7681_256.c **** 		if(a[j + distance] < 0)
+ 1343               	.LM100:
+ 1344 00e0 8F5F      		subi r24,-1
+ 1345 00e2 914E      		sbci r25,-31
+ 1346 00e4 00C0      		rjmp .L48
+ 1347               	.L43:
+ 223:crypto/p7681/ntt_7681_256.c **** 		if(a[j] < 0)
+ 1349               	.LM101:
+ 1350 00e6 2150      		subi r18,1
+ 1351 00e8 3E41      		sbci r19,30
+ 1352 00ea 00C0      		rjmp .L49
+ 1353               	.LBE21:
+ 1361               	.Lscope6:
+ 1362               		.section	.text.last_stage_CT,"ax",@progbits
+ 1366               	.global	last_stage_CT
+ 1368               	last_stage_CT:
+ 228:crypto/p7681/ntt_7681_256.c **** 
+ 229:crypto/p7681/ntt_7681_256.c **** void last_stage_CT(int * a, const uint16_t* psi)
+ 230:crypto/p7681/ntt_7681_256.c **** {
+ 1370               	.LM102:
+ 1371               	.LFBB7:
+ 1372 0000 EF92      		push r14
+ 1373 0002 FF92      		push r15
+ 1374 0004 0F93      		push r16
+ 1375 0006 1F93      		push r17
+ 1376 0008 CF93      		push r28
+ 1377 000a DF93      		push r29
+ 1378               	/* prologue: function */
+ 1379               	/* frame size = 0 */
+ 1380               	/* stack size = 6 */
+ 1381               	.L__stack_usage = 6
+ 1382 000c 8B01      		movw r16,r22
+ 1383 000e 1395      		inc r17
+ 1384 0010 EC01      		movw r28,r24
+ 1385 0012 7C01      		movw r14,r24
+ 1386 0014 2EEF      		ldi r18,-2
+ 1387 0016 F21A      		sub r15,r18
+ 1388               	.L55:
+ 1389               	.LBB22:
+ 1390               	.LBB23:
+ 231:crypto/p7681/ntt_7681_256.c **** 	uint16_t k, j;
+ 232:crypto/p7681/ntt_7681_256.c **** 	for(k=0;k<paramN/2;k++)
+ 233:crypto/p7681/ntt_7681_256.c **** 	{
+ 234:crypto/p7681/ntt_7681_256.c **** 		uint16_t W = pgm_read_word(&psi[paramN/2 + k]);
+ 1392               	.LM103:
+ 1393 0018 F801      		movw r30,r16
+ 1394               	/* #APP */
+ 1395               	 ;  234 "crypto/p7681/ntt_7681_256.c" 1
+ 1396 001a 8591      		lpm r24, Z+
+ 1397 001c 9491      		lpm r25, Z
+ 1398               		
+ 1399               	 ;  0 "" 2
+ 1400               	/* #NOAPP */
+ 1401               	.LBE23:
+ 235:crypto/p7681/ntt_7681_256.c **** 
+ 236:crypto/p7681/ntt_7681_256.c **** 		j = 2 * k;		
+ 237:crypto/p7681/ntt_7681_256.c **** 
+ 238:crypto/p7681/ntt_7681_256.c **** 		uint16_t temp;
+ 239:crypto/p7681/ntt_7681_256.c **** 		temp = mm7681(W, a[j + 1]);
+ 1403               	.LM104:
+ 1404 001e 6A81      		ldd r22,Y+2
+ 1405 0020 7B81      		ldd r23,Y+3
+ 1406 0022 0E94 0000 		call mm7681
+ 1407 0026 AC01      		movw r20,r24
+ 240:crypto/p7681/ntt_7681_256.c **** 		a[j + 1] = a[j] - temp;
+ 1409               	.LM105:
+ 1410 0028 8881      		ld r24,Y
+ 1411 002a 9981      		ldd r25,Y+1
+ 1413               	.LM106:
+ 1414 002c 9C01      		movw r18,r24
+ 1415 002e 241B      		sub r18,r20
+ 1416 0030 350B      		sbc r19,r21
+ 241:crypto/p7681/ntt_7681_256.c **** 		if(a[j + 1] < 0)
+ 1418               	.LM107:
+ 1419 0032 37FD      		sbrc r19,7
+ 1420 0034 00C0      		rjmp .L51
+ 1421               	.L57:
+ 242:crypto/p7681/ntt_7681_256.c **** 			a[j+1] += paramQ;
+ 1423               	.LM108:
+ 1424 0036 2A83      		std Y+2,r18
+ 1425 0038 3B83      		std Y+3,r19
+ 243:crypto/p7681/ntt_7681_256.c **** 
+ 244:crypto/p7681/ntt_7681_256.c **** 		a[j] = a[j] + temp;
+ 1427               	.LM109:
+ 1428 003a 840F      		add r24,r20
+ 1429 003c 951F      		adc r25,r21
+ 245:crypto/p7681/ntt_7681_256.c **** 		if(a[j] >= paramQ)
+ 1431               	.LM110:
+ 1432 003e 8130      		cpi r24,1
+ 1433 0040 2EE1      		ldi r18,30
+ 1434 0042 9207      		cpc r25,r18
+ 1435 0044 04F4      		brge .L53
+ 1436               	.L58:
+ 246:crypto/p7681/ntt_7681_256.c **** 			a[j] -= paramQ;
+ 1438               	.LM111:
+ 1439 0046 8883      		st Y,r24
+ 1440 0048 9983      		std Y+1,r25
+ 1441 004a 0E5F      		subi r16,-2
+ 1442 004c 1F4F      		sbci r17,-1
+ 1443 004e 2496      		adiw r28,4
+ 1444               	.LBE22:
+ 232:crypto/p7681/ntt_7681_256.c **** 	{
+ 1446               	.LM112:
+ 1447 0050 EC16      		cp r14,r28
+ 1448 0052 FD06      		cpc r15,r29
+ 1449 0054 01F4      		brne .L55
+ 1450               	/* epilogue start */
+ 247:crypto/p7681/ntt_7681_256.c **** 	}
+ 248:crypto/p7681/ntt_7681_256.c **** }
+ 1452               	.LM113:
+ 1453 0056 DF91      		pop r29
+ 1454 0058 CF91      		pop r28
+ 1455 005a 1F91      		pop r17
+ 1456 005c 0F91      		pop r16
+ 1457 005e FF90      		pop r15
+ 1458 0060 EF90      		pop r14
+ 1459 0062 0895      		ret
+ 1460               	.L51:
+ 1461               	.LBB24:
+ 242:crypto/p7681/ntt_7681_256.c **** 
+ 1463               	.LM114:
+ 1464 0064 2F5F      		subi r18,-1
+ 1465 0066 314E      		sbci r19,-31
+ 1466 0068 00C0      		rjmp .L57
+ 1467               	.L53:
+ 246:crypto/p7681/ntt_7681_256.c **** 	}
+ 1469               	.LM115:
+ 1470 006a 8150      		subi r24,1
+ 1471 006c 9E41      		sbci r25,30
+ 1472 006e 00C0      		rjmp .L58
+ 1473               	.LBE24:
+ 1481               	.Lscope7:
+ 1482               		.section	.text.ntt_CT_no_to_bo_incl_psi_7681_256_nolookup,"ax",@progbits
+ 1485               	.global	ntt_CT_no_to_bo_incl_psi_7681_256_nolookup
+ 1487               	ntt_CT_no_to_bo_incl_psi_7681_256_nolookup:
+ 249:crypto/p7681/ntt_7681_256.c **** 
+ 250:crypto/p7681/ntt_7681_256.c **** void ntt_CT_no_to_bo_incl_psi_7681_256_nolookup(int16_t* a, const uint16_t* psi)
+ 251:crypto/p7681/ntt_7681_256.c **** {
+ 1489               	.LM116:
+ 1490               	.LFBB8:
+ 1491 0000 2F92      		push r2
+ 1492 0002 3F92      		push r3
+ 1493 0004 4F92      		push r4
+ 1494 0006 5F92      		push r5
+ 1495 0008 6F92      		push r6
+ 1496 000a 7F92      		push r7
+ 1497 000c 8F92      		push r8
+ 1498 000e 9F92      		push r9
+ 1499 0010 AF92      		push r10
+ 1500 0012 BF92      		push r11
+ 1501 0014 CF92      		push r12
+ 1502 0016 DF92      		push r13
+ 1503 0018 EF92      		push r14
+ 1504 001a FF92      		push r15
+ 1505 001c 0F93      		push r16
+ 1506 001e 1F93      		push r17
+ 1507 0020 CF93      		push r28
+ 1508 0022 DF93      		push r29
+ 1509 0024 CDB7      		in r28,__SP_L__
+ 1510 0026 DEB7      		in r29,__SP_H__
+ 1511 0028 6097      		sbiw r28,16
+ 1512 002a CDBF      		out __SP_L__,r28
+ 1513 002c DEBF      		out __SP_H__,r29
+ 1514               	/* prologue: function */
+ 1515               	/* frame size = 16 */
+ 1516               	/* stack size = 34 */
+ 1517               	.L__stack_usage = 34
+ 1518 002e 8987      		std Y+9,r24
+ 1519 0030 9A87      		std Y+10,r25
+ 1520 0032 6983      		std Y+1,r22
+ 1521 0034 7A83      		std Y+2,r23
+ 1522               	.LBB25:
+ 1523               	.LBB26:
+ 252:crypto/p7681/ntt_7681_256.c **** 	uint16_t pairsInGroup=paramN/2, numOfGroups=1, distance=paramN/2;
+ 253:crypto/p7681/ntt_7681_256.c **** 
+ 254:crypto/p7681/ntt_7681_256.c **** 	while(numOfGroups < paramN/2)
+ 255:crypto/p7681/ntt_7681_256.c **** 	{
+ 256:crypto/p7681/ntt_7681_256.c **** 		uint16_t k, j;
+ 257:crypto/p7681/ntt_7681_256.c **** 		for(k=0;k<numOfGroups;k++)
+ 258:crypto/p7681/ntt_7681_256.c **** 		{
+ 259:crypto/p7681/ntt_7681_256.c **** 			uint16_t jFirst, jLast, W;
+ 260:crypto/p7681/ntt_7681_256.c **** 			jFirst = 2 * k * pairsInGroup;
+ 261:crypto/p7681/ntt_7681_256.c **** 			jLast = jFirst + pairsInGroup -1;
+ 262:crypto/p7681/ntt_7681_256.c **** 
+ 263:crypto/p7681/ntt_7681_256.c **** 			W = pgm_read_word(&psi[numOfGroups + k]);
+ 264:crypto/p7681/ntt_7681_256.c **** 			
+ 265:crypto/p7681/ntt_7681_256.c **** 			for(j=jFirst; j<=jLast; j++)
+ 1525               	.LM117:
+ 1526 0036 87E0      		ldi r24,lo8(7)
+ 1527 0038 90E0      		ldi r25,0
+ 1528 003a 8B83      		std Y+3,r24
+ 1529 003c 9C83      		std Y+4,r25
+ 1530               	.LBE26:
+ 1531               	.LBE25:
+ 252:crypto/p7681/ntt_7681_256.c **** 	uint16_t pairsInGroup=paramN/2, numOfGroups=1, distance=paramN/2;
+ 1533               	.LM118:
+ 1534 003e 8824      		clr r8
+ 1535 0040 8394      		inc r8
+ 1536 0042 912C      		mov r9,__zero_reg__
+ 252:crypto/p7681/ntt_7681_256.c **** 	uint16_t pairsInGroup=paramN/2, numOfGroups=1, distance=paramN/2;
+ 1538               	.LM119:
+ 1539 0044 40E8      		ldi r20,lo8(-128)
+ 1540 0046 C42E      		mov r12,r20
+ 1541 0048 D12C      		mov r13,__zero_reg__
+ 1542               	.L60:
+ 1543 004a 8B86      		std Y+11,r8
+ 1544 004c 9C86      		std Y+12,r9
+ 1545 004e 880C      		lsl r8
+ 1546 0050 991C      		rol r9
+ 1547 0052 E981      		ldd r30,Y+1
+ 1548 0054 FA81      		ldd r31,Y+2
+ 1549 0056 E80D      		add r30,r8
+ 1550 0058 F91D      		adc r31,r9
+ 1551 005a ED83      		std Y+5,r30
+ 1552 005c FE83      		std Y+6,r31
+ 1553 005e 5601      		movw r10,r12
+ 1554 0060 AA0C      		lsl r10
+ 1555 0062 BB1C      		rol r11
+ 1556 0064 F985      		ldd r31,Y+9
+ 1557 0066 FF87      		std Y+15,r31
+ 1558 0068 8A85      		ldd r24,Y+10
+ 1559 006a 888B      		std Y+16,r24
+ 1560 006c 2601      		movw r4,r12
+ 1561 006e 91E0      		ldi r25,1
+ 1562 0070 491A      		sub r4,r25
+ 1563 0072 5108      		sbc r5,__zero_reg__
+ 251:crypto/p7681/ntt_7681_256.c **** 	uint16_t pairsInGroup=paramN/2, numOfGroups=1, distance=paramN/2;
+ 1565               	.LM120:
+ 1566 0074 F12C      		mov r15,__zero_reg__
+ 1567 0076 E12C      		mov r14,__zero_reg__
+ 1568               	.LBB32:
+ 257:crypto/p7681/ntt_7681_256.c **** 		{
+ 1570               	.LM121:
+ 1571 0078 312C      		mov r3,__zero_reg__
+ 1572 007a 212C      		mov r2,__zero_reg__
+ 1573               	.L67:
+ 1574               	.LBB30:
+ 1575               	.LBB27:
+ 263:crypto/p7681/ntt_7681_256.c **** 			
+ 1577               	.LM122:
+ 1578 007c ED81      		ldd r30,Y+5
+ 1579 007e FE81      		ldd r31,Y+6
+ 1580               	/* #APP */
+ 1581               	 ;  263 "crypto/p7681/ntt_7681_256.c" 1
+ 1582 0080 8591      		lpm r24, Z+
+ 1583 0082 9491      		lpm r25, Z
+ 1584               		
+ 1585               	 ;  0 "" 2
+ 1586               	/* #NOAPP */
+ 1587 0084 8D87      		std Y+13,r24
+ 1588 0086 9E87      		std Y+14,r25
+ 1589 0088 EF85      		ldd r30,Y+15
+ 1590 008a F889      		ldd r31,Y+16
+ 1591 008c EA0D      		add r30,r10
+ 1592 008e FB1D      		adc r31,r11
+ 1593 0090 EF83      		std Y+7,r30
+ 1594 0092 F887      		std Y+8,r31
+ 1595               	.LBE27:
+ 1597               	.LM123:
+ 1598 0094 8F01      		movw r16,r30
+ 1600               	.LM124:
+ 1601 0096 3701      		movw r6,r14
+ 1602               	.L61:
+ 1604               	.LM125:
+ 1605 0098 4614      		cp r4,r6
+ 1606 009a 5704      		cpc r5,r7
+ 1607 009c 00F4      		brsh .L66
+ 1608               	.LBE30:
+ 257:crypto/p7681/ntt_7681_256.c **** 		{
+ 1610               	.LM126:
+ 1611 009e 9FEF      		ldi r25,-1
+ 1612 00a0 291A      		sub r2,r25
+ 1613 00a2 390A      		sbc r3,r25
+ 1614 00a4 ED81      		ldd r30,Y+5
+ 1615 00a6 FE81      		ldd r31,Y+6
+ 1616 00a8 3296      		adiw r30,2
+ 1617 00aa ED83      		std Y+5,r30
+ 1618 00ac FE83      		std Y+6,r31
+ 1619 00ae EA0C      		add r14,r10
+ 1620 00b0 FB1C      		adc r15,r11
+ 1621 00b2 8F81      		ldd r24,Y+7
+ 1622 00b4 9885      		ldd r25,Y+8
+ 1623 00b6 8A0D      		add r24,r10
+ 1624 00b8 9B1D      		adc r25,r11
+ 1625 00ba 8F87      		std Y+15,r24
+ 1626 00bc 988B      		std Y+16,r25
+ 1627 00be 4A0C      		add r4,r10
+ 1628 00c0 5B1C      		adc r5,r11
+ 257:crypto/p7681/ntt_7681_256.c **** 		{
+ 1630               	.LM127:
+ 1631 00c2 EB85      		ldd r30,Y+11
+ 1632 00c4 FC85      		ldd r31,Y+12
+ 1633 00c6 2E16      		cp r2,r30
+ 1634 00c8 3F06      		cpc r3,r31
+ 1635 00ca 01F4      		brne .L67
+ 266:crypto/p7681/ntt_7681_256.c **** 			{
+ 267:crypto/p7681/ntt_7681_256.c **** 				int16_t temp;
+ 268:crypto/p7681/ntt_7681_256.c **** 				temp = mm7681_check(W, a[j + distance]);
+ 269:crypto/p7681/ntt_7681_256.c **** 				a[j + distance] = a[j] - temp;
+ 270:crypto/p7681/ntt_7681_256.c **** 				if(a[j + distance] < 0)
+ 271:crypto/p7681/ntt_7681_256.c **** 					a[j+distance] += paramQ;
+ 272:crypto/p7681/ntt_7681_256.c **** 
+ 273:crypto/p7681/ntt_7681_256.c **** 				a[j] = (a[j] + temp);
+ 274:crypto/p7681/ntt_7681_256.c **** 				if(a[j] >= paramQ)
+ 275:crypto/p7681/ntt_7681_256.c **** 					a[j] -= paramQ;
+ 276:crypto/p7681/ntt_7681_256.c **** 			}
+ 277:crypto/p7681/ntt_7681_256.c **** 		}
+ 278:crypto/p7681/ntt_7681_256.c **** 		pairsInGroup /= 2;
+ 1637               	.LM128:
+ 1638 00cc D694      		lsr r13
+ 1639 00ce C794      		ror r12
+ 1640 00d0 8B81      		ldd r24,Y+3
+ 1641 00d2 9C81      		ldd r25,Y+4
+ 1642 00d4 0197      		sbiw r24,1
+ 1643 00d6 8B83      		std Y+3,r24
+ 1644 00d8 9C83      		std Y+4,r25
+ 1645               	.LBE32:
+ 254:crypto/p7681/ntt_7681_256.c **** 	{
+ 1647               	.LM129:
+ 1648 00da 892B      		or r24,r25
+ 1649 00dc 01F0      		breq .+2
+ 1650 00de 00C0      		rjmp .L60
+ 279:crypto/p7681/ntt_7681_256.c **** 		numOfGroups *= 2;
+ 280:crypto/p7681/ntt_7681_256.c **** 		distance /= 2;
+ 281:crypto/p7681/ntt_7681_256.c **** 	}
+ 282:crypto/p7681/ntt_7681_256.c **** 
+ 283:crypto/p7681/ntt_7681_256.c **** 	last_stage_CT(a, psi);
+ 1652               	.LM130:
+ 1653 00e0 6981      		ldd r22,Y+1
+ 1654 00e2 7A81      		ldd r23,Y+2
+ 1655 00e4 8985      		ldd r24,Y+9
+ 1656 00e6 9A85      		ldd r25,Y+10
+ 1657               	/* epilogue start */
+ 284:crypto/p7681/ntt_7681_256.c **** }
+ 1659               	.LM131:
+ 1660 00e8 6096      		adiw r28,16
+ 1661 00ea CDBF      		out __SP_L__,r28
+ 1662 00ec DEBF      		out __SP_H__,r29
+ 1663 00ee DF91      		pop r29
+ 1664 00f0 CF91      		pop r28
+ 1665 00f2 1F91      		pop r17
+ 1666 00f4 0F91      		pop r16
+ 1667 00f6 FF90      		pop r15
+ 1668 00f8 EF90      		pop r14
+ 1669 00fa DF90      		pop r13
+ 1670 00fc CF90      		pop r12
+ 1671 00fe BF90      		pop r11
+ 1672 0100 AF90      		pop r10
+ 1673 0102 9F90      		pop r9
+ 1674 0104 8F90      		pop r8
+ 1675 0106 7F90      		pop r7
+ 1676 0108 6F90      		pop r6
+ 1677 010a 5F90      		pop r5
+ 1678 010c 4F90      		pop r4
+ 1679 010e 3F90      		pop r3
+ 1680 0110 2F90      		pop r2
+ 283:crypto/p7681/ntt_7681_256.c **** }
+ 1682               	.LM132:
+ 1683 0112 0C94 0000 		jmp last_stage_CT
+ 1684               	.L66:
+ 1685               	.LBB33:
+ 1686               	.LBB31:
+ 1687               	.LBB28:
+ 268:crypto/p7681/ntt_7681_256.c **** 				a[j + distance] = a[j] - temp;
+ 1689               	.LM133:
+ 1690 0116 F801      		movw r30,r16
+ 1691 0118 6081      		ld r22,Z
+ 1692 011a 7181      		ldd r23,Z+1
+ 1693 011c 8D85      		ldd r24,Y+13
+ 1694 011e 9E85      		ldd r25,Y+14
+ 1695 0120 0E94 0000 		call mm7681_check
+ 1696 0124 9C01      		movw r18,r24
+ 269:crypto/p7681/ntt_7681_256.c **** 				if(a[j + distance] < 0)
+ 1698               	.LM134:
+ 1699 0126 EF85      		ldd r30,Y+15
+ 1700 0128 F889      		ldd r31,Y+16
+ 1701 012a 8081      		ld r24,Z
+ 1702 012c 9181      		ldd r25,Z+1
+ 1703 012e 821B      		sub r24,r18
+ 1704 0130 930B      		sbc r25,r19
+ 270:crypto/p7681/ntt_7681_256.c **** 					a[j+distance] += paramQ;
+ 1706               	.LM135:
+ 1707 0132 97FD      		sbrc r25,7
+ 1708 0134 00C0      		rjmp .L62
+ 1709               	.L70:
+ 271:crypto/p7681/ntt_7681_256.c **** 
+ 1711               	.LM136:
+ 1712 0136 F801      		movw r30,r16
+ 1713 0138 8083      		st Z,r24
+ 1714 013a 9183      		std Z+1,r25
+ 273:crypto/p7681/ntt_7681_256.c **** 				if(a[j] >= paramQ)
+ 1716               	.LM137:
+ 1717 013c EF85      		ldd r30,Y+15
+ 1718 013e F889      		ldd r31,Y+16
+ 1719 0140 8081      		ld r24,Z
+ 1720 0142 9181      		ldd r25,Z+1
+ 1721 0144 280F      		add r18,r24
+ 1722 0146 391F      		adc r19,r25
+ 274:crypto/p7681/ntt_7681_256.c **** 					a[j] -= paramQ;
+ 1724               	.LM138:
+ 1725 0148 2130      		cpi r18,1
+ 1726 014a FEE1      		ldi r31,30
+ 1727 014c 3F07      		cpc r19,r31
+ 1728 014e 04F4      		brge .L64
+ 1729               	.L71:
+ 275:crypto/p7681/ntt_7681_256.c **** 			}
+ 1731               	.LM139:
+ 1732 0150 EF85      		ldd r30,Y+15
+ 1733 0152 F889      		ldd r31,Y+16
+ 1734 0154 2083      		st Z,r18
+ 1735 0156 3183      		std Z+1,r19
+ 1736               	.LBE28:
+ 265:crypto/p7681/ntt_7681_256.c **** 			{
+ 1738               	.LM140:
+ 1739 0158 FFEF      		ldi r31,-1
+ 1740 015a 6F1A      		sub r6,r31
+ 1741 015c 7F0A      		sbc r7,r31
+ 1742 015e 8F85      		ldd r24,Y+15
+ 1743 0160 9889      		ldd r25,Y+16
+ 1744 0162 0296      		adiw r24,2
+ 1745 0164 8F87      		std Y+15,r24
+ 1746 0166 988B      		std Y+16,r25
+ 1747 0168 0E5F      		subi r16,-2
+ 1748 016a 1F4F      		sbci r17,-1
+ 1749 016c 00C0      		rjmp .L61
+ 1750               	.L62:
+ 1751               	.LBB29:
+ 271:crypto/p7681/ntt_7681_256.c **** 
+ 1753               	.LM141:
+ 1754 016e 8F5F      		subi r24,-1
+ 1755 0170 914E      		sbci r25,-31
+ 1756 0172 00C0      		rjmp .L70
+ 1757               	.L64:
+ 275:crypto/p7681/ntt_7681_256.c **** 			}
+ 1759               	.LM142:
+ 1760 0174 2150      		subi r18,1
+ 1761 0176 3E41      		sbci r19,30
+ 1762 0178 00C0      		rjmp .L71
+ 1763               	.LBE29:
+ 1764               	.LBE31:
+ 1765               	.LBE33:
+ 1788               	.Lscope8:
+ 1789               		.section	.text.ntt_CT_no_to_bo_incl_psi_7681_256,"ax",@progbits
+ 1792               	.global	ntt_CT_no_to_bo_incl_psi_7681_256
+ 1794               	ntt_CT_no_to_bo_incl_psi_7681_256:
+ 285:crypto/p7681/ntt_7681_256.c **** 
+ 286:crypto/p7681/ntt_7681_256.c **** void ntt_CT_no_to_bo_incl_psi_7681_256(int16_t* a, const uint16_t* psi)
+ 287:crypto/p7681/ntt_7681_256.c **** {
+ 1796               	.LM143:
+ 1797               	.LFBB9:
+ 1798 0000 2F92      		push r2
+ 1799 0002 3F92      		push r3
+ 1800 0004 4F92      		push r4
+ 1801 0006 5F92      		push r5
+ 1802 0008 6F92      		push r6
+ 1803 000a 7F92      		push r7
+ 1804 000c 8F92      		push r8
+ 1805 000e 9F92      		push r9
+ 1806 0010 AF92      		push r10
+ 1807 0012 BF92      		push r11
+ 1808 0014 CF92      		push r12
+ 1809 0016 DF92      		push r13
+ 1810 0018 EF92      		push r14
+ 1811 001a FF92      		push r15
+ 1812 001c 0F93      		push r16
+ 1813 001e 1F93      		push r17
+ 1814 0020 CF93      		push r28
+ 1815 0022 DF93      		push r29
+ 1816 0024 CDB7      		in r28,__SP_L__
+ 1817 0026 DEB7      		in r29,__SP_H__
+ 1818 0028 6097      		sbiw r28,16
+ 1819 002a CDBF      		out __SP_L__,r28
+ 1820 002c DEBF      		out __SP_H__,r29
+ 1821               	/* prologue: function */
+ 1822               	/* frame size = 16 */
+ 1823               	/* stack size = 34 */
+ 1824               	.L__stack_usage = 34
+ 1825 002e 1C01      		movw r2,r24
+ 1826 0030 6983      		std Y+1,r22
+ 1827 0032 7A83      		std Y+2,r23
+ 288:crypto/p7681/ntt_7681_256.c **** 	uint16_t pairsInGroup=paramN/2, numOfGroups=1, distance=paramN/2;
+ 289:crypto/p7681/ntt_7681_256.c **** 
+ 290:crypto/p7681/ntt_7681_256.c **** 	first_stage_CT(a);
+ 1829               	.LM144:
+ 1830 0034 0E94 0000 		call first_stage_CT
+ 1831 0038 86E0      		ldi r24,lo8(6)
+ 1832 003a 90E0      		ldi r25,0
+ 1833 003c 8B83      		std Y+3,r24
+ 1834 003e 9C83      		std Y+4,r25
+ 291:crypto/p7681/ntt_7681_256.c **** 
+ 292:crypto/p7681/ntt_7681_256.c ****         pairsInGroup /= 2;
+ 293:crypto/p7681/ntt_7681_256.c **** 	numOfGroups *= 2;
+ 1836               	.LM145:
+ 1837 0040 32E0      		ldi r19,lo8(2)
+ 1838 0042 832E      		mov r8,r19
+ 1839 0044 912C      		mov r9,__zero_reg__
+ 292:crypto/p7681/ntt_7681_256.c **** 	numOfGroups *= 2;
+ 1841               	.LM146:
+ 1842 0046 40E4      		ldi r20,lo8(64)
+ 1843 0048 C42E      		mov r12,r20
+ 1844 004a D12C      		mov r13,__zero_reg__
+ 1845               	.L73:
+ 1846 004c 8B86      		std Y+11,r8
+ 1847 004e 9C86      		std Y+12,r9
+ 1848 0050 880C      		lsl r8
+ 1849 0052 991C      		rol r9
+ 1850 0054 E981      		ldd r30,Y+1
+ 1851 0056 FA81      		ldd r31,Y+2
+ 1852 0058 E80D      		add r30,r8
+ 1853 005a F91D      		adc r31,r9
+ 1854 005c ED83      		std Y+5,r30
+ 1855 005e FE83      		std Y+6,r31
+ 1856 0060 5601      		movw r10,r12
+ 1857 0062 AA0C      		lsl r10
+ 1858 0064 BB1C      		rol r11
+ 1859 0066 2F86      		std Y+15,r2
+ 1860 0068 388A      		std Y+16,r3
+ 1861 006a C601      		movw r24,r12
+ 1862 006c 0197      		sbiw r24,1
+ 1863 006e 8F83      		std Y+7,r24
+ 1864 0070 9887      		std Y+8,r25
+ 287:crypto/p7681/ntt_7681_256.c **** 	uint16_t pairsInGroup=paramN/2, numOfGroups=1, distance=paramN/2;
+ 1866               	.LM147:
+ 1867 0072 512C      		mov r5,__zero_reg__
+ 1868 0074 412C      		mov r4,__zero_reg__
+ 1869               	.LBB34:
+ 294:crypto/p7681/ntt_7681_256.c **** 	distance /= 2;
+ 295:crypto/p7681/ntt_7681_256.c **** 
+ 296:crypto/p7681/ntt_7681_256.c **** 	while(numOfGroups < paramN/2)
+ 297:crypto/p7681/ntt_7681_256.c **** 	{
+ 298:crypto/p7681/ntt_7681_256.c **** 		uint16_t k, j;
+ 299:crypto/p7681/ntt_7681_256.c **** 		for(k=0;k<numOfGroups;k++)
+ 1871               	.LM148:
+ 1872 0076 F12C      		mov r15,__zero_reg__
+ 1873 0078 E12C      		mov r14,__zero_reg__
+ 1874               	.L80:
+ 1875               	.LBB35:
+ 1876               	.LBB36:
+ 300:crypto/p7681/ntt_7681_256.c **** 		{
+ 301:crypto/p7681/ntt_7681_256.c **** 			uint16_t jFirst, jLast, W;
+ 302:crypto/p7681/ntt_7681_256.c **** 			jFirst = 2 * k * pairsInGroup;
+ 303:crypto/p7681/ntt_7681_256.c **** 			jLast = jFirst + pairsInGroup -1;
+ 304:crypto/p7681/ntt_7681_256.c **** 
+ 305:crypto/p7681/ntt_7681_256.c **** 			W = pgm_read_word(&psi[numOfGroups + k]);
+ 1878               	.LM149:
+ 1879 007a ED81      		ldd r30,Y+5
+ 1880 007c FE81      		ldd r31,Y+6
+ 1881               	/* #APP */
+ 1882               	 ;  305 "crypto/p7681/ntt_7681_256.c" 1
+ 1883 007e 8591      		lpm r24, Z+
+ 1884 0080 9491      		lpm r25, Z
+ 1885               		
+ 1886               	 ;  0 "" 2
+ 1887               	/* #NOAPP */
+ 1888 0082 8D87      		std Y+13,r24
+ 1889 0084 9E87      		std Y+14,r25
+ 1890 0086 EF85      		ldd r30,Y+15
+ 1891 0088 F889      		ldd r31,Y+16
+ 1892 008a EA0D      		add r30,r10
+ 1893 008c FB1D      		adc r31,r11
+ 1894 008e E987      		std Y+9,r30
+ 1895 0090 FA87      		std Y+10,r31
+ 1896               	.LBE36:
+ 306:crypto/p7681/ntt_7681_256.c **** 			
+ 307:crypto/p7681/ntt_7681_256.c **** 			for(j=jFirst; j<=jLast; j++)
+ 1898               	.LM150:
+ 1899 0092 8F01      		movw r16,r30
+ 1901               	.LM151:
+ 1902 0094 3201      		movw r6,r4
+ 1903               	.L74:
+ 1905               	.LM152:
+ 1906 0096 EF81      		ldd r30,Y+7
+ 1907 0098 F885      		ldd r31,Y+8
+ 1908 009a E615      		cp r30,r6
+ 1909 009c F705      		cpc r31,r7
+ 1910 009e 00F0      		brlo .+2
+ 1911 00a0 00C0      		rjmp .L79
+ 1912               	.LBE35:
+ 299:crypto/p7681/ntt_7681_256.c **** 		{
+ 1914               	.LM153:
+ 1915 00a2 FFEF      		ldi r31,-1
+ 1916 00a4 EF1A      		sub r14,r31
+ 1917 00a6 FF0A      		sbc r15,r31
+ 1918 00a8 8D81      		ldd r24,Y+5
+ 1919 00aa 9E81      		ldd r25,Y+6
+ 1920 00ac 0296      		adiw r24,2
+ 1921 00ae 8D83      		std Y+5,r24
+ 1922 00b0 9E83      		std Y+6,r25
+ 1923 00b2 4A0C      		add r4,r10
+ 1924 00b4 5B1C      		adc r5,r11
+ 1925 00b6 E985      		ldd r30,Y+9
+ 1926 00b8 FA85      		ldd r31,Y+10
+ 1927 00ba EA0D      		add r30,r10
+ 1928 00bc FB1D      		adc r31,r11
+ 1929 00be EF87      		std Y+15,r30
+ 1930 00c0 F88B      		std Y+16,r31
+ 1931 00c2 8F81      		ldd r24,Y+7
+ 1932 00c4 9885      		ldd r25,Y+8
+ 1933 00c6 8A0D      		add r24,r10
+ 1934 00c8 9B1D      		adc r25,r11
+ 1935 00ca 8F83      		std Y+7,r24
+ 1936 00cc 9887      		std Y+8,r25
+ 299:crypto/p7681/ntt_7681_256.c **** 		{
+ 1938               	.LM154:
+ 1939 00ce EB85      		ldd r30,Y+11
+ 1940 00d0 FC85      		ldd r31,Y+12
+ 1941 00d2 EE16      		cp r14,r30
+ 1942 00d4 FF06      		cpc r15,r31
+ 1943 00d6 01F4      		brne .L80
+ 308:crypto/p7681/ntt_7681_256.c **** 			{
+ 309:crypto/p7681/ntt_7681_256.c **** 				int16_t temp;
+ 310:crypto/p7681/ntt_7681_256.c **** 				temp = mm7681_check(W, a[j + distance]);
+ 311:crypto/p7681/ntt_7681_256.c **** 				a[j + distance] = a[j] - temp;
+ 312:crypto/p7681/ntt_7681_256.c **** 				if(a[j + distance] < 0)
+ 313:crypto/p7681/ntt_7681_256.c **** 					a[j+distance] += paramQ;
+ 314:crypto/p7681/ntt_7681_256.c **** 
+ 315:crypto/p7681/ntt_7681_256.c **** 				a[j] = (a[j] + temp);
+ 316:crypto/p7681/ntt_7681_256.c **** 				if(a[j] >= paramQ)
+ 317:crypto/p7681/ntt_7681_256.c **** 					a[j] -= paramQ;
+ 318:crypto/p7681/ntt_7681_256.c **** 			}
+ 319:crypto/p7681/ntt_7681_256.c **** 		}
+ 320:crypto/p7681/ntt_7681_256.c **** 		pairsInGroup /= 2;
+ 1945               	.LM155:
+ 1946 00d8 D694      		lsr r13
+ 1947 00da C794      		ror r12
+ 1948 00dc 8B81      		ldd r24,Y+3
+ 1949 00de 9C81      		ldd r25,Y+4
+ 1950 00e0 0197      		sbiw r24,1
+ 1951 00e2 8B83      		std Y+3,r24
+ 1952 00e4 9C83      		std Y+4,r25
+ 1953               	.LBE34:
+ 296:crypto/p7681/ntt_7681_256.c **** 	{
+ 1955               	.LM156:
+ 1956 00e6 892B      		or r24,r25
+ 1957 00e8 01F0      		breq .+2
+ 1958 00ea 00C0      		rjmp .L73
+ 321:crypto/p7681/ntt_7681_256.c **** 		numOfGroups *= 2;
+ 322:crypto/p7681/ntt_7681_256.c **** 		distance /= 2;
+ 323:crypto/p7681/ntt_7681_256.c **** 	}
+ 324:crypto/p7681/ntt_7681_256.c **** 
+ 325:crypto/p7681/ntt_7681_256.c **** 	last_stage_CT(a, psi);
+ 1960               	.LM157:
+ 1961 00ec 6981      		ldd r22,Y+1
+ 1962 00ee 7A81      		ldd r23,Y+2
+ 1963 00f0 C101      		movw r24,r2
+ 1964               	/* epilogue start */
+ 326:crypto/p7681/ntt_7681_256.c **** }
+ 1966               	.LM158:
+ 1967 00f2 6096      		adiw r28,16
+ 1968 00f4 CDBF      		out __SP_L__,r28
+ 1969 00f6 DEBF      		out __SP_H__,r29
+ 1970 00f8 DF91      		pop r29
+ 1971 00fa CF91      		pop r28
+ 1972 00fc 1F91      		pop r17
+ 1973 00fe 0F91      		pop r16
+ 1974 0100 FF90      		pop r15
+ 1975 0102 EF90      		pop r14
+ 1976 0104 DF90      		pop r13
+ 1977 0106 CF90      		pop r12
+ 1978 0108 BF90      		pop r11
+ 1979 010a AF90      		pop r10
+ 1980 010c 9F90      		pop r9
+ 1981 010e 8F90      		pop r8
+ 1982 0110 7F90      		pop r7
+ 1983 0112 6F90      		pop r6
+ 1984 0114 5F90      		pop r5
+ 1985 0116 4F90      		pop r4
+ 1986 0118 3F90      		pop r3
+ 1987 011a 2F90      		pop r2
+ 325:crypto/p7681/ntt_7681_256.c **** }
+ 1989               	.LM159:
+ 1990 011c 0C94 0000 		jmp last_stage_CT
+ 1991               	.L79:
+ 1992               	.LBB40:
+ 1993               	.LBB39:
+ 1994               	.LBB37:
+ 310:crypto/p7681/ntt_7681_256.c **** 				a[j + distance] = a[j] - temp;
+ 1996               	.LM160:
+ 1997 0120 F801      		movw r30,r16
+ 1998 0122 6081      		ld r22,Z
+ 1999 0124 7181      		ldd r23,Z+1
+ 2000 0126 8D85      		ldd r24,Y+13
+ 2001 0128 9E85      		ldd r25,Y+14
+ 2002 012a 0E94 0000 		call mm7681_check
+ 2003 012e 9C01      		movw r18,r24
+ 311:crypto/p7681/ntt_7681_256.c **** 				if(a[j + distance] < 0)
+ 2005               	.LM161:
+ 2006 0130 EF85      		ldd r30,Y+15
+ 2007 0132 F889      		ldd r31,Y+16
+ 2008 0134 8081      		ld r24,Z
+ 2009 0136 9181      		ldd r25,Z+1
+ 2010 0138 821B      		sub r24,r18
+ 2011 013a 930B      		sbc r25,r19
+ 312:crypto/p7681/ntt_7681_256.c **** 					a[j+distance] += paramQ;
+ 2013               	.LM162:
+ 2014 013c 97FD      		sbrc r25,7
+ 2015 013e 00C0      		rjmp .L75
+ 2016               	.L83:
+ 313:crypto/p7681/ntt_7681_256.c **** 
+ 2018               	.LM163:
+ 2019 0140 F801      		movw r30,r16
+ 2020 0142 8083      		st Z,r24
+ 2021 0144 9183      		std Z+1,r25
+ 315:crypto/p7681/ntt_7681_256.c **** 				if(a[j] >= paramQ)
+ 2023               	.LM164:
+ 2024 0146 EF85      		ldd r30,Y+15
+ 2025 0148 F889      		ldd r31,Y+16
+ 2026 014a 8081      		ld r24,Z
+ 2027 014c 9181      		ldd r25,Z+1
+ 2028 014e 280F      		add r18,r24
+ 2029 0150 391F      		adc r19,r25
+ 316:crypto/p7681/ntt_7681_256.c **** 					a[j] -= paramQ;
+ 2031               	.LM165:
+ 2032 0152 2130      		cpi r18,1
+ 2033 0154 FEE1      		ldi r31,30
+ 2034 0156 3F07      		cpc r19,r31
+ 2035 0158 04F4      		brge .L77
+ 2036               	.L84:
+ 317:crypto/p7681/ntt_7681_256.c **** 			}
+ 2038               	.LM166:
+ 2039 015a EF85      		ldd r30,Y+15
+ 2040 015c F889      		ldd r31,Y+16
+ 2041 015e 2083      		st Z,r18
+ 2042 0160 3183      		std Z+1,r19
+ 2043               	.LBE37:
+ 307:crypto/p7681/ntt_7681_256.c **** 			{
+ 2045               	.LM167:
+ 2046 0162 FFEF      		ldi r31,-1
+ 2047 0164 6F1A      		sub r6,r31
+ 2048 0166 7F0A      		sbc r7,r31
+ 2049 0168 8F85      		ldd r24,Y+15
+ 2050 016a 9889      		ldd r25,Y+16
+ 2051 016c 0296      		adiw r24,2
+ 2052 016e 8F87      		std Y+15,r24
+ 2053 0170 988B      		std Y+16,r25
+ 2054 0172 0E5F      		subi r16,-2
+ 2055 0174 1F4F      		sbci r17,-1
+ 2056 0176 00C0      		rjmp .L74
+ 2057               	.L75:
+ 2058               	.LBB38:
+ 313:crypto/p7681/ntt_7681_256.c **** 
+ 2060               	.LM168:
+ 2061 0178 8F5F      		subi r24,-1
+ 2062 017a 914E      		sbci r25,-31
+ 2063 017c 00C0      		rjmp .L83
+ 2064               	.L77:
+ 317:crypto/p7681/ntt_7681_256.c **** 			}
+ 2066               	.LM169:
+ 2067 017e 2150      		subi r18,1
+ 2068 0180 3E41      		sbci r19,30
+ 2069 0182 00C0      		rjmp .L84
+ 2070               	.LBE38:
+ 2071               	.LBE39:
+ 2072               	.LBE40:
+ 2091               	.Lscope9:
+ 2092               		.section	.text.pw_psi_7681,"ax",@progbits
+ 2095               	.global	pw_psi_7681
+ 2097               	pw_psi_7681:
+ 327:crypto/p7681/ntt_7681_256.c **** 
+ 328:crypto/p7681/ntt_7681_256.c **** void pw_psi_7681(uint16_t* p1, uint16_t start_val, uint16_t psi){
+ 2099               	.LM170:
+ 2100               	.LFBB10:
+ 2101 0000 CF92      		push r12
+ 2102 0002 DF92      		push r13
+ 2103 0004 EF92      		push r14
+ 2104 0006 FF92      		push r15
+ 2105 0008 0F93      		push r16
+ 2106 000a 1F93      		push r17
+ 2107 000c CF93      		push r28
+ 2108 000e DF93      		push r29
+ 2109               	/* prologue: function */
+ 2110               	/* frame size = 0 */
+ 2111               	/* stack size = 8 */
+ 2112               	.L__stack_usage = 8
+ 2113 0010 8B01      		movw r16,r22
+ 2114 0012 7A01      		movw r14,r20
+ 2115 0014 EC01      		movw r28,r24
+ 2116 0016 6C01      		movw r12,r24
+ 2117 0018 8EEF      		ldi r24,-2
+ 2118 001a D81A      		sub r13,r24
+ 2119               	.L86:
+ 2120               	.LBB41:
+ 329:crypto/p7681/ntt_7681_256.c ****   for(uint16_t i = 0; i<paramN; i++){
+ 330:crypto/p7681/ntt_7681_256.c ****     p1[i] = mm7681(p1[i], start_val);
+ 2122               	.LM171:
+ 2123 001c B801      		movw r22,r16
+ 2124 001e 8991      		ld r24,Y+
+ 2125 0020 9991      		ld r25,Y+
+ 2126 0022 0E94 0000 		call mm7681
+ 2128               	.LM172:
+ 2129 0026 FE01      		movw r30,r28
+ 2130 0028 3297      		sbiw r30,2
+ 2131 002a 8083      		st Z,r24
+ 2132 002c 9183      		std Z+1,r25
+ 331:crypto/p7681/ntt_7681_256.c ****     start_val = mm7681(start_val, psi);
+ 2134               	.LM173:
+ 2135 002e B701      		movw r22,r14
+ 2136 0030 C801      		movw r24,r16
+ 2137 0032 0E94 0000 		call mm7681
+ 2138 0036 8C01      		movw r16,r24
+ 329:crypto/p7681/ntt_7681_256.c ****   for(uint16_t i = 0; i<paramN; i++){
+ 2140               	.LM174:
+ 2141 0038 CC15      		cp r28,r12
+ 2142 003a DD05      		cpc r29,r13
+ 2143 003c 01F4      		brne .L86
+ 2144               	/* epilogue start */
+ 2145               	.LBE41:
+ 332:crypto/p7681/ntt_7681_256.c ****   }
+ 333:crypto/p7681/ntt_7681_256.c **** }
+ 2147               	.LM175:
+ 2148 003e DF91      		pop r29
+ 2149 0040 CF91      		pop r28
+ 2150 0042 1F91      		pop r17
+ 2151 0044 0F91      		pop r16
+ 2152 0046 FF90      		pop r15
+ 2153 0048 EF90      		pop r14
+ 2154 004a DF90      		pop r13
+ 2155 004c CF90      		pop r12
+ 2156 004e 0895      		ret
+ 2158               	.Lscope10:
+ 2159               		.section	.text.pw_mul_flash_7681_256,"ax",@progbits
+ 2163               	.global	pw_mul_flash_7681_256
+ 2165               	pw_mul_flash_7681_256:
+ 334:crypto/p7681/ntt_7681_256.c **** 
+ 335:crypto/p7681/ntt_7681_256.c **** IS_STATIC void pw_mul_flash_7681_256(uint16_t* polynomial, const uint16_t* addr){
+ 2167               	.LM176:
+ 2168               	.LFBB11:
+ 2169 0000 EF92      		push r14
+ 2170 0002 FF92      		push r15
+ 2171 0004 0F93      		push r16
+ 2172 0006 1F93      		push r17
+ 2173 0008 CF93      		push r28
+ 2174 000a DF93      		push r29
+ 2175               	/* prologue: function */
+ 2176               	/* frame size = 0 */
+ 2177               	/* stack size = 6 */
+ 2178               	.L__stack_usage = 6
+ 2179 000c 8B01      		movw r16,r22
+ 2180 000e EC01      		movw r28,r24
+ 2181 0010 7C01      		movw r14,r24
+ 2182 0012 8EEF      		ldi r24,-2
+ 2183 0014 F81A      		sub r15,r24
+ 2184               	.L89:
+ 2185               	.LBB42:
+ 2186               	.LBB43:
+ 336:crypto/p7681/ntt_7681_256.c ****   uint16_t temp;
+ 337:crypto/p7681/ntt_7681_256.c ****   for(int i = 0; i<paramN; i++){
+ 338:crypto/p7681/ntt_7681_256.c ****     temp = pgm_read_word(&addr[i]);    
+ 2188               	.LM177:
+ 2189 0016 F801      		movw r30,r16
+ 2190               	/* #APP */
+ 2191               	 ;  338 "crypto/p7681/ntt_7681_256.c" 1
+ 2192 0018 8591      		lpm r24, Z+
+ 2193 001a 9491      		lpm r25, Z
+ 2194               		
+ 2195               	 ;  0 "" 2
+ 2196               	/* #NOAPP */
+ 2197               	.LBE43:
+ 339:crypto/p7681/ntt_7681_256.c ****     polynomial[i] = mm7681(temp, polynomial[i]);
+ 2199               	.LM178:
+ 2200 001c 6991      		ld r22,Y+
+ 2201 001e 7991      		ld r23,Y+
+ 2202 0020 0E94 0000 		call mm7681
+ 2204               	.LM179:
+ 2205 0024 FE01      		movw r30,r28
+ 2206 0026 3297      		sbiw r30,2
+ 2207 0028 8083      		st Z,r24
+ 2208 002a 9183      		std Z+1,r25
+ 2209 002c 0E5F      		subi r16,-2
+ 2210 002e 1F4F      		sbci r17,-1
+ 337:crypto/p7681/ntt_7681_256.c ****     temp = pgm_read_word(&addr[i]);    
+ 2212               	.LM180:
+ 2213 0030 CE15      		cp r28,r14
+ 2214 0032 DF05      		cpc r29,r15
+ 2215 0034 01F4      		brne .L89
+ 2216               	/* epilogue start */
+ 2217               	.LBE42:
+ 340:crypto/p7681/ntt_7681_256.c ****   }
+ 341:crypto/p7681/ntt_7681_256.c **** }
+ 2219               	.LM181:
+ 2220 0036 DF91      		pop r29
+ 2221 0038 CF91      		pop r28
+ 2222 003a 1F91      		pop r17
+ 2223 003c 0F91      		pop r16
+ 2224 003e FF90      		pop r15
+ 2225 0040 EF90      		pop r14
+ 2226 0042 0895      		ret
+ 2228               	.Lscope11:
+ 2229               		.section	.text.add_7681,"ax",@progbits
+ 2234               	.global	add_7681
+ 2236               	add_7681:
+ 342:crypto/p7681/ntt_7681_256.c **** 
+ 343:crypto/p7681/ntt_7681_256.c **** 
+ 344:crypto/p7681/ntt_7681_256.c **** IS_STATIC void add_7681(uint16_t* p1, uint16_t* p2, uint16_t* res){
+ 2238               	.LM182:
+ 2239               	.LFBB12:
+ 2240 0000 CF92      		push r12
+ 2241 0002 DF92      		push r13
+ 2242 0004 EF92      		push r14
+ 2243 0006 FF92      		push r15
+ 2244 0008 0F93      		push r16
+ 2245 000a 1F93      		push r17
+ 2246 000c CF93      		push r28
+ 2247 000e DF93      		push r29
+ 2248               	/* prologue: function */
+ 2249               	/* frame size = 0 */
+ 2250               	/* stack size = 8 */
+ 2251               	.L__stack_usage = 8
+ 2252 0010 EC01      		movw r28,r24
+ 2253 0012 7B01      		movw r14,r22
+ 2254 0014 8A01      		movw r16,r20
+ 2255 0016 6C01      		movw r12,r24
+ 2256 0018 8EEF      		ldi r24,-2
+ 2257 001a D81A      		sub r13,r24
+ 2258               	.L92:
+ 2259               	.LBB44:
+ 345:crypto/p7681/ntt_7681_256.c ****   for(int i = 0; i<paramN; i++){
+ 346:crypto/p7681/ntt_7681_256.c ****     res[i] = (uint16_t) ((p1[i] + p2[i]));
+ 2261               	.LM183:
+ 2262 001c 8991      		ld r24,Y+
+ 2263 001e 9991      		ld r25,Y+
+ 2265               	.LM184:
+ 2266 0020 F701      		movw r30,r14
+ 2267 0022 2191      		ld r18,Z+
+ 2268 0024 3191      		ld r19,Z+
+ 2269 0026 7F01      		movw r14,r30
+ 2271               	.LM185:
+ 2272 0028 820F      		add r24,r18
+ 2273 002a 931F      		adc r25,r19
+ 2275               	.LM186:
+ 2276 002c F801      		movw r30,r16
+ 2277 002e 8193      		st Z+,r24
+ 2278 0030 9193      		st Z+,r25
+ 2279 0032 8F01      		movw r16,r30
+ 347:crypto/p7681/ntt_7681_256.c ****     res[i] = mod7681(res[i]);
+ 2281               	.LM187:
+ 2282 0034 0E94 0000 		call mod7681
+ 2284               	.LM188:
+ 2285 0038 F801      		movw r30,r16
+ 2286 003a 3297      		sbiw r30,2
+ 2287 003c 8083      		st Z,r24
+ 2288 003e 9183      		std Z+1,r25
+ 345:crypto/p7681/ntt_7681_256.c ****   for(int i = 0; i<paramN; i++){
+ 2290               	.LM189:
+ 2291 0040 CC15      		cp r28,r12
+ 2292 0042 DD05      		cpc r29,r13
+ 2293 0044 01F4      		brne .L92
+ 2294               	/* epilogue start */
+ 2295               	.LBE44:
+ 348:crypto/p7681/ntt_7681_256.c ****   }
+ 349:crypto/p7681/ntt_7681_256.c **** }
+ 2297               	.LM190:
+ 2298 0046 DF91      		pop r29
+ 2299 0048 CF91      		pop r28
+ 2300 004a 1F91      		pop r17
+ 2301 004c 0F91      		pop r16
+ 2302 004e FF90      		pop r15
+ 2303 0050 EF90      		pop r14
+ 2304 0052 DF90      		pop r13
+ 2305 0054 CF90      		pop r12
+ 2306 0056 0895      		ret
+ 2308               	.Lscope12:
+ 2309               		.section	.text.enc_7681_256_core,"ax",@progbits
+ 2314               	.global	enc_7681_256_core
+ 2316               	enc_7681_256_core:
+ 350:crypto/p7681/ntt_7681_256.c **** 
+ 351:crypto/p7681/ntt_7681_256.c **** void enc_7681_256_core(const uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* a, con
+ 2318               	.LM191:
+ 2319               	.LFBB13:
+ 2320 0000 6F92      		push r6
+ 2321 0002 7F92      		push r7
+ 2322 0004 8F92      		push r8
+ 2323 0006 9F92      		push r9
+ 2324 0008 AF92      		push r10
+ 2325 000a BF92      		push r11
+ 2326 000c CF92      		push r12
+ 2327 000e DF92      		push r13
+ 2328 0010 EF92      		push r14
+ 2329 0012 FF92      		push r15
+ 2330 0014 0F93      		push r16
+ 2331 0016 1F93      		push r17
+ 2332 0018 CF93      		push r28
+ 2333 001a DF93      		push r29
+ 2334               	/* prologue: function */
+ 2335               	/* frame size = 0 */
+ 2336               	/* stack size = 14 */
+ 2337               	.L__stack_usage = 14
+ 2338 001c D62F      		mov r29,r22
+ 2339 001e C72F      		mov r28,r23
+ 2340 0020 3A01      		movw r6,r20
+ 2341 0022 5901      		movw r10,r18
+ 2342 0024 6801      		movw r12,r16
+ 352:crypto/p7681/ntt_7681_256.c **** 
+ 353:crypto/p7681/ntt_7681_256.c ****   get_gauss_poly_7681_256(c1,0); //e1 stored in c1
+ 2344               	.LM192:
+ 2345 0026 70E0      		ldi r23,0
+ 2346 0028 60E0      		ldi r22,0
+ 2347 002a 8D2F      		mov r24,r29
+ 2348 002c 9C2F      		mov r25,r28
+ 2349 002e 0E94 0000 		call get_gauss_poly_7681_256
+ 354:crypto/p7681/ntt_7681_256.c ****   get_gauss_poly_7681_256(c2,0); //e2 stored in c2
+ 2351               	.LM193:
+ 2352 0032 70E0      		ldi r23,0
+ 2353 0034 60E0      		ldi r22,0
+ 2354 0036 C301      		movw r24,r6
+ 2355 0038 0E94 0000 		call get_gauss_poly_7681_256
+ 355:crypto/p7681/ntt_7681_256.c **** 
+ 356:crypto/p7681/ntt_7681_256.c ****   //Transform e1, e2
+ 357:crypto/p7681/ntt_7681_256.c ****   ntt_CT_no_to_bo_incl_psi_7681_256((int16_t*)c1, psibitrev_7681_256);
+ 2357               	.LM194:
+ 2358 003c 60E0      		ldi r22,lo8(psibitrev_7681_256)
+ 2359 003e 70E0      		ldi r23,hi8(psibitrev_7681_256)
+ 2360 0040 8D2F      		mov r24,r29
+ 2361 0042 9C2F      		mov r25,r28
+ 2362 0044 0E94 0000 		call ntt_CT_no_to_bo_incl_psi_7681_256
+ 358:crypto/p7681/ntt_7681_256.c ****   ntt_CT_no_to_bo_incl_psi_7681_256((int16_t*)c2, psibitrev_7681_256);
+ 2364               	.LM195:
+ 2365 0048 60E0      		ldi r22,lo8(psibitrev_7681_256)
+ 2366 004a 70E0      		ldi r23,hi8(psibitrev_7681_256)
+ 2367 004c C301      		movw r24,r6
+ 2368 004e 0E94 0000 		call ntt_CT_no_to_bo_incl_psi_7681_256
+ 2369 0052 ED2E      		mov r14,r29
+ 2370 0054 FC2E      		mov r15,r28
+ 2371 0056 8301      		movw r16,r6
+ 2372 0058 D0E0      		ldi r29,0
+ 2373 005a C0E0      		ldi r28,0
+ 2374               	.L97:
+ 2375               	.LBB45:
+ 2376               	.LBB46:
+ 359:crypto/p7681/ntt_7681_256.c **** 
+ 360:crypto/p7681/ntt_7681_256.c ****   //Pointwise multiplication with a and p, addition of e2
+ 361:crypto/p7681/ntt_7681_256.c ****   for(uint16_t i = 0; i<paramN; i++){
+ 362:crypto/p7681/ntt_7681_256.c ****     uint16_t temp = c1[i];
+ 2378               	.LM196:
+ 2379 005c D701      		movw r26,r14
+ 2380 005e 8D90      		ld r8,X+
+ 2381 0060 9D90      		ld r9,X+
+ 2382 0062 7D01      		movw r14,r26
+ 2383               	.LBB47:
+ 363:crypto/p7681/ntt_7681_256.c **** 
+ 364:crypto/p7681/ntt_7681_256.c ****     c1[i] = mm7681(temp, pgm_read_word(&a[i]));
+ 2385               	.LM197:
+ 2386 0064 F501      		movw r30,r10
+ 2387 0066 EC0F      		add r30,r28
+ 2388 0068 FD1F      		adc r31,r29
+ 2389               	/* #APP */
+ 2390               	 ;  364 "crypto/p7681/ntt_7681_256.c" 1
+ 2391 006a 6591      		lpm r22, Z+
+ 2392 006c 7491      		lpm r23, Z
+ 2393               		
+ 2394               	 ;  0 "" 2
+ 2395               	/* #NOAPP */
+ 2396               	.LBE47:
+ 2398               	.LM198:
+ 2399 006e C401      		movw r24,r8
+ 2400 0070 0E94 0000 		call mm7681
+ 2401 0074 9C01      		movw r18,r24
+ 2402 0076 F701      		movw r30,r14
+ 2404               	.LM199:
+ 2405 0078 9293      		st -Z,r25
+ 2406 007a 8293      		st -Z,r24
+ 365:crypto/p7681/ntt_7681_256.c **** 
+ 366:crypto/p7681/ntt_7681_256.c ****     if ( (c1[i]+c2[i]) >= paramQ){
+ 2408               	.LM200:
+ 2409 007c D801      		movw r26,r16
+ 2410 007e 8D91      		ld r24,X+
+ 2411 0080 9D91      		ld r25,X+
+ 2412 0082 8D01      		movw r16,r26
+ 2414               	.LM201:
+ 2415 0084 280F      		add r18,r24
+ 2416 0086 391F      		adc r19,r25
+ 2418               	.LM202:
+ 2419 0088 2130      		cpi r18,1
+ 2420 008a BEE1      		ldi r27,30
+ 2421 008c 3B07      		cpc r19,r27
+ 2422 008e 00F0      		brlo .L95
+ 367:crypto/p7681/ntt_7681_256.c **** 	c1[i] = c1[i]+c2[i] - paramQ;
+ 2424               	.LM203:
+ 2425 0090 2150      		subi r18,1
+ 2426 0092 3E41      		sbci r19,30
+ 2427               	.L95:
+ 368:crypto/p7681/ntt_7681_256.c ****     }
+ 369:crypto/p7681/ntt_7681_256.c ****     else{
+ 370:crypto/p7681/ntt_7681_256.c **** 	c1[i] = c1[i]+c2[i];
+ 2429               	.LM204:
+ 2430 0094 2083      		st Z,r18
+ 2431 0096 3183      		std Z+1,r19
+ 2432               	.LBB48:
+ 371:crypto/p7681/ntt_7681_256.c ****     }
+ 372:crypto/p7681/ntt_7681_256.c **** 
+ 373:crypto/p7681/ntt_7681_256.c ****     c2[i] = mm7681(temp, pgm_read_word(&p[i]));
+ 2434               	.LM205:
+ 2435 0098 F601      		movw r30,r12
+ 2436 009a EC0F      		add r30,r28
+ 2437 009c FD1F      		adc r31,r29
+ 2438               	/* #APP */
+ 2439               	 ;  373 "crypto/p7681/ntt_7681_256.c" 1
+ 2440 009e 6591      		lpm r22, Z+
+ 2441 00a0 7491      		lpm r23, Z
+ 2442               		
+ 2443               	 ;  0 "" 2
+ 2444               	/* #NOAPP */
+ 2445               	.LBE48:
+ 2447               	.LM206:
+ 2448 00a2 C401      		movw r24,r8
+ 2449 00a4 0E94 0000 		call mm7681
+ 2451               	.LM207:
+ 2452 00a8 F801      		movw r30,r16
+ 2453 00aa 3297      		sbiw r30,2
+ 2454 00ac 8083      		st Z,r24
+ 2455 00ae 9183      		std Z+1,r25
+ 2456 00b0 2296      		adiw r28,2
+ 2457               	.LBE46:
+ 361:crypto/p7681/ntt_7681_256.c ****     uint16_t temp = c1[i];
+ 2459               	.LM208:
+ 2460 00b2 C115      		cp r28,__zero_reg__
+ 2461 00b4 E2E0      		ldi r30,2
+ 2462 00b6 DE07      		cpc r29,r30
+ 2463 00b8 01F4      		brne .L97
+ 2464               	.LBE45:
+ 374:crypto/p7681/ntt_7681_256.c ****   }
+ 375:crypto/p7681/ntt_7681_256.c **** 
+ 376:crypto/p7681/ntt_7681_256.c ****   //inverse transform
+ 377:crypto/p7681/ntt_7681_256.c ****   ntt_GS_bo_to_no_incl_invpsi_7681_256((int16_t*)c2, omegainvbitrev_7681_256);
+ 2466               	.LM209:
+ 2467 00ba 60E0      		ldi r22,lo8(omegainvbitrev_7681_256)
+ 2468 00bc 70E0      		ldi r23,hi8(omegainvbitrev_7681_256)
+ 2469 00be C301      		movw r24,r6
+ 2470 00c0 0E94 0000 		call ntt_GS_bo_to_no_incl_invpsi_7681_256
+ 378:crypto/p7681/ntt_7681_256.c **** 
+ 379:crypto/p7681/ntt_7681_256.c ****   get_gauss_poly_7681_256(c2,1); //add e3
+ 2472               	.LM210:
+ 2473 00c4 61E0      		ldi r22,lo8(1)
+ 2474 00c6 70E0      		ldi r23,0
+ 2475 00c8 C301      		movw r24,r6
+ 2476               	/* epilogue start */
+ 380:crypto/p7681/ntt_7681_256.c **** }
+ 2478               	.LM211:
+ 2479 00ca DF91      		pop r29
+ 2480 00cc CF91      		pop r28
+ 2481 00ce 1F91      		pop r17
+ 2482 00d0 0F91      		pop r16
+ 2483 00d2 FF90      		pop r15
+ 2484 00d4 EF90      		pop r14
+ 2485 00d6 DF90      		pop r13
+ 2486 00d8 CF90      		pop r12
+ 2487 00da BF90      		pop r11
+ 2488 00dc AF90      		pop r10
+ 2489 00de 9F90      		pop r9
+ 2490 00e0 8F90      		pop r8
+ 2491 00e2 7F90      		pop r7
+ 2492 00e4 6F90      		pop r6
+ 379:crypto/p7681/ntt_7681_256.c **** }
+ 2494               	.LM212:
+ 2495 00e6 0C94 0000 		jmp get_gauss_poly_7681_256
+ 2500               	.Lscope13:
+ 2501               		.section	.text.dec_7681_256_core,"ax",@progbits
+ 2504               	.global	dec_7681_256_core
+ 2506               	dec_7681_256_core:
+ 381:crypto/p7681/ntt_7681_256.c **** 
+ 382:crypto/p7681/ntt_7681_256.c **** 
+ 383:crypto/p7681/ntt_7681_256.c **** 
+ 384:crypto/p7681/ntt_7681_256.c **** void encrypt_7681_256(const uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* a, cons
+ 385:crypto/p7681/ntt_7681_256.c **** {	
+ 386:crypto/p7681/ntt_7681_256.c ****   enc_7681_256_core(plaintext,  c1,c2, a,p);
+ 387:crypto/p7681/ntt_7681_256.c ****   add_encode_7681_256(plaintext, c2);
+ 388:crypto/p7681/ntt_7681_256.c **** }
+ 389:crypto/p7681/ntt_7681_256.c **** 
+ 390:crypto/p7681/ntt_7681_256.c **** 
+ 391:crypto/p7681/ntt_7681_256.c **** void dec_7681_256_core(uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* r2)
+ 392:crypto/p7681/ntt_7681_256.c **** {	
+ 2508               	.LM213:
+ 2509               	.LFBB14:
+ 2510 0000 0F93      		push r16
+ 2511 0002 1F93      		push r17
+ 2512 0004 CF93      		push r28
+ 2513 0006 DF93      		push r29
+ 2514               	/* prologue: function */
+ 2515               	/* frame size = 0 */
+ 2516               	/* stack size = 4 */
+ 2517               	.L__stack_usage = 4
+ 2518 0008 D62F      		mov r29,r22
+ 2519 000a C72F      		mov r28,r23
+ 2520 000c 8A01      		movw r16,r20
+ 2521 000e B901      		movw r22,r18
+ 393:crypto/p7681/ntt_7681_256.c ****   //Pointwise multiplication with r2
+ 394:crypto/p7681/ntt_7681_256.c ****   pw_mul_flash_7681_256(c1, r2);
+ 2523               	.LM214:
+ 2524 0010 8D2F      		mov r24,r29
+ 2525 0012 9C2F      		mov r25,r28
+ 2526 0014 0E94 0000 		call pw_mul_flash_7681_256
+ 395:crypto/p7681/ntt_7681_256.c ****   
+ 396:crypto/p7681/ntt_7681_256.c ****   //inverse transform c1
+ 397:crypto/p7681/ntt_7681_256.c ****   ntt_GS_bo_to_no_incl_invpsi_7681_256((int16_t*)c1, omegainvbitrev_7681_256);
+ 2528               	.LM215:
+ 2529 0018 60E0      		ldi r22,lo8(omegainvbitrev_7681_256)
+ 2530 001a 70E0      		ldi r23,hi8(omegainvbitrev_7681_256)
+ 2531 001c 8D2F      		mov r24,r29
+ 2532 001e 9C2F      		mov r25,r28
+ 2533 0020 0E94 0000 		call ntt_GS_bo_to_no_incl_invpsi_7681_256
+ 398:crypto/p7681/ntt_7681_256.c ****   
+ 399:crypto/p7681/ntt_7681_256.c ****   //Add c2
+ 400:crypto/p7681/ntt_7681_256.c ****   add_7681(c1,c2,c1);
+ 2535               	.LM216:
+ 2536 0024 4D2F      		mov r20,r29
+ 2537 0026 5C2F      		mov r21,r28
+ 2538 0028 B801      		movw r22,r16
+ 2539 002a 8D2F      		mov r24,r29
+ 2540 002c 9C2F      		mov r25,r28
+ 2541               	/* epilogue start */
+ 401:crypto/p7681/ntt_7681_256.c **** }
+ 2543               	.LM217:
+ 2544 002e DF91      		pop r29
+ 2545 0030 CF91      		pop r28
+ 2546 0032 1F91      		pop r17
+ 2547 0034 0F91      		pop r16
+ 400:crypto/p7681/ntt_7681_256.c **** }
+ 2549               	.LM218:
+ 2550 0036 0C94 0000 		jmp add_7681
+ 2552               	.Lscope14:
+ 2553               		.section	.text.add_encode_7681_256,"ax",@progbits
+ 2557               	.global	add_encode_7681_256
+ 2559               	add_encode_7681_256:
+ 402:crypto/p7681/ntt_7681_256.c **** 
+ 403:crypto/p7681/ntt_7681_256.c **** void decrypt_7681_256(uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* r2)
+ 404:crypto/p7681/ntt_7681_256.c **** {	
+ 405:crypto/p7681/ntt_7681_256.c ****   dec_7681_256_core(plaintext, c1,c2,r2);
+ 406:crypto/p7681/ntt_7681_256.c ****   decode_7681_256(c1, plaintext);
+ 407:crypto/p7681/ntt_7681_256.c **** }
+ 408:crypto/p7681/ntt_7681_256.c **** 
+ 409:crypto/p7681/ntt_7681_256.c **** 
+ 410:crypto/p7681/ntt_7681_256.c **** 
+ 411:crypto/p7681/ntt_7681_256.c **** IS_STATIC void add_encode_7681_256(const uint8_t* msg, uint16_t* encodedpoly)
+ 412:crypto/p7681/ntt_7681_256.c **** {
+ 2561               	.LM219:
+ 2562               	.LFBB15:
+ 2563               	/* prologue: function */
+ 2564               	/* frame size = 0 */
+ 2565               	/* stack size = 0 */
+ 2566               	.L__stack_usage = 0
+ 2567 0000 AC01      		movw r20,r24
+ 2568 0002 FB01      		movw r30,r22
+ 413:crypto/p7681/ntt_7681_256.c ****   uint16_t i = 0;
+ 2570               	.LM220:
+ 2571 0004 90E0      		ldi r25,0
+ 2572 0006 80E0      		ldi r24,0
+ 2573               	.L106:
+ 414:crypto/p7681/ntt_7681_256.c **** 			
+ 415:crypto/p7681/ntt_7681_256.c ****   do 
+ 416:crypto/p7681/ntt_7681_256.c ****     {		
+ 417:crypto/p7681/ntt_7681_256.c ****      if (msg[i/8] & (1<<(i%8))){
+ 2575               	.LM221:
+ 2576 0008 DC01      		movw r26,r24
+ 2577 000a 23E0      		ldi r18,3
+ 2578               		1:
+ 2579 000c B695      		lsr r27
+ 2580 000e A795      		ror r26
+ 2581 0010 2A95      		dec r18
+ 2582 0012 01F4      		brne 1b
+ 2584               	.LM222:
+ 2585 0014 A40F      		add r26,r20
+ 2586 0016 B51F      		adc r27,r21
+ 2587 0018 2C91      		ld r18,X
+ 2588 001a 30E0      		ldi r19,0
+ 2590               	.LM223:
+ 2591 001c BC01      		movw r22,r24
+ 2592 001e 6770      		andi r22,7
+ 2593 0020 7727      		clr r23
+ 2595               	.LM224:
+ 2596 0022 00C0      		rjmp 2f
+ 2597               		1:
+ 2598 0024 3595      		asr r19
+ 2599 0026 2795      		ror r18
+ 2600               		2:
+ 2601 0028 6A95      		dec r22
+ 2602 002a 02F4      		brpl 1b
+ 2604               	.LM225:
+ 2605 002c 20FF      		sbrs r18,0
+ 2606 002e 00C0      		rjmp .L102
+ 418:crypto/p7681/ntt_7681_256.c **** 	encodedpoly[i] = encodedpoly[i]+(paramQ-1)/2;
+ 2608               	.LM226:
+ 2609 0030 2081      		ld r18,Z
+ 2610 0032 3181      		ldd r19,Z+1
+ 2612               	.LM227:
+ 2613 0034 B901      		movw r22,r18
+ 2614 0036 715F      		subi r23,-15
+ 419:crypto/p7681/ntt_7681_256.c **** 	if (encodedpoly[i] >= paramQ){
+ 2616               	.LM228:
+ 2617 0038 6130      		cpi r22,1
+ 2618 003a AEE1      		ldi r26,30
+ 2619 003c 7A07      		cpc r23,r26
+ 2620 003e 00F4      		brsh .L103
+ 418:crypto/p7681/ntt_7681_256.c **** 	encodedpoly[i] = encodedpoly[i]+(paramQ-1)/2;
+ 2622               	.LM229:
+ 2623 0040 6083      		st Z,r22
+ 2624 0042 7183      		std Z+1,r23
+ 2625               	.L102:
+ 2626 0044 3296      		adiw r30,2
+ 420:crypto/p7681/ntt_7681_256.c **** 	  encodedpoly[i]=encodedpoly[i]-paramQ;
+ 421:crypto/p7681/ntt_7681_256.c **** 	}
+ 422:crypto/p7681/ntt_7681_256.c ****       }
+ 423:crypto/p7681/ntt_7681_256.c **** 	
+ 424:crypto/p7681/ntt_7681_256.c ****       if(i == (8*paramL)-1)
+ 2628               	.LM230:
+ 2629 0046 8F3F      		cpi r24,-1
+ 2630 0048 9105      		cpc r25,__zero_reg__
+ 2631 004a 01F0      		breq .L100
+ 425:crypto/p7681/ntt_7681_256.c **** 	break;
+ 426:crypto/p7681/ntt_7681_256.c **** 			
+ 427:crypto/p7681/ntt_7681_256.c ****       i++;
+ 2633               	.LM231:
+ 2634 004c 0196      		adiw r24,1
+ 417:crypto/p7681/ntt_7681_256.c **** 	encodedpoly[i] = encodedpoly[i]+(paramQ-1)/2;
+ 2636               	.LM232:
+ 2637 004e 00C0      		rjmp .L106
+ 2638               	.L103:
+ 420:crypto/p7681/ntt_7681_256.c **** 	  encodedpoly[i]=encodedpoly[i]-paramQ;
+ 2640               	.LM233:
+ 2641 0050 2150      		subi r18,1
+ 2642 0052 3F40      		sbci r19,15
+ 420:crypto/p7681/ntt_7681_256.c **** 	  encodedpoly[i]=encodedpoly[i]-paramQ;
+ 2644               	.LM234:
+ 2645 0054 2083      		st Z,r18
+ 2646 0056 3183      		std Z+1,r19
+ 2647 0058 00C0      		rjmp .L102
+ 2648               	.L100:
+ 2649               	/* epilogue start */
+ 428:crypto/p7681/ntt_7681_256.c ****     } while (1);
+ 429:crypto/p7681/ntt_7681_256.c **** }
+ 2651               	.LM235:
+ 2652 005a 0895      		ret
+ 2657               	.Lscope15:
+ 2658               		.section	.text.encrypt_7681_256,"ax",@progbits
+ 2660               	.global	encrypt_7681_256
+ 2662               	encrypt_7681_256:
+ 385:crypto/p7681/ntt_7681_256.c ****   enc_7681_256_core(plaintext,  c1,c2, a,p);
+ 2664               	.LM236:
+ 2665               	.LFBB16:
+ 2666 0000 EF92      		push r14
+ 2667 0002 FF92      		push r15
+ 2668 0004 0F93      		push r16
+ 2669 0006 1F93      		push r17
+ 2670 0008 CF93      		push r28
+ 2671 000a DF93      		push r29
+ 2672               	/* prologue: function */
+ 2673               	/* frame size = 0 */
+ 2674               	/* stack size = 6 */
+ 2675               	.L__stack_usage = 6
+ 2676 000c D82F      		mov r29,r24
+ 2677 000e C92F      		mov r28,r25
+ 2678 0010 7A01      		movw r14,r20
+ 386:crypto/p7681/ntt_7681_256.c ****   add_encode_7681_256(plaintext, c2);
+ 2680               	.LM237:
+ 2681 0012 0E94 0000 		call enc_7681_256_core
+ 387:crypto/p7681/ntt_7681_256.c **** }
+ 2683               	.LM238:
+ 2684 0016 B701      		movw r22,r14
+ 2685 0018 8D2F      		mov r24,r29
+ 2686 001a 9C2F      		mov r25,r28
+ 2687               	/* epilogue start */
+ 388:crypto/p7681/ntt_7681_256.c **** 
+ 2689               	.LM239:
+ 2690 001c DF91      		pop r29
+ 2691 001e CF91      		pop r28
+ 2692 0020 1F91      		pop r17
+ 2693 0022 0F91      		pop r16
+ 2694 0024 FF90      		pop r15
+ 2695 0026 EF90      		pop r14
+ 387:crypto/p7681/ntt_7681_256.c **** }
+ 2697               	.LM240:
+ 2698 0028 0C94 0000 		jmp add_encode_7681_256
+ 2700               	.Lscope16:
+ 2701               		.section	.text.decode_7681_256,"ax",@progbits
+ 2705               	.global	decode_7681_256
+ 2707               	decode_7681_256:
+ 430:crypto/p7681/ntt_7681_256.c **** 
+ 431:crypto/p7681/ntt_7681_256.c **** // decoding
+ 432:crypto/p7681/ntt_7681_256.c **** IS_STATIC void decode_7681_256(uint16_t* cipherpoly, uint8_t* plaintext)
+ 433:crypto/p7681/ntt_7681_256.c **** {		
+ 2709               	.LM241:
+ 2710               	.LFBB17:
+ 2711 0000 CF93      		push r28
+ 2712 0002 DF93      		push r29
+ 2713               	/* prologue: function */
+ 2714               	/* frame size = 0 */
+ 2715               	/* stack size = 2 */
+ 2716               	.L__stack_usage = 2
+ 2717 0004 9B01      		movw r18,r22
+ 2718 0006 FC01      		movw r30,r24
+ 434:crypto/p7681/ntt_7681_256.c ****   uint16_t i = 0;
+ 2720               	.LM242:
+ 2721 0008 90E0      		ldi r25,0
+ 2722 000a 80E0      		ldi r24,0
+ 435:crypto/p7681/ntt_7681_256.c **** 		
+ 436:crypto/p7681/ntt_7681_256.c ****   do 
+ 437:crypto/p7681/ntt_7681_256.c ****     {		
+ 438:crypto/p7681/ntt_7681_256.c ****       // Decode(m) = 1 if m between q/4,-q/4, 0 else
+ 439:crypto/p7681/ntt_7681_256.c ****       if((cipherpoly[i] < (paramQ/4)) || (cipherpoly[i] >= (3*paramQ/4)))
+ 440:crypto/p7681/ntt_7681_256.c **** 	{
+ 441:crypto/p7681/ntt_7681_256.c **** 	  plaintext[i/8] = (plaintext[i/8] | (0 << (i%8)));
+ 442:crypto/p7681/ntt_7681_256.c **** 	}
+ 443:crypto/p7681/ntt_7681_256.c ****       else
+ 444:crypto/p7681/ntt_7681_256.c **** 	{
+ 445:crypto/p7681/ntt_7681_256.c **** 	  plaintext[i/8] = (plaintext[i/8] | (1 << (i%8)));
+ 2724               	.LM243:
+ 2725 000c 61E0      		ldi r22,lo8(1)
+ 2726 000e 70E0      		ldi r23,0
+ 2727               	.L111:
+ 439:crypto/p7681/ntt_7681_256.c **** 	{
+ 2729               	.LM244:
+ 2730 0010 4191      		ld r20,Z+
+ 2731 0012 5191      		ld r21,Z+
+ 439:crypto/p7681/ntt_7681_256.c **** 	{
+ 2733               	.LM245:
+ 2734 0014 4058      		subi r20,-128
+ 2735 0016 5740      		sbci r21,7
+ 439:crypto/p7681/ntt_7681_256.c **** 	{
+ 2737               	.LM246:
+ 2738 0018 4115      		cp r20,__zero_reg__
+ 2739 001a 5F40      		sbci r21,15
+ 2740 001c 00F4      		brsh .L109
+ 2742               	.LM247:
+ 2743 001e DC01      		movw r26,r24
+ 2744 0020 43E0      		ldi r20,3
+ 2745               		1:
+ 2746 0022 B695      		lsr r27
+ 2747 0024 A795      		ror r26
+ 2748 0026 4A95      		dec r20
+ 2749 0028 01F4      		brne 1b
+ 2751               	.LM248:
+ 2752 002a A20F      		add r26,r18
+ 2753 002c B31F      		adc r27,r19
+ 2755               	.LM249:
+ 2756 002e AC01      		movw r20,r24
+ 2757 0030 4770      		andi r20,7
+ 2758 0032 5527      		clr r21
+ 2760               	.LM250:
+ 2761 0034 EB01      		movw r28,r22
+ 2762 0036 00C0      		rjmp 2f
+ 2763               		1:
+ 2764 0038 CC0F      		lsl r28
+ 2765               		2:
+ 2766 003a 4A95      		dec r20
+ 2767 003c 02F4      		brpl 1b
+ 2769               	.LM251:
+ 2770 003e 4C91      		ld r20,X
+ 2771 0040 4C2B      		or r20,r28
+ 2773               	.LM252:
+ 2774 0042 4C93      		st X,r20
+ 2775               	.L109:
+ 446:crypto/p7681/ntt_7681_256.c **** 	}
+ 447:crypto/p7681/ntt_7681_256.c **** 		
+ 448:crypto/p7681/ntt_7681_256.c ****       if(i == (8*paramL)-1)
+ 2777               	.LM253:
+ 2778 0044 8F3F      		cpi r24,-1
+ 2779 0046 9105      		cpc r25,__zero_reg__
+ 2780 0048 01F0      		breq .L108
+ 449:crypto/p7681/ntt_7681_256.c **** 	break;
+ 450:crypto/p7681/ntt_7681_256.c **** 			
+ 451:crypto/p7681/ntt_7681_256.c ****       i++;
+ 2782               	.LM254:
+ 2783 004a 0196      		adiw r24,1
+ 439:crypto/p7681/ntt_7681_256.c **** 	{
+ 2785               	.LM255:
+ 2786 004c 00C0      		rjmp .L111
+ 2787               	.L108:
+ 2788               	/* epilogue start */
+ 452:crypto/p7681/ntt_7681_256.c ****     } while (1);
+ 453:crypto/p7681/ntt_7681_256.c **** 
+ 454:crypto/p7681/ntt_7681_256.c **** 
+ 455:crypto/p7681/ntt_7681_256.c **** }
+ 2790               	.LM256:
+ 2791 004e DF91      		pop r29
+ 2792 0050 CF91      		pop r28
+ 2793 0052 0895      		ret
+ 2798               	.Lscope17:
+ 2799               		.section	.text.decrypt_7681_256,"ax",@progbits
+ 2801               	.global	decrypt_7681_256
+ 2803               	decrypt_7681_256:
+ 404:crypto/p7681/ntt_7681_256.c ****   dec_7681_256_core(plaintext, c1,c2,r2);
+ 2805               	.LM257:
+ 2806               	.LFBB18:
+ 2807 0000 0F93      		push r16
+ 2808 0002 1F93      		push r17
+ 2809 0004 CF93      		push r28
+ 2810 0006 DF93      		push r29
+ 2811               	/* prologue: function */
+ 2812               	/* frame size = 0 */
+ 2813               	/* stack size = 4 */
+ 2814               	.L__stack_usage = 4
+ 2815 0008 8C01      		movw r16,r24
+ 2816 000a D62F      		mov r29,r22
+ 2817 000c C72F      		mov r28,r23
+ 405:crypto/p7681/ntt_7681_256.c ****   decode_7681_256(c1, plaintext);
+ 2819               	.LM258:
+ 2820 000e 0E94 0000 		call dec_7681_256_core
+ 406:crypto/p7681/ntt_7681_256.c **** }
+ 2822               	.LM259:
+ 2823 0012 B801      		movw r22,r16
+ 2824 0014 8D2F      		mov r24,r29
+ 2825 0016 9C2F      		mov r25,r28
+ 2826               	/* epilogue start */
+ 407:crypto/p7681/ntt_7681_256.c **** 
+ 2828               	.LM260:
+ 2829 0018 DF91      		pop r29
+ 2830 001a CF91      		pop r28
+ 2831 001c 1F91      		pop r17
+ 2832 001e 0F91      		pop r16
+ 406:crypto/p7681/ntt_7681_256.c **** }
+ 2834               	.LM261:
+ 2835 0020 0C94 0000 		jmp decode_7681_256
+ 2837               	.Lscope18:
+ 2838               		.section	.progmem.data.cdf_table_7681_1132,"a"
+ 2841               	cdf_table_7681_1132:
+ 2842 0000 169D 6638 		.ascii	"\026\235f8\025\265\322\3053\217\324\223"
+ 2842      15B5 D2C5 
+ 2842      338F D493 
+ 2843 000c 42BF C758 		.ascii	"B\277\307X\221\024\204\0313g\363\023"
+ 2843      9114 8419 
+ 2843      3367 F313 
+ 2844 0018 6BC0 FE8D 		.ascii	"k\300\376\215\037\207[\335Wb\326\207"
+ 2844      1F87 5BDD 
+ 2844      5762 D687 
+ 2845 0024 9007 2E40 		.ascii	"\220\007.@[\270D+\227\361\250\032"
+ 2845      5BB8 442B 
+ 2845      97F1 A81A 
+ 2846 0030 AE94 F7B0 		.ascii	"\256\224\367\260\230\001j\301\256\3652,"
+ 2846      9801 6AC1 
+ 2846      AEF5 322C 
+ 2847 003c C716 08A4 		.string	"\307\026\b\244k\0219\350c"
+ 2847      6B11 39E8 
+ 2847      6300 
+ 2848 0046 695D      		.ascii	"i]"
+ 2849 0048 D9CC 4B2C 		.ascii	"\331\314K,}\202\256Z\332{ g"
+ 2849      7D82 AE5A 
+ 2849      DA7B 2067 
+ 2850 0054 E767 36E1 		.ascii	"\347g6\341J3\306z\301\033/^"
+ 2850      4A33 C67A 
+ 2850      C11B 2F5E 
+ 2851 0060 F0D2 6A55 		.ascii	"\360\322jUq\200\025\006}\231g\266"
+ 2851      7180 1506 
+ 2851      7D99 67B6 
+ 2852 006c F707 CC5D 		.ascii	"\367\007\314]\300\027\374(\254\216\377\025"
+ 2852      C017 FC28 
+ 2852      AC8E FF15 
+ 2853 0078 FAED 55D3 		.ascii	"\372\355U\323\033DM4\240\273l\330"
+ 2853      1B44 4D34 
+ 2853      A0BB 6CD8 
+ 2854 0084 FD41 74E9 		.string	"\375At\351\352\254"
+ 2854      EAAC 00
+ 2855 008b 2333 C083 		.ascii	"#3\300\203\023"
+ 2855      13
+ 2856 0090 FE94 A61B 		.ascii	"\376\224\246\033WF\034;\341v\327\256"
+ 2856      5746 1C3B 
+ 2856      E176 D7AE 
+ 2857 009c FF4C 69E1 		.ascii	"\377Li\341.\271\265=\333\001\354M"
+ 2857      2EB9 B53D 
+ 2857      DB01 EC4D 
+ 2858 00a8 FFAB 354F 		.ascii	"\377\2535O\33135\377\327T\b\250"
+ 2858      D933 35FF 
+ 2858      D754 08A8 
+ 2859 00b4 FFD9 C49D 		.ascii	"\377\331\304\235 b\353\272Y\324\341+"
+ 2859      2062 EBBA 
+ 2859      59D4 E12B 
+ 2860 00c0 FFEF 8AD2 		.ascii	"\377\357\212\3226e\243\177\232\323h\002"
+ 2860      3665 A37F 
+ 2860      9AD3 6802 
+ 2861 00cc FFF9 3CED 		.ascii	"\377\371<\355\3626Zq\303)i\207"
+ 2861      F236 5A71 
+ 2861      C329 6987 
+ 2862 00d8 FFFD 5949 		.ascii	"\377\375YI\257\216\375\342_\362~\""
+ 2862      AF8E FDE2 
+ 2862      5FF2 7E22 
+ 2863 00e4 FFFF 021D 		.ascii	"\377\377\002\035Wp\247\255\204\313F\272"
+ 2863      5770 A7AD 
+ 2863      84CB 46BA 
+ 2864 00f0 FFFF A568 		.ascii	"\377\377\245h$\277:\333\222\317\262o"
+ 2864      24BF 3ADB 
+ 2864      92CF B26F 
+ 2865 00fc FFFF E12B 		.ascii	"\377\377\341+/\220L\022\203{\025\357"
+ 2865      2F90 4C12 
+ 2865      837B 15EF 
+ 2866 0108 FFFF F5FE 		.ascii	"\377\377\365\376m\212\244qvY\370\263"
+ 2866      6D8A A471 
+ 2866      7659 F8B3 
+ 2867 0114 FFFF FCE7 		.ascii	"\377\377\374\347NN\001\332\237\314\334\001"
+ 2867      4E4E 01DA 
+ 2867      9FCC DC01 
+ 2868 0120 FFFF FF16 		.ascii	"\377\377\377\026 u\335d\377\271\326\177"
+ 2868      2075 DD64 
+ 2868      FFB9 D67F 
+ 2869 012c FFFF FFBE 		.ascii	"\377\377\377\2768\223\322M`\317\0074"
+ 2869      3893 D24D 
+ 2869      60CF 0734 
+ 2870 0138 FFFF FFEE 		.ascii	"\377\377\377\356]S\306\353f\017bw"
+ 2870      5D53 C6EB 
+ 2870      660F 6277 
+ 2871 0144 FFFF FFFB 		.ascii	"\377\377\377\373~Td5|2D\253"
+ 2871      7E54 6435 
+ 2871      7C32 44AB 
+ 2872 0150 FFFF FFFE 		.ascii	"\377\377\377\376\347\007\205\324h|f/"
+ 2872      E707 85D4 
+ 2872      687C 662F 
+ 2873 015c FFFF FFFF 		.ascii	"\377\377\377\377\276\311z+\217\362\336+"
+ 2873      BEC9 7A2B 
+ 2873      8FF2 DE2B 
+ 2874 0168 FFFF FFFF 		.string	"\377\377\377\377\361\223\2166\342"
+ 2874      F193 8E36 
+ 2874      E200 
+ 2875 0172 B45D      		.ascii	"\264]"
+ 2876 0174 FFFF FFFF 		.ascii	"\377\377\377\377\374\365\312\244\261\317&~"
+ 2876      FCF5 CAA4 
+ 2876      B1CF 267E 
+ 2877 0180 FFFF FFFF 		.ascii	"\377\377\377\377\377c\270\346#\371vo"
+ 2877      FF63 B8E6 
+ 2877      23F9 766F 
+ 2878 018c FFFF FFFF 		.ascii	"\377\377\377\377\377\342\031&\265\246X\203"
+ 2878      FFE2 1926 
+ 2878      B5A6 5883 
+ 2879 0198 FFFF FFFF 		.ascii	"\377\377\377\377\377\372\214\213\372\013!\344"
+ 2879      FFFA 8C8B 
+ 2879      FA0B 21E4 
+ 2880 01a4 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\r\244\242\243\340\023"
+ 2880      FFFF 0DA4 
+ 2880      A2A3 E013 
+ 2881 01b0 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\327\346}d\270\211"
+ 2881      FFFF D7E6 
+ 2881      7D64 B889 
+ 2882 01bc FFFF FFFF 		.ascii	"\377\377\377\377\377\377\371\255\357\2226\214"
+ 2882      FFFF F9AD 
+ 2882      EF92 368C 
+ 2883 01c8 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\r\013[\t\353"
+ 2883      FFFF FF0D 
+ 2883      0B5B 09EB 
+ 2884 01d4 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\335?\335\306\317"
+ 2884      FFFF FFDD 
+ 2884      3FDD C6CF 
+ 2885 01e0 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\373C\356\305\003"
+ 2885      FFFF FFFB 
+ 2885      43EE C503 
+ 2886 01ec FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377b\262\342\344"
+ 2886      FFFF FFFF 
+ 2886      62B2 E2E4 
+ 2887 01f8 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\354\216\027,"
+ 2887      FFFF FFFF 
+ 2887      EC8E 172C 
+ 2888 0204 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\375\265\342\352"
+ 2888      FFFF FFFF 
+ 2888      FDB5 E2EA 
+ 2889 0210 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\276D\370"
+ 2889      FFFF FFFF 
+ 2889      FFBE 44F8 
+ 2890 021c FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\370\372\242"
+ 2890      FFFF FFFF 
+ 2890      FFF8 FAA2 
+ 2891 0228 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377I%"
+ 2891      FFFF FFFF 
+ 2891      FFFF 4925 
+ 2892 0234 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\356H"
+ 2892      FFFF FFFF 
+ 2892      FFFF EE48 
+ 2893 0240 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\376]"
+ 2893      FFFF FFFF 
+ 2893      FFFF FE5D 
+ 2894 024c FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\377\332"
+ 2894      FFFF FFFF 
+ 2894      FFFF FFDA 
+ 2895 0258 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\377\374"
+ 2895      FFFF FFFF 
+ 2895      FFFF FFFC 
+ 2896 0264 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\377\377"
+ 2896      FFFF FFFF 
+ 2896      FFFF FFFF 
+ 2898               		.section	.progmem.data.omegamultiples_7681_256,"a"
+ 2901               	omegamultiples_7681_256:
+ 2902 0000 0000      		.word	0
+ 2903 0002 CA10      		.word	4298
+ 2904 0004 9303      		.word	915
+ 2905 0006 5D14      		.word	5213
+ 2906 0008 2607      		.word	1830
+ 2907 000a F017      		.word	6128
+ 2908 000c B90A      		.word	2745
+ 2909 000e 831B      		.word	7043
+ 2910 0010 4C0E      		.word	3660
+ 2911 0012 1501      		.word	277
+ 2912 0014 DF11      		.word	4575
+ 2913 0016 A804      		.word	1192
+ 2914 0018 7215      		.word	5490
+ 2915 001a 3B08      		.word	2107
+ 2916 001c 0519      		.word	6405
+ 2917 001e CE0B      		.word	3022
+ 2919               		.section	.progmem.data.omegainvbitrev_7681_256,"a"
+ 2922               	omegainvbitrev_7681_256:
+ 2923 0000 0100      		.word	1
+ 2924 0002 370D      		.word	3383
+ 2925 0004 8507      		.word	1925
+ 2926 0006 4419      		.word	6468
+ 2927 0008 BA1B      		.word	7098
+ 2928 000a C006      		.word	1728
+ 2929 000c B01A      		.word	6832
+ 2930 000e 0F02      		.word	527
+ 2931 0010 8E09      		.word	2446
+ 2932 0012 4D09      		.word	2381
+ 2933 0014 6100      		.word	97
+ 2934 0016 AD15      		.word	5549
+ 2935 0018 580A      		.word	2648
+ 2936 001a 5A08      		.word	2138
+ 2937 001c 2113      		.word	4897
+ 2938 001e AB18      		.word	6315
+ 2939 0020 5E1B      		.word	7006
+ 2940 0022 2515      		.word	5413
+ 2941 0024 FB18      		.word	6395
+ 2942 0026 ED11      		.word	4589
+ 2943 0028 0207      		.word	1794
+ 2944 002a 5804      		.word	1112
+ 2945 002c 4912      		.word	4681
+ 2946 002e A214      		.word	5282
+ 2947 0030 6D01      		.word	365
+ 2948 0032 CB16      		.word	5835
+ 2949 0034 460E      		.word	3654
+ 2950 0036 C10A      		.word	2753
+ 2951 0038 E108      		.word	2273
+ 2952 003a 6E03      		.word	878
+ 2953 003c AC13      		.word	5036
+ 2954 003e 4A01      		.word	330
+ 2955 0040 3514      		.word	5173
+ 2956 0042 7D0B      		.word	2941
+ 2957 0044 790D      		.word	3449
+ 2958 0046 1002      		.word	528
+ 2959 0048 D60A      		.word	2774
+ 2960 004a 3517      		.word	5941
+ 2961 004c 7706      		.word	1655
+ 2962 004e B91B      		.word	7097
+ 2963 0050 F709      		.word	2551
+ 2964 0052 AE10      		.word	4270
+ 2965 0054 D409      		.word	2516
+ 2966 0056 3804      		.word	1080
+ 2967 0058 410B      		.word	2881
+ 2968 005a 031B      		.word	6915
+ 2969 005c F300      		.word	243
+ 2970 005e CA00      		.word	202
+ 2971 0060 080C      		.word	3080
+ 2972 0062 6C10      		.word	4204
+ 2973 0064 251B      		.word	6949
+ 2974 0066 FF11      		.word	4607
+ 2975 0068 B206      		.word	1714
+ 2976 006a 4C1B      		.word	6988
+ 2977 006c CD10      		.word	4301
+ 2978 006e A509      		.word	2469
+ 2979 0070 9C18      		.word	6300
+ 2980 0072 AE16      		.word	5806
+ 2981 0074 E21A      		.word	6882
+ 2982 0076 B702      		.word	695
+ 2983 0078 9B18      		.word	6299
+ 2984 007a 7709      		.word	2423
+ 2985 007c 5D13      		.word	4957
+ 2986 007e 7407      		.word	1908
+ 2987 0080 B819      		.word	6584
+ 2988 0082 3519      		.word	6453
+ 2989 0084 2602      		.word	550
+ 2990 0086 3807      		.word	1848
+ 2991 0088 EC07      		.word	2028
+ 2992 008a 3706      		.word	1591
+ 2993 008c A007      		.word	1952
+ 2994 008e 0516      		.word	5637
+ 2995 0090 E013      		.word	5088
+ 2996 0092 601C      		.word	7264
+ 2997 0094 6504      		.word	1125
+ 2998 0096 C40E      		.word	3780
+ 2999 0098 6318      		.word	6243
+ 3000 009a 8813      		.word	5000
+ 3001 009c 5312      		.word	4691
+ 3002 009e C302      		.word	707
+ 3003 00a0 1B0C      		.word	3099
+ 3004 00a2 791B      		.word	7033
+ 3005 00a4 FF13      		.word	5119
+ 3006 00a6 FB11      		.word	4603
+ 3007 00a8 6F17      		.word	5999
+ 3008 00aa 8705      		.word	1415
+ 3009 00ac CC0D      		.word	3532
+ 3010 00ae C112      		.word	4801
+ 3011 00b0 201A      		.word	6688
+ 3012 00b2 5F13      		.word	4959
+ 3013 00b4 1404      		.word	1044
+ 3014 00b6 8118      		.word	6273
+ 3015 00b8 1C0B      		.word	2844
+ 3016 00ba 2012      		.word	4640
+ 3017 00bc C416      		.word	5828
+ 3018 00be 161A      		.word	6678
+ 3019 00c0 C605      		.word	1478
+ 3020 00c2 001D      		.word	7424
+ 3021 00c4 6C0C      		.word	3180
+ 3022 00c6 BC11      		.word	4540
+ 3023 00c8 8718      		.word	6279
+ 3024 00ca 340F      		.word	3892
+ 3025 00cc FE12      		.word	4862
+ 3026 00ce 350C      		.word	3125
+ 3027 00d0 FE13      		.word	5118
+ 3028 00d2 C404      		.word	1220
+ 3029 00d4 F413      		.word	5108
+ 3030 00d6 A316      		.word	5795
+ 3031 00d8 1310      		.word	4115
+ 3032 00da 010C      		.word	3073
+ 3033 00dc D808      		.word	2264
+ 3034 00de 8304      		.word	1155
+ 3035 00e0 7003      		.word	880
+ 3036 00e2 8D11      		.word	4493
+ 3037 00e4 5410      		.word	4180
+ 3038 00e6 DB00      		.word	219
+ 3039 00e8 3306      		.word	1587
+ 3040 00ea 3B1D      		.word	7483
+ 3041 00ec F215      		.word	5618
+ 3042 00ee 540B      		.word	2900
+ 3043 00f0 0807      		.word	1800
+ 3044 00f2 A017      		.word	6048
+ 3045 00f4 6503      		.word	869
+ 3046 00f6 3516      		.word	5685
+ 3047 00f8 510B      		.word	2897
+ 3048 00fa 6C1C      		.word	7276
+ 3049 00fc 3F01      		.word	319
+ 3050 00fe FD0E      		.word	3837
+ 3051 0100 5B04      		.word	1115
+ 3052 0102 A202      		.word	674
+ 3053 0104 300D      		.word	3376
+ 3054 0106 821B      		.word	7042
+ 3055 0108 180B      		.word	2840
+ 3056 010a 4619      		.word	6470
+ 3057 010c B116      		.word	5809
+ 3058 010e 090F      		.word	3849
+ 3059 0110 1702      		.word	535
+ 3060 0112 0613      		.word	4870
+ 3061 0114 6D02      		.word	621
+ 3062 0116 5A0F      		.word	3930
+ 3063 0118 C80B      		.word	3016
+ 3064 011a C80A      		.word	2760
+ 3065 011c F519      		.word	6645
+ 3066 011e 3515      		.word	5429
+ 3067 0120 7100      		.word	113
+ 3068 0122 1617      		.word	5910
+ 3069 0124 9909      		.word	2457
+ 3070 0126 A504      		.word	1189
+ 3071 0128 B20C      		.word	3250
+ 3072 012a A70C      		.word	3239
+ 3073 012c 4C0F      		.word	3916
+ 3074 012e 9816      		.word	5784
+ 3075 0130 8B1D      		.word	7563
+ 3076 0132 DA00      		.word	218
+ 3077 0134 D00C      		.word	3280
+ 3078 0136 0C13      		.word	4876
+ 3079 0138 B21C      		.word	7346
+ 3080 013a 9B0D      		.word	3483
+ 3081 013c 4901      		.word	329
+ 3082 013e 1F1B      		.word	6943
+ 3083 0140 E91B      		.word	7145
+ 3084 0142 C51B      		.word	7109
+ 3085 0144 0F14      		.word	5135
+ 3086 0146 6413      		.word	4964
+ 3087 0148 8014      		.word	5248
+ 3088 014a 790C      		.word	3193
+ 3089 014c 5D07      		.word	1885
+ 3090 014e BD06      		.word	1725
+ 3091 0150 5B09      		.word	2395
+ 3092 0152 6F19      		.word	6511
+ 3093 0154 EF06      		.word	1775
+ 3094 0156 4C17      		.word	5964
+ 3095 0158 7906      		.word	1657
+ 3096 015a 2618      		.word	6182
+ 3097 015c 3E08      		.word	2110
+ 3098 015e B109      		.word	2481
+ 3099 0160 1903      		.word	793
+ 3100 0162 0208      		.word	2050
+ 3101 0164 3716      		.word	5687
+ 3102 0166 0917      		.word	5897
+ 3103 0168 4E18      		.word	6222
+ 3104 016a 0E0C      		.word	3086
+ 3105 016c 6F0A      		.word	2671
+ 3106 016e 410C      		.word	3137
+ 3107 0170 E20F      		.word	4066
+ 3108 0172 9018      		.word	6288
+ 3109 0174 6F00      		.word	111
+ 3110 0176 A91A      		.word	6825
+ 3111 0178 870B      		.word	2951
+ 3112 017a EE15      		.word	5614
+ 3113 017c 4011      		.word	4416
+ 3114 017e 281D      		.word	7464
+ 3115 0180 AD16      		.word	5805
+ 3116 0182 2F16      		.word	5679
+ 3117 0184 3319      		.word	6451
+ 3118 0186 DC07      		.word	2012
+ 3119 0188 BE0B      		.word	3006
+ 3120 018a A71C      		.word	7335
+ 3121 018c C50A      		.word	2757
+ 3122 018e 9508      		.word	2197
+ 3123 0190 BE11      		.word	4542
+ 3124 0192 020E      		.word	3586
+ 3125 0194 4409      		.word	2372
+ 3126 0196 8815      		.word	5512
+ 3127 0198 A707      		.word	1959
+ 3128 019a 8318      		.word	6275
+ 3129 019c D91C      		.word	7385
+ 3130 019e EB12      		.word	4843
+ 3131 01a0 D819      		.word	6616
+ 3132 01a2 071C      		.word	7175
+ 3133 01a4 BE02      		.word	702
+ 3134 01a6 9D05      		.word	1437
+ 3135 01a8 0F19      		.word	6415
+ 3136 01aa 300C      		.word	3120
+ 3137 01ac 8415      		.word	5508
+ 3138 01ae E31B      		.word	7139
+ 3139 01b0 9619      		.word	6550
+ 3140 01b2 F619      		.word	6646
+ 3141 01b4 8510      		.word	4229
+ 3142 01b6 4D12      		.word	4685
+ 3143 01b8 5819      		.word	6488
+ 3144 01ba BF10      		.word	4287
+ 3145 01bc 5E00      		.word	94
+ 3146 01be 090C      		.word	3081
+ 3147 01c0 8C10      		.word	4236
+ 3148 01c2 CB14      		.word	5323
+ 3149 01c4 9712      		.word	4759
+ 3150 01c6 4101      		.word	321
+ 3151 01c8 6E0E      		.word	3694
+ 3152 01ca 481D      		.word	7496
+ 3153 01cc 8917      		.word	6025
+ 3154 01ce 1213      		.word	4882
+ 3155 01d0 641C      		.word	7268
+ 3156 01d2 FB02      		.word	763
+ 3157 01d4 D70E      		.word	3799
+ 3158 01d6 A806      		.word	1704
+ 3159 01d8 6C0A      		.word	2668
+ 3160 01da 9D02      		.word	669
+ 3161 01dc 8013      		.word	4992
+ 3162 01de EA13      		.word	5098
+ 3163 01e0 5116      		.word	5713
+ 3164 01e2 9306      		.word	1683
+ 3165 01e4 7E17      		.word	6014
+ 3166 01e6 BA17      		.word	6074
+ 3167 01e8 3B0B      		.word	2875
+ 3168 01ea BB07      		.word	1979
+ 3169 01ec D70F      		.word	4055
+ 3170 01ee 381D      		.word	7480
+ 3171 01f0 D308      		.word	2259
+ 3172 01f2 731C      		.word	7283
+ 3173 01f4 6904      		.word	1129
+ 3174 01f6 9E07      		.word	1950
+ 3175 01f8 2710      		.word	4135
+ 3176 01fa 4406      		.word	1604
+ 3177 01fc 3709      		.word	2359
+ 3178 01fe C31D      		.word	7619
+ 3180               		.section	.progmem.data.psibitrev_7681_256,"a"
+ 3183               	psibitrev_7681_256:
+ 3184 0000 0100      		.word	1
+ 3185 0002 CA10      		.word	4298
+ 3186 0004 BD04      		.word	1213
+ 3187 0006 7C16      		.word	5756
+ 3188 0008 F21B      		.word	7154
+ 3189 000a 5103      		.word	849
+ 3190 000c 4117      		.word	5953
+ 3191 000e 4702      		.word	583
+ 3192 0010 5605      		.word	1366
+ 3193 0012 E00A      		.word	2784
+ 3194 0014 A715      		.word	5543
+ 3195 0016 A913      		.word	5033
+ 3196 0018 5408      		.word	2132
+ 3197 001a A01D      		.word	7584
+ 3198 001c B414      		.word	5300
+ 3199 001e 7314      		.word	5235
+ 3200 0020 B71C      		.word	7351
+ 3201 0022 550A      		.word	2645
+ 3202 0024 931A      		.word	6803
+ 3203 0026 2015      		.word	5408
+ 3204 0028 4013      		.word	4928
+ 3205 002a BB0F      		.word	4027
+ 3206 002c 3607      		.word	1846
+ 3207 002e 941C      		.word	7316
+ 3208 0030 5F09      		.word	2399
+ 3209 0032 B80B      		.word	3000
+ 3210 0034 A919      		.word	6569
+ 3211 0036 FF16      		.word	5887
+ 3212 0038 140C      		.word	3092
+ 3213 003a 0605      		.word	1286
+ 3214 003c DC08      		.word	2268
+ 3215 003e A302      		.word	675
+ 3216 0040 8D16      		.word	5773
+ 3217 0042 A40A      		.word	2724
+ 3218 0044 8A14      		.word	5258
+ 3219 0046 6605      		.word	1382
+ 3220 0048 4A1B      		.word	6986
+ 3221 004a 1F03      		.word	799
+ 3222 004c 5307      		.word	1875
+ 3223 004e 6505      		.word	1381
+ 3224 0050 5C14      		.word	5212
+ 3225 0052 340D      		.word	3380
+ 3226 0054 B502      		.word	693
+ 3227 0056 4F17      		.word	5967
+ 3228 0058 020C      		.word	3074
+ 3229 005a DC02      		.word	732
+ 3230 005c 950D      		.word	3477
+ 3231 005e F911      		.word	4601
+ 3232 0060 371D      		.word	7479
+ 3233 0062 0E1D      		.word	7438
+ 3234 0064 FE02      		.word	766
+ 3235 0066 C012      		.word	4800
+ 3236 0068 C919      		.word	6601
+ 3237 006a 2D14      		.word	5165
+ 3238 006c 530D      		.word	3411
+ 3239 006e 0A14      		.word	5130
+ 3240 0070 4802      		.word	584
+ 3241 0072 8A17      		.word	6026
+ 3242 0074 CC06      		.word	1740
+ 3243 0076 2B13      		.word	4907
+ 3244 0078 F11B      		.word	7153
+ 3245 007a 8810      		.word	4232
+ 3246 007c 8412      		.word	4740
+ 3247 007e CC09      		.word	2508
+ 3248 0080 040F      		.word	3844
+ 3249 0082 C21C      		.word	7362
+ 3250 0084 9501      		.word	405
+ 3251 0086 B012      		.word	4784
+ 3252 0088 CC07      		.word	1996
+ 3253 008a 9C1A      		.word	6812
+ 3254 008c 6106      		.word	1633
+ 3255 008e F916      		.word	5881
+ 3256 0090 AD12      		.word	4781
+ 3257 0092 0F08      		.word	2063
+ 3258 0094 C600      		.word	198
+ 3259 0096 CE17      		.word	6094
+ 3260 0098 261D      		.word	7462
+ 3261 009a AD0D      		.word	3501
+ 3262 009c 740C      		.word	3188
+ 3263 009e 911A      		.word	6801
+ 3264 00a0 7E19      		.word	6526
+ 3265 00a2 2915      		.word	5417
+ 3266 00a4 0012      		.word	4608
+ 3267 00a6 EE0D      		.word	3566
+ 3268 00a8 5E07      		.word	1886
+ 3269 00aa 0D0A      		.word	2573
+ 3270 00ac 3D19      		.word	6461
+ 3271 00ae 030A      		.word	2563
+ 3272 00b0 CC11      		.word	4556
+ 3273 00b2 030B      		.word	2819
+ 3274 00b4 CD0E      		.word	3789
+ 3275 00b6 7A05      		.word	1402
+ 3276 00b8 450C      		.word	3141
+ 3277 00ba 9511      		.word	4501
+ 3278 00bc 0101      		.word	257
+ 3279 00be 3B18      		.word	6203
+ 3280 00c0 EB03      		.word	1003
+ 3281 00c2 3D07      		.word	1853
+ 3282 00c4 E10B      		.word	3041
+ 3283 00c6 E512      		.word	4837
+ 3284 00c8 8005      		.word	1408
+ 3285 00ca ED19      		.word	6637
+ 3286 00cc A20A      		.word	2722
+ 3287 00ce E103      		.word	993
+ 3288 00d0 400B      		.word	2880
+ 3289 00d2 3510      		.word	4149
+ 3290 00d4 7A18      		.word	6266
+ 3291 00d6 9206      		.word	1682
+ 3292 00d8 060C      		.word	3078
+ 3293 00da 020A      		.word	2562
+ 3294 00dc 8802      		.word	648
+ 3295 00de E611      		.word	4582
+ 3296 00e0 3E1B      		.word	6974
+ 3297 00e2 AE0B      		.word	2990
+ 3298 00e4 790A      		.word	2681
+ 3299 00e6 9E05      		.word	1438
+ 3300 00e8 3D0F      		.word	3901
+ 3301 00ea 9C19      		.word	6556
+ 3302 00ec A101      		.word	417
+ 3303 00ee 210A      		.word	2593
+ 3304 00f0 FC07      		.word	2044
+ 3305 00f2 6116      		.word	5729
+ 3306 00f4 CA17      		.word	6090
+ 3307 00f6 1516      		.word	5653
+ 3308 00f8 C916      		.word	5833
+ 3309 00fa DB1B      		.word	7131
+ 3310 00fc CC04      		.word	1228
+ 3311 00fe 4904      		.word	1097
+ 3312 0100 3E00      		.word	62
+ 3313 0102 CA14      		.word	5322
+ 3314 0104 BD17      		.word	6077
+ 3315 0106 DA0D      		.word	3546
+ 3316 0108 6316      		.word	5731
+ 3317 010a 9819      		.word	6552
+ 3318 010c 8E01      		.word	398
+ 3319 010e 2E15      		.word	5422
+ 3320 0110 C900      		.word	201
+ 3321 0112 2A0E      		.word	3626
+ 3322 0114 4616      		.word	5702
+ 3323 0116 C612      		.word	4806
+ 3324 0118 4706      		.word	1607
+ 3325 011a 8306      		.word	1667
+ 3326 011c 6E17      		.word	5998
+ 3327 011e B007      		.word	1968
+ 3328 0120 170A      		.word	2583
+ 3329 0122 810A      		.word	2689
+ 3330 0124 641B      		.word	7012
+ 3331 0126 9513      		.word	5013
+ 3332 0128 5917      		.word	5977
+ 3333 012a 2A0F      		.word	3882
+ 3334 012c 061B      		.word	6918
+ 3335 012e 9D01      		.word	413
+ 3336 0130 EF0A      		.word	2799
+ 3337 0132 7806      		.word	1656
+ 3338 0134 B900      		.word	185
+ 3339 0136 930F      		.word	3987
+ 3340 0138 C01C      		.word	7360
+ 3341 013a 6A0B      		.word	2922
+ 3342 013c 3609      		.word	2358
+ 3343 013e 750D      		.word	3445
+ 3344 0140 F811      		.word	4600
+ 3345 0142 A31D      		.word	7587
+ 3346 0144 420D      		.word	3394
+ 3347 0146 A904      		.word	1193
+ 3348 0148 B40B      		.word	2996
+ 3349 014a 7C0D      		.word	3452
+ 3350 014c 0B04      		.word	1035
+ 3351 014e 6B04      		.word	1131
+ 3352 0150 1E02      		.word	542
+ 3353 0152 7D08      		.word	2173
+ 3354 0154 D111      		.word	4561
+ 3355 0156 F204      		.word	1266
+ 3356 0158 6418      		.word	6244
+ 3357 015a 431B      		.word	6979
+ 3358 015c FA01      		.word	506
+ 3359 015e 2904      		.word	1065
+ 3360 0160 160B      		.word	2838
+ 3361 0162 2801      		.word	296
+ 3362 0164 7E05      		.word	1406
+ 3363 0166 5A16      		.word	5722
+ 3364 0168 7908      		.word	2169
+ 3365 016a BD14      		.word	5309
+ 3366 016c FF0F      		.word	4095
+ 3367 016e 430C      		.word	3139
+ 3368 0170 6C15      		.word	5484
+ 3369 0172 3C13      		.word	4924
+ 3370 0174 5A01      		.word	346
+ 3371 0176 4312      		.word	4675
+ 3372 0178 2516      		.word	5669
+ 3373 017a CE04      		.word	1230
+ 3374 017c D207      		.word	2002
+ 3375 017e 5407      		.word	1876
+ 3376 0180 D900      		.word	217
+ 3377 0182 C10C      		.word	3265
+ 3378 0184 1308      		.word	2067
+ 3379 0186 7A12      		.word	4730
+ 3380 0188 5803      		.word	856
+ 3381 018a 921D      		.word	7570
+ 3382 018c 7105      		.word	1393
+ 3383 018e 1F0E      		.word	3615
+ 3384 0190 C011      		.word	4544
+ 3385 0192 9213      		.word	5010
+ 3386 0194 F311      		.word	4595
+ 3387 0196 B305      		.word	1459
+ 3388 0198 F806      		.word	1784
+ 3389 019a CA07      		.word	1994
+ 3390 019c FF15      		.word	5631
+ 3391 019e E81A      		.word	6888
+ 3392 01a0 5014      		.word	5200
+ 3393 01a2 C315      		.word	5571
+ 3394 01a4 DB05      		.word	1499
+ 3395 01a6 8817      		.word	6024
+ 3396 01a8 B506      		.word	1717
+ 3397 01aa 1217      		.word	5906
+ 3398 01ac 9204      		.word	1170
+ 3399 01ae A614      		.word	5286
+ 3400 01b0 4417      		.word	5956
+ 3401 01b2 A416      		.word	5796
+ 3402 01b4 8811      		.word	4488
+ 3403 01b6 8109      		.word	2433
+ 3404 01b8 9D0A      		.word	2717
+ 3405 01ba F209      		.word	2546
+ 3406 01bc 3C02      		.word	572
+ 3407 01be 1802      		.word	536
+ 3408 01c0 E202      		.word	738
+ 3409 01c2 B81C      		.word	7352
+ 3410 01c4 6610      		.word	4198
+ 3411 01c6 4F01      		.word	335
+ 3412 01c8 F50A      		.word	2805
+ 3413 01ca 3111      		.word	4401
+ 3414 01cc 271D      		.word	7463
+ 3415 01ce 7600      		.word	118
+ 3416 01d0 6907      		.word	1897
+ 3417 01d2 B50E      		.word	3765
+ 3418 01d4 5A11      		.word	4442
+ 3419 01d6 4F11      		.word	4431
+ 3420 01d8 5C19      		.word	6492
+ 3421 01da 6814      		.word	5224
+ 3422 01dc EB06      		.word	1771
+ 3423 01de 901D      		.word	7568
+ 3424 01e0 CC08      		.word	2252
+ 3425 01e2 0C04      		.word	1036
+ 3426 01e4 3913      		.word	4921
+ 3427 01e6 3912      		.word	4665
+ 3428 01e8 A70E      		.word	3751
+ 3429 01ea 941B      		.word	7060
+ 3430 01ec FB0A      		.word	2811
+ 3431 01ee EA1B      		.word	7146
+ 3432 01f0 F80E      		.word	3832
+ 3433 01f2 5007      		.word	1872
+ 3434 01f4 BB04      		.word	1211
+ 3435 01f6 E912      		.word	4841
+ 3436 01f8 7F02      		.word	639
+ 3437 01fa D110      		.word	4305
+ 3438 01fc 5F1B      		.word	7007
+ 3439 01fe A619      		.word	6566
+ 3441               		.text
+ 3443               	.Letext0:
+ 3444               		.ident	"GCC: (GNU) 9.1.0"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ntt_7681_256.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:443    .text.get_gauss_poly_7681_256:0000000000000000 get_gauss_poly_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2841   .progmem.data.cdf_table_7681_1132:0000000000000000 cdf_table_7681_1132
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:595    .text.first_stage_GS:0000000000000000 first_stage_GS
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:705    .text.last_stage_GS:0000000000000000 last_stage_GS
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:834    .text.ntt_GS_bo_to_no_incl_invpsi_7681_256:0000000000000000 ntt_GS_bo_to_no_incl_invpsi_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:1128   .text.print_counter:0000000000000000 print_counter
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:1147   .text.first_stage_CT:0000000000000000 first_stage_CT
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2901   .progmem.data.omegamultiples_7681_256:0000000000000000 omegamultiples_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:1368   .text.last_stage_CT:0000000000000000 last_stage_CT
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:1487   .text.ntt_CT_no_to_bo_incl_psi_7681_256_nolookup:0000000000000000 ntt_CT_no_to_bo_incl_psi_7681_256_nolookup
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:1794   .text.ntt_CT_no_to_bo_incl_psi_7681_256:0000000000000000 ntt_CT_no_to_bo_incl_psi_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2097   .text.pw_psi_7681:0000000000000000 pw_psi_7681
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2165   .text.pw_mul_flash_7681_256:0000000000000000 pw_mul_flash_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2236   .text.add_7681:0000000000000000 add_7681
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2316   .text.enc_7681_256_core:0000000000000000 enc_7681_256_core
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:3183   .progmem.data.psibitrev_7681_256:0000000000000000 psibitrev_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2922   .progmem.data.omegainvbitrev_7681_256:0000000000000000 omegainvbitrev_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2506   .text.dec_7681_256_core:0000000000000000 dec_7681_256_core
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2559   .text.add_encode_7681_256:0000000000000000 add_encode_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2662   .text.encrypt_7681_256:0000000000000000 encrypt_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2707   .text.decode_7681_256:0000000000000000 decode_7681_256
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cci1gylq.s:2803   .text.decrypt_7681_256:0000000000000000 decrypt_7681_256
+
+UNDEFINED SYMBOLS
+next_block_ptr
+sample_gauss
+mm7681
+mm7681_check
+mod7681

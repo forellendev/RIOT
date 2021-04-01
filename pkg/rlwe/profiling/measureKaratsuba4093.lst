@@ -1,0 +1,587 @@
+   1               		.file	"measureKaratsuba4093.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 458               		.section	.rodata.do_measurement_karatsuba_4093.str1.1,"aMS",@progbits,1
+ 459               	.LC0:
+ 460 0000 4D65 6173 		.string	"Measure KaratsubaMul with n = %d and q = 4093:\n\r"
+ 460      7572 6520 
+ 460      4B61 7261 
+ 460      7473 7562 
+ 460      614D 756C 
+ 461               	.LC1:
+ 462 0031 4D65 6173 		.string	"Measuring with max_recursion_stage %d\n\r"
+ 462      7572 696E 
+ 462      6720 7769 
+ 462      7468 206D 
+ 462      6178 5F72 
+ 463               	.LC2:
+ 464 0059 6F6E 6574 		.string	"onetwothreefourfonetwoth"
+ 464      776F 7468 
+ 464      7265 6566 
+ 464      6F75 7266 
+ 464      6F6E 6574 
+ 465               	.LC3:
+ 466 0072 6F6E 6574 		.string	"onetwothreefourfonetwothreefourf"
+ 466      776F 7468 
+ 466      7265 6566 
+ 466      6F75 7266 
+ 466      6F6E 6574 
+ 467               	.LC4:
+ 468 0093 6F6E 6574 		.string	"onetwothreefourfonetwothreefourfivesixse"
+ 468      776F 7468 
+ 468      7265 6566 
+ 468      6F75 7266 
+ 468      6F6E 6574 
+ 469               	.LC5:
+ 470 00bc 0A45 6E63 		.string	"\nEncryption: "
+ 470      7279 7074 
+ 470      696F 6E3A 
+ 470      2000 
+ 471               	.LC6:
+ 472 00ca 4465 6372 		.string	"Decryption: "
+ 472      7970 7469 
+ 472      6F6E 3A20 
+ 472      00
+ 473               	.LC7:
+ 474 00d7 0A0D 00   		.string	"\n\r"
+ 475               		.section	.text.do_measurement_karatsuba_4093,"ax",@progbits
+ 478               	.global	do_measurement_karatsuba_4093
+ 480               	do_measurement_karatsuba_4093:
+   1:profiling/measureKaratsuba4093.c **** #include <inttypes.h>
+   2:profiling/measureKaratsuba4093.c **** #include "../crypto/p4093/ksuba_4093.h"
+   3:profiling/measureKaratsuba4093.c **** #include "profiling.h"
+   4:profiling/measureKaratsuba4093.c **** #include <stdio.h>
+   5:profiling/measureKaratsuba4093.c **** #include <string.h>
+   6:profiling/measureKaratsuba4093.c **** #include "../device/measureRAM.h"
+   7:profiling/measureKaratsuba4093.c **** #include "../device/usart_driver.h"
+   8:profiling/measureKaratsuba4093.c **** #include "../device/clksys_driver.h"
+   9:profiling/measureKaratsuba4093.c **** 
+  10:profiling/measureKaratsuba4093.c **** 
+  11:profiling/measureKaratsuba4093.c **** #define paramQ 4093
+  12:profiling/measureKaratsuba4093.c **** 
+  13:profiling/measureKaratsuba4093.c **** static int16_t start, end;
+  14:profiling/measureKaratsuba4093.c **** 
+  15:profiling/measureKaratsuba4093.c **** static void measureLWEOperations_ksuba_4093(uint16_t * a, uint16_t * b, int paramN, const uint16_t 
+  16:profiling/measureKaratsuba4093.c **** {
+  17:profiling/measureKaratsuba4093.c ****   uint64_t mean = 0;
+  18:profiling/measureKaratsuba4093.c ****   char msg[paramN/8+1];
+  19:profiling/measureKaratsuba4093.c **** 	
+  20:profiling/measureKaratsuba4093.c ****   if(paramN == 192)
+  21:profiling/measureKaratsuba4093.c ****     {
+  22:profiling/measureKaratsuba4093.c ****       strcpy(msg,"onetwothreefourfonetwoth");
+  23:profiling/measureKaratsuba4093.c ****     }
+  24:profiling/measureKaratsuba4093.c ****   else if(paramN == 256)
+  25:profiling/measureKaratsuba4093.c ****     {
+  26:profiling/measureKaratsuba4093.c ****       strcpy(msg,"onetwothreefourfonetwothreefourf");
+  27:profiling/measureKaratsuba4093.c ****     }
+  28:profiling/measureKaratsuba4093.c ****   //paramN == 320
+  29:profiling/measureKaratsuba4093.c ****   else
+  30:profiling/measureKaratsuba4093.c ****     {
+  31:profiling/measureKaratsuba4093.c ****       strcpy(msg,"onetwothreefourfonetwothreefourfivesixse");
+  32:profiling/measureKaratsuba4093.c ****     }
+  33:profiling/measureKaratsuba4093.c **** 	
+  34:profiling/measureKaratsuba4093.c **** 	
+  35:profiling/measureKaratsuba4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+  36:profiling/measureKaratsuba4093.c ****     {
+  37:profiling/measureKaratsuba4093.c ****       generateRandomPolyTable_4093(a,paramN);
+  38:profiling/measureKaratsuba4093.c ****       generateRandomPolyTable_4093(b,paramN);
+  39:profiling/measureKaratsuba4093.c **** 							
+  40:profiling/measureKaratsuba4093.c ****       msg[0]= (char) i;
+  41:profiling/measureKaratsuba4093.c ****       msg[1]= (char) i+10;
+  42:profiling/measureKaratsuba4093.c ****       msg[2]= (char) i+55;
+  43:profiling/measureKaratsuba4093.c **** 
+  44:profiling/measureKaratsuba4093.c ****       start = startRAM(__malloc_heap_start); 
+  45:profiling/measureKaratsuba4093.c ****       startMeasurement();		
+  46:profiling/measureKaratsuba4093.c **** 
+  47:profiling/measureKaratsuba4093.c ****       encrypt_ksuba_4093((uint8_t*)msg,a,b, pubKeyA_4093, pubKeyP_4093,paramN);
+  48:profiling/measureKaratsuba4093.c ****       stopMeasurement(&mean);					
+  49:profiling/measureKaratsuba4093.c ****       end = endRAM();
+  50:profiling/measureKaratsuba4093.c **** 
+  51:profiling/measureKaratsuba4093.c ****     }
+  52:profiling/measureKaratsuba4093.c **** 	
+  53:profiling/measureKaratsuba4093.c ****   printResultRAM(&mean, start-end, "\nEncryption: ");
+  54:profiling/measureKaratsuba4093.c **** 	
+  55:profiling/measureKaratsuba4093.c **** 
+  56:profiling/measureKaratsuba4093.c **** 	
+  57:profiling/measureKaratsuba4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+  58:profiling/measureKaratsuba4093.c ****     {
+  59:profiling/measureKaratsuba4093.c **** 
+  60:profiling/measureKaratsuba4093.c ****       generateRandomPolyTable_4093(a, paramN);
+  61:profiling/measureKaratsuba4093.c ****       generateRandomPolyTable_4093(b, paramN);					
+  62:profiling/measureKaratsuba4093.c **** 
+  63:profiling/measureKaratsuba4093.c ****       start = startRAM(__malloc_heap_start); 		
+  64:profiling/measureKaratsuba4093.c ****       startMeasurement();		
+  65:profiling/measureKaratsuba4093.c **** 							
+  66:profiling/measureKaratsuba4093.c ****       decrypt_ksuba_4093((uint8_t*)msg,a,b, prvKeyR2_4093,paramN);	
+  67:profiling/measureKaratsuba4093.c ****       stopMeasurement(&mean);
+  68:profiling/measureKaratsuba4093.c ****       end = endRAM();
+  69:profiling/measureKaratsuba4093.c **** 	
+  70:profiling/measureKaratsuba4093.c ****     }
+  71:profiling/measureKaratsuba4093.c **** 	
+  72:profiling/measureKaratsuba4093.c ****   printResultRAM(&mean, start-end, "Decryption: ");
+  73:profiling/measureKaratsuba4093.c **** }
+  74:profiling/measureKaratsuba4093.c **** 
+  75:profiling/measureKaratsuba4093.c **** void do_measurement_karatsuba_4093(int paramN, const uint16_t * r2, const uint16_t * p,const uint16
+  76:profiling/measureKaratsuba4093.c **** {
+ 482               	.LM0:
+ 483               	.LFBB1:
+ 484 0000 3F92      		push r3
+ 485 0002 4F92      		push r4
+ 486 0004 5F92      		push r5
+ 487 0006 6F92      		push r6
+ 488 0008 7F92      		push r7
+ 489 000a 8F92      		push r8
+ 490 000c 9F92      		push r9
+ 491 000e AF92      		push r10
+ 492 0010 BF92      		push r11
+ 493 0012 CF92      		push r12
+ 494 0014 DF92      		push r13
+ 495 0016 EF92      		push r14
+ 496 0018 FF92      		push r15
+ 497 001a 0F93      		push r16
+ 498 001c 1F93      		push r17
+ 499 001e CF93      		push r28
+ 500 0020 DF93      		push r29
+ 501 0022 CDB7      		in r28,__SP_L__
+ 502 0024 DEB7      		in r29,__SP_H__
+ 503 0026 CA50      		subi r28,10
+ 504 0028 D540      		sbci r29,5
+ 505 002a CDBF      		out __SP_L__,r28
+ 506 002c DEBF      		out __SP_H__,r29
+ 507               	/* prologue: function */
+ 508               	/* frame size = 1290 */
+ 509               	/* stack size = 1307 */
+ 510               	.L__stack_usage = 1307
+ 511 002e 6C01      		movw r12,r24
+ 512 0030 762E      		mov r7,r22
+ 513 0032 872E      		mov r8,r23
+ 514 0034 342E      		mov r3,r20
+ 515 0036 452E      		mov r4,r21
+ 516 0038 522E      		mov r5,r18
+ 517 003a 632E      		mov r6,r19
+  77:profiling/measureKaratsuba4093.c ****   uint16_t buf1[320];
+  78:profiling/measureKaratsuba4093.c ****   uint16_t buf2[320];
+  79:profiling/measureKaratsuba4093.c **** 
+  80:profiling/measureKaratsuba4093.c ****   printf("Measure KaratsubaMul with n = %d and q = 4093:\n\r", paramN);
+  81:profiling/measureKaratsuba4093.c **** 
+  82:profiling/measureKaratsuba4093.c ****   for(int i = 5; i< 6; i++)
+  83:profiling/measureKaratsuba4093.c ****     {
+  84:profiling/measureKaratsuba4093.c ****       set_max_recursion_stages(i);
+  85:profiling/measureKaratsuba4093.c **** 			
+  86:profiling/measureKaratsuba4093.c ****       printf("Measuring with max_recursion_stage %d\n\r", i);
+  87:profiling/measureKaratsuba4093.c ****       measureLWEOperations_ksuba_4093(buf1,buf2,paramN, r2, p, a);
+  88:profiling/measureKaratsuba4093.c ****     }
+  89:profiling/measureKaratsuba4093.c **** 		
+  90:profiling/measureKaratsuba4093.c **** 	
+  91:profiling/measureKaratsuba4093.c ****   printf("\n\r");
+  92:profiling/measureKaratsuba4093.c **** }
+ 519               	.LM1:
+ 520 003c 2DB7      		in r18,__SP_L__
+ 521 003e 3EB7      		in r19,__SP_H__
+ 522 0040 C75F      		subi r28,lo8(-1289)
+ 523 0042 DA4F      		sbci r29,hi8(-1289)
+ 524 0044 2883      		st Y,r18
+ 525 0046 3983      		std Y+1,r19
+ 526 0048 C950      		subi r28,lo8(1289)
+ 527 004a D540      		sbci r29,hi8(1289)
+  80:profiling/measureKaratsuba4093.c **** 
+ 529               	.LM2:
+ 530 004c DF92      		push r13
+ 531 004e 8F93      		push r24
+ 532 0050 80E0      		ldi r24,lo8(.LC0)
+ 533 0052 90E0      		ldi r25,hi8(.LC0)
+ 534 0054 9F93      		push r25
+ 535 0056 8F93      		push r24
+ 536 0058 0E94 0000 		call printf
+ 537               	.LBB7:
+  84:profiling/measureKaratsuba4093.c **** 			
+ 539               	.LM3:
+ 540 005c 85E0      		ldi r24,lo8(5)
+ 541 005e 0E94 0000 		call set_max_recursion_stages
+  86:profiling/measureKaratsuba4093.c ****       measureLWEOperations_ksuba_4093(buf1,buf2,paramN, r2, p, a);
+ 543               	.LM4:
+ 544 0062 1F92      		push __zero_reg__
+ 545 0064 85E0      		ldi r24,lo8(5)
+ 546 0066 8F93      		push r24
+ 547 0068 80E0      		ldi r24,lo8(.LC1)
+ 548 006a 90E0      		ldi r25,hi8(.LC1)
+ 549 006c 9F93      		push r25
+ 550 006e 8F93      		push r24
+ 551 0070 0E94 0000 		call printf
+ 552               	.LBB8:
+ 553               	.LBB9:
+  17:profiling/measureKaratsuba4093.c ****   char msg[paramN/8+1];
+ 555               	.LM5:
+ 556 0074 CF5F      		subi r28,lo8(-1281)
+ 557 0076 DA4F      		sbci r29,hi8(-1281)
+ 558 0078 1882      		st Y,__zero_reg__
+ 559 007a C150      		subi r28,lo8(1281)
+ 560 007c D540      		sbci r29,hi8(1281)
+ 561 007e CE5F      		subi r28,lo8(-1282)
+ 562 0080 DA4F      		sbci r29,hi8(-1282)
+ 563 0082 1882      		st Y,__zero_reg__
+ 564 0084 C250      		subi r28,lo8(1282)
+ 565 0086 D540      		sbci r29,hi8(1282)
+ 566 0088 CD5F      		subi r28,lo8(-1283)
+ 567 008a DA4F      		sbci r29,hi8(-1283)
+ 568 008c 1882      		st Y,__zero_reg__
+ 569 008e C350      		subi r28,lo8(1283)
+ 570 0090 D540      		sbci r29,hi8(1283)
+ 571 0092 CC5F      		subi r28,lo8(-1284)
+ 572 0094 DA4F      		sbci r29,hi8(-1284)
+ 573 0096 1882      		st Y,__zero_reg__
+ 574 0098 C450      		subi r28,lo8(1284)
+ 575 009a D540      		sbci r29,hi8(1284)
+ 576 009c CB5F      		subi r28,lo8(-1285)
+ 577 009e DA4F      		sbci r29,hi8(-1285)
+ 578 00a0 1882      		st Y,__zero_reg__
+ 579 00a2 C550      		subi r28,lo8(1285)
+ 580 00a4 D540      		sbci r29,hi8(1285)
+ 581 00a6 CA5F      		subi r28,lo8(-1286)
+ 582 00a8 DA4F      		sbci r29,hi8(-1286)
+ 583 00aa 1882      		st Y,__zero_reg__
+ 584 00ac C650      		subi r28,lo8(1286)
+ 585 00ae D540      		sbci r29,hi8(1286)
+ 586 00b0 C95F      		subi r28,lo8(-1287)
+ 587 00b2 DA4F      		sbci r29,hi8(-1287)
+ 588 00b4 1882      		st Y,__zero_reg__
+ 589 00b6 C750      		subi r28,lo8(1287)
+ 590 00b8 D540      		sbci r29,hi8(1287)
+ 591 00ba C85F      		subi r28,lo8(-1288)
+ 592 00bc DA4F      		sbci r29,hi8(-1288)
+ 593 00be 1882      		st Y,__zero_reg__
+ 594 00c0 C850      		subi r28,lo8(1288)
+ 595 00c2 D540      		sbci r29,hi8(1288)
+  18:profiling/measureKaratsuba4093.c **** 	
+ 597               	.LM6:
+ 598 00c4 C601      		movw r24,r12
+ 599 00c6 EDB7      		in r30,__SP_L__
+ 600 00c8 FEB7      		in r31,__SP_H__
+ 601 00ca 3896      		adiw r30,8
+ 602 00cc EDBF      		out __SP_L__,r30
+ 603 00ce FEBF      		out __SP_H__,r31
+ 604 00d0 D7FC      		sbrc r13,7
+ 605 00d2 0796      		adiw r24,7
+ 606               	.L2:
+ 607 00d4 23E0      		ldi r18,3
+ 608               		1:
+ 609 00d6 9595      		asr r25
+ 610 00d8 8795      		ror r24
+ 611 00da 2A95      		dec r18
+ 612 00dc 01F4      		brne 1b
+  18:profiling/measureKaratsuba4093.c **** 	
+ 614               	.LM7:
+ 615 00de 0196      		adiw r24,1
+  18:profiling/measureKaratsuba4093.c **** 	
+ 617               	.LM8:
+ 618 00e0 2DB7      		in r18,__SP_L__
+ 619 00e2 3EB7      		in r19,__SP_H__
+ 620 00e4 281B      		sub r18,r24
+ 621 00e6 390B      		sbc r19,r25
+ 622 00e8 2DBF      		out __SP_L__,r18
+ 623 00ea 3EBF      		out __SP_H__,r19
+ 624 00ec 8DB7      		in r24,__SP_L__
+ 625 00ee 9EB7      		in r25,__SP_H__
+ 626 00f0 0196      		adiw r24,1
+ 627 00f2 5C01      		movw r10,r24
+  22:profiling/measureKaratsuba4093.c ****     }
+ 629               	.LM9:
+ 630 00f4 60E0      		ldi r22,lo8(.LC2)
+ 631 00f6 70E0      		ldi r23,hi8(.LC2)
+  20:profiling/measureKaratsuba4093.c ****     {
+ 633               	.LM10:
+ 634 00f8 90EC      		ldi r25,-64
+ 635 00fa C916      		cp r12,r25
+ 636 00fc D104      		cpc r13,__zero_reg__
+ 637 00fe 01F0      		breq .L10
+  26:profiling/measureKaratsuba4093.c ****     }
+ 639               	.LM11:
+ 640 0100 60E0      		ldi r22,lo8(.LC3)
+ 641 0102 70E0      		ldi r23,hi8(.LC3)
+  24:profiling/measureKaratsuba4093.c ****     {
+ 643               	.LM12:
+ 644 0104 C114      		cp r12,__zero_reg__
+ 645 0106 E1E0      		ldi r30,1
+ 646 0108 DE06      		cpc r13,r30
+ 647 010a 01F0      		breq .L10
+  31:profiling/measureKaratsuba4093.c ****     }
+ 649               	.LM13:
+ 650 010c 60E0      		ldi r22,lo8(.LC4)
+ 651 010e 70E0      		ldi r23,hi8(.LC4)
+ 652               	.L10:
+ 653 0110 C501      		movw r24,r10
+ 654 0112 0E94 0000 		call strcpy
+ 655               	.LBE9:
+ 656               	.LBE8:
+ 657               	.LBE7:
+  76:profiling/measureKaratsuba4093.c ****   uint16_t buf1[320];
+ 659               	.LM14:
+ 660 0116 912C      		mov r9,__zero_reg__
+ 661               	.L6:
+ 662               	.LBB14:
+ 663               	.LBB13:
+ 664               	.LBB12:
+ 665               	.LBB10:
+  37:profiling/measureKaratsuba4093.c ****       generateRandomPolyTable_4093(b,paramN);
+ 667               	.LM15:
+ 668 0118 B601      		movw r22,r12
+ 669 011a CE01      		movw r24,r28
+ 670 011c 8F57      		subi r24,127
+ 671 011e 9D4F      		sbci r25,-3
+ 672 0120 0E94 0000 		call generateRandomPolyTable_4093
+  38:profiling/measureKaratsuba4093.c **** 							
+ 674               	.LM16:
+ 675 0124 B601      		movw r22,r12
+ 676 0126 CE01      		movw r24,r28
+ 677 0128 0196      		adiw r24,1
+ 678 012a 0E94 0000 		call generateRandomPolyTable_4093
+  40:profiling/measureKaratsuba4093.c ****       msg[1]= (char) i+10;
+ 680               	.LM17:
+ 681 012e F501      		movw r30,r10
+ 682 0130 9082      		st Z,r9
+  41:profiling/measureKaratsuba4093.c ****       msg[2]= (char) i+55;
+ 684               	.LM18:
+ 685 0132 8AE0      		ldi r24,lo8(10)
+ 686 0134 890D      		add r24,r9
+  41:profiling/measureKaratsuba4093.c ****       msg[2]= (char) i+55;
+ 688               	.LM19:
+ 689 0136 8183      		std Z+1,r24
+  42:profiling/measureKaratsuba4093.c **** 
+ 691               	.LM20:
+ 692 0138 87E3      		ldi r24,lo8(55)
+ 693 013a 890D      		add r24,r9
+  42:profiling/measureKaratsuba4093.c **** 
+ 695               	.LM21:
+ 696 013c 8283      		std Z+2,r24
+  44:profiling/measureKaratsuba4093.c ****       startMeasurement();		
+ 698               	.LM22:
+ 699 013e 8091 0000 		lds r24,__malloc_heap_start
+ 700 0142 9091 0000 		lds r25,__malloc_heap_start+1
+ 701 0146 0E94 0000 		call startRAM
+  44:profiling/measureKaratsuba4093.c ****       startMeasurement();		
+ 703               	.LM23:
+ 704 014a 8093 0000 		sts start,r24
+ 705 014e 9093 0000 		sts start+1,r25
+  45:profiling/measureKaratsuba4093.c **** 
+ 707               	.LM24:
+ 708 0152 0E94 0000 		call startMeasurement
+  47:profiling/measureKaratsuba4093.c ****       stopMeasurement(&mean);					
+ 710               	.LM25:
+ 711 0156 7601      		movw r14,r12
+ 712 0158 032D      		mov r16,r3
+ 713 015a 142D      		mov r17,r4
+ 714 015c 252D      		mov r18,r5
+ 715 015e 362D      		mov r19,r6
+ 716 0160 AE01      		movw r20,r28
+ 717 0162 4F5F      		subi r20,-1
+ 718 0164 5F4F      		sbci r21,-1
+ 719 0166 BE01      		movw r22,r28
+ 720 0168 6F57      		subi r22,127
+ 721 016a 7D4F      		sbci r23,-3
+ 722 016c C501      		movw r24,r10
+ 723 016e 0E94 0000 		call encrypt_ksuba_4093
+  48:profiling/measureKaratsuba4093.c ****       end = endRAM();
+ 725               	.LM26:
+ 726 0172 CE01      		movw r24,r28
+ 727 0174 8F5F      		subi r24,-1
+ 728 0176 9A4F      		sbci r25,-6
+ 729 0178 0E94 0000 		call stopMeasurement
+  49:profiling/measureKaratsuba4093.c **** 
+ 731               	.LM27:
+ 732 017c 0E94 0000 		call endRAM
+  49:profiling/measureKaratsuba4093.c **** 
+ 734               	.LM28:
+ 735 0180 8093 0000 		sts end,r24
+ 736 0184 9093 0000 		sts end+1,r25
+ 737 0188 9394      		inc r9
+  35:profiling/measureKaratsuba4093.c ****     {
+ 739               	.LM29:
+ 740 018a F4E6      		ldi r31,lo8(100)
+ 741 018c 9F12      		cpse r9,r31
+ 742 018e 00C0      		rjmp .L6
+ 743               	.LBE10:
+  53:profiling/measureKaratsuba4093.c **** 	
+ 745               	.LM30:
+ 746 0190 6091 0000 		lds r22,start
+ 747 0194 7091 0000 		lds r23,start+1
+ 748 0198 681B      		sub r22,r24
+ 749 019a 790B      		sbc r23,r25
+ 750 019c 40E0      		ldi r20,lo8(.LC5)
+ 751 019e 50E0      		ldi r21,hi8(.LC5)
+ 752 01a0 CE01      		movw r24,r28
+ 753 01a2 8F5F      		subi r24,-1
+ 754 01a4 9A4F      		sbci r25,-6
+ 755 01a6 0E94 0000 		call printResultRAM
+ 756 01aa 84E6      		ldi r24,lo8(100)
+ 757 01ac 482E      		mov r4,r24
+ 758 01ae 512C      		mov r5,__zero_reg__
+ 759               	.L7:
+ 760               	.LBB11:
+  60:profiling/measureKaratsuba4093.c ****       generateRandomPolyTable_4093(b, paramN);					
+ 762               	.LM31:
+ 763 01b0 B601      		movw r22,r12
+ 764 01b2 CE01      		movw r24,r28
+ 765 01b4 8F57      		subi r24,127
+ 766 01b6 9D4F      		sbci r25,-3
+ 767 01b8 0E94 0000 		call generateRandomPolyTable_4093
+  61:profiling/measureKaratsuba4093.c **** 
+ 769               	.LM32:
+ 770 01bc B601      		movw r22,r12
+ 771 01be CE01      		movw r24,r28
+ 772 01c0 0196      		adiw r24,1
+ 773 01c2 0E94 0000 		call generateRandomPolyTable_4093
+  63:profiling/measureKaratsuba4093.c ****       startMeasurement();		
+ 775               	.LM33:
+ 776 01c6 8091 0000 		lds r24,__malloc_heap_start
+ 777 01ca 9091 0000 		lds r25,__malloc_heap_start+1
+ 778 01ce 0E94 0000 		call startRAM
+  63:profiling/measureKaratsuba4093.c ****       startMeasurement();		
+ 780               	.LM34:
+ 781 01d2 8093 0000 		sts start,r24
+ 782 01d6 9093 0000 		sts start+1,r25
+  64:profiling/measureKaratsuba4093.c **** 							
+ 784               	.LM35:
+ 785 01da 0E94 0000 		call startMeasurement
+  66:profiling/measureKaratsuba4093.c ****       stopMeasurement(&mean);
+ 787               	.LM36:
+ 788 01de 8601      		movw r16,r12
+ 789 01e0 272D      		mov r18,r7
+ 790 01e2 382D      		mov r19,r8
+ 791 01e4 AE01      		movw r20,r28
+ 792 01e6 4F5F      		subi r20,-1
+ 793 01e8 5F4F      		sbci r21,-1
+ 794 01ea BE01      		movw r22,r28
+ 795 01ec 6F57      		subi r22,127
+ 796 01ee 7D4F      		sbci r23,-3
+ 797 01f0 C501      		movw r24,r10
+ 798 01f2 0E94 0000 		call decrypt_ksuba_4093
+  67:profiling/measureKaratsuba4093.c ****       end = endRAM();
+ 800               	.LM37:
+ 801 01f6 CE01      		movw r24,r28
+ 802 01f8 8F5F      		subi r24,-1
+ 803 01fa 9A4F      		sbci r25,-6
+ 804 01fc 0E94 0000 		call stopMeasurement
+  68:profiling/measureKaratsuba4093.c **** 	
+ 806               	.LM38:
+ 807 0200 0E94 0000 		call endRAM
+ 808 0204 9C01      		movw r18,r24
+  68:profiling/measureKaratsuba4093.c **** 	
+ 810               	.LM39:
+ 811 0206 8093 0000 		sts end,r24
+ 812 020a 9093 0000 		sts end+1,r25
+ 813 020e 81E0      		ldi r24,1
+ 814 0210 481A      		sub r4,r24
+ 815 0212 5108      		sbc r5,__zero_reg__
+  57:profiling/measureKaratsuba4093.c ****     {
+ 817               	.LM40:
+ 818 0214 01F4      		brne .L7
+ 819               	.LBE11:
+  72:profiling/measureKaratsuba4093.c **** }
+ 821               	.LM41:
+ 822 0216 6091 0000 		lds r22,start
+ 823 021a 7091 0000 		lds r23,start+1
+ 824 021e 621B      		sub r22,r18
+ 825 0220 730B      		sbc r23,r19
+ 826 0222 40E0      		ldi r20,lo8(.LC6)
+ 827 0224 50E0      		ldi r21,hi8(.LC6)
+ 828 0226 CE01      		movw r24,r28
+ 829 0228 8F5F      		subi r24,-1
+ 830 022a 9A4F      		sbci r25,-6
+ 831 022c 0E94 0000 		call printResultRAM
+ 832               	.LBE12:
+ 833               	.LBE13:
+ 834               	.LBE14:
+  91:profiling/measureKaratsuba4093.c **** }
+ 836               	.LM42:
+ 837 0230 80E0      		ldi r24,lo8(.LC7)
+ 838 0232 90E0      		ldi r25,hi8(.LC7)
+ 839 0234 9F93      		push r25
+ 840 0236 8F93      		push r24
+ 841 0238 0E94 0000 		call printf
+ 843               	.LM43:
+ 844 023c 0F90      		pop __tmp_reg__
+ 845 023e 0F90      		pop __tmp_reg__
+ 846 0240 C75F      		subi r28,lo8(-1289)
+ 847 0242 DA4F      		sbci r29,hi8(-1289)
+ 848 0244 E881      		ld r30,Y
+ 849 0246 F981      		ldd r31,Y+1
+ 850 0248 C950      		subi r28,lo8(1289)
+ 851 024a D540      		sbci r29,hi8(1289)
+ 852 024c EDBF      		out __SP_L__,r30
+ 853 024e FEBF      		out __SP_H__,r31
+ 854               	/* epilogue start */
+ 855 0250 C65F      		subi r28,-10
+ 856 0252 DA4F      		sbci r29,-6
+ 857 0254 CDBF      		out __SP_L__,r28
+ 858 0256 DEBF      		out __SP_H__,r29
+ 859 0258 DF91      		pop r29
+ 860 025a CF91      		pop r28
+ 861 025c 1F91      		pop r17
+ 862 025e 0F91      		pop r16
+ 863 0260 FF90      		pop r15
+ 864 0262 EF90      		pop r14
+ 865 0264 DF90      		pop r13
+ 866 0266 CF90      		pop r12
+ 867 0268 BF90      		pop r11
+ 868 026a AF90      		pop r10
+ 869 026c 9F90      		pop r9
+ 870 026e 8F90      		pop r8
+ 871 0270 7F90      		pop r7
+ 872 0272 6F90      		pop r6
+ 873 0274 5F90      		pop r5
+ 874 0276 4F90      		pop r4
+ 875 0278 3F90      		pop r3
+ 876 027a 0895      		ret
+ 888               	.Lscope1:
+ 889               		.section	.bss.end,"aw",@nobits
+ 892               	end:
+ 893 0000 0000      		.zero	2
+ 895               		.section	.bss.start,"aw",@nobits
+ 898               	start:
+ 899 0000 0000      		.zero	2
+ 901               		.text
+ 903               	.Letext0:
+ 904               		.ident	"GCC: (GNU) 9.1.0"
+ 905               	.global __do_copy_data
+ 906               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 measureKaratsuba4093.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:480    .text.do_measurement_karatsuba_4093:0000000000000000 do_measurement_karatsuba_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:898    .bss.start:0000000000000000 start
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccsQYTJL.s:892    .bss.end:0000000000000000 end
+
+UNDEFINED SYMBOLS
+printf
+set_max_recursion_stages
+strcpy
+generateRandomPolyTable_4093
+__malloc_heap_start
+startRAM
+startMeasurement
+encrypt_ksuba_4093
+stopMeasurement
+endRAM
+printResultRAM
+decrypt_ksuba_4093
+__do_copy_data
+__do_clear_bss

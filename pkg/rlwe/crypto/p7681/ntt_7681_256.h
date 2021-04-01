@@ -1,0 +1,14 @@
+void encrypt_7681_256(const uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* a, const uint16_t* p);
+void decrypt_7681_256(uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* r2);
+void pw_mul_flash_7681_256(uint16_t* polynomial, const uint16_t* addr);
+void pw_psi_7681(uint16_t* p1, uint16_t start_val, uint16_t psi);
+void add_encode_7681_256(const uint8_t* msg, uint16_t* encodedpoly);
+void decode_7681_256(uint16_t* cipherpoly, uint8_t* plaintext);
+void ntt_CT_no_to_bo_incl_psi_7681_256_nolookup(int16_t* a, const uint16_t* psi);
+void ntt_CT_no_to_bo_incl_psi_7681_256(int16_t* a, const uint16_t* psi);
+void ntt_GS_bo_to_no_incl_invpsi_7681_256(int16_t* a, const uint16_t* psi);
+void add_7681(uint16_t* p1, uint16_t* p2, uint16_t* res);
+void get_gauss_poly_7681_256(uint16_t* retpoly, uint16_t add);
+void enc_7681_256_core(const uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* a, const uint16_t* p);
+void dec_7681_256_core(uint8_t* plaintext, uint16_t* c1, uint16_t* c2, const uint16_t* r2);
+void add_7681(uint16_t* p1, uint16_t* p2, uint16_t* res);

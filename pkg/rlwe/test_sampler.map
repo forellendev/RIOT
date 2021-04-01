@@ -1,0 +1,1480 @@
+Archive member included to satisfy reference by file (symbol)
+
+/opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+                              /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o (exit)
+/opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+                              ./test/test_sampler.o (__do_copy_data)
+/opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+                              ./crypto/rng/aes_prng.o (__do_clear_bss)
+/opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+                              ./crypto/keccak/Keccak-avr8.o (__lshrdi3)
+/opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+                              ./crypto/keccak/Keccak-avr8.o (__subdi3)
+/opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+                              ./crypto/keccak/Keccak-avr8.o (__cmpdi2)
+/opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+                              ./crypto/keccak/Keccak-avr8.o (__cmpdi2_s8)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(memcpy.o)
+                              ./crypto/keccak/Keccak-avr8.o (memcpy)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+                              ./device/usart_driver.o (__iob)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+                              ./test/test_sampler.o (printf)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+                              ./test/test_sampler.o (putchar)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+                              /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o) (vfprintf)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen_P.o)
+                              /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o) (strnlen_P)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen.o)
+                              /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o) (strnlen)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(fputc.o)
+                              /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o) (fputc)
+/opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(ultoa_invert.o)
+                              /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o) (__ultoa_invert)
+
+Allocating common symbols
+Common symbol       size              file
+
+__iob               0x6               /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+ .text          0x0000000000000000        0x0 ./test/test_sampler.o
+ .data          0x0000000000000000        0x0 ./test/test_sampler.o
+ .bss           0x0000000000000000        0x0 ./test/test_sampler.o
+ .text          0x0000000000000000        0x0 ./device/usart_driver.o
+ .data          0x0000000000000000        0x0 ./device/usart_driver.o
+ .bss           0x0000000000000000        0x0 ./device/usart_driver.o
+ .text.USART_InterruptDriver_Initialize
+                0x0000000000000000       0x12 ./device/usart_driver.o
+ .text.USART_InterruptDriver_DreInterruptLevel_Set
+                0x0000000000000000        0x6 ./device/usart_driver.o
+ .text.USART_TXBuffer_FreeSpace
+                0x0000000000000000       0x14 ./device/usart_driver.o
+ .text.USART_TXBuffer_PutByte
+                0x0000000000000000       0x38 ./device/usart_driver.o
+ .text.USART_RXBufferData_Available
+                0x0000000000000000       0x10 ./device/usart_driver.o
+ .text.USART_RXBuffer_GetByte
+                0x0000000000000000       0x18 ./device/usart_driver.o
+ .text.USART_RXComplete
+                0x0000000000000000       0x2a ./device/usart_driver.o
+ .text.USART_DataRegEmpty
+                0x0000000000000000       0x3a ./device/usart_driver.o
+ .text.USART_NineBits_PutChar
+                0x0000000000000000       0x16 ./device/usart_driver.o
+ .text.USART_NineBits_GetChar
+                0x0000000000000000       0x16 ./device/usart_driver.o
+ .text.USARTsend
+                0x0000000000000000        0xe ./device/usart_driver.o
+ .text.USARTsend16b
+                0x0000000000000000       0x12 ./device/usart_driver.o
+ .text.USARTsendStr
+                0x0000000000000000       0x24 ./device/usart_driver.o
+ .text          0x0000000000000000        0x0 ./device/clksys_driver.o
+ .data          0x0000000000000000        0x0 ./device/clksys_driver.o
+ .bss           0x0000000000000000        0x0 ./device/clksys_driver.o
+ .text.CLKSYS_XOSC_Config
+                0x0000000000000000       0x10 ./device/clksys_driver.o
+ .text.CLKSYS_PLL_Config
+                0x0000000000000000        0xa ./device/clksys_driver.o
+ .text.CLKSYS_Prescalers_Config
+                0x0000000000000000        0xa ./device/clksys_driver.o
+ .text.CLKSYS_RTC_ClockSource_Enable
+                0x0000000000000000       0x10 ./device/clksys_driver.o
+ .text.CLKSYS_AutoCalibration_Enable
+                0x0000000000000000       0x38 ./device/clksys_driver.o
+ .text.CLKSYS_XOSC_FailureDetection_Enable
+                0x0000000000000000        0xa ./device/clksys_driver.o
+ .text.CLKSYS_Configuration_Lock
+                0x0000000000000000        0xa ./device/clksys_driver.o
+ .text          0x0000000000000000        0x0 ./crypto/rng/avr_trng.o
+ .data          0x0000000000000000        0x0 ./crypto/rng/avr_trng.o
+ .bss           0x0000000000000000        0x0 ./crypto/rng/avr_trng.o
+ .rodata        0x0000000000000000        0x4 ./crypto/rng/avr_trng.o
+ .text.get_trnd_adc
+                0x0000000000000000       0x9a ./crypto/rng/avr_trng.o
+ .text          0x0000000000000000        0x0 ./crypto/rng/aes_prng.o
+ .data          0x0000000000000000        0x0 ./crypto/rng/aes_prng.o
+ .bss           0x0000000000000000        0x0 ./crypto/rng/aes_prng.o
+ .text.init_pool
+                0x0000000000000000       0x1a ./crypto/rng/aes_prng.o
+ .text.update_pool
+                0x0000000000000000       0x36 ./crypto/rng/aes_prng.o
+ .text.get_pool
+                0x0000000000000000        0x6 ./crypto/rng/aes_prng.o
+ .text.next_block
+                0x0000000000000000       0x2c ./crypto/rng/aes_prng.o
+ .text.get_AES_pool
+                0x0000000000000000        0x6 ./crypto/rng/aes_prng.o
+ .bss.output    0x0000000000000000       0x10 ./crypto/rng/aes_prng.o
+ .text          0x0000000000000000        0x0 ./crypto/rng/AES_driver.o
+ .data          0x0000000000000000        0x0 ./crypto/rng/AES_driver.o
+ .bss           0x0000000000000000        0x0 ./crypto/rng/AES_driver.o
+ .text.AES_decrypt
+                0x0000000000000000       0x6c ./crypto/rng/AES_driver.o
+ .text.AES_encrypt_backtoback
+                0x0000000000000000       0x56 ./crypto/rng/AES_driver.o
+ .text          0x0000000000000000        0x0 ./crypto/sampler/cdf_sampler.o
+ .data          0x0000000000000000        0x0 ./crypto/sampler/cdf_sampler.o
+ .bss           0x0000000000000000        0x0 ./crypto/sampler/cdf_sampler.o
+ .text          0x0000000000000000        0x0 ./crypto/p4093/sampler_4093.o
+ .data          0x0000000000000000        0x0 ./crypto/p4093/sampler_4093.o
+ .bss           0x0000000000000000        0x0 ./crypto/p4093/sampler_4093.o
+ .stab          0x0000000000000000      0x660 ./crypto/p4093/sampler_4093.o
+                                       0x1758 (size before relaxing)
+ .text.get_gauss_poly_4093
+                0x0000000000000000       0xe4 ./crypto/p4093/sampler_4093.o
+ .text.get_gauss_poly_4093_posneg
+                0x0000000000000000       0xd8 ./crypto/p4093/sampler_4093.o
+ .progmem.data.cdf_table_4093_8000
+                0x0000000000000000      0x1bc ./crypto/p4093/sampler_4093.o
+ .comment       0x0000000000000000       0x12 ./crypto/p4093/sampler_4093.o
+ .text          0x0000000000000000        0x0 ./crypto/p4096/sampler_4096.o
+ .data          0x0000000000000000        0x0 ./crypto/p4096/sampler_4096.o
+ .bss           0x0000000000000000        0x0 ./crypto/p4096/sampler_4096.o
+ .stab          0x0000000000000000      0x660 ./crypto/p4096/sampler_4096.o
+                                       0x1758 (size before relaxing)
+ .text.get_gauss_poly_4096
+                0x0000000000000000       0xd6 ./crypto/p4096/sampler_4096.o
+ .text.get_gauss_poly_4096_posneg
+                0x0000000000000000       0xd4 ./crypto/p4096/sampler_4096.o
+ .progmem.data.cdf_table_4096_8000
+                0x0000000000000000      0x1bc ./crypto/p4096/sampler_4096.o
+ .comment       0x0000000000000000       0x12 ./crypto/p4096/sampler_4096.o
+ .text          0x0000000000000000        0x0 ./crypto/p4093/ksuba_4093.o
+ .data          0x0000000000000000        0x0 ./crypto/p4093/ksuba_4093.o
+ .bss           0x0000000000000000        0x0 ./crypto/p4093/ksuba_4093.o
+ .stab          0x0000000000000000     0x12fc ./crypto/p4093/ksuba_4093.o
+                                       0x23f4 (size before relaxing)
+ .text.set_max_recursion_stages
+                0x0000000000000000        0x6 ./crypto/p4093/ksuba_4093.o
+ .text.call_call_mulRed_asm_4093
+                0x0000000000000000        0x4 ./crypto/p4093/ksuba_4093.o
+ .text.reduce   0x0000000000000000       0x58 ./crypto/p4093/ksuba_4093.o
+ .text.karatsuba_recursive
+                0x0000000000000000      0x352 ./crypto/p4093/ksuba_4093.o
+ .text.karatsuba_4093_192
+                0x0000000000000000       0xa0 ./crypto/p4093/ksuba_4093.o
+ .text.karatsuba_4093_256
+                0x0000000000000000       0x9c ./crypto/p4093/ksuba_4093.o
+ .text.karatsuba_4093_320
+                0x0000000000000000       0xa0 ./crypto/p4093/ksuba_4093.o
+ .text.add_encode_ksuba_4093
+                0x0000000000000000       0x6a ./crypto/p4093/ksuba_4093.o
+ .text.encrypt_ksuba_4093
+                0x0000000000000000       0xfa ./crypto/p4093/ksuba_4093.o
+ .text.decode_ksuba_4093
+                0x0000000000000000       0x60 ./crypto/p4093/ksuba_4093.o
+ .text.decrypt_ksuba_4093
+                0x0000000000000000       0xba ./crypto/p4093/ksuba_4093.o
+ .data.max_recursion_stages
+                0x0000000000000000        0x1 ./crypto/p4093/ksuba_4093.o
+ .comment       0x0000000000000000       0x12 ./crypto/p4093/ksuba_4093.o
+ .text          0x0000000000000000        0x0 ./crypto/p4096/ksuba_4096.o
+ .data          0x0000000000000000        0x0 ./crypto/p4096/ksuba_4096.o
+ .bss           0x0000000000000000        0x0 ./crypto/p4096/ksuba_4096.o
+ .stab          0x0000000000000000     0x1308 ./crypto/p4096/ksuba_4096.o
+                                       0x2400 (size before relaxing)
+ .text.set_max_recursion_stages4096
+                0x0000000000000000        0x6 ./crypto/p4096/ksuba_4096.o
+ .text.reduce4096
+                0x0000000000000000       0x56 ./crypto/p4096/ksuba_4096.o
+ .text.karatsuba_recursive4096
+                0x0000000000000000      0x318 ./crypto/p4096/ksuba_4096.o
+ .text.karatsuba_4096_192
+                0x0000000000000000       0xa0 ./crypto/p4096/ksuba_4096.o
+ .text.karatsuba_4096_noflash
+                0x0000000000000000       0x7e ./crypto/p4096/ksuba_4096.o
+ .text.karatsuba_4096_256
+                0x0000000000000000       0x9c ./crypto/p4096/ksuba_4096.o
+ .text.karatsuba_4096_320
+                0x0000000000000000       0xa0 ./crypto/p4096/ksuba_4096.o
+ .text.add_encode_ksuba_4096
+                0x0000000000000000       0x66 ./crypto/p4096/ksuba_4096.o
+ .text.encrypt_ksuba_4096
+                0x0000000000000000       0xfa ./crypto/p4096/ksuba_4096.o
+ .text.decode_ksuba_4096
+                0x0000000000000000       0x5e ./crypto/p4096/ksuba_4096.o
+ .text.decrypt_ksuba_4096
+                0x0000000000000000       0xb8 ./crypto/p4096/ksuba_4096.o
+ .data.max_recursion_stages4096
+                0x0000000000000000        0x1 ./crypto/p4096/ksuba_4096.o
+ .comment       0x0000000000000000       0x12 ./crypto/p4096/ksuba_4096.o
+ .text          0x0000000000000000        0x0 ./crypto/p4093/school_4093.o
+ .data          0x0000000000000000        0x0 ./crypto/p4093/school_4093.o
+ .bss           0x0000000000000000        0x0 ./crypto/p4093/school_4093.o
+ .stab          0x0000000000000000      0xa50 ./crypto/p4093/school_4093.o
+                                       0x1b48 (size before relaxing)
+ .text.school_4093_without_flash
+                0x0000000000000000      0x160 ./crypto/p4093/school_4093.o
+ .text.school_4093_192
+                0x0000000000000000       0x88 ./crypto/p4093/school_4093.o
+ .text.school_4093_256
+                0x0000000000000000       0x86 ./crypto/p4093/school_4093.o
+ .text.school_4093_320
+                0x0000000000000000       0x88 ./crypto/p4093/school_4093.o
+ .text.add_encode_4093
+                0x0000000000000000       0x6a ./crypto/p4093/school_4093.o
+ .text.encrypt_4093
+                0x0000000000000000       0xe2 ./crypto/p4093/school_4093.o
+ .text.decode_4093
+                0x0000000000000000       0x60 ./crypto/p4093/school_4093.o
+ .text.decrypt_4093
+                0x0000000000000000       0xb0 ./crypto/p4093/school_4093.o
+ .comment       0x0000000000000000       0x12 ./crypto/p4093/school_4093.o
+ .text          0x0000000000000000        0x0 ./crypto/p7681/ntt_7681_256.o
+ .data          0x0000000000000000        0x0 ./crypto/p7681/ntt_7681_256.o
+ .bss           0x0000000000000000        0x0 ./crypto/p7681/ntt_7681_256.o
+ .stab          0x0000000000000000     0x1590 ./crypto/p7681/ntt_7681_256.o
+                                       0x2688 (size before relaxing)
+ .text.get_gauss_poly_7681_256
+                0x0000000000000000       0xc6 ./crypto/p7681/ntt_7681_256.o
+ .text.first_stage_GS
+                0x0000000000000000       0x6c ./crypto/p7681/ntt_7681_256.o
+ .text.last_stage_GS
+                0x0000000000000000       0x86 ./crypto/p7681/ntt_7681_256.o
+ .text.ntt_GS_bo_to_no_incl_invpsi_7681_256
+                0x0000000000000000      0x164 ./crypto/p7681/ntt_7681_256.o
+ .text.print_counter
+                0x0000000000000000        0x2 ./crypto/p7681/ntt_7681_256.o
+ .text.first_stage_CT
+                0x0000000000000000       0xec ./crypto/p7681/ntt_7681_256.o
+ .text.last_stage_CT
+                0x0000000000000000       0x70 ./crypto/p7681/ntt_7681_256.o
+ .text.ntt_CT_no_to_bo_incl_psi_7681_256_nolookup
+                0x0000000000000000      0x17a ./crypto/p7681/ntt_7681_256.o
+ .text.ntt_CT_no_to_bo_incl_psi_7681_256
+                0x0000000000000000      0x184 ./crypto/p7681/ntt_7681_256.o
+ .text.pw_psi_7681
+                0x0000000000000000       0x50 ./crypto/p7681/ntt_7681_256.o
+ .text.pw_mul_flash_7681_256
+                0x0000000000000000       0x44 ./crypto/p7681/ntt_7681_256.o
+ .text.add_7681
+                0x0000000000000000       0x58 ./crypto/p7681/ntt_7681_256.o
+ .text.enc_7681_256_core
+                0x0000000000000000       0xea ./crypto/p7681/ntt_7681_256.o
+ .text.dec_7681_256_core
+                0x0000000000000000       0x3a ./crypto/p7681/ntt_7681_256.o
+ .text.add_encode_7681_256
+                0x0000000000000000       0x5c ./crypto/p7681/ntt_7681_256.o
+ .text.encrypt_7681_256
+                0x0000000000000000       0x2c ./crypto/p7681/ntt_7681_256.o
+ .text.decode_7681_256
+                0x0000000000000000       0x54 ./crypto/p7681/ntt_7681_256.o
+ .text.decrypt_7681_256
+                0x0000000000000000       0x24 ./crypto/p7681/ntt_7681_256.o
+ .progmem.data.cdf_table_7681_1132
+                0x0000000000000000      0x270 ./crypto/p7681/ntt_7681_256.o
+ .progmem.data.omegamultiples_7681_256
+                0x0000000000000000       0x20 ./crypto/p7681/ntt_7681_256.o
+ .progmem.data.omegainvbitrev_7681_256
+                0x0000000000000000      0x200 ./crypto/p7681/ntt_7681_256.o
+ .progmem.data.psibitrev_7681_256
+                0x0000000000000000      0x200 ./crypto/p7681/ntt_7681_256.o
+ .comment       0x0000000000000000       0x12 ./crypto/p7681/ntt_7681_256.o
+ .text          0x0000000000000000        0x0 ./crypto/p12289/ntt_12289_512.o
+ .data          0x0000000000000000        0x0 ./crypto/p12289/ntt_12289_512.o
+ .bss           0x0000000000000000        0x0 ./crypto/p12289/ntt_12289_512.o
+ .text.first_stage_GS_12289_512
+                0x0000000000000000       0x6c ./crypto/p12289/ntt_12289_512.o
+ .text.last_stage_GS_12289_512
+                0x0000000000000000       0x86 ./crypto/p12289/ntt_12289_512.o
+ .text.ntt_GS_bo_to_no_incl_invpsi_12289_512
+                0x0000000000000000      0x164 ./crypto/p12289/ntt_12289_512.o
+ .text.first_stage_CT_12289_512
+                0x0000000000000000       0xec ./crypto/p12289/ntt_12289_512.o
+ .text.last_stage_CT_12289_512
+                0x0000000000000000       0x70 ./crypto/p12289/ntt_12289_512.o
+ .text.ntt_CT_no_to_bo_incl_psi_12289_512_nolookup
+                0x0000000000000000      0x17a ./crypto/p12289/ntt_12289_512.o
+ .text.ntt_CT_no_to_bo_incl_psi_12289_512
+                0x0000000000000000      0x184 ./crypto/p12289/ntt_12289_512.o
+ .text.pw_psi_12289
+                0x0000000000000000       0x50 ./crypto/p12289/ntt_12289_512.o
+ .text.pw_mul_flash_12289_512
+                0x0000000000000000       0x44 ./crypto/p12289/ntt_12289_512.o
+ .text.add_12289
+                0x0000000000000000       0x58 ./crypto/p12289/ntt_12289_512.o
+ .text.add_encode_12289_512
+                0x0000000000000000       0x5e ./crypto/p12289/ntt_12289_512.o
+ .text.encrypt_12289_512
+                0x0000000000000000       0xfc ./crypto/p12289/ntt_12289_512.o
+ .text.decode_12289_512
+                0x0000000000000000       0x54 ./crypto/p12289/ntt_12289_512.o
+ .text.decrypt_12289_512
+                0x0000000000000000       0x4e ./crypto/p12289/ntt_12289_512.o
+ .progmem.data.omegamultiples_12289_512
+                0x0000000000000000       0x20 ./crypto/p12289/ntt_12289_512.o
+ .progmem.data.omegainvbitrev_12289_512
+                0x0000000000000000      0x400 ./crypto/p12289/ntt_12289_512.o
+ .progmem.data.psibitrev_12289_512
+                0x0000000000000000      0x400 ./crypto/p12289/ntt_12289_512.o
+ .text          0x0000000000000000        0x0 ./crypto/keccak/Keccak-avr8.o
+ .data          0x0000000000000000        0x0 ./crypto/keccak/Keccak-avr8.o
+ .bss           0x0000000000000000        0x0 ./crypto/keccak/Keccak-avr8.o
+ .stab          0x0000000000000000      0x7a4 ./crypto/keccak/Keccak-avr8.o
+                                       0x189c (size before relaxing)
+ .text.crypto_hash
+                0x0000000000000000      0x110 ./crypto/keccak/Keccak-avr8.o
+ .text.Init     0x0000000000000000        0xe ./crypto/keccak/Keccak-avr8.o
+ .text.Update   0x0000000000000000      0x226 ./crypto/keccak/Keccak-avr8.o
+ .text.Final    0x0000000000000000       0xc8 ./crypto/keccak/Keccak-avr8.o
+ .comment       0x0000000000000000       0x12 ./crypto/keccak/Keccak-avr8.o
+ .text          0x0000000000000000        0x0 ./crypto/keccak/KeccakF-1600-avr8.o
+ .data          0x0000000000000000        0x0 ./crypto/keccak/KeccakF-1600-avr8.o
+ .bss           0x0000000000000000        0x0 ./crypto/keccak/KeccakF-1600-avr8.o
+ .stab          0x0000000000000000      0x7e0 ./crypto/keccak/KeccakF-1600-avr8.o
+                                       0x18e4 (size before relaxing)
+ .text.KeccakF  0x0000000000000000      0x400 ./crypto/keccak/KeccakF-1600-avr8.o
+ .progmem.data.KeccakF_Mod5
+                0x0000000000000000        0xa ./crypto/keccak/KeccakF-1600-avr8.o
+ .progmem.data.KeccakF_PiLane
+                0x0000000000000000       0x18 ./crypto/keccak/KeccakF-1600-avr8.o
+ .progmem.data.KeccakF_RotationConstants
+                0x0000000000000000       0x18 ./crypto/keccak/KeccakF-1600-avr8.o
+ .progmem.data.KeccakF_RoundConstants
+                0x0000000000000000       0xc0 ./crypto/keccak/KeccakF-1600-avr8.o
+ .comment       0x0000000000000000       0x12 ./crypto/keccak/KeccakF-1600-avr8.o
+ .text          0x0000000000000000       0x7e ./crypto/p7681/mm7681.o
+ .data          0x0000000000000000        0x0 ./crypto/p7681/mm7681.o
+ .bss           0x0000000000000000        0x0 ./crypto/p7681/mm7681.o
+ .stab          0x0000000000000000      0x30c ./crypto/p7681/mm7681.o
+                                        0x318 (size before relaxing)
+ .text          0x0000000000000000       0xa2 ./crypto/p12289/mm12289.o
+ .data          0x0000000000000000        0x0 ./crypto/p12289/mm12289.o
+ .bss           0x0000000000000000        0x0 ./crypto/p12289/mm12289.o
+ .stab          0x0000000000000000      0x3e4 ./crypto/p12289/mm12289.o
+                                        0x3f0 (size before relaxing)
+ .text          0x0000000000000000      0x356 ./crypto/p4093/math_asm_4093.o
+ .data          0x0000000000000000        0x0 ./crypto/p4093/math_asm_4093.o
+ .bss           0x0000000000000000        0x0 ./crypto/p4093/math_asm_4093.o
+ .stab          0x0000000000000000     0x13f8 ./crypto/p4093/math_asm_4093.o
+                                       0x1404 (size before relaxing)
+ .text          0x0000000000000000       0x16 ./crypto/p4096/math_asm_4096.o
+ .data          0x0000000000000000        0x0 ./crypto/p4096/math_asm_4096.o
+ .bss           0x0000000000000000        0x0 ./crypto/p4096/math_asm_4096.o
+ .stab          0x0000000000000000       0x9c ./crypto/p4096/math_asm_4096.o
+                                         0xa8 (size before relaxing)
+ .text          0x0000000000000000       0x66 ./device/measureRAM.o
+ .data          0x0000000000000000        0x0 ./device/measureRAM.o
+ .bss           0x0000000000000000        0x0 ./device/measureRAM.o
+ .stab          0x0000000000000000      0x27c ./device/measureRAM.o
+                                        0x288 (size before relaxing)
+ .text          0x0000000000000000      0x1a8 ./crypto/keccak/AVR8-rotate64.o
+ .data          0x0000000000000000        0x0 ./crypto/keccak/AVR8-rotate64.o
+ .bss           0x0000000000000000        0x0 ./crypto/keccak/AVR8-rotate64.o
+ .stab          0x0000000000000000      0xa08 ./crypto/keccak/AVR8-rotate64.o
+                                        0xa14 (size before relaxing)
+ .text          0x0000000000000000       0x9c ./crypto/keccak/Keccak-avr8-util.o
+ .data          0x0000000000000000        0x0 ./crypto/keccak/Keccak-avr8-util.o
+ .bss           0x0000000000000000        0x0 ./crypto/keccak/Keccak-avr8-util.o
+ .stab          0x0000000000000000      0x3c0 ./crypto/keccak/Keccak-avr8-util.o
+                                        0x3cc (size before relaxing)
+ .text          0x0000000000000000      0x152 ./profiling/mm24578.o
+ .data          0x0000000000000000        0x0 ./profiling/mm24578.o
+ .bss           0x0000000000000000        0x0 ./profiling/mm24578.o
+ .stab          0x0000000000000000      0x804 ./profiling/mm24578.o
+                                        0x810 (size before relaxing)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .text.libgcc.mul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .text.libgcc.div
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .text.libgcc   0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .text.libgcc.prologue
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .text.libgcc.builtins
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .text.libgcc.fmul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .text.libgcc.fixed
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .text.libgcc.mul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .text.libgcc.div
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .text.libgcc   0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .text.libgcc.prologue
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .text.libgcc.builtins
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .text.libgcc.fmul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .text.libgcc.fixed
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .text.libgcc.mul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .text.libgcc.div
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .text.libgcc.prologue
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .text.libgcc.builtins
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .text.libgcc.fmul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .text.libgcc.fixed
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .stab          0x0000000000000000      0x1e0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+                                        0x1ec (size before relaxing)
+ .text.libgcc.mul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .text.libgcc.div
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .text.libgcc   0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .text.libgcc.prologue
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .text.libgcc.builtins
+                0x0000000000000000       0x3a /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .text.libgcc.fmul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .text.libgcc.fixed
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .stab          0x0000000000000000       0x78 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+                                         0x84 (size before relaxing)
+ .text.libgcc.mul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .text.libgcc.div
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .text.libgcc   0x0000000000000000       0x12 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .text.libgcc.prologue
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .text.libgcc.builtins
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .text.libgcc.fmul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .text.libgcc.fixed
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .stab          0x0000000000000000       0x78 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+                                         0x84 (size before relaxing)
+ .text.libgcc.mul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .text.libgcc.div
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .text.libgcc   0x0000000000000000       0x12 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .text.libgcc.prologue
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .text.libgcc.builtins
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .text.libgcc.fmul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .text.libgcc.fixed
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .stab          0x0000000000000000       0x9c /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+                                         0xa8 (size before relaxing)
+ .text.libgcc.mul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .text.libgcc.div
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .text.libgcc   0x0000000000000000       0x18 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .text.libgcc.prologue
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .text.libgcc.builtins
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .text.libgcc.fmul
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .text.libgcc.fixed
+                0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(memcpy.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(memcpy.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(memcpy.o)
+ .text.avr-libc
+                0x0000000000000000       0x12 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(memcpy.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen_P.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen_P.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen_P.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(fputc.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(fputc.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(fputc.o)
+ .text          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(ultoa_invert.o)
+ .data          0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(ultoa_invert.o)
+ .bss           0x0000000000000000        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(ultoa_invert.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x0000000000000000 0x0000000000100000 xr
+data             0x0000000000802000 0x000000000000ffa0 rw !x
+eeprom           0x0000000000810000 0x0000000000010000 rw !x
+fuse             0x0000000000820000 0x0000000000000400 rw !x
+lock             0x0000000000830000 0x0000000000000400 rw !x
+signature        0x0000000000840000 0x0000000000000400 rw !x
+user_signatures  0x0000000000850000 0x0000000000000400 rw !x
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+LOAD ./test/test_sampler.o
+LOAD ./device/usart_driver.o
+LOAD ./device/clksys_driver.o
+LOAD ./crypto/rng/avr_trng.o
+LOAD ./crypto/rng/aes_prng.o
+LOAD ./crypto/rng/AES_driver.o
+LOAD ./crypto/sampler/cdf_sampler.o
+LOAD ./crypto/p4093/sampler_4093.o
+LOAD ./crypto/p4096/sampler_4096.o
+LOAD ./crypto/p4093/ksuba_4093.o
+LOAD ./crypto/p4096/ksuba_4096.o
+LOAD ./crypto/p4093/school_4093.o
+LOAD ./crypto/p7681/ntt_7681_256.o
+LOAD ./crypto/p12289/ntt_12289_512.o
+LOAD ./crypto/keccak/Keccak-avr8.o
+LOAD ./crypto/keccak/KeccakF-1600-avr8.o
+LOAD ./crypto/p7681/mm7681.o
+LOAD ./crypto/p12289/mm12289.o
+LOAD ./crypto/p4093/math_asm_4093.o
+LOAD ./crypto/p4096/math_asm_4096.o
+LOAD ./device/measureRAM.o
+LOAD ./crypto/keccak/AVR8-rotate64.o
+LOAD ./crypto/keccak/Keccak-avr8-util.o
+LOAD ./profiling/mm24578.o
+LOAD /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libm.a
+START GROUP
+LOAD /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a
+LOAD /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libm.a
+LOAD /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a
+LOAD /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libatxmega128a1.a
+END GROUP
+                0x0000000000100000                __TEXT_REGION_LENGTH__ = DEFINED (__TEXT_REGION_LENGTH__)?__TEXT_REGION_LENGTH__:0x100000
+                0x000000000000ffa0                __DATA_REGION_LENGTH__ = DEFINED (__DATA_REGION_LENGTH__)?__DATA_REGION_LENGTH__:0xffa0
+                0x0000000000010000                __EEPROM_REGION_LENGTH__ = DEFINED (__EEPROM_REGION_LENGTH__)?__EEPROM_REGION_LENGTH__:0x10000
+                0x0000000000000400                __FUSE_REGION_LENGTH__ = DEFINED (__FUSE_REGION_LENGTH__)?__FUSE_REGION_LENGTH__:0x400
+                0x0000000000000400                __LOCK_REGION_LENGTH__ = DEFINED (__LOCK_REGION_LENGTH__)?__LOCK_REGION_LENGTH__:0x400
+                0x0000000000000400                __SIGNATURE_REGION_LENGTH__ = DEFINED (__SIGNATURE_REGION_LENGTH__)?__SIGNATURE_REGION_LENGTH__:0x400
+                0x0000000000000400                __USER_SIGNATURE_REGION_LENGTH__ = DEFINED (__USER_SIGNATURE_REGION_LENGTH__)?__USER_SIGNATURE_REGION_LENGTH__:0x400
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x0000000000000000      0xdd4
+ *(.vectors)
+ .vectors       0x0000000000000000      0x1f4 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+                0x0000000000000000                __vectors
+                0x0000000000000000                __vector_default
+ *(.vectors)
+ *(.progmem.gcc*)
+                0x00000000000001f4                . = ALIGN (0x2)
+                0x00000000000001f4                __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x00000000000001f4        0x4 linker stubs
+ *(.trampolines*)
+                0x00000000000001f8                __trampolines_end = .
+ *libprintf_flt.a:*(.progmem.data)
+ *libc.a:*(.progmem.data)
+ *(.progmem.*)
+ .progmem.data.cdf_table_12289_1218
+                0x00000000000001f8      0x294 ./crypto/p12289/ntt_12289_512.o
+                0x000000000000048c                . = ALIGN (0x2)
+ *(.lowtext)
+ *(.lowtext*)
+                0x000000000000048c                __ctors_start = .
+ *(.ctors)
+                0x000000000000048c                __ctors_end = .
+                0x000000000000048c                __dtors_start = .
+ *(.dtors)
+                0x000000000000048c                __dtors_end = .
+ SORT_BY_NAME(*)(.ctors)
+ SORT_BY_NAME(*)(.dtors)
+ *(.init0)
+ .init0         0x000000000000048c        0x0 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+                0x000000000000048c                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x000000000000048c       0x18 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+ *(.init2)
+ *(.init3)
+ *(.init3)
+ *(.init4)
+ .init4         0x00000000000004a4       0x1c /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+                0x00000000000004a4                __do_copy_data
+ .init4         0x00000000000004c0       0x10 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+                0x00000000000004c0                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x00000000000004d0        0x8 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+ *(.init9)
+ *(.text)
+ .text          0x00000000000004d8        0x4 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+                0x00000000000004d8                __vector_120
+                0x00000000000004d8                __vector_104
+                0x00000000000004d8                __vector_22
+                0x00000000000004d8                __vector_63
+                0x00000000000004d8                __vector_28
+                0x00000000000004d8                __vector_67
+                0x00000000000004d8                __vector_1
+                0x00000000000004d8                __vector_119
+                0x00000000000004d8                __vector_32
+                0x00000000000004d8                __vector_75
+                0x00000000000004d8                __vector_71
+                0x00000000000004d8                __vector_91
+                0x00000000000004d8                __vector_34
+                0x00000000000004d8                __vector_62
+                0x00000000000004d8                __vector_77
+                0x00000000000004d8                __vector_102
+                0x00000000000004d8                __vector_24
+                0x00000000000004d8                __vector_12
+                0x00000000000004d8                __vector_55
+                0x00000000000004d8                __vector_69
+                0x00000000000004d8                __vector_81
+                0x00000000000004d8                __vector_90
+                0x00000000000004d8                __vector_46
+                0x00000000000004d8                __bad_interrupt
+                0x00000000000004d8                __vector_122
+                0x00000000000004d8                __vector_72
+                0x00000000000004d8                __vector_114
+                0x00000000000004d8                __vector_6
+                0x00000000000004d8                __vector_110
+                0x00000000000004d8                __vector_31
+                0x00000000000004d8                __vector_92
+                0x00000000000004d8                __vector_35
+                0x00000000000004d8                __vector_78
+                0x00000000000004d8                __vector_74
+                0x00000000000004d8                __vector_117
+                0x00000000000004d8                __vector_39
+                0x00000000000004d8                __vector_107
+                0x00000000000004d8                __vector_3
+                0x00000000000004d8                __vector_105
+                0x00000000000004d8                __vector_98
+                0x00000000000004d8                __vector_23
+                0x00000000000004d8                __vector_68
+                0x00000000000004d8                __vector_30
+                0x00000000000004d8                __vector_73
+                0x00000000000004d8                __vector_45
+                0x00000000000004d8                __vector_25
+                0x00000000000004d8                __vector_93
+                0x00000000000004d8                __vector_61
+                0x00000000000004d8                __vector_11
+                0x00000000000004d8                __vector_54
+                0x00000000000004d8                __vector_99
+                0x00000000000004d8                __vector_13
+                0x00000000000004d8                __vector_17
+                0x00000000000004d8                __vector_19
+                0x00000000000004d8                __vector_56
+                0x00000000000004d8                __vector_7
+                0x00000000000004d8                __vector_49
+                0x00000000000004d8                __vector_123
+                0x00000000000004d8                __vector_41
+                0x00000000000004d8                __vector_86
+                0x00000000000004d8                __vector_100
+                0x00000000000004d8                __vector_101
+                0x00000000000004d8                __vector_64
+                0x00000000000004d8                __vector_88
+                0x00000000000004d8                __vector_109
+                0x00000000000004d8                __vector_43
+                0x00000000000004d8                __vector_27
+                0x00000000000004d8                __vector_5
+                0x00000000000004d8                __vector_113
+                0x00000000000004d8                __vector_33
+                0x00000000000004d8                __vector_76
+                0x00000000000004d8                __vector_115
+                0x00000000000004d8                __vector_47
+                0x00000000000004d8                __vector_52
+                0x00000000000004d8                __vector_37
+                0x00000000000004d8                __vector_95
+                0x00000000000004d8                __vector_103
+                0x00000000000004d8                __vector_96
+                0x00000000000004d8                __vector_89
+                0x00000000000004d8                __vector_108
+                0x00000000000004d8                __vector_4
+                0x00000000000004d8                __vector_44
+                0x00000000000004d8                __vector_82
+                0x00000000000004d8                __vector_106
+                0x00000000000004d8                __vector_118
+                0x00000000000004d8                __vector_51
+                0x00000000000004d8                __vector_9
+                0x00000000000004d8                __vector_2
+                0x00000000000004d8                __vector_21
+                0x00000000000004d8                __vector_15
+                0x00000000000004d8                __vector_66
+                0x00000000000004d8                __vector_36
+                0x00000000000004d8                __vector_79
+                0x00000000000004d8                __vector_58
+                0x00000000000004d8                __vector_70
+                0x00000000000004d8                __vector_83
+                0x00000000000004d8                __vector_29
+                0x00000000000004d8                __vector_60
+                0x00000000000004d8                __vector_121
+                0x00000000000004d8                __vector_40
+                0x00000000000004d8                __vector_85
+                0x00000000000004d8                __vector_94
+                0x00000000000004d8                __vector_8
+                0x00000000000004d8                __vector_26
+                0x00000000000004d8                __vector_48
+                0x00000000000004d8                __vector_124
+                0x00000000000004d8                __vector_116
+                0x00000000000004d8                __vector_112
+                0x00000000000004d8                __vector_111
+                0x00000000000004d8                __vector_80
+                0x00000000000004d8                __vector_14
+                0x00000000000004d8                __vector_84
+                0x00000000000004d8                __vector_57
+                0x00000000000004d8                __vector_53
+                0x00000000000004d8                __vector_10
+                0x00000000000004d8                __vector_50
+                0x00000000000004d8                __vector_16
+                0x00000000000004d8                __vector_59
+                0x00000000000004d8                __vector_18
+                0x00000000000004d8                __vector_97
+                0x00000000000004d8                __vector_20
+                0x00000000000004d8                __vector_42
+                0x00000000000004d8                __vector_87
+                0x00000000000004d8                __vector_65
+                0x00000000000004d8                __vector_38
+                0x00000000000004dc                . = ALIGN (0x2)
+ *(.text.*)
+ .text.startup.main
+                0x00000000000004dc       0xd2 ./test/test_sampler.o
+                0x00000000000004dc                main
+ .text.uart_putchar
+                0x00000000000005ae        0xe ./device/usart_driver.o
+                0x00000000000005ae                uart_putchar
+ .text.USARTinit
+                0x00000000000005bc       0x34 ./device/usart_driver.o
+                0x00000000000005bc                USARTinit
+ .text.CCPWrite
+                0x00000000000005f0       0x2c ./device/clksys_driver.o
+                0x00000000000005f0                CCPWrite
+ .text.CLKSYS_Disable
+                0x000000000000061c       0x14 ./device/clksys_driver.o
+                0x000000000000061c                CLKSYS_Disable
+ .text.CLKSYS_Main_ClockSource_Select
+                0x0000000000000630       0x2a ./device/clksys_driver.o
+                0x0000000000000630                CLKSYS_Main_ClockSource_Select
+ .text.avr_trng_init
+                0x000000000000065a       0x22 ./crypto/rng/avr_trng.o
+                0x000000000000065a                avr_trng_init
+ .text.next_block_ptr
+                0x000000000000067c       0x2a ./crypto/rng/aes_prng.o
+                0x000000000000067c                next_block_ptr
+ .text.AES_encrypt
+                0x00000000000006a6       0x6e ./crypto/rng/AES_driver.o
+                0x00000000000006a6                AES_encrypt
+ .text.sample_gauss
+                0x0000000000000714       0x88 ./crypto/sampler/cdf_sampler.o
+                0x0000000000000714                sample_gauss
+ .text.get_gauss_poly_12289_512
+                0x000000000000079c       0xc6 ./crypto/p12289/ntt_12289_512.o
+                0x000000000000079c                get_gauss_poly_12289_512
+ .text.avr-libc
+                0x0000000000000862       0x24 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+                0x0000000000000862                printf
+ .text.avr-libc
+                0x0000000000000886        0xc /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+                0x0000000000000886                putchar
+ .text.avr-libc
+                0x0000000000000892      0x3f6 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+                0x0000000000000892                vfprintf
+ .text.avr-libc
+                0x0000000000000c88       0x16 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen_P.o)
+                0x0000000000000c88                strnlen_P
+ .text.avr-libc
+                0x0000000000000c9e       0x16 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen.o)
+                0x0000000000000c9e                strnlen
+ .text.avr-libc
+                0x0000000000000cb4       0x60 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(fputc.o)
+                0x0000000000000cb4                fputc
+ .text.avr-libc
+                0x0000000000000d14       0xbc /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(ultoa_invert.o)
+                0x0000000000000d14                __ultoa_invert
+                0x0000000000000dd0                . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x0000000000000dd0        0x0 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+                0x0000000000000dd0                exit
+                0x0000000000000dd0                _exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x0000000000000dd0        0x4 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+ *(.fini0)
+ *(.hightext)
+ *(.hightext*)
+ *(.progmemx.*)
+                0x0000000000000dd4                . = ALIGN (0x2)
+ *(.jumptables)
+ *(.jumptables*)
+                0x0000000000000dd4                _etext = .
+
+.data           0x0000000000802000       0x12 load address 0x0000000000000dd4
+                0x0000000000802000                PROVIDE (__data_start = .)
+ *(.data)
+ *(.data*)
+ .data.mystdout
+                0x0000000000802000        0xe ./device/usart_driver.o
+ *(.gnu.linkonce.d*)
+ *(.rodata)
+ *(.rodata*)
+ .rodata.main.str1.1
+                0x000000000080200e        0x4 ./test/test_sampler.o
+ *(.gnu.linkonce.r*)
+                0x0000000000802012                . = ALIGN (0x2)
+                0x0000000000802012                _edata = .
+                0x0000000000802012                PROVIDE (__data_end = .)
+
+.bss            0x0000000000802012       0x26
+                0x0000000000802012                PROVIDE (__bss_start = .)
+ *(.bss)
+ *(.bss*)
+ .bss.pool      0x0000000000802012       0x20 ./crypto/rng/aes_prng.o
+ *(COMMON)
+ COMMON         0x0000000000802032        0x6 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+                0x0000000000802032                __iob
+                0x0000000000802038                PROVIDE (__bss_end = .)
+                0x0000000000000dd4                __data_load_start = LOADADDR (.data)
+                0x0000000000000de6                __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x0000000000802038        0x0
+                [!provide]                        PROVIDE (__noinit_start = .)
+ *(.noinit*)
+                [!provide]                        PROVIDE (__noinit_end = .)
+                0x0000000000802038                _end = .
+                [!provide]                        PROVIDE (__heap_start = .)
+
+.eeprom         0x0000000000810000        0x0
+ *(.eeprom*)
+                0x0000000000810000                __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.stab           0x0000000000000000     0x351c
+ *(.stab)
+ .stab          0x0000000000000000     0x1698 ./test/test_sampler.o
+ .stab          0x0000000000001698      0x450 ./device/usart_driver.o
+                                       0x1d64 (size before relaxing)
+ .stab          0x0000000000001ae8      0x444 ./device/clksys_driver.o
+                                       0x1800 (size before relaxing)
+ .stab          0x0000000000001f2c      0x36c ./crypto/rng/avr_trng.o
+                                       0x15b4 (size before relaxing)
+ .stab          0x0000000000002298      0x36c ./crypto/rng/aes_prng.o
+                                       0x15b4 (size before relaxing)
+ .stab          0x0000000000002604      0x45c ./crypto/rng/AES_driver.o
+                                       0x1830 (size before relaxing)
+ .stab          0x0000000000002a60      0x4a4 ./crypto/sampler/cdf_sampler.o
+                                       0x15f0 (size before relaxing)
+ .stab          0x0000000000002f04      0x3fc ./crypto/p12289/ntt_12289_512.o
+                                       0x25d4 (size before relaxing)
+ .stab          0x0000000000003300       0x6c /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+                                         0x78 (size before relaxing)
+ .stab          0x000000000000336c       0xfc /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+                                        0x108 (size before relaxing)
+ .stab          0x0000000000003468       0xb4 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+                                         0xc0 (size before relaxing)
+
+.stabstr        0x0000000000000000     0xde8a
+ *(.stabstr)
+ .stabstr       0x0000000000000000     0xde8a ./test/test_sampler.o
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 ./test/test_sampler.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 ./device/usart_driver.o
+ .comment       0x0000000000000011       0x12 ./device/clksys_driver.o
+ .comment       0x0000000000000011       0x12 ./crypto/rng/avr_trng.o
+ .comment       0x0000000000000011       0x12 ./crypto/rng/aes_prng.o
+ .comment       0x0000000000000011       0x12 ./crypto/rng/AES_driver.o
+ .comment       0x0000000000000011       0x12 ./crypto/sampler/cdf_sampler.o
+ .comment       0x0000000000000011       0x12 ./crypto/p12289/ntt_12289_512.o
+ .comment       0x0000000000000011       0x12 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+ .comment       0x0000000000000011       0x12 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+ .comment       0x0000000000000011       0x12 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+ .comment       0x0000000000000011       0x12 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+ .comment       0x0000000000000011       0x12 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(fputc.o)
+
+.note.gnu.avr.deviceinfo
+                0x0000000000000000       0x40
+ .note.gnu.avr.deviceinfo
+                0x0000000000000000       0x40 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+
+.note.gnu.build-id
+ *(.note.gnu.build-id)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges
+ *(.debug_aranges)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000     0x354c
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000     0x354c /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+
+.debug_abbrev   0x0000000000000000     0x327a
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000     0x327a /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+
+.debug_line     0x0000000000000000       0x1d
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x0000000000000000       0x1d /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str      0x0000000000000000     0x23b9
+ *(.debug_str)
+ .debug_str     0x0000000000000000     0x23b9 /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_addr
+ *(.debug_addr)
+OUTPUT(test_sampler.elf elf32-avr)
+LOAD linker stubs
+
+Cross Reference Table
+
+Symbol                                            File
+AES_decrypt                                       ./crypto/rng/AES_driver.o
+AES_encrypt                                       ./crypto/rng/AES_driver.o
+                                                  ./crypto/rng/aes_prng.o
+AES_encrypt_backtoback                            ./crypto/rng/AES_driver.o
+CCPWrite                                          ./device/clksys_driver.o
+CLKSYS_AutoCalibration_Enable                     ./device/clksys_driver.o
+CLKSYS_Configuration_Lock                         ./device/clksys_driver.o
+CLKSYS_Disable                                    ./device/clksys_driver.o
+                                                  ./test/test_sampler.o
+CLKSYS_Main_ClockSource_Select                    ./device/clksys_driver.o
+                                                  ./test/test_sampler.o
+CLKSYS_PLL_Config                                 ./device/clksys_driver.o
+CLKSYS_Prescalers_Config                          ./device/clksys_driver.o
+CLKSYS_RTC_ClockSource_Enable                     ./device/clksys_driver.o
+CLKSYS_XOSC_Config                                ./device/clksys_driver.o
+CLKSYS_XOSC_FailureDetection_Enable               ./device/clksys_driver.o
+Final                                             ./crypto/keccak/Keccak-avr8.o
+Init                                              ./crypto/keccak/Keccak-avr8.o
+KeccakF                                           ./crypto/keccak/KeccakF-1600-avr8.o
+                                                  ./crypto/keccak/Keccak-avr8.o
+USART_DataRegEmpty                                ./device/usart_driver.o
+USART_InterruptDriver_DreInterruptLevel_Set       ./device/usart_driver.o
+USART_InterruptDriver_Initialize                  ./device/usart_driver.o
+USART_NineBits_GetChar                            ./device/usart_driver.o
+USART_NineBits_PutChar                            ./device/usart_driver.o
+USART_RXBufferData_Available                      ./device/usart_driver.o
+USART_RXBuffer_GetByte                            ./device/usart_driver.o
+USART_RXComplete                                  ./device/usart_driver.o
+USART_TXBuffer_FreeSpace                          ./device/usart_driver.o
+USART_TXBuffer_PutByte                            ./device/usart_driver.o
+USARTinit                                         ./device/usart_driver.o
+                                                  ./test/test_sampler.o
+USARTsend                                         ./device/usart_driver.o
+USARTsend16b                                      ./device/usart_driver.o
+USARTsendStr                                      ./device/usart_driver.o
+Update                                            ./crypto/keccak/Keccak-avr8.o
+__ashrdi3                                         /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+__bad_interrupt                                   /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__bss_end                                         /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+__bss_start                                       /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+__cmpdi2                                          /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2.o)
+                                                  ./crypto/keccak/Keccak-avr8.o
+__cmpdi2_s8                                       /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_cmpdi2_s8.o)
+                                                  ./crypto/keccak/Keccak-avr8.o
+__data_end                                        /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+__data_load_start                                 /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+__data_start                                      /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+__do_clear_bss                                    /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_clear_bss.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+                                                  ./crypto/rng/aes_prng.o
+__do_copy_data                                    /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_copy_data.o)
+                                                  ./crypto/p4096/ksuba_4096.o
+                                                  ./crypto/p4093/ksuba_4093.o
+                                                  ./crypto/rng/avr_trng.o
+                                                  ./device/usart_driver.o
+                                                  ./test/test_sampler.o
+__heap_end                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__init                                            /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__iob                                             /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(iob.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+                                                  ./device/usart_driver.o
+__lshrdi3                                         /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_ashrdi3.o)
+                                                  ./crypto/keccak/Keccak-avr8.o
+__stack                                           /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__subdi3                                          /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_subdi3.o)
+                                                  ./crypto/keccak/Keccak-avr8.o
+__ultoa_invert                                    /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(ultoa_invert.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+__vector_1                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_10                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_100                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_101                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_102                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_103                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_104                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_105                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_106                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_107                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_108                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_109                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_11                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_110                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_111                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_112                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_113                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_114                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_115                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_116                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_117                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_118                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_119                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_12                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_120                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_121                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_122                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_123                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_124                                      /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_13                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_14                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_15                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_16                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_17                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_18                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_19                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_2                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_20                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_21                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_22                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_23                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_24                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_25                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_26                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_27                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_28                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_29                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_3                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_30                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_31                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_32                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_33                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_34                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_35                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_36                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_37                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_38                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_39                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_4                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_40                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_41                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_42                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_43                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_44                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_45                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_46                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_47                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_48                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_49                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_5                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_50                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_51                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_52                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_53                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_54                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_55                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_56                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_57                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_58                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_59                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_6                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_60                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_61                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_62                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_63                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_64                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_65                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_66                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_67                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_68                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_69                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_7                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_70                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_71                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_72                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_73                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_74                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_75                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_76                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_77                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_78                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_79                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_8                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_80                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_81                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_82                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_83                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_84                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_85                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_86                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_87                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_88                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_89                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_9                                        /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_90                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_91                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_92                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_93                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_94                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_95                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_96                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_97                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_98                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_99                                       /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vector_default                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+__vectors                                         /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+_exit                                             /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+add_12289                                         ./crypto/p12289/ntt_12289_512.o
+add_7681                                          ./crypto/p7681/ntt_7681_256.o
+add_encode_12289_512                              ./crypto/p12289/ntt_12289_512.o
+add_encode_4093                                   ./crypto/p4093/school_4093.o
+add_encode_7681_256                               ./crypto/p7681/ntt_7681_256.o
+add_encode_ksuba_4093                             ./crypto/p4093/ksuba_4093.o
+add_encode_ksuba_4096                             ./crypto/p4096/ksuba_4096.o
+avr_trng_init                                     ./crypto/rng/avr_trng.o
+                                                  ./test/test_sampler.o
+call_call_mulRed_asm_4093                         ./crypto/p4093/ksuba_4093.o
+call_mulRed_asm_4093                              ./crypto/p4093/math_asm_4093.o
+                                                  ./crypto/p4093/school_4093.o
+                                                  ./crypto/p4093/ksuba_4093.o
+call_mulRed_asm_4096                              ./crypto/p4096/math_asm_4096.o
+                                                  ./crypto/p4096/ksuba_4096.o
+crypto_hash                                       ./crypto/keccak/Keccak-avr8.o
+dec_7681_256_core                                 ./crypto/p7681/ntt_7681_256.o
+decode_12289_512                                  ./crypto/p12289/ntt_12289_512.o
+decode_4093                                       ./crypto/p4093/school_4093.o
+decode_7681_256                                   ./crypto/p7681/ntt_7681_256.o
+decode_ksuba_4093                                 ./crypto/p4093/ksuba_4093.o
+decode_ksuba_4096                                 ./crypto/p4096/ksuba_4096.o
+decrypt_12289_512                                 ./crypto/p12289/ntt_12289_512.o
+decrypt_4093                                      ./crypto/p4093/school_4093.o
+decrypt_7681_256                                  ./crypto/p7681/ntt_7681_256.o
+decrypt_ksuba_4093                                ./crypto/p4093/ksuba_4093.o
+decrypt_ksuba_4096                                ./crypto/p4096/ksuba_4096.o
+enc_7681_256_core                                 ./crypto/p7681/ntt_7681_256.o
+encrypt_12289_512                                 ./crypto/p12289/ntt_12289_512.o
+encrypt_4093                                      ./crypto/p4093/school_4093.o
+encrypt_7681_256                                  ./crypto/p7681/ntt_7681_256.o
+encrypt_ksuba_4093                                ./crypto/p4093/ksuba_4093.o
+encrypt_ksuba_4096                                ./crypto/p4096/ksuba_4096.o
+endRAM                                            ./device/measureRAM.o
+exit                                              /opt/local/lib/gcc/avr/9.1.0/avrxmega7/libgcc.a(_exit.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+first_stage_CT                                    ./crypto/p7681/ntt_7681_256.o
+first_stage_CT_12289_512                          ./crypto/p12289/ntt_12289_512.o
+first_stage_GS                                    ./crypto/p7681/ntt_7681_256.o
+first_stage_GS_12289_512                          ./crypto/p12289/ntt_12289_512.o
+fputc                                             /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(fputc.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+get_AES_pool                                      ./crypto/rng/aes_prng.o
+get_gauss_poly_12289_512                          ./crypto/p12289/ntt_12289_512.o
+                                                  ./test/test_sampler.o
+get_gauss_poly_4093                               ./crypto/p4093/sampler_4093.o
+                                                  ./crypto/p4093/school_4093.o
+                                                  ./crypto/p4093/ksuba_4093.o
+get_gauss_poly_4093_posneg                        ./crypto/p4093/sampler_4093.o
+                                                  ./crypto/p4093/ksuba_4093.o
+get_gauss_poly_4096                               ./crypto/p4096/sampler_4096.o
+                                                  ./crypto/p4096/ksuba_4096.o
+get_gauss_poly_4096_posneg                        ./crypto/p4096/sampler_4096.o
+                                                  ./crypto/p4096/ksuba_4096.o
+get_gauss_poly_7681_256                           ./crypto/p7681/ntt_7681_256.o
+get_pool                                          ./crypto/rng/aes_prng.o
+get_trnd_adc                                      ./crypto/rng/avr_trng.o
+init_pool                                         ./crypto/rng/aes_prng.o
+karatsuba_4093_192                                ./crypto/p4093/ksuba_4093.o
+karatsuba_4093_256                                ./crypto/p4093/ksuba_4093.o
+karatsuba_4093_320                                ./crypto/p4093/ksuba_4093.o
+karatsuba_4096_192                                ./crypto/p4096/ksuba_4096.o
+karatsuba_4096_256                                ./crypto/p4096/ksuba_4096.o
+karatsuba_4096_320                                ./crypto/p4096/ksuba_4096.o
+karatsuba_4096_noflash                            ./crypto/p4096/ksuba_4096.o
+karatsuba_recursive                               ./crypto/p4093/ksuba_4093.o
+karatsuba_recursive4096                           ./crypto/p4096/ksuba_4096.o
+last_stage_CT                                     ./crypto/p7681/ntt_7681_256.o
+last_stage_CT_12289_512                           ./crypto/p12289/ntt_12289_512.o
+last_stage_GS                                     ./crypto/p7681/ntt_7681_256.o
+last_stage_GS_12289_512                           ./crypto/p12289/ntt_12289_512.o
+main                                              ./test/test_sampler.o
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/crtatxmega128a1.o
+max_recursion_stages                              ./crypto/p4093/ksuba_4093.o
+max_recursion_stages4096                          ./crypto/p4096/ksuba_4096.o
+memcpy                                            /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(memcpy.o)
+                                                  ./crypto/keccak/Keccak-avr8.o
+mm12289                                           ./crypto/p12289/mm12289.o
+                                                  ./crypto/p12289/ntt_12289_512.o
+mm24578                                           ./profiling/mm24578.o
+mm7681                                            ./crypto/p7681/mm7681.o
+                                                  ./crypto/p7681/ntt_7681_256.o
+mm7681_check                                      ./crypto/p7681/mm7681.o
+                                                  ./crypto/p7681/ntt_7681_256.o
+mod12289                                          ./crypto/p12289/mm12289.o
+                                                  ./crypto/p12289/ntt_12289_512.o
+mod7681                                           ./crypto/p7681/mm7681.o
+                                                  ./crypto/p7681/ntt_7681_256.o
+mulRed_asm_4093                                   ./crypto/p4093/math_asm_4093.o
+next_block                                        ./crypto/rng/aes_prng.o
+next_block_ptr                                    ./crypto/rng/aes_prng.o
+                                                  ./crypto/p12289/ntt_12289_512.o
+                                                  ./crypto/p7681/ntt_7681_256.o
+                                                  ./crypto/p4096/sampler_4096.o
+                                                  ./crypto/p4093/sampler_4093.o
+ntt_CT_no_to_bo_incl_psi_12289_512                ./crypto/p12289/ntt_12289_512.o
+ntt_CT_no_to_bo_incl_psi_12289_512_nolookup       ./crypto/p12289/ntt_12289_512.o
+ntt_CT_no_to_bo_incl_psi_7681_256                 ./crypto/p7681/ntt_7681_256.o
+ntt_CT_no_to_bo_incl_psi_7681_256_nolookup        ./crypto/p7681/ntt_7681_256.o
+ntt_GS_bo_to_no_incl_invpsi_12289_512             ./crypto/p12289/ntt_12289_512.o
+ntt_GS_bo_to_no_incl_invpsi_7681_256              ./crypto/p7681/ntt_7681_256.o
+polyMul_asm_4093_192                              ./crypto/p4093/math_asm_4093.o
+                                                  ./crypto/p4093/school_4093.o
+polyMul_asm_4093_256                              ./crypto/p4093/math_asm_4093.o
+                                                  ./crypto/p4093/school_4093.o
+polyMul_asm_4093_320                              ./crypto/p4093/math_asm_4093.o
+                                                  ./crypto/p4093/school_4093.o
+print_counter                                     ./crypto/p7681/ntt_7681_256.o
+printf                                            /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+                                                  ./test/test_sampler.o
+putchar                                           /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(putchar.o)
+                                                  ./test/test_sampler.o
+pw_mul_flash_12289_512                            ./crypto/p12289/ntt_12289_512.o
+pw_mul_flash_7681_256                             ./crypto/p7681/ntt_7681_256.o
+pw_psi_12289                                      ./crypto/p12289/ntt_12289_512.o
+pw_psi_7681                                       ./crypto/p7681/ntt_7681_256.o
+reduce                                            ./crypto/p4093/ksuba_4093.o
+reduce4096                                        ./crypto/p4096/ksuba_4096.o
+rotate64_1bit_left                                ./crypto/keccak/AVR8-rotate64.o
+                                                  ./crypto/keccak/KeccakF-1600-avr8.o
+rotate64_1bit_right                               ./crypto/keccak/AVR8-rotate64.o
+rotate64left_code                                 ./crypto/keccak/AVR8-rotate64.o
+                                                  ./crypto/keccak/KeccakF-1600-avr8.o
+sample_gauss                                      ./crypto/sampler/cdf_sampler.o
+                                                  ./crypto/p12289/ntt_12289_512.o
+                                                  ./crypto/p7681/ntt_7681_256.o
+                                                  ./crypto/p4096/sampler_4096.o
+                                                  ./crypto/p4093/sampler_4093.o
+school_4093_192                                   ./crypto/p4093/school_4093.o
+school_4093_256                                   ./crypto/p4093/school_4093.o
+school_4093_320                                   ./crypto/p4093/school_4093.o
+school_4093_without_flash                         ./crypto/p4093/school_4093.o
+set_max_recursion_stages                          ./crypto/p4093/ksuba_4093.o
+set_max_recursion_stages4096                      ./crypto/p4096/ksuba_4096.o
+startRAM                                          ./device/measureRAM.o
+strnlen                                           /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+strnlen_P                                         /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(strnlen_P.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+uart_putchar                                      ./device/usart_driver.o
+update_pool                                       ./crypto/rng/aes_prng.o
+vfprintf                                          /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(vfprintf_std.o)
+                                                  /opt/local/lib/gcc/avr/9.1.0/../../../../avr/lib/avrxmega7/libc.a(printf.o)
+xorBytes                                          ./crypto/keccak/Keccak-avr8-util.o
+                                                  ./crypto/keccak/Keccak-avr8.o
+xorLanes                                          ./crypto/keccak/Keccak-avr8-util.o
+                                                  ./crypto/keccak/Keccak-avr8.o

@@ -1,0 +1,571 @@
+   1               		.file	"sampler_4096.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 435               		.section	.text.get_gauss_poly_4096,"ax",@progbits
+ 440               	.global	get_gauss_poly_4096
+ 442               	get_gauss_poly_4096:
+   1:crypto/p4096/sampler_4096.c **** #include <inttypes.h>
+   2:crypto/p4096/sampler_4096.c **** #include <avr/pgmspace.h> 
+   3:crypto/p4096/sampler_4096.c **** 
+   4:crypto/p4096/sampler_4096.c **** #include "../sampler/cdf_sampler.h"
+   5:crypto/p4096/sampler_4096.c **** #include "../rng/aes_prng.h"
+   6:crypto/p4096/sampler_4096.c **** 
+   7:crypto/p4096/sampler_4096.c **** #include "cdf_table_4096_8000.data"
+   8:crypto/p4096/sampler_4096.c **** 
+   9:crypto/p4096/sampler_4096.c **** #define MAX_BUF 48
+  10:crypto/p4096/sampler_4096.c **** 
+  11:crypto/p4096/sampler_4096.c **** void get_gauss_poly_4096(uint16_t* retpoly, uint16_t add, const uint16_t paramN){
+ 444               	.LM0:
+ 445               	.LFBB1:
+ 446 0000 7F92      		push r7
+ 447 0002 8F92      		push r8
+ 448 0004 9F92      		push r9
+ 449 0006 AF92      		push r10
+ 450 0008 BF92      		push r11
+ 451 000a CF92      		push r12
+ 452 000c DF92      		push r13
+ 453 000e EF92      		push r14
+ 454 0010 FF92      		push r15
+ 455 0012 0F93      		push r16
+ 456 0014 1F93      		push r17
+ 457 0016 CF93      		push r28
+ 458 0018 DF93      		push r29
+ 459 001a CDB7      		in r28,__SP_L__
+ 460 001c DEB7      		in r29,__SP_H__
+ 461 001e E197      		sbiw r28,49
+ 462 0020 CDBF      		out __SP_L__,r28
+ 463 0022 DEBF      		out __SP_H__,r29
+ 464               	/* prologue: function */
+ 465               	/* frame size = 49 */
+ 466               	/* stack size = 62 */
+ 467               	.L__stack_usage = 62
+ 468 0024 4B01      		movw r8,r22
+ 469 0026 6A01      		movw r12,r20
+  12:crypto/p4096/sampler_4096.c ****   //Generates or adds Gaussian noise to an array
+  13:crypto/p4096/sampler_4096.c ****   int8_t ret;
+  14:crypto/p4096/sampler_4096.c ****   uint16_t val=0;
+  15:crypto/p4096/sampler_4096.c **** 
+  16:crypto/p4096/sampler_4096.c ****   uint8_t rand_buf[MAX_BUF];
+  17:crypto/p4096/sampler_4096.c ****   uint8_t rand_consumed = 254;
+  18:crypto/p4096/sampler_4096.c ****   uint8_t rand_consumed_func= 0;
+ 471               	.LM1:
+ 472 0028 19AA      		std Y+49,__zero_reg__
+ 473 002a 7C01      		movw r14,r24
+ 474               	.LBB2:
+  19:crypto/p4096/sampler_4096.c **** 
+  20:crypto/p4096/sampler_4096.c ****   for (uint16_t i = 0; i< paramN; i++){
+ 476               	.LM2:
+ 477 002c B12C      		mov r11,__zero_reg__
+ 478 002e A12C      		mov r10,__zero_reg__
+ 479               	.LBE2:
+  17:crypto/p4096/sampler_4096.c ****   uint8_t rand_consumed_func= 0;
+ 481               	.LM3:
+ 482 0030 8EEF      		ldi r24,lo8(-2)
+ 483 0032 782E      		mov r7,r24
+ 484               	.L2:
+ 485               	.LBB4:
+ 487               	.LM4:
+ 488 0034 AC14      		cp r10,r12
+ 489 0036 BD04      		cpc r11,r13
+ 490 0038 01F4      		brne .L8
+ 491               	/* epilogue start */
+ 492               	.LBE4:
+  21:crypto/p4096/sampler_4096.c ****     
+  22:crypto/p4096/sampler_4096.c ****     //General idea: First we sample some randomness into a buffer
+  23:crypto/p4096/sampler_4096.c ****     //Then we run the sampler and track how much random bytes have been used already
+  24:crypto/p4096/sampler_4096.c ****     //We refill the buffer in case we encounter that it does not contain enough randomness to susta
+  25:crypto/p4096/sampler_4096.c ****     //run of the sampler. Thus the 13 as 13*8 = 104 and we have precision 100.
+  26:crypto/p4096/sampler_4096.c **** 
+  27:crypto/p4096/sampler_4096.c ****     if (rand_consumed > (MAX_BUF-13)){
+  28:crypto/p4096/sampler_4096.c ****       for(uint16_t j = 0; j < MAX_BUF/16; j++){
+  29:crypto/p4096/sampler_4096.c **** 	//AES writes 128 bit = 16 byte into the buffer
+  30:crypto/p4096/sampler_4096.c **** 	next_block_ptr(rand_buf+16*j);
+  31:crypto/p4096/sampler_4096.c ****       }
+  32:crypto/p4096/sampler_4096.c ****       
+  33:crypto/p4096/sampler_4096.c ****       /*
+  34:crypto/p4096/sampler_4096.c **** 	for(uint8_t j=0; j<48; j++){
+  35:crypto/p4096/sampler_4096.c **** 	  printf("%x",rand_buf[j]);
+  36:crypto/p4096/sampler_4096.c **** 	}
+  37:crypto/p4096/sampler_4096.c ****       */
+  38:crypto/p4096/sampler_4096.c **** 
+  39:crypto/p4096/sampler_4096.c ****       rand_consumed = 0;
+  40:crypto/p4096/sampler_4096.c ****     }
+  41:crypto/p4096/sampler_4096.c **** 
+  42:crypto/p4096/sampler_4096.c ****     ret = sample_gauss(CDF_ROWS, CDF_COLUMNS, &cdf_table_4096_8000[0][0],  (uint8_t*) rand_buf+rand
+  43:crypto/p4096/sampler_4096.c ****     rand_consumed += rand_consumed_func;
+  44:crypto/p4096/sampler_4096.c ****     
+  45:crypto/p4096/sampler_4096.c ****     //printf("Rand consumed %d\n",rand_consumed);
+  46:crypto/p4096/sampler_4096.c **** 
+  47:crypto/p4096/sampler_4096.c ****     if (ret <0){
+  48:crypto/p4096/sampler_4096.c ****       val = ret + 4096;
+  49:crypto/p4096/sampler_4096.c ****     } else{
+  50:crypto/p4096/sampler_4096.c ****       val = ret;
+  51:crypto/p4096/sampler_4096.c ****     }
+  52:crypto/p4096/sampler_4096.c ****     
+  53:crypto/p4096/sampler_4096.c ****     if(add == 1){
+  54:crypto/p4096/sampler_4096.c ****       retpoly[i] = (retpoly[i]+val) & 0xFFF;
+  55:crypto/p4096/sampler_4096.c ****       
+  56:crypto/p4096/sampler_4096.c ****     }else{
+  57:crypto/p4096/sampler_4096.c ****       retpoly[i] = val;
+  58:crypto/p4096/sampler_4096.c ****     }
+  59:crypto/p4096/sampler_4096.c ****   } 
+  60:crypto/p4096/sampler_4096.c **** 
+  61:crypto/p4096/sampler_4096.c **** 
+  62:crypto/p4096/sampler_4096.c **** }
+ 494               	.LM5:
+ 495 003a E196      		adiw r28,49
+ 496 003c CDBF      		out __SP_L__,r28
+ 497 003e DEBF      		out __SP_H__,r29
+ 498 0040 DF91      		pop r29
+ 499 0042 CF91      		pop r28
+ 500 0044 1F91      		pop r17
+ 501 0046 0F91      		pop r16
+ 502 0048 FF90      		pop r15
+ 503 004a EF90      		pop r14
+ 504 004c DF90      		pop r13
+ 505 004e CF90      		pop r12
+ 506 0050 BF90      		pop r11
+ 507 0052 AF90      		pop r10
+ 508 0054 9F90      		pop r9
+ 509 0056 8F90      		pop r8
+ 510 0058 7F90      		pop r7
+ 511 005a 0895      		ret
+ 512               	.L8:
+ 513               	.LBB5:
+  27:crypto/p4096/sampler_4096.c ****       for(uint16_t j = 0; j < MAX_BUF/16; j++){
+ 515               	.LM6:
+ 516 005c 23E2      		ldi r18,lo8(35)
+ 517 005e 2715      		cp r18,r7
+ 518 0060 00F4      		brsh .L3
+ 519               	.LBB3:
+  30:crypto/p4096/sampler_4096.c ****       }
+ 521               	.LM7:
+ 522 0062 CE01      		movw r24,r28
+ 523 0064 0196      		adiw r24,1
+ 524 0066 0E94 0000 		call next_block_ptr
+ 525 006a CE01      		movw r24,r28
+ 526 006c 4196      		adiw r24,17
+ 527 006e 0E94 0000 		call next_block_ptr
+ 528 0072 CE01      		movw r24,r28
+ 529 0074 8196      		adiw r24,33
+ 530 0076 0E94 0000 		call next_block_ptr
+ 531               	.LBE3:
+  39:crypto/p4096/sampler_4096.c ****     }
+ 533               	.LM8:
+ 534 007a 712C      		mov r7,__zero_reg__
+ 535               	.L3:
+  42:crypto/p4096/sampler_4096.c ****     rand_consumed += rand_consumed_func;
+ 537               	.LM9:
+ 538 007c 21E0      		ldi r18,lo8(1)
+ 539 007e 30E0      		ldi r19,0
+ 540 0080 2C0F      		add r18,r28
+ 541 0082 3D1F      		adc r19,r29
+ 542 0084 270D      		add r18,r7
+ 543 0086 311D      		adc r19,__zero_reg__
+ 544 0088 8E01      		movw r16,r28
+ 545 008a 0F5C      		subi r16,-49
+ 546 008c 1F4F      		sbci r17,-1
+ 547 008e 40E0      		ldi r20,lo8(cdf_table_4096_8000)
+ 548 0090 50E0      		ldi r21,hi8(cdf_table_4096_8000)
+ 549 0092 6CE0      		ldi r22,lo8(12)
+ 550 0094 85E2      		ldi r24,lo8(37)
+ 551 0096 0E94 0000 		call sample_gauss
+ 552 009a 282F      		mov r18,r24
+  43:crypto/p4096/sampler_4096.c ****     
+ 554               	.LM10:
+ 555 009c 89A9      		ldd r24,Y+49
+ 556 009e 780E      		add r7,r24
+ 557 00a0 822F      		mov r24,r18
+ 558 00a2 022E      		mov __tmp_reg__,r18
+ 559 00a4 000C      		lsl r0
+ 560 00a6 990B      		sbc r25,r25
+  47:crypto/p4096/sampler_4096.c ****       val = ret + 4096;
+ 562               	.LM11:
+ 563 00a8 27FD      		sbrc r18,7
+  48:crypto/p4096/sampler_4096.c ****     } else{
+ 565               	.LM12:
+ 566 00aa 905F      		subi r25,-16
+ 567               	.L5:
+  53:crypto/p4096/sampler_4096.c ****       retpoly[i] = (retpoly[i]+val) & 0xFFF;
+ 569               	.LM13:
+ 570 00ac E1E0      		ldi r30,1
+ 571 00ae 8E16      		cp r8,r30
+ 572 00b0 9104      		cpc r9,__zero_reg__
+ 573 00b2 01F4      		brne .L6
+  54:crypto/p4096/sampler_4096.c ****       
+ 575               	.LM14:
+ 576 00b4 F701      		movw r30,r14
+ 577 00b6 2081      		ld r18,Z
+ 578 00b8 3181      		ldd r19,Z+1
+ 579 00ba 820F      		add r24,r18
+ 580 00bc 931F      		adc r25,r19
+  54:crypto/p4096/sampler_4096.c ****       
+ 582               	.LM15:
+ 583 00be 9F70      		andi r25,15
+ 584               	.L9:
+  57:crypto/p4096/sampler_4096.c ****     }
+ 586               	.LM16:
+ 587 00c0 8083      		st Z,r24
+ 588 00c2 9183      		std Z+1,r25
+  20:crypto/p4096/sampler_4096.c ****     
+ 590               	.LM17:
+ 591 00c4 FFEF      		ldi r31,-1
+ 592 00c6 AF1A      		sub r10,r31
+ 593 00c8 BF0A      		sbc r11,r31
+ 594 00ca 22E0      		ldi r18,2
+ 595 00cc E20E      		add r14,r18
+ 596 00ce F11C      		adc r15,__zero_reg__
+ 597 00d0 00C0      		rjmp .L2
+ 598               	.L6:
+  57:crypto/p4096/sampler_4096.c ****     }
+ 600               	.LM18:
+ 601 00d2 F701      		movw r30,r14
+ 602 00d4 00C0      		rjmp .L9
+ 603               	.LBE5:
+ 621               	.Lscope1:
+ 622               		.section	.text.get_gauss_poly_4096_posneg,"ax",@progbits
+ 627               	.global	get_gauss_poly_4096_posneg
+ 629               	get_gauss_poly_4096_posneg:
+  63:crypto/p4096/sampler_4096.c **** 
+  64:crypto/p4096/sampler_4096.c **** 
+  65:crypto/p4096/sampler_4096.c **** void get_gauss_poly_4096_posneg(uint16_t* retpoly, uint16_t add, const uint16_t paramN){
+ 631               	.LM19:
+ 632               	.LFBB2:
+ 633 0000 7F92      		push r7
+ 634 0002 8F92      		push r8
+ 635 0004 9F92      		push r9
+ 636 0006 AF92      		push r10
+ 637 0008 BF92      		push r11
+ 638 000a CF92      		push r12
+ 639 000c DF92      		push r13
+ 640 000e EF92      		push r14
+ 641 0010 FF92      		push r15
+ 642 0012 0F93      		push r16
+ 643 0014 1F93      		push r17
+ 644 0016 CF93      		push r28
+ 645 0018 DF93      		push r29
+ 646 001a CDB7      		in r28,__SP_L__
+ 647 001c DEB7      		in r29,__SP_H__
+ 648 001e E197      		sbiw r28,49
+ 649 0020 CDBF      		out __SP_L__,r28
+ 650 0022 DEBF      		out __SP_H__,r29
+ 651               	/* prologue: function */
+ 652               	/* frame size = 49 */
+ 653               	/* stack size = 62 */
+ 654               	.L__stack_usage = 62
+ 655 0024 4B01      		movw r8,r22
+ 656 0026 6A01      		movw r12,r20
+  66:crypto/p4096/sampler_4096.c ****   //Generates or adds Gaussian noise to an array
+  67:crypto/p4096/sampler_4096.c ****   int8_t ret;
+  68:crypto/p4096/sampler_4096.c **** 
+  69:crypto/p4096/sampler_4096.c ****   uint8_t rand_buf[MAX_BUF];
+  70:crypto/p4096/sampler_4096.c ****   uint8_t rand_consumed = 254;
+  71:crypto/p4096/sampler_4096.c ****   uint8_t rand_consumed_func= 0;
+ 658               	.LM20:
+ 659 0028 19AA      		std Y+49,__zero_reg__
+ 660 002a 7C01      		movw r14,r24
+ 661               	.LBB6:
+  72:crypto/p4096/sampler_4096.c **** 
+  73:crypto/p4096/sampler_4096.c ****   for (uint16_t i = 0; i< paramN; i++){
+ 663               	.LM21:
+ 664 002c B12C      		mov r11,__zero_reg__
+ 665 002e A12C      		mov r10,__zero_reg__
+ 666               	.LBE6:
+  70:crypto/p4096/sampler_4096.c ****   uint8_t rand_consumed_func= 0;
+ 668               	.LM22:
+ 669 0030 8EEF      		ldi r24,lo8(-2)
+ 670 0032 782E      		mov r7,r24
+ 671               	.L11:
+ 672               	.LBB8:
+ 674               	.LM23:
+ 675 0034 AC14      		cp r10,r12
+ 676 0036 BD04      		cpc r11,r13
+ 677 0038 01F4      		brne .L15
+ 678               	/* epilogue start */
+ 679               	.LBE8:
+  74:crypto/p4096/sampler_4096.c ****     
+  75:crypto/p4096/sampler_4096.c ****     //General idea: First we sample some randomness into a buffer
+  76:crypto/p4096/sampler_4096.c ****     //Then we run the sampler and track how much random bytes have been used already
+  77:crypto/p4096/sampler_4096.c ****     //We refill the buffer in case we encounter that it does not contain enough randomness to susta
+  78:crypto/p4096/sampler_4096.c ****     //run of the sampler. Thus the 13 as 13*8 = 104 and we have precision 100.
+  79:crypto/p4096/sampler_4096.c **** 
+  80:crypto/p4096/sampler_4096.c ****     if (rand_consumed > (MAX_BUF-13)){
+  81:crypto/p4096/sampler_4096.c ****       for(uint16_t j = 0; j < MAX_BUF/16; j++){
+  82:crypto/p4096/sampler_4096.c **** 	//AES writes 128 bit = 16 byte into the buffer
+  83:crypto/p4096/sampler_4096.c **** 	next_block_ptr(rand_buf+16*j);
+  84:crypto/p4096/sampler_4096.c ****       }
+  85:crypto/p4096/sampler_4096.c ****       
+  86:crypto/p4096/sampler_4096.c ****       /*
+  87:crypto/p4096/sampler_4096.c **** 	for(uint8_t j=0; j<48; j++){
+  88:crypto/p4096/sampler_4096.c **** 	  printf("%x",rand_buf[j]);
+  89:crypto/p4096/sampler_4096.c **** 	}
+  90:crypto/p4096/sampler_4096.c ****       */
+  91:crypto/p4096/sampler_4096.c **** 
+  92:crypto/p4096/sampler_4096.c ****       rand_consumed = 0;
+  93:crypto/p4096/sampler_4096.c ****     }
+  94:crypto/p4096/sampler_4096.c **** 
+  95:crypto/p4096/sampler_4096.c ****     ret = sample_gauss(CDF_ROWS, CDF_COLUMNS, &cdf_table_4096_8000[0][0],  (uint8_t*) rand_buf+rand
+  96:crypto/p4096/sampler_4096.c ****     rand_consumed += rand_consumed_func;
+  97:crypto/p4096/sampler_4096.c ****     
+  98:crypto/p4096/sampler_4096.c ****     //printf("Rand consumed %d\n",rand_consumed);
+  99:crypto/p4096/sampler_4096.c ****     
+ 100:crypto/p4096/sampler_4096.c ****     if(add == 1){
+ 101:crypto/p4096/sampler_4096.c ****       retpoly[i] = (4096-(retpoly[i]+ret)) & 0xFFF;
+ 102:crypto/p4096/sampler_4096.c ****       
+ 103:crypto/p4096/sampler_4096.c ****     }else{
+ 104:crypto/p4096/sampler_4096.c ****       retpoly[i] = ret;
+ 105:crypto/p4096/sampler_4096.c ****     }
+ 106:crypto/p4096/sampler_4096.c ****   } 
+ 107:crypto/p4096/sampler_4096.c **** 
+ 108:crypto/p4096/sampler_4096.c **** 
+ 109:crypto/p4096/sampler_4096.c **** }
+ 681               	.LM24:
+ 682 003a E196      		adiw r28,49
+ 683 003c CDBF      		out __SP_L__,r28
+ 684 003e DEBF      		out __SP_H__,r29
+ 685 0040 DF91      		pop r29
+ 686 0042 CF91      		pop r28
+ 687 0044 1F91      		pop r17
+ 688 0046 0F91      		pop r16
+ 689 0048 FF90      		pop r15
+ 690 004a EF90      		pop r14
+ 691 004c DF90      		pop r13
+ 692 004e CF90      		pop r12
+ 693 0050 BF90      		pop r11
+ 694 0052 AF90      		pop r10
+ 695 0054 9F90      		pop r9
+ 696 0056 8F90      		pop r8
+ 697 0058 7F90      		pop r7
+ 698 005a 0895      		ret
+ 699               	.L15:
+ 700               	.LBB9:
+  80:crypto/p4096/sampler_4096.c ****       for(uint16_t j = 0; j < MAX_BUF/16; j++){
+ 702               	.LM25:
+ 703 005c 23E2      		ldi r18,lo8(35)
+ 704 005e 2715      		cp r18,r7
+ 705 0060 00F4      		brsh .L12
+ 706               	.LBB7:
+  83:crypto/p4096/sampler_4096.c ****       }
+ 708               	.LM26:
+ 709 0062 CE01      		movw r24,r28
+ 710 0064 0196      		adiw r24,1
+ 711 0066 0E94 0000 		call next_block_ptr
+ 712 006a CE01      		movw r24,r28
+ 713 006c 4196      		adiw r24,17
+ 714 006e 0E94 0000 		call next_block_ptr
+ 715 0072 CE01      		movw r24,r28
+ 716 0074 8196      		adiw r24,33
+ 717 0076 0E94 0000 		call next_block_ptr
+ 718               	.LBE7:
+  92:crypto/p4096/sampler_4096.c ****     }
+ 720               	.LM27:
+ 721 007a 712C      		mov r7,__zero_reg__
+ 722               	.L12:
+  95:crypto/p4096/sampler_4096.c ****     rand_consumed += rand_consumed_func;
+ 724               	.LM28:
+ 725 007c 21E0      		ldi r18,lo8(1)
+ 726 007e 30E0      		ldi r19,0
+ 727 0080 2C0F      		add r18,r28
+ 728 0082 3D1F      		adc r19,r29
+ 729 0084 270D      		add r18,r7
+ 730 0086 311D      		adc r19,__zero_reg__
+ 731 0088 8E01      		movw r16,r28
+ 732 008a 0F5C      		subi r16,-49
+ 733 008c 1F4F      		sbci r17,-1
+ 734 008e 40E0      		ldi r20,lo8(cdf_table_4096_8000)
+ 735 0090 50E0      		ldi r21,hi8(cdf_table_4096_8000)
+ 736 0092 6CE0      		ldi r22,lo8(12)
+ 737 0094 85E2      		ldi r24,lo8(37)
+ 738 0096 0E94 0000 		call sample_gauss
+  96:crypto/p4096/sampler_4096.c ****     
+ 740               	.LM29:
+ 741 009a 99A9      		ldd r25,Y+49
+ 742 009c 790E      		add r7,r25
+ 743 009e 082E      		mov __tmp_reg__,r24
+ 744 00a0 000C      		lsl r0
+ 745 00a2 990B      		sbc r25,r25
+ 100:crypto/p4096/sampler_4096.c ****       retpoly[i] = (4096-(retpoly[i]+ret)) & 0xFFF;
+ 747               	.LM30:
+ 748 00a4 E1E0      		ldi r30,1
+ 749 00a6 8E16      		cp r8,r30
+ 750 00a8 9104      		cpc r9,__zero_reg__
+ 751 00aa 01F4      		brne .L13
+ 101:crypto/p4096/sampler_4096.c ****       
+ 753               	.LM31:
+ 754 00ac F701      		movw r30,r14
+ 755 00ae 2081      		ld r18,Z
+ 756 00b0 3181      		ldd r19,Z+1
+ 757 00b2 820F      		add r24,r18
+ 758 00b4 931F      		adc r25,r19
+ 101:crypto/p4096/sampler_4096.c ****       
+ 760               	.LM32:
+ 761 00b6 9195      		neg r25
+ 762 00b8 8195      		neg r24
+ 763 00ba 9109      		sbc r25,__zero_reg__
+ 764 00bc 9F70      		andi r25,15
+ 765               	.L16:
+ 104:crypto/p4096/sampler_4096.c ****     }
+ 767               	.LM33:
+ 768 00be 8083      		st Z,r24
+ 769 00c0 9183      		std Z+1,r25
+  73:crypto/p4096/sampler_4096.c ****     
+ 771               	.LM34:
+ 772 00c2 FFEF      		ldi r31,-1
+ 773 00c4 AF1A      		sub r10,r31
+ 774 00c6 BF0A      		sbc r11,r31
+ 775 00c8 22E0      		ldi r18,2
+ 776 00ca E20E      		add r14,r18
+ 777 00cc F11C      		adc r15,__zero_reg__
+ 778 00ce 00C0      		rjmp .L11
+ 779               	.L13:
+ 104:crypto/p4096/sampler_4096.c ****     }
+ 781               	.LM35:
+ 782 00d0 F701      		movw r30,r14
+ 783 00d2 00C0      		rjmp .L16
+ 784               	.LBE9:
+ 800               	.Lscope2:
+ 801               		.section	.progmem.data.cdf_table_4096_8000,"a"
+ 804               	cdf_table_4096_8000:
+ 805 0000 1FFF FFFF 		.ascii	"\037\377\377\377\377\377\377\377\377\377\377\377"
+ 805      FFFF FFFF 
+ 805      FFFF FFFF 
+ 806 000c 5CEF 2C24 		.ascii	"\\\357,$\210\006\310'\026\032\275\030"
+ 806      8806 C827 
+ 806      161A BD18 
+ 807 0018 9186 506B 		.ascii	"\221\206Pk\314\006_ CD\301%"
+ 807      CC06 5F20 
+ 807      4344 C125 
+ 808 0024 BAAB 5F82 		.ascii	"\272\253_\202\274\333C\263]b\316e"
+ 808      BCDB 43B3 
+ 808      5D62 CE65 
+ 809 0030 D7D9 769F 		.ascii	"\327\331v\237\255#\274\261\024\021\365Q"
+ 809      AD23 BCB1 
+ 809      1411 F551 
+ 810 003c EA9B E2F4 		.ascii	"\352\233\342\364\326\335\265\355~\025&\325"
+ 810      D6DD B5ED 
+ 810      7E15 26D5 
+ 811 0048 F58A 9947 		.ascii	"\365\212\231GI\031\270\311\347\322\2417"
+ 811      4919 B8C9 
+ 811      E7D2 A137 
+ 812 0054 FB51 1781 		.ascii	"\373Q\027\201'S\267\270\350\247s\331"
+ 812      2753 B7B8 
+ 812      E8A7 73D9 
+ 813 0060 FE15 1BD0 		.ascii	"\376\025\033\320\222\205\226\323\024\214\264\237"
+ 813      9285 96D3 
+ 813      148C B49F 
+ 814 006c FF48 7508 		.string	"\377Hu\b\272\237r\b\007\344M"
+ 814      BA9F 7208 
+ 814      07E4 4D00 
+ 815 0078 FFC1 6686 		.ascii	"\377\301f\206'\f\374\202\032T\t\276"
+ 815      270C FC82 
+ 815      1A54 09BE 
+ 816 0084 FFEC 8AC3 		.ascii	"\377\354\212\303\301YC\033\375\311\233\375"
+ 816      C159 431B 
+ 816      FDC9 9BFD 
+ 817 0090 FFFA 7DF4 		.ascii	"\377\372}\364\266\351,(\246\374\324\300"
+ 817      B6E9 2C28 
+ 817      A6FC D4C0 
+ 818 009c FFFE 94BB 		.ascii	"\377\376\224\273ET\265\254K\206\234b"
+ 818      4554 B5AC 
+ 818      4B86 9C62 
+ 819 00a8 FFFF AADE 		.ascii	"\377\377\252\336\033\034\252\225\354r2\236"
+ 819      1B1C AA95 
+ 819      EC72 329E 
+ 820 00b4 FFFF EDDC 		.ascii	"\377\377\355\334\034d6\3343\177c\026"
+ 820      1C64 36DC 
+ 820      337F 6316 
+ 821 00c0 FFFF FC7C 		.ascii	"\377\377\374|\235\302V\232\331^{,"
+ 821      9DC2 569A 
+ 821      D95E 7B2C 
+ 822 00cc FFFF FF61 		.ascii	"\377\377\377a\2743\177\355\216\013\023*"
+ 822      BC33 7FED 
+ 822      8E0B 132A 
+ 823 00d8 FFFF FFE6 		.ascii	"\377\377\377\346\263\317\005\367\005\271\327%"
+ 823      B3CF 05F7 
+ 823      05B9 D725 
+ 824 00e4 FFFF FFFC 		.ascii	"\377\377\377\374S\352a\016\231\350\367+"
+ 824      53EA 610E 
+ 824      99E8 F72B 
+ 825 00f0 FFFF FFFF 		.ascii	"\377\377\377\377\204\031C\336\306\342\360\327"
+ 825      8419 43DE 
+ 825      C6E2 F0D7 
+ 826 00fc FFFF FFFF 		.ascii	"\377\377\377\377\361-\007\354GE\221<"
+ 826      F12D 07EC 
+ 826      4745 913C 
+ 827 0108 FFFF FFFF 		.ascii	"\377\377\377\377\376c\343H\356b\324 "
+ 827      FE63 E348 
+ 827      EE62 D420 
+ 828 0114 FFFF FFFF 		.ascii	"\377\377\377\377\377\327b\307\006J\fl"
+ 828      FFD7 62C7 
+ 828      064A 0C6C 
+ 829 0120 FFFF FFFF 		.ascii	"\377\377\377\377\377\374^7\306r\363\246"
+ 829      FFFC 5E37 
+ 829      C672 F3A6 
+ 830 012c FFFF FFFF 		.ascii	"\377\377\377\377\377\377\264\217j\276\370\260"
+ 830      FFFF B48F 
+ 830      6ABE F8B0 
+ 831 0138 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\372riu\230\316"
+ 831      FFFF FA72 
+ 831      6975 98CE 
+ 832 0144 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\241\022\365\243\r"
+ 832      FFFF FFA1 
+ 832      12F5 A30D 
+ 833 0150 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\372@\026\355="
+ 833      FFFF FFFA 
+ 833      4016 ED3D 
+ 834 015c FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\257\"\331\257"
+ 834      FFFF FFFF 
+ 834      AF22 D9AF 
+ 835 0168 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\373\370\206\201"
+ 835      FFFF FFFF 
+ 835      FBF8 8681 
+ 836 0174 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\321c\205"
+ 836      FFFF FFFF 
+ 836      FFD1 6385 
+ 837 0180 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\376\026\377"
+ 837      FFFF FFFF 
+ 837      FFFE 16FF 
+ 838 018c FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\355\323"
+ 838      FFFF FFFF 
+ 838      FFFF EDD3 
+ 839 0198 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\377b"
+ 839      FFFF FFFF 
+ 839      FFFF FF62 
+ 840 01a4 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\377\372"
+ 840      FFFF FFFF 
+ 840      FFFF FFFA 
+ 841 01b0 FFFF FFFF 		.ascii	"\377\377\377\377\377\377\377\377\377\377\377\377"
+ 841      FFFF FFFF 
+ 841      FFFF FFFF 
+ 843               		.text
+ 845               	.Letext0:
+ 846               		.ident	"GCC: (GNU) 9.1.0"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sampler_4096.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:442    .text.get_gauss_poly_4096:0000000000000000 get_gauss_poly_4096
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:804    .progmem.data.cdf_table_4096_8000:0000000000000000 cdf_table_4096_8000
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccnQFwon.s:629    .text.get_gauss_poly_4096_posneg:0000000000000000 get_gauss_poly_4096_posneg
+
+UNDEFINED SYMBOLS
+next_block_ptr
+sample_gauss

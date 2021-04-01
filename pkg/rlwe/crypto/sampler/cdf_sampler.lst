@@ -1,0 +1,202 @@
+   1               		.file	"cdf_sampler.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 444               		.section	.text.sample_gauss,"ax",@progbits
+ 451               	.global	sample_gauss
+ 453               	sample_gauss:
+   1:crypto/sampler/cdf_sampler.c **** #include <inttypes.h>
+   2:crypto/sampler/cdf_sampler.c **** #include <stdio.h>
+   3:crypto/sampler/cdf_sampler.c **** #include <avr/pgmspace.h> 
+   4:crypto/sampler/cdf_sampler.c **** 
+   5:crypto/sampler/cdf_sampler.c **** #include "cdf_sampler.h"
+   6:crypto/sampler/cdf_sampler.c **** #include "../rng/aes_prng.h"
+   7:crypto/sampler/cdf_sampler.c **** 
+   8:crypto/sampler/cdf_sampler.c **** 
+   9:crypto/sampler/cdf_sampler.c **** int8_t sample_gauss(uint8_t row, uint8_t column, const uint8_t *table, uint8_t *rand_buf, uint8_t *
+ 455               	.LM0:
+ 456               	.LFBB1:
+ 457 0000 AF92      		push r10
+ 458 0002 BF92      		push r11
+ 459 0004 DF92      		push r13
+ 460 0006 EF92      		push r14
+ 461 0008 FF92      		push r15
+ 462 000a 0F93      		push r16
+ 463 000c 1F93      		push r17
+ 464 000e CF93      		push r28
+ 465 0010 DF93      		push r29
+ 466               	/* prologue: function */
+ 467               	/* frame size = 0 */
+ 468               	/* stack size = 9 */
+ 469               	.L__stack_usage = 9
+ 470 0012 782F      		mov r23,r24
+ 471 0014 5A01      		movw r10,r20
+ 472 0016 A901      		movw r20,r18
+ 473 0018 D801      		movw r26,r16
+  10:crypto/sampler/cdf_sampler.c ****   uint8_t i,j,val;
+  11:crypto/sampler/cdf_sampler.c ****   uint8_t max_j = 0;
+  12:crypto/sampler/cdf_sampler.c ****   *rand_consumed = 0;
+ 475               	.LM1:
+ 476 001a 1C92      		st X,__zero_reg__
+  13:crypto/sampler/cdf_sampler.c **** 
+  14:crypto/sampler/cdf_sampler.c ****   /*printf("%x ", table[1*r0]);
+  15:crypto/sampler/cdf_sampler.c ****   printf("%x ", table[1*row+1]);
+  16:crypto/sampler/cdf_sampler.c ****   printf("%x ", table[1*row+2]);
+  17:crypto/sampler/cdf_sampler.c ****   printf("%x ", table[1*row+3]);
+  18:crypto/sampler/cdf_sampler.c ****   */
+  19:crypto/sampler/cdf_sampler.c **** 
+  20:crypto/sampler/cdf_sampler.c ****   for (i=0; i<row; i++){
+ 478               	.LM2:
+ 479 001c 80E0      		ldi r24,0
+ 480               	.L2:
+ 482               	.LM3:
+ 483 001e 8717      		cp r24,r23
+ 484 0020 00F4      		brsh .L10
+ 485 0022 8A01      		movw r16,r20
+ 486               	.LBB2:
+  21:crypto/sampler/cdf_sampler.c ****     max_j = 0;
+  22:crypto/sampler/cdf_sampler.c ****     for (j=0; j<column; j++){
+  23:crypto/sampler/cdf_sampler.c ****      
+  24:crypto/sampler/cdf_sampler.c ****       //Select current table entry
+  25:crypto/sampler/cdf_sampler.c ****       //val = table[i*column+j];
+  26:crypto/sampler/cdf_sampler.c ****       val = pgm_read_byte(&table[i*column+j]);
+ 488               	.LM4:
+ 489 0024 30E0      		ldi r19,0
+ 490 0026 20E0      		ldi r18,0
+ 491               	.LBE2:
+  21:crypto/sampler/cdf_sampler.c ****     max_j = 0;
+ 493               	.LM5:
+ 494 0028 90E0      		ldi r25,0
+ 495               	.LBB3:
+ 497               	.LM6:
+ 498 002a 7501      		movw r14,r10
+ 499 002c 689F      		mul r22,r24
+ 500 002e E00C      		add r14,r0
+ 501 0030 F11C      		adc r15,r1
+ 502 0032 1124      		clr __zero_reg__
+ 503 0034 00C0      		rjmp .L9
+ 504               	.L8:
+ 505 0036 F701      		movw r30,r14
+ 506 0038 E20F      		add r30,r18
+ 507 003a F31F      		adc r31,r19
+ 508               	/* #APP */
+ 509               	 ;  26 "crypto/sampler/cdf_sampler.c" 1
+ 510 003c E491      		lpm r30, Z
+ 511               		
+ 512               	 ;  0 "" 2
+ 513               	/* #NOAPP */
+ 514 003e 9D15      		cp r25,r13
+ 515 0040 00F4      		brsh .L3
+ 516 0042 922F      		mov r25,r18
+ 517               	.L3:
+ 518               	.LBE3:
+  27:crypto/sampler/cdf_sampler.c ****       
+  28:crypto/sampler/cdf_sampler.c ****       //Measure randomness consumption
+  29:crypto/sampler/cdf_sampler.c ****       if (j > max_j){
+  30:crypto/sampler/cdf_sampler.c **** 	max_j = j;
+  31:crypto/sampler/cdf_sampler.c ****       }
+  32:crypto/sampler/cdf_sampler.c ****       
+  33:crypto/sampler/cdf_sampler.c ****       //Start comparision
+  34:crypto/sampler/cdf_sampler.c ****       if ( (uint8_t) rand_buf[j] < (uint8_t) val){
+ 520               	.LM7:
+ 521 0044 E801      		movw r28,r16
+ 522 0046 F991      		ld r31,Y+
+ 523 0048 8E01      		movw r16,r28
+ 525               	.LM8:
+ 526 004a FE17      		cp r31,r30
+ 527 004c 00F4      		brsh .L4
+  35:crypto/sampler/cdf_sampler.c **** 	*rand_consumed = max_j + 1;
+ 529               	.LM9:
+ 530 004e 9F5F      		subi r25,lo8(-(1))
+ 532               	.LM10:
+ 533 0050 9C93      		st X,r25
+  36:crypto/sampler/cdf_sampler.c **** 
+  37:crypto/sampler/cdf_sampler.c **** 	if (rand_buf[j+1]<=127){
+ 535               	.LM11:
+ 536 0052 240F      		add r18,r20
+ 537 0054 351F      		adc r19,r21
+ 539               	.LM12:
+ 540 0056 F901      		movw r30,r18
+ 541 0058 9181      		ldd r25,Z+1
+ 542 005a 97FF      		sbrs r25,7
+  38:crypto/sampler/cdf_sampler.c **** 	  return -((int8_t) i);
+ 544               	.LM13:
+ 545 005c 8195      		neg r24
+ 546               	.L1:
+ 547               	/* epilogue start */
+  39:crypto/sampler/cdf_sampler.c **** 	} else
+  40:crypto/sampler/cdf_sampler.c **** 	return (int8_t) i;
+  41:crypto/sampler/cdf_sampler.c **** 
+  42:crypto/sampler/cdf_sampler.c ****       }else if ((uint8_t) rand_buf[j] == (uint8_t) val){
+  43:crypto/sampler/cdf_sampler.c **** 	continue;
+  44:crypto/sampler/cdf_sampler.c **** 	printf("Cont");
+  45:crypto/sampler/cdf_sampler.c ****       }else if((uint8_t) rand_buf[j] > (uint8_t) val){
+  46:crypto/sampler/cdf_sampler.c **** 	break;
+  47:crypto/sampler/cdf_sampler.c ****       }
+  48:crypto/sampler/cdf_sampler.c ****     }
+  49:crypto/sampler/cdf_sampler.c ****   }
+  50:crypto/sampler/cdf_sampler.c **** 
+  51:crypto/sampler/cdf_sampler.c ****   return 0; //Must not reach this
+  52:crypto/sampler/cdf_sampler.c **** }
+ 549               	.LM14:
+ 550 005e DF91      		pop r29
+ 551 0060 CF91      		pop r28
+ 552 0062 1F91      		pop r17
+ 553 0064 0F91      		pop r16
+ 554 0066 FF90      		pop r15
+ 555 0068 EF90      		pop r14
+ 556 006a DF90      		pop r13
+ 557 006c BF90      		pop r11
+ 558 006e AF90      		pop r10
+ 559 0070 0895      		ret
+ 560               	.L4:
+ 561 0072 2F5F      		subi r18,-1
+ 562 0074 3F4F      		sbci r19,-1
+  45:crypto/sampler/cdf_sampler.c **** 	break;
+ 564               	.LM15:
+ 565 0076 EF17      		cp r30,r31
+ 566 0078 00F0      		brlo .L7
+ 567               	.L9:
+ 568 007a D22E      		mov r13,r18
+  22:crypto/sampler/cdf_sampler.c ****      
+ 570               	.LM16:
+ 571 007c 2617      		cp r18,r22
+ 572 007e 00F0      		brlo .L8
+ 573               	.L7:
+  20:crypto/sampler/cdf_sampler.c ****     max_j = 0;
+ 575               	.LM17:
+ 576 0080 8F5F      		subi r24,lo8(-(1))
+ 577 0082 00C0      		rjmp .L2
+ 578               	.L10:
+  51:crypto/sampler/cdf_sampler.c **** }
+ 580               	.LM18:
+ 581 0084 80E0      		ldi r24,0
+ 582 0086 00C0      		rjmp .L1
+ 595               	.Lscope1:
+ 596               		.text
+ 598               	.Letext0:
+ 599               		.ident	"GCC: (GNU) 9.1.0"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 cdf_sampler.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccO67Gw5.s:453    .text.sample_gauss:0000000000000000 sample_gauss
+
+NO UNDEFINED SYMBOLS

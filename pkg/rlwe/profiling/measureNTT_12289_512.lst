@@ -1,0 +1,3897 @@
+   1               		.file	"measureNTT_12289_512.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 462               		.section	.rodata.do_measurement_12289_512.str1.1,"aMS",@progbits,1
+ 463               	.LC0:
+ 464 0000 4D65 6173 		.string	"Measure NTT with n = 512 and q = 12289:\n\r"
+ 464      7572 6520 
+ 464      4E54 5420 
+ 464      7769 7468 
+ 464      206E 203D 
+ 465               	.LC1:
+ 466 002a 4E54 5420 		.string	"NTT Transformation (CT_no_to_bo_incl_psi): "
+ 466      5472 616E 
+ 466      7366 6F72 
+ 466      6D61 7469 
+ 466      6F6E 2028 
+ 467               	.LC2:
+ 468 0056 4E54 5420 		.string	"NTT Transformation (GS_bo_to_no_incl_invpsi): "
+ 468      5472 616E 
+ 468      7366 6F72 
+ 468      6D61 7469 
+ 468      6F6E 2028 
+ 469               	.LC3:
+ 470 0085 4E54 5420 		.string	"NTT Transformation (CT_no_to_bo_incl_psi_nolookup): "
+ 470      5472 616E 
+ 470      7366 6F72 
+ 470      6D61 7469 
+ 470      6F6E 2028 
+ 471               	.LC4:
+ 472 00ba 7077 5F6D 		.string	"pw_mul_flash: "
+ 472      756C 5F66 
+ 472      6C61 7368 
+ 472      3A20 00
+ 473               	.LC5:
+ 474 00c9 7077 5F70 		.string	"pw_psi_mul: "
+ 474      7369 5F6D 
+ 474      756C 3A20 
+ 474      00
+ 475               	.LC6:
+ 476 00d6 4164 643A 		.string	"Add: "
+ 476      2000 
+ 477               	.LC7:
+ 478 00dc 4761 7573 		.string	"Gaussian Poly Generation: "
+ 478      7369 616E 
+ 478      2050 6F6C 
+ 478      7920 4765 
+ 478      6E65 7261 
+ 479               	.LC8:
+ 480 00f7 5261 6E64 		.string	"Random Poly Generation: "
+ 480      6F6D 2050 
+ 480      6F6C 7920 
+ 480      4765 6E65 
+ 480      7261 7469 
+ 481               	.LC10:
+ 482 0110 456E 6372 		.string	"Encryption: "
+ 482      7970 7469 
+ 482      6F6E 3A20 
+ 482      00
+ 483               	.LC11:
+ 484 011d 4465 6372 		.string	"Decryption: "
+ 484      7970 7469 
+ 484      6F6E 3A20 
+ 484      00
+ 485               	.LC12:
+ 486 012a 456E 636F 		.string	"Encoding: "
+ 486      6469 6E67 
+ 486      3A20 00
+ 487               	.LC13:
+ 488 0135 4465 636F 		.string	"Decoding: "
+ 488      6469 6E67 
+ 488      3A20 00
+ 489               	.LC9:
+ 490 0140 6F6E 6574 		.string	"onetwothreefourfonetwothreefourfonetwothreefourfonetwothreefourf"
+ 490      776F 7468 
+ 490      7265 6566 
+ 490      6F75 7266 
+ 490      6F6E 6574 
+ 491               		.section	.text.do_measurement_12289_512,"ax",@progbits
+ 493               	.global	do_measurement_12289_512
+ 495               	do_measurement_12289_512:
+   1:profiling/measureNTT_12289_512.c **** #include <avr/io.h> 
+   2:profiling/measureNTT_12289_512.c **** #include <avr/pgmspace.h>
+   3:profiling/measureNTT_12289_512.c **** #include "../device/usart_driver.h"
+   4:profiling/measureNTT_12289_512.c **** #include "../device/clksys_driver.h"
+   5:profiling/measureNTT_12289_512.c **** 
+   6:profiling/measureNTT_12289_512.c **** 
+   7:profiling/measureNTT_12289_512.c **** #include <inttypes.h>
+   8:profiling/measureNTT_12289_512.c **** 
+   9:profiling/measureNTT_12289_512.c **** #include "../crypto/p12289/param_12289_512.h"
+  10:profiling/measureNTT_12289_512.c **** #include "../crypto/p12289/ntt_12289_512.h"
+  11:profiling/measureNTT_12289_512.c **** 
+  12:profiling/measureNTT_12289_512.c **** #include "../crypto/p12289/ntt_12289_512_const.data"
+  13:profiling/measureNTT_12289_512.c **** 
+  14:profiling/measureNTT_12289_512.c **** #include "../keys/keypair_N_512_12289_1218.data"                 
+  15:profiling/measureNTT_12289_512.c **** 
+  16:profiling/measureNTT_12289_512.c **** 
+  17:profiling/measureNTT_12289_512.c **** #include "../device/measureRAM.h"
+  18:profiling/measureNTT_12289_512.c **** #include "profiling.h"
+  19:profiling/measureNTT_12289_512.c **** #include <stdio.h>
+  20:profiling/measureNTT_12289_512.c **** #include <string.h>
+  21:profiling/measureNTT_12289_512.c **** 
+  22:profiling/measureNTT_12289_512.c **** static int16_t start, end;
+  23:profiling/measureNTT_12289_512.c **** 
+  24:profiling/measureNTT_12289_512.c **** static void measureNTT_12289_512(uint16_t * a, uint16_t * b)
+  25:profiling/measureNTT_12289_512.c **** {	
+  26:profiling/measureNTT_12289_512.c **** 	uint64_t mean = 0;
+  27:profiling/measureNTT_12289_512.c **** 
+  28:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+  29:profiling/measureNTT_12289_512.c ****     	{
+  30:profiling/measureNTT_12289_512.c ****       		generateRandomPolyTable_12289_512(a);
+  31:profiling/measureNTT_12289_512.c **** 					
+  32:profiling/measureNTT_12289_512.c ****       		startMeasurement();		
+  33:profiling/measureNTT_12289_512.c **** 													
+  34:profiling/measureNTT_12289_512.c ****       		ntt_CT_no_to_bo_incl_psi_12289_512((int16_t*)a,psibitrev_12289_512);
+  35:profiling/measureNTT_12289_512.c **** 					
+  36:profiling/measureNTT_12289_512.c ****       		stopMeasurement(&mean);
+  37:profiling/measureNTT_12289_512.c ****     	}
+  38:profiling/measureNTT_12289_512.c **** 	
+  39:profiling/measureNTT_12289_512.c ****   	printResult(&mean, "NTT Transformation (CT_no_to_bo_incl_psi): ");
+  40:profiling/measureNTT_12289_512.c **** 
+  41:profiling/measureNTT_12289_512.c ****   	for(int i = 0; i<MAX_MEASUREMENT;i++)
+  42:profiling/measureNTT_12289_512.c ****     	{
+  43:profiling/measureNTT_12289_512.c ****       		generateRandomPolyTable_12289_512(a);
+  44:profiling/measureNTT_12289_512.c **** 					
+  45:profiling/measureNTT_12289_512.c ****       		startMeasurement();		
+  46:profiling/measureNTT_12289_512.c **** 													
+  47:profiling/measureNTT_12289_512.c ****       		ntt_GS_bo_to_no_incl_invpsi_12289_512((int16_t*)a,omegainvbitrev_12289_512);
+  48:profiling/measureNTT_12289_512.c **** 					
+  49:profiling/measureNTT_12289_512.c ****       		stopMeasurement(&mean);
+  50:profiling/measureNTT_12289_512.c ****     	}
+  51:profiling/measureNTT_12289_512.c **** 	
+  52:profiling/measureNTT_12289_512.c ****   	printResult(&mean, "NTT Transformation (GS_bo_to_no_incl_invpsi): ");
+  53:profiling/measureNTT_12289_512.c **** 
+  54:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+  55:profiling/measureNTT_12289_512.c ****     	{
+  56:profiling/measureNTT_12289_512.c ****       		generateRandomPolyTable_12289_512(a);
+  57:profiling/measureNTT_12289_512.c **** 					
+  58:profiling/measureNTT_12289_512.c ****       		startMeasurement();		
+  59:profiling/measureNTT_12289_512.c **** 													
+  60:profiling/measureNTT_12289_512.c ****       		ntt_CT_no_to_bo_incl_psi_12289_512_nolookup((int16_t*)a,psibitrev_12289_512);
+  61:profiling/measureNTT_12289_512.c **** 					
+  62:profiling/measureNTT_12289_512.c ****       		stopMeasurement(&mean);
+  63:profiling/measureNTT_12289_512.c ****     	}
+  64:profiling/measureNTT_12289_512.c **** 	
+  65:profiling/measureNTT_12289_512.c ****   	printResult(&mean, "NTT Transformation (CT_no_to_bo_incl_psi_nolookup): ");
+  66:profiling/measureNTT_12289_512.c **** 	
+  67:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+  68:profiling/measureNTT_12289_512.c **** 	{
+  69:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(a);
+  70:profiling/measureNTT_12289_512.c **** 
+  71:profiling/measureNTT_12289_512.c **** 		start = startRAM(__malloc_heap_start);  	
+  72:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+  73:profiling/measureNTT_12289_512.c **** 										
+  74:profiling/measureNTT_12289_512.c **** 		pw_mul_flash_12289_512(a,omegainvbitrev_12289_512);
+  75:profiling/measureNTT_12289_512.c **** 
+  76:profiling/measureNTT_12289_512.c **** 		stopMeasurement(&mean);
+  77:profiling/measureNTT_12289_512.c **** 		end = endRAM();										
+  78:profiling/measureNTT_12289_512.c **** 	}
+  79:profiling/measureNTT_12289_512.c **** 	
+  80:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end,  "pw_mul_flash: ");
+  81:profiling/measureNTT_12289_512.c **** 
+  82:profiling/measureNTT_12289_512.c **** 
+  83:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+  84:profiling/measureNTT_12289_512.c **** 	{
+  85:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(a);
+  86:profiling/measureNTT_12289_512.c **** 
+  87:profiling/measureNTT_12289_512.c **** 		start = startRAM(__malloc_heap_start);  	
+  88:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+  89:profiling/measureNTT_12289_512.c **** 										
+  90:profiling/measureNTT_12289_512.c **** 		pw_psi_12289(a, 1, PSI_VAL);
+  91:profiling/measureNTT_12289_512.c **** 
+  92:profiling/measureNTT_12289_512.c **** 		stopMeasurement(&mean);
+  93:profiling/measureNTT_12289_512.c **** 		end = endRAM();							
+  94:profiling/measureNTT_12289_512.c **** 	}
+  95:profiling/measureNTT_12289_512.c **** 	
+  96:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end,  "pw_psi_mul: ");
+  97:profiling/measureNTT_12289_512.c **** 
+  98:profiling/measureNTT_12289_512.c **** 
+  99:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 100:profiling/measureNTT_12289_512.c **** 	{
+ 101:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(a);
+ 102:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(b);
+ 103:profiling/measureNTT_12289_512.c **** 
+ 104:profiling/measureNTT_12289_512.c **** 		start = startRAM(__malloc_heap_start);								
+ 105:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 106:profiling/measureNTT_12289_512.c **** 		
+ 107:profiling/measureNTT_12289_512.c **** 	        add_12289(a, b, a);										
+ 108:profiling/measureNTT_12289_512.c **** 
+ 109:profiling/measureNTT_12289_512.c **** 		stopMeasurement(&mean);
+ 110:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 
+ 111:profiling/measureNTT_12289_512.c **** 	}
+ 112:profiling/measureNTT_12289_512.c **** 	
+ 113:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end,  "Add: ");	
+ 114:profiling/measureNTT_12289_512.c **** 
+ 115:profiling/measureNTT_12289_512.c **** }
+ 116:profiling/measureNTT_12289_512.c **** 	
+ 117:profiling/measureNTT_12289_512.c **** static void measurePolyGeneration_12289_512(uint16_t * a)
+ 118:profiling/measureNTT_12289_512.c **** {
+ 119:profiling/measureNTT_12289_512.c **** 	uint64_t mean = 0;
+ 120:profiling/measureNTT_12289_512.c **** 	
+ 121:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 122:profiling/measureNTT_12289_512.c **** 	{					
+ 123:profiling/measureNTT_12289_512.c **** 
+ 124:profiling/measureNTT_12289_512.c **** 	  start = startRAM(__malloc_heap_start);										startMeasurement();		
+ 125:profiling/measureNTT_12289_512.c **** 	  
+ 126:profiling/measureNTT_12289_512.c **** 	  get_gauss_poly_12289_512(a,0);									       	
+ 127:profiling/measureNTT_12289_512.c **** 	  stopMeasurement(&mean);
+ 128:profiling/measureNTT_12289_512.c **** 	  end = endRAM(); 					
+ 129:profiling/measureNTT_12289_512.c **** 	}
+ 130:profiling/measureNTT_12289_512.c **** 	
+ 131:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end, "Gaussian Poly Generation: ");
+ 132:profiling/measureNTT_12289_512.c **** 	
+ 133:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 134:profiling/measureNTT_12289_512.c **** 	{
+ 135:profiling/measureNTT_12289_512.c **** 		start = startRAM(__malloc_heap_start);								
+ 136:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 137:profiling/measureNTT_12289_512.c **** 										
+ 138:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(a);
+ 139:profiling/measureNTT_12289_512.c **** 				
+ 140:profiling/measureNTT_12289_512.c **** 		stopMeasurement(&mean);
+ 141:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 	
+ 142:profiling/measureNTT_12289_512.c **** 	}
+ 143:profiling/measureNTT_12289_512.c **** 	
+ 144:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end,  "Random Poly Generation: ");	
+ 145:profiling/measureNTT_12289_512.c **** }
+ 146:profiling/measureNTT_12289_512.c **** 
+ 147:profiling/measureNTT_12289_512.c **** static void measureLWEOperations_12289_512(uint16_t * a, uint16_t * b)
+ 148:profiling/measureNTT_12289_512.c **** {
+ 149:profiling/measureNTT_12289_512.c **** 	uint64_t mean = 0;
+ 150:profiling/measureNTT_12289_512.c **** 	char msg[paramN/8+1] = "onetwothreefourfonetwothreefourfonetwothreefourfonetwothreefourf";
+ 151:profiling/measureNTT_12289_512.c **** 	
+ 152:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 153:profiling/measureNTT_12289_512.c **** 	{
+ 154:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(a);
+ 155:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(b);
+ 156:profiling/measureNTT_12289_512.c **** 							
+ 157:profiling/measureNTT_12289_512.c **** 		msg[0]= (char) i;
+ 158:profiling/measureNTT_12289_512.c **** 		msg[1]= (char) i+10;
+ 159:profiling/measureNTT_12289_512.c **** 		msg[2]= (char) i+55;
+ 160:profiling/measureNTT_12289_512.c **** 		
+ 161:profiling/measureNTT_12289_512.c **** 		
+ 162:profiling/measureNTT_12289_512.c **** 		start = startRAM(__malloc_heap_start);	
+ 163:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 164:profiling/measureNTT_12289_512.c **** 		
+ 165:profiling/measureNTT_12289_512.c **** 		encrypt_12289_512((uint8_t*)msg,a,b, pubKeyA_12289_512, pubKeyP_12289_512);
+ 166:profiling/measureNTT_12289_512.c **** 					       
+ 167:profiling/measureNTT_12289_512.c **** 		stopMeasurement(&mean);
+ 168:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 	
+ 169:profiling/measureNTT_12289_512.c **** 	}
+ 170:profiling/measureNTT_12289_512.c **** 	
+ 171:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end, "Encryption: ");
+ 172:profiling/measureNTT_12289_512.c **** 	
+ 173:profiling/measureNTT_12289_512.c **** 
+ 174:profiling/measureNTT_12289_512.c **** 	
+ 175:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 176:profiling/measureNTT_12289_512.c **** 	{
+ 177:profiling/measureNTT_12289_512.c **** 
+ 178:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_7681_256(a);
+ 179:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_7681_256(b);
+ 180:profiling/measureNTT_12289_512.c **** 							
+ 181:profiling/measureNTT_12289_512.c **** 
+ 182:profiling/measureNTT_12289_512.c **** 		start = startRAM(__malloc_heap_start);										startMeasurement();		
+ 183:profiling/measureNTT_12289_512.c **** 													
+ 184:profiling/measureNTT_12289_512.c **** 		decrypt_12289_512((uint8_t*)msg,a,b, prvKeyR2_12289_512);
+ 185:profiling/measureNTT_12289_512.c **** 				
+ 186:profiling/measureNTT_12289_512.c **** 
+ 187:profiling/measureNTT_12289_512.c **** 		stopMeasurement(&mean);
+ 188:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 	
+ 189:profiling/measureNTT_12289_512.c **** 	}
+ 190:profiling/measureNTT_12289_512.c **** 	
+ 191:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end,   "Decryption: ");
+ 192:profiling/measureNTT_12289_512.c **** 	
+ 193:profiling/measureNTT_12289_512.c **** 
+ 194:profiling/measureNTT_12289_512.c **** 	
+ 195:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 196:profiling/measureNTT_12289_512.c **** 	{
+ 197:profiling/measureNTT_12289_512.c **** 		msg[0]= (char) i;
+ 198:profiling/measureNTT_12289_512.c **** 		msg[1]= (char) i+10;
+ 199:profiling/measureNTT_12289_512.c **** 		msg[2]= (char) i+55;
+ 200:profiling/measureNTT_12289_512.c **** 
+ 201:profiling/measureNTT_12289_512.c **** 		start = startRAM(__malloc_heap_start);      						
+ 202:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 203:profiling/measureNTT_12289_512.c **** 					       									
+ 204:profiling/measureNTT_12289_512.c **** 		add_encode_12289_512((uint8_t*)msg,a);
+ 205:profiling/measureNTT_12289_512.c **** 		
+ 206:profiling/measureNTT_12289_512.c **** 
+ 207:profiling/measureNTT_12289_512.c **** 		stopMeasurement(&mean);
+ 208:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 			
+ 209:profiling/measureNTT_12289_512.c **** 	}
+ 210:profiling/measureNTT_12289_512.c **** 	
+ 211:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end,  "Encoding: ");
+ 212:profiling/measureNTT_12289_512.c **** 	
+ 213:profiling/measureNTT_12289_512.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 214:profiling/measureNTT_12289_512.c **** 	{
+ 215:profiling/measureNTT_12289_512.c **** 	  generateRandomPolyTable_12289_512(a);
+ 216:profiling/measureNTT_12289_512.c **** 							
+ 217:profiling/measureNTT_12289_512.c **** 		start = startRAM(__malloc_heap_start);								
+ 218:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 219:profiling/measureNTT_12289_512.c **** 														
+ 220:profiling/measureNTT_12289_512.c **** 		decode_12289_512(a, (uint8_t*)msg);
+ 221:profiling/measureNTT_12289_512.c **** 		
+ 222:profiling/measureNTT_12289_512.c **** 
+ 223:profiling/measureNTT_12289_512.c **** 		stopMeasurement(&mean);
+ 224:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 			
+ 225:profiling/measureNTT_12289_512.c **** 	}
+ 226:profiling/measureNTT_12289_512.c **** 	
+ 227:profiling/measureNTT_12289_512.c **** 	printResultRAM(&mean, start-end, "Decoding: ");
+ 228:profiling/measureNTT_12289_512.c **** }
+ 229:profiling/measureNTT_12289_512.c **** 
+ 230:profiling/measureNTT_12289_512.c **** void do_measurement_12289_512(void)
+ 231:profiling/measureNTT_12289_512.c **** {
+ 497               	.LM0:
+ 498               	.LFBB1:
+ 499 0000 FF92      		push r15
+ 500 0002 0F93      		push r16
+ 501 0004 1F93      		push r17
+ 502 0006 CF93      		push r28
+ 503 0008 DF93      		push r29
+ 504 000a CDB7      		in r28,__SP_L__
+ 505 000c DEB7      		in r29,__SP_H__
+ 506 000e C954      		subi r28,73
+ 507 0010 D840      		sbci r29,8
+ 508 0012 CDBF      		out __SP_L__,r28
+ 509 0014 DEBF      		out __SP_H__,r29
+ 510               	/* prologue: function */
+ 511               	/* frame size = 2121 */
+ 512               	/* stack size = 2126 */
+ 513               	.L__stack_usage = 2126
+ 232:profiling/measureNTT_12289_512.c **** 	uint16_t a[paramN];
+ 233:profiling/measureNTT_12289_512.c **** 	uint16_t b[paramN];
+ 234:profiling/measureNTT_12289_512.c **** 
+ 235:profiling/measureNTT_12289_512.c **** 	printf("Measure NTT with n = 512 and q = 12289:\n\r");
+ 515               	.LM1:
+ 516 0016 80E0      		ldi r24,lo8(.LC0)
+ 517 0018 90E0      		ldi r25,hi8(.LC0)
+ 518 001a 9F93      		push r25
+ 519 001c 8F93      		push r24
+ 520 001e 0E94 0000 		call printf
+ 521               	.LBB20:
+ 522               	.LBB21:
+  26:profiling/measureNTT_12289_512.c **** 
+ 524               	.LM2:
+ 525 0022 CF5F      		subi r28,lo8(-2049)
+ 526 0024 D74F      		sbci r29,hi8(-2049)
+ 527 0026 1882      		st Y,__zero_reg__
+ 528 0028 C150      		subi r28,lo8(2049)
+ 529 002a D840      		sbci r29,hi8(2049)
+ 530 002c CE5F      		subi r28,lo8(-2050)
+ 531 002e D74F      		sbci r29,hi8(-2050)
+ 532 0030 1882      		st Y,__zero_reg__
+ 533 0032 C250      		subi r28,lo8(2050)
+ 534 0034 D840      		sbci r29,hi8(2050)
+ 535 0036 CD5F      		subi r28,lo8(-2051)
+ 536 0038 D74F      		sbci r29,hi8(-2051)
+ 537 003a 1882      		st Y,__zero_reg__
+ 538 003c C350      		subi r28,lo8(2051)
+ 539 003e D840      		sbci r29,hi8(2051)
+ 540 0040 CC5F      		subi r28,lo8(-2052)
+ 541 0042 D74F      		sbci r29,hi8(-2052)
+ 542 0044 1882      		st Y,__zero_reg__
+ 543 0046 C450      		subi r28,lo8(2052)
+ 544 0048 D840      		sbci r29,hi8(2052)
+ 545 004a CB5F      		subi r28,lo8(-2053)
+ 546 004c D74F      		sbci r29,hi8(-2053)
+ 547 004e 1882      		st Y,__zero_reg__
+ 548 0050 C550      		subi r28,lo8(2053)
+ 549 0052 D840      		sbci r29,hi8(2053)
+ 550 0054 CA5F      		subi r28,lo8(-2054)
+ 551 0056 D74F      		sbci r29,hi8(-2054)
+ 552 0058 1882      		st Y,__zero_reg__
+ 553 005a C650      		subi r28,lo8(2054)
+ 554 005c D840      		sbci r29,hi8(2054)
+ 555 005e C95F      		subi r28,lo8(-2055)
+ 556 0060 D74F      		sbci r29,hi8(-2055)
+ 557 0062 1882      		st Y,__zero_reg__
+ 558 0064 C750      		subi r28,lo8(2055)
+ 559 0066 D840      		sbci r29,hi8(2055)
+ 560 0068 C85F      		subi r28,lo8(-2056)
+ 561 006a D74F      		sbci r29,hi8(-2056)
+ 562 006c 1882      		st Y,__zero_reg__
+ 563 006e C850      		subi r28,lo8(2056)
+ 564 0070 D840      		sbci r29,hi8(2056)
+ 565 0072 0F90      		pop __tmp_reg__
+ 566 0074 0F90      		pop __tmp_reg__
+ 567 0076 04E6      		ldi r16,lo8(100)
+ 568 0078 10E0      		ldi r17,0
+ 569               	.L2:
+ 570               	.LBB22:
+  30:profiling/measureNTT_12289_512.c **** 					
+ 572               	.LM3:
+ 573 007a CE01      		movw r24,r28
+ 574 007c 8F5F      		subi r24,-1
+ 575 007e 9B4F      		sbci r25,-5
+ 576 0080 0E94 0000 		call generateRandomPolyTable_12289_512
+  32:profiling/measureNTT_12289_512.c **** 													
+ 578               	.LM4:
+ 579 0084 0E94 0000 		call startMeasurement
+  34:profiling/measureNTT_12289_512.c **** 					
+ 581               	.LM5:
+ 582 0088 60E0      		ldi r22,lo8(psibitrev_12289_512)
+ 583 008a 70E0      		ldi r23,hi8(psibitrev_12289_512)
+ 584 008c CE01      		movw r24,r28
+ 585 008e 8F5F      		subi r24,-1
+ 586 0090 9B4F      		sbci r25,-5
+ 587 0092 0E94 0000 		call ntt_CT_no_to_bo_incl_psi_12289_512
+  36:profiling/measureNTT_12289_512.c ****     	}
+ 589               	.LM6:
+ 590 0096 CE01      		movw r24,r28
+ 591 0098 8F5F      		subi r24,-1
+ 592 009a 974F      		sbci r25,-9
+ 593 009c 0E94 0000 		call stopMeasurement
+ 594 00a0 0150      		subi r16,1
+ 595 00a2 1109      		sbc r17,__zero_reg__
+  28:profiling/measureNTT_12289_512.c ****     	{
+ 597               	.LM7:
+ 598 00a4 01F4      		brne .L2
+ 599               	.LBE22:
+  39:profiling/measureNTT_12289_512.c **** 
+ 601               	.LM8:
+ 602 00a6 60E0      		ldi r22,lo8(.LC1)
+ 603 00a8 70E0      		ldi r23,hi8(.LC1)
+ 604 00aa CE01      		movw r24,r28
+ 605 00ac 8F5F      		subi r24,-1
+ 606 00ae 974F      		sbci r25,-9
+ 607 00b0 0E94 0000 		call printResult
+ 608 00b4 04E6      		ldi r16,lo8(100)
+ 609 00b6 10E0      		ldi r17,0
+ 610               	.L3:
+ 611               	.LBB23:
+  43:profiling/measureNTT_12289_512.c **** 					
+ 613               	.LM9:
+ 614 00b8 CE01      		movw r24,r28
+ 615 00ba 8F5F      		subi r24,-1
+ 616 00bc 9B4F      		sbci r25,-5
+ 617 00be 0E94 0000 		call generateRandomPolyTable_12289_512
+  45:profiling/measureNTT_12289_512.c **** 													
+ 619               	.LM10:
+ 620 00c2 0E94 0000 		call startMeasurement
+  47:profiling/measureNTT_12289_512.c **** 					
+ 622               	.LM11:
+ 623 00c6 60E0      		ldi r22,lo8(omegainvbitrev_12289_512)
+ 624 00c8 70E0      		ldi r23,hi8(omegainvbitrev_12289_512)
+ 625 00ca CE01      		movw r24,r28
+ 626 00cc 8F5F      		subi r24,-1
+ 627 00ce 9B4F      		sbci r25,-5
+ 628 00d0 0E94 0000 		call ntt_GS_bo_to_no_incl_invpsi_12289_512
+  49:profiling/measureNTT_12289_512.c ****     	}
+ 630               	.LM12:
+ 631 00d4 CE01      		movw r24,r28
+ 632 00d6 8F5F      		subi r24,-1
+ 633 00d8 974F      		sbci r25,-9
+ 634 00da 0E94 0000 		call stopMeasurement
+ 635 00de 0150      		subi r16,1
+ 636 00e0 1109      		sbc r17,__zero_reg__
+  41:profiling/measureNTT_12289_512.c ****     	{
+ 638               	.LM13:
+ 639 00e2 01F4      		brne .L3
+ 640               	.LBE23:
+  52:profiling/measureNTT_12289_512.c **** 
+ 642               	.LM14:
+ 643 00e4 60E0      		ldi r22,lo8(.LC2)
+ 644 00e6 70E0      		ldi r23,hi8(.LC2)
+ 645 00e8 CE01      		movw r24,r28
+ 646 00ea 8F5F      		subi r24,-1
+ 647 00ec 974F      		sbci r25,-9
+ 648 00ee 0E94 0000 		call printResult
+ 649 00f2 04E6      		ldi r16,lo8(100)
+ 650 00f4 10E0      		ldi r17,0
+ 651               	.L4:
+ 652               	.LBB24:
+  56:profiling/measureNTT_12289_512.c **** 					
+ 654               	.LM15:
+ 655 00f6 CE01      		movw r24,r28
+ 656 00f8 8F5F      		subi r24,-1
+ 657 00fa 9B4F      		sbci r25,-5
+ 658 00fc 0E94 0000 		call generateRandomPolyTable_12289_512
+  58:profiling/measureNTT_12289_512.c **** 													
+ 660               	.LM16:
+ 661 0100 0E94 0000 		call startMeasurement
+  60:profiling/measureNTT_12289_512.c **** 					
+ 663               	.LM17:
+ 664 0104 60E0      		ldi r22,lo8(psibitrev_12289_512)
+ 665 0106 70E0      		ldi r23,hi8(psibitrev_12289_512)
+ 666 0108 CE01      		movw r24,r28
+ 667 010a 8F5F      		subi r24,-1
+ 668 010c 9B4F      		sbci r25,-5
+ 669 010e 0E94 0000 		call ntt_CT_no_to_bo_incl_psi_12289_512_nolookup
+  62:profiling/measureNTT_12289_512.c ****     	}
+ 671               	.LM18:
+ 672 0112 CE01      		movw r24,r28
+ 673 0114 8F5F      		subi r24,-1
+ 674 0116 974F      		sbci r25,-9
+ 675 0118 0E94 0000 		call stopMeasurement
+ 676 011c 0150      		subi r16,1
+ 677 011e 1109      		sbc r17,__zero_reg__
+  54:profiling/measureNTT_12289_512.c ****     	{
+ 679               	.LM19:
+ 680 0120 01F4      		brne .L4
+ 681               	.LBE24:
+  65:profiling/measureNTT_12289_512.c **** 	
+ 683               	.LM20:
+ 684 0122 60E0      		ldi r22,lo8(.LC3)
+ 685 0124 70E0      		ldi r23,hi8(.LC3)
+ 686 0126 CE01      		movw r24,r28
+ 687 0128 8F5F      		subi r24,-1
+ 688 012a 974F      		sbci r25,-9
+ 689 012c 0E94 0000 		call printResult
+ 690 0130 04E6      		ldi r16,lo8(100)
+ 691 0132 10E0      		ldi r17,0
+ 692               	.L5:
+ 693               	.LBB25:
+  69:profiling/measureNTT_12289_512.c **** 
+ 695               	.LM21:
+ 696 0134 CE01      		movw r24,r28
+ 697 0136 8F5F      		subi r24,-1
+ 698 0138 9B4F      		sbci r25,-5
+ 699 013a 0E94 0000 		call generateRandomPolyTable_12289_512
+  71:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 701               	.LM22:
+ 702 013e 8091 0000 		lds r24,__malloc_heap_start
+ 703 0142 9091 0000 		lds r25,__malloc_heap_start+1
+ 704 0146 0E94 0000 		call startRAM
+  71:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 706               	.LM23:
+ 707 014a 8093 0000 		sts start,r24
+ 708 014e 9093 0000 		sts start+1,r25
+  72:profiling/measureNTT_12289_512.c **** 										
+ 710               	.LM24:
+ 711 0152 0E94 0000 		call startMeasurement
+  74:profiling/measureNTT_12289_512.c **** 
+ 713               	.LM25:
+ 714 0156 60E0      		ldi r22,lo8(omegainvbitrev_12289_512)
+ 715 0158 70E0      		ldi r23,hi8(omegainvbitrev_12289_512)
+ 716 015a CE01      		movw r24,r28
+ 717 015c 8F5F      		subi r24,-1
+ 718 015e 9B4F      		sbci r25,-5
+ 719 0160 0E94 0000 		call pw_mul_flash_12289_512
+  76:profiling/measureNTT_12289_512.c **** 		end = endRAM();										
+ 721               	.LM26:
+ 722 0164 CE01      		movw r24,r28
+ 723 0166 8F5F      		subi r24,-1
+ 724 0168 974F      		sbci r25,-9
+ 725 016a 0E94 0000 		call stopMeasurement
+  77:profiling/measureNTT_12289_512.c **** 	}
+ 727               	.LM27:
+ 728 016e 0E94 0000 		call endRAM
+  77:profiling/measureNTT_12289_512.c **** 	}
+ 730               	.LM28:
+ 731 0172 8093 0000 		sts end,r24
+ 732 0176 9093 0000 		sts end+1,r25
+ 733 017a 0150      		subi r16,1
+ 734 017c 1109      		sbc r17,__zero_reg__
+  67:profiling/measureNTT_12289_512.c **** 	{
+ 736               	.LM29:
+ 737 017e 01F4      		brne .L5
+ 738               	.LBE25:
+  80:profiling/measureNTT_12289_512.c **** 
+ 740               	.LM30:
+ 741 0180 6091 0000 		lds r22,start
+ 742 0184 7091 0000 		lds r23,start+1
+ 743 0188 681B      		sub r22,r24
+ 744 018a 790B      		sbc r23,r25
+ 745 018c 40E0      		ldi r20,lo8(.LC4)
+ 746 018e 50E0      		ldi r21,hi8(.LC4)
+ 747 0190 CE01      		movw r24,r28
+ 748 0192 8F5F      		subi r24,-1
+ 749 0194 974F      		sbci r25,-9
+ 750 0196 0E94 0000 		call printResultRAM
+ 751 019a 04E6      		ldi r16,lo8(100)
+ 752 019c 10E0      		ldi r17,0
+ 753               	.L6:
+ 754               	.LBB26:
+  85:profiling/measureNTT_12289_512.c **** 
+ 756               	.LM31:
+ 757 019e CE01      		movw r24,r28
+ 758 01a0 8F5F      		subi r24,-1
+ 759 01a2 9B4F      		sbci r25,-5
+ 760 01a4 0E94 0000 		call generateRandomPolyTable_12289_512
+  87:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 762               	.LM32:
+ 763 01a8 8091 0000 		lds r24,__malloc_heap_start
+ 764 01ac 9091 0000 		lds r25,__malloc_heap_start+1
+ 765 01b0 0E94 0000 		call startRAM
+  87:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 767               	.LM33:
+ 768 01b4 8093 0000 		sts start,r24
+ 769 01b8 9093 0000 		sts start+1,r25
+  88:profiling/measureNTT_12289_512.c **** 										
+ 771               	.LM34:
+ 772 01bc 0E94 0000 		call startMeasurement
+  90:profiling/measureNTT_12289_512.c **** 
+ 774               	.LM35:
+ 775 01c0 41E3      		ldi r20,lo8(49)
+ 776 01c2 50E0      		ldi r21,0
+ 777 01c4 61E0      		ldi r22,lo8(1)
+ 778 01c6 70E0      		ldi r23,0
+ 779 01c8 CE01      		movw r24,r28
+ 780 01ca 8F5F      		subi r24,-1
+ 781 01cc 9B4F      		sbci r25,-5
+ 782 01ce 0E94 0000 		call pw_psi_12289
+  92:profiling/measureNTT_12289_512.c **** 		end = endRAM();							
+ 784               	.LM36:
+ 785 01d2 CE01      		movw r24,r28
+ 786 01d4 8F5F      		subi r24,-1
+ 787 01d6 974F      		sbci r25,-9
+ 788 01d8 0E94 0000 		call stopMeasurement
+  93:profiling/measureNTT_12289_512.c **** 	}
+ 790               	.LM37:
+ 791 01dc 0E94 0000 		call endRAM
+  93:profiling/measureNTT_12289_512.c **** 	}
+ 793               	.LM38:
+ 794 01e0 8093 0000 		sts end,r24
+ 795 01e4 9093 0000 		sts end+1,r25
+ 796 01e8 0150      		subi r16,1
+ 797 01ea 1109      		sbc r17,__zero_reg__
+  83:profiling/measureNTT_12289_512.c **** 	{
+ 799               	.LM39:
+ 800 01ec 01F4      		brne .L6
+ 801               	.LBE26:
+  96:profiling/measureNTT_12289_512.c **** 
+ 803               	.LM40:
+ 804 01ee 6091 0000 		lds r22,start
+ 805 01f2 7091 0000 		lds r23,start+1
+ 806 01f6 681B      		sub r22,r24
+ 807 01f8 790B      		sbc r23,r25
+ 808 01fa 40E0      		ldi r20,lo8(.LC5)
+ 809 01fc 50E0      		ldi r21,hi8(.LC5)
+ 810 01fe CE01      		movw r24,r28
+ 811 0200 8F5F      		subi r24,-1
+ 812 0202 974F      		sbci r25,-9
+ 813 0204 0E94 0000 		call printResultRAM
+ 814 0208 04E6      		ldi r16,lo8(100)
+ 815 020a 10E0      		ldi r17,0
+ 816               	.L7:
+ 817               	.LBB27:
+ 101:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(b);
+ 819               	.LM41:
+ 820 020c CE01      		movw r24,r28
+ 821 020e 8F5F      		subi r24,-1
+ 822 0210 9B4F      		sbci r25,-5
+ 823 0212 0E94 0000 		call generateRandomPolyTable_12289_512
+ 102:profiling/measureNTT_12289_512.c **** 
+ 825               	.LM42:
+ 826 0216 CE01      		movw r24,r28
+ 827 0218 0196      		adiw r24,1
+ 828 021a 0E94 0000 		call generateRandomPolyTable_12289_512
+ 104:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 830               	.LM43:
+ 831 021e 8091 0000 		lds r24,__malloc_heap_start
+ 832 0222 9091 0000 		lds r25,__malloc_heap_start+1
+ 833 0226 0E94 0000 		call startRAM
+ 104:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 835               	.LM44:
+ 836 022a 8093 0000 		sts start,r24
+ 837 022e 9093 0000 		sts start+1,r25
+ 105:profiling/measureNTT_12289_512.c **** 		
+ 839               	.LM45:
+ 840 0232 0E94 0000 		call startMeasurement
+ 107:profiling/measureNTT_12289_512.c **** 
+ 842               	.LM46:
+ 843 0236 AE01      		movw r20,r28
+ 844 0238 4F5F      		subi r20,-1
+ 845 023a 5B4F      		sbci r21,-5
+ 846 023c BE01      		movw r22,r28
+ 847 023e 6F5F      		subi r22,-1
+ 848 0240 7F4F      		sbci r23,-1
+ 849 0242 CA01      		movw r24,r20
+ 850 0244 0E94 0000 		call add_12289
+ 109:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 
+ 852               	.LM47:
+ 853 0248 CE01      		movw r24,r28
+ 854 024a 8F5F      		subi r24,-1
+ 855 024c 974F      		sbci r25,-9
+ 856 024e 0E94 0000 		call stopMeasurement
+ 110:profiling/measureNTT_12289_512.c **** 	}
+ 858               	.LM48:
+ 859 0252 0E94 0000 		call endRAM
+ 110:profiling/measureNTT_12289_512.c **** 	}
+ 861               	.LM49:
+ 862 0256 8093 0000 		sts end,r24
+ 863 025a 9093 0000 		sts end+1,r25
+ 864 025e 0150      		subi r16,1
+ 865 0260 1109      		sbc r17,__zero_reg__
+  99:profiling/measureNTT_12289_512.c **** 	{
+ 867               	.LM50:
+ 868 0262 01F4      		brne .L7
+ 869               	.LBE27:
+ 113:profiling/measureNTT_12289_512.c **** 
+ 871               	.LM51:
+ 872 0264 6091 0000 		lds r22,start
+ 873 0268 7091 0000 		lds r23,start+1
+ 874 026c 681B      		sub r22,r24
+ 875 026e 790B      		sbc r23,r25
+ 876 0270 40E0      		ldi r20,lo8(.LC6)
+ 877 0272 50E0      		ldi r21,hi8(.LC6)
+ 878 0274 CE01      		movw r24,r28
+ 879 0276 8F5F      		subi r24,-1
+ 880 0278 974F      		sbci r25,-9
+ 881 027a 0E94 0000 		call printResultRAM
+ 882               	.LBE21:
+ 883               	.LBE20:
+ 884               	.LBB28:
+ 885               	.LBB29:
+ 119:profiling/measureNTT_12289_512.c **** 	
+ 887               	.LM52:
+ 888 027e CF5F      		subi r28,lo8(-2049)
+ 889 0280 D74F      		sbci r29,hi8(-2049)
+ 890 0282 1882      		st Y,__zero_reg__
+ 891 0284 C150      		subi r28,lo8(2049)
+ 892 0286 D840      		sbci r29,hi8(2049)
+ 893 0288 CE5F      		subi r28,lo8(-2050)
+ 894 028a D74F      		sbci r29,hi8(-2050)
+ 895 028c 1882      		st Y,__zero_reg__
+ 896 028e C250      		subi r28,lo8(2050)
+ 897 0290 D840      		sbci r29,hi8(2050)
+ 898 0292 CD5F      		subi r28,lo8(-2051)
+ 899 0294 D74F      		sbci r29,hi8(-2051)
+ 900 0296 1882      		st Y,__zero_reg__
+ 901 0298 C350      		subi r28,lo8(2051)
+ 902 029a D840      		sbci r29,hi8(2051)
+ 903 029c CC5F      		subi r28,lo8(-2052)
+ 904 029e D74F      		sbci r29,hi8(-2052)
+ 905 02a0 1882      		st Y,__zero_reg__
+ 906 02a2 C450      		subi r28,lo8(2052)
+ 907 02a4 D840      		sbci r29,hi8(2052)
+ 908 02a6 CB5F      		subi r28,lo8(-2053)
+ 909 02a8 D74F      		sbci r29,hi8(-2053)
+ 910 02aa 1882      		st Y,__zero_reg__
+ 911 02ac C550      		subi r28,lo8(2053)
+ 912 02ae D840      		sbci r29,hi8(2053)
+ 913 02b0 CA5F      		subi r28,lo8(-2054)
+ 914 02b2 D74F      		sbci r29,hi8(-2054)
+ 915 02b4 1882      		st Y,__zero_reg__
+ 916 02b6 C650      		subi r28,lo8(2054)
+ 917 02b8 D840      		sbci r29,hi8(2054)
+ 918 02ba C95F      		subi r28,lo8(-2055)
+ 919 02bc D74F      		sbci r29,hi8(-2055)
+ 920 02be 1882      		st Y,__zero_reg__
+ 921 02c0 C750      		subi r28,lo8(2055)
+ 922 02c2 D840      		sbci r29,hi8(2055)
+ 923 02c4 C85F      		subi r28,lo8(-2056)
+ 924 02c6 D74F      		sbci r29,hi8(-2056)
+ 925 02c8 1882      		st Y,__zero_reg__
+ 926 02ca C850      		subi r28,lo8(2056)
+ 927 02cc D840      		sbci r29,hi8(2056)
+ 928 02ce 04E6      		ldi r16,lo8(100)
+ 929 02d0 10E0      		ldi r17,0
+ 930               	.L8:
+ 931               	.LBB30:
+ 124:profiling/measureNTT_12289_512.c **** 	  
+ 933               	.LM53:
+ 934 02d2 8091 0000 		lds r24,__malloc_heap_start
+ 935 02d6 9091 0000 		lds r25,__malloc_heap_start+1
+ 936 02da 0E94 0000 		call startRAM
+ 124:profiling/measureNTT_12289_512.c **** 	  
+ 938               	.LM54:
+ 939 02de 8093 0000 		sts start,r24
+ 940 02e2 9093 0000 		sts start+1,r25
+ 124:profiling/measureNTT_12289_512.c **** 	  
+ 942               	.LM55:
+ 943 02e6 0E94 0000 		call startMeasurement
+ 126:profiling/measureNTT_12289_512.c **** 	  stopMeasurement(&mean);
+ 945               	.LM56:
+ 946 02ea 70E0      		ldi r23,0
+ 947 02ec 60E0      		ldi r22,0
+ 948 02ee CE01      		movw r24,r28
+ 949 02f0 8F5F      		subi r24,-1
+ 950 02f2 9B4F      		sbci r25,-5
+ 951 02f4 0E94 0000 		call get_gauss_poly_12289_512
+ 127:profiling/measureNTT_12289_512.c **** 	  end = endRAM(); 					
+ 953               	.LM57:
+ 954 02f8 CE01      		movw r24,r28
+ 955 02fa 8F5F      		subi r24,-1
+ 956 02fc 974F      		sbci r25,-9
+ 957 02fe 0E94 0000 		call stopMeasurement
+ 128:profiling/measureNTT_12289_512.c **** 	}
+ 959               	.LM58:
+ 960 0302 0E94 0000 		call endRAM
+ 128:profiling/measureNTT_12289_512.c **** 	}
+ 962               	.LM59:
+ 963 0306 8093 0000 		sts end,r24
+ 964 030a 9093 0000 		sts end+1,r25
+ 965 030e 0150      		subi r16,1
+ 966 0310 1109      		sbc r17,__zero_reg__
+ 121:profiling/measureNTT_12289_512.c **** 	{					
+ 968               	.LM60:
+ 969 0312 01F4      		brne .L8
+ 970               	.LBE30:
+ 131:profiling/measureNTT_12289_512.c **** 	
+ 972               	.LM61:
+ 973 0314 6091 0000 		lds r22,start
+ 974 0318 7091 0000 		lds r23,start+1
+ 975 031c 681B      		sub r22,r24
+ 976 031e 790B      		sbc r23,r25
+ 977 0320 40E0      		ldi r20,lo8(.LC7)
+ 978 0322 50E0      		ldi r21,hi8(.LC7)
+ 979 0324 CE01      		movw r24,r28
+ 980 0326 8F5F      		subi r24,-1
+ 981 0328 974F      		sbci r25,-9
+ 982 032a 0E94 0000 		call printResultRAM
+ 983 032e 04E6      		ldi r16,lo8(100)
+ 984 0330 10E0      		ldi r17,0
+ 985               	.L9:
+ 986               	.LBB31:
+ 135:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 988               	.LM62:
+ 989 0332 8091 0000 		lds r24,__malloc_heap_start
+ 990 0336 9091 0000 		lds r25,__malloc_heap_start+1
+ 991 033a 0E94 0000 		call startRAM
+ 135:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 993               	.LM63:
+ 994 033e 8093 0000 		sts start,r24
+ 995 0342 9093 0000 		sts start+1,r25
+ 136:profiling/measureNTT_12289_512.c **** 										
+ 997               	.LM64:
+ 998 0346 0E94 0000 		call startMeasurement
+ 138:profiling/measureNTT_12289_512.c **** 				
+ 1000               	.LM65:
+ 1001 034a CE01      		movw r24,r28
+ 1002 034c 8F5F      		subi r24,-1
+ 1003 034e 9B4F      		sbci r25,-5
+ 1004 0350 0E94 0000 		call generateRandomPolyTable_12289_512
+ 140:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 	
+ 1006               	.LM66:
+ 1007 0354 CE01      		movw r24,r28
+ 1008 0356 8F5F      		subi r24,-1
+ 1009 0358 974F      		sbci r25,-9
+ 1010 035a 0E94 0000 		call stopMeasurement
+ 141:profiling/measureNTT_12289_512.c **** 	}
+ 1012               	.LM67:
+ 1013 035e 0E94 0000 		call endRAM
+ 141:profiling/measureNTT_12289_512.c **** 	}
+ 1015               	.LM68:
+ 1016 0362 8093 0000 		sts end,r24
+ 1017 0366 9093 0000 		sts end+1,r25
+ 1018 036a 0150      		subi r16,1
+ 1019 036c 1109      		sbc r17,__zero_reg__
+ 133:profiling/measureNTT_12289_512.c **** 	{
+ 1021               	.LM69:
+ 1022 036e 01F4      		brne .L9
+ 1023               	.LBE31:
+ 144:profiling/measureNTT_12289_512.c **** }
+ 1025               	.LM70:
+ 1026 0370 6091 0000 		lds r22,start
+ 1027 0374 7091 0000 		lds r23,start+1
+ 1028 0378 681B      		sub r22,r24
+ 1029 037a 790B      		sbc r23,r25
+ 1030 037c 40E0      		ldi r20,lo8(.LC8)
+ 1031 037e 50E0      		ldi r21,hi8(.LC8)
+ 1032 0380 CE01      		movw r24,r28
+ 1033 0382 8F5F      		subi r24,-1
+ 1034 0384 974F      		sbci r25,-9
+ 1035 0386 0E94 0000 		call printResultRAM
+ 1036               	.LBE29:
+ 1037               	.LBE28:
+ 1038               	.LBB32:
+ 1039               	.LBB33:
+ 149:profiling/measureNTT_12289_512.c **** 	char msg[paramN/8+1] = "onetwothreefourfonetwothreefourfonetwothreefourfonetwothreefourf";
+ 1041               	.LM71:
+ 1042 038a CE5B      		subi r28,lo8(-2114)
+ 1043 038c D74F      		sbci r29,hi8(-2114)
+ 1044 038e 1882      		st Y,__zero_reg__
+ 1045 0390 C254      		subi r28,lo8(2114)
+ 1046 0392 D840      		sbci r29,hi8(2114)
+ 1047 0394 CD5B      		subi r28,lo8(-2115)
+ 1048 0396 D74F      		sbci r29,hi8(-2115)
+ 1049 0398 1882      		st Y,__zero_reg__
+ 1050 039a C354      		subi r28,lo8(2115)
+ 1051 039c D840      		sbci r29,hi8(2115)
+ 1052 039e CC5B      		subi r28,lo8(-2116)
+ 1053 03a0 D74F      		sbci r29,hi8(-2116)
+ 1054 03a2 1882      		st Y,__zero_reg__
+ 1055 03a4 C454      		subi r28,lo8(2116)
+ 1056 03a6 D840      		sbci r29,hi8(2116)
+ 1057 03a8 CB5B      		subi r28,lo8(-2117)
+ 1058 03aa D74F      		sbci r29,hi8(-2117)
+ 1059 03ac 1882      		st Y,__zero_reg__
+ 1060 03ae C554      		subi r28,lo8(2117)
+ 1061 03b0 D840      		sbci r29,hi8(2117)
+ 1062 03b2 CA5B      		subi r28,lo8(-2118)
+ 1063 03b4 D74F      		sbci r29,hi8(-2118)
+ 1064 03b6 1882      		st Y,__zero_reg__
+ 1065 03b8 C654      		subi r28,lo8(2118)
+ 1066 03ba D840      		sbci r29,hi8(2118)
+ 1067 03bc C95B      		subi r28,lo8(-2119)
+ 1068 03be D74F      		sbci r29,hi8(-2119)
+ 1069 03c0 1882      		st Y,__zero_reg__
+ 1070 03c2 C754      		subi r28,lo8(2119)
+ 1071 03c4 D840      		sbci r29,hi8(2119)
+ 1072 03c6 C85B      		subi r28,lo8(-2120)
+ 1073 03c8 D74F      		sbci r29,hi8(-2120)
+ 1074 03ca 1882      		st Y,__zero_reg__
+ 1075 03cc C854      		subi r28,lo8(2120)
+ 1076 03ce D840      		sbci r29,hi8(2120)
+ 1077 03d0 C75B      		subi r28,lo8(-2121)
+ 1078 03d2 D74F      		sbci r29,hi8(-2121)
+ 1079 03d4 1882      		st Y,__zero_reg__
+ 1080 03d6 C954      		subi r28,lo8(2121)
+ 1081 03d8 D840      		sbci r29,hi8(2121)
+ 150:profiling/measureNTT_12289_512.c **** 	
+ 1083               	.LM72:
+ 1084 03da 81E4      		ldi r24,lo8(65)
+ 1085 03dc E0E0      		ldi r30,lo8(.LC9)
+ 1086 03de F0E0      		ldi r31,hi8(.LC9)
+ 1087 03e0 DE01      		movw r26,r28
+ 1088 03e2 AF5F      		subi r26,-1
+ 1089 03e4 B74F      		sbci r27,-9
+ 1090               		0:
+ 1091 03e6 0190      		ld r0,Z+
+ 1092 03e8 0D92      		st X+,r0
+ 1093 03ea 8A95      		dec r24
+ 1094 03ec 01F4      		brne 0b
+ 1095 03ee F12C      		mov r15,__zero_reg__
+ 1096               	.L10:
+ 1097               	.LBB34:
+ 154:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_12289_512(b);
+ 1099               	.LM73:
+ 1100 03f0 CE01      		movw r24,r28
+ 1101 03f2 8F5F      		subi r24,-1
+ 1102 03f4 9B4F      		sbci r25,-5
+ 1103 03f6 0E94 0000 		call generateRandomPolyTable_12289_512
+ 155:profiling/measureNTT_12289_512.c **** 							
+ 1105               	.LM74:
+ 1106 03fa CE01      		movw r24,r28
+ 1107 03fc 0196      		adiw r24,1
+ 1108 03fe 0E94 0000 		call generateRandomPolyTable_12289_512
+ 157:profiling/measureNTT_12289_512.c **** 		msg[1]= (char) i+10;
+ 1110               	.LM75:
+ 1111 0402 CF5F      		subi r28,lo8(-2049)
+ 1112 0404 D74F      		sbci r29,hi8(-2049)
+ 1113 0406 F882      		st Y,r15
+ 1114 0408 C150      		subi r28,lo8(2049)
+ 1115 040a D840      		sbci r29,hi8(2049)
+ 158:profiling/measureNTT_12289_512.c **** 		msg[2]= (char) i+55;
+ 1117               	.LM76:
+ 1118 040c 8AE0      		ldi r24,lo8(10)
+ 1119 040e 8F0D      		add r24,r15
+ 158:profiling/measureNTT_12289_512.c **** 		msg[2]= (char) i+55;
+ 1121               	.LM77:
+ 1122 0410 CE5F      		subi r28,lo8(-2050)
+ 1123 0412 D74F      		sbci r29,hi8(-2050)
+ 1124 0414 8883      		st Y,r24
+ 1125 0416 C250      		subi r28,lo8(2050)
+ 1126 0418 D840      		sbci r29,hi8(2050)
+ 159:profiling/measureNTT_12289_512.c **** 		
+ 1128               	.LM78:
+ 1129 041a 87E3      		ldi r24,lo8(55)
+ 1130 041c 8F0D      		add r24,r15
+ 159:profiling/measureNTT_12289_512.c **** 		
+ 1132               	.LM79:
+ 1133 041e CD5F      		subi r28,lo8(-2051)
+ 1134 0420 D74F      		sbci r29,hi8(-2051)
+ 1135 0422 8883      		st Y,r24
+ 1136 0424 C350      		subi r28,lo8(2051)
+ 1137 0426 D840      		sbci r29,hi8(2051)
+ 162:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 1139               	.LM80:
+ 1140 0428 8091 0000 		lds r24,__malloc_heap_start
+ 1141 042c 9091 0000 		lds r25,__malloc_heap_start+1
+ 1142 0430 0E94 0000 		call startRAM
+ 162:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 1144               	.LM81:
+ 1145 0434 8093 0000 		sts start,r24
+ 1146 0438 9093 0000 		sts start+1,r25
+ 163:profiling/measureNTT_12289_512.c **** 		
+ 1148               	.LM82:
+ 1149 043c 0E94 0000 		call startMeasurement
+ 165:profiling/measureNTT_12289_512.c **** 					       
+ 1151               	.LM83:
+ 1152 0440 00E0      		ldi r16,lo8(pubKeyP_12289_512)
+ 1153 0442 10E0      		ldi r17,hi8(pubKeyP_12289_512)
+ 1154 0444 20E0      		ldi r18,lo8(pubKeyA_12289_512)
+ 1155 0446 30E0      		ldi r19,hi8(pubKeyA_12289_512)
+ 1156 0448 AE01      		movw r20,r28
+ 1157 044a 4F5F      		subi r20,-1
+ 1158 044c 5F4F      		sbci r21,-1
+ 1159 044e BE01      		movw r22,r28
+ 1160 0450 6F5F      		subi r22,-1
+ 1161 0452 7B4F      		sbci r23,-5
+ 1162 0454 CE01      		movw r24,r28
+ 1163 0456 8F5F      		subi r24,-1
+ 1164 0458 974F      		sbci r25,-9
+ 1165 045a 0E94 0000 		call encrypt_12289_512
+ 167:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 	
+ 1167               	.LM84:
+ 1168 045e CE01      		movw r24,r28
+ 1169 0460 8E5B      		subi r24,-66
+ 1170 0462 974F      		sbci r25,-9
+ 1171 0464 0E94 0000 		call stopMeasurement
+ 168:profiling/measureNTT_12289_512.c **** 	}
+ 1173               	.LM85:
+ 1174 0468 0E94 0000 		call endRAM
+ 1175 046c 9C01      		movw r18,r24
+ 168:profiling/measureNTT_12289_512.c **** 	}
+ 1177               	.LM86:
+ 1178 046e 8093 0000 		sts end,r24
+ 1179 0472 9093 0000 		sts end+1,r25
+ 1180 0476 F394      		inc r15
+ 152:profiling/measureNTT_12289_512.c **** 	{
+ 1182               	.LM87:
+ 1183 0478 84E6      		ldi r24,lo8(100)
+ 1184 047a F812      		cpse r15,r24
+ 1185 047c 00C0      		rjmp .L10
+ 1186               	.LBE34:
+ 171:profiling/measureNTT_12289_512.c **** 	
+ 1188               	.LM88:
+ 1189 047e 6091 0000 		lds r22,start
+ 1190 0482 7091 0000 		lds r23,start+1
+ 1191 0486 621B      		sub r22,r18
+ 1192 0488 730B      		sbc r23,r19
+ 1193 048a 40E0      		ldi r20,lo8(.LC10)
+ 1194 048c 50E0      		ldi r21,hi8(.LC10)
+ 1195 048e CE01      		movw r24,r28
+ 1196 0490 8E5B      		subi r24,-66
+ 1197 0492 974F      		sbci r25,-9
+ 1198 0494 0E94 0000 		call printResultRAM
+ 1199 0498 04E6      		ldi r16,lo8(100)
+ 1200 049a 10E0      		ldi r17,0
+ 1201               	.L11:
+ 1202               	.LBB35:
+ 178:profiling/measureNTT_12289_512.c **** 		generateRandomPolyTable_7681_256(b);
+ 1204               	.LM89:
+ 1205 049c CE01      		movw r24,r28
+ 1206 049e 8F5F      		subi r24,-1
+ 1207 04a0 9B4F      		sbci r25,-5
+ 1208 04a2 0E94 0000 		call generateRandomPolyTable_7681_256
+ 179:profiling/measureNTT_12289_512.c **** 							
+ 1210               	.LM90:
+ 1211 04a6 CE01      		movw r24,r28
+ 1212 04a8 0196      		adiw r24,1
+ 1213 04aa 0E94 0000 		call generateRandomPolyTable_7681_256
+ 182:profiling/measureNTT_12289_512.c **** 													
+ 1215               	.LM91:
+ 1216 04ae 8091 0000 		lds r24,__malloc_heap_start
+ 1217 04b2 9091 0000 		lds r25,__malloc_heap_start+1
+ 1218 04b6 0E94 0000 		call startRAM
+ 182:profiling/measureNTT_12289_512.c **** 													
+ 1220               	.LM92:
+ 1221 04ba 8093 0000 		sts start,r24
+ 1222 04be 9093 0000 		sts start+1,r25
+ 182:profiling/measureNTT_12289_512.c **** 													
+ 1224               	.LM93:
+ 1225 04c2 0E94 0000 		call startMeasurement
+ 184:profiling/measureNTT_12289_512.c **** 				
+ 1227               	.LM94:
+ 1228 04c6 20E0      		ldi r18,lo8(prvKeyR2_12289_512)
+ 1229 04c8 30E0      		ldi r19,hi8(prvKeyR2_12289_512)
+ 1230 04ca AE01      		movw r20,r28
+ 1231 04cc 4F5F      		subi r20,-1
+ 1232 04ce 5F4F      		sbci r21,-1
+ 1233 04d0 BE01      		movw r22,r28
+ 1234 04d2 6F5F      		subi r22,-1
+ 1235 04d4 7B4F      		sbci r23,-5
+ 1236 04d6 CE01      		movw r24,r28
+ 1237 04d8 8F5F      		subi r24,-1
+ 1238 04da 974F      		sbci r25,-9
+ 1239 04dc 0E94 0000 		call decrypt_12289_512
+ 187:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 	
+ 1241               	.LM95:
+ 1242 04e0 CE01      		movw r24,r28
+ 1243 04e2 8E5B      		subi r24,-66
+ 1244 04e4 974F      		sbci r25,-9
+ 1245 04e6 0E94 0000 		call stopMeasurement
+ 188:profiling/measureNTT_12289_512.c **** 	}
+ 1247               	.LM96:
+ 1248 04ea 0E94 0000 		call endRAM
+ 188:profiling/measureNTT_12289_512.c **** 	}
+ 1250               	.LM97:
+ 1251 04ee 8093 0000 		sts end,r24
+ 1252 04f2 9093 0000 		sts end+1,r25
+ 1253 04f6 0150      		subi r16,1
+ 1254 04f8 1109      		sbc r17,__zero_reg__
+ 175:profiling/measureNTT_12289_512.c **** 	{
+ 1256               	.LM98:
+ 1257 04fa 01F4      		brne .L11
+ 1258               	.LBE35:
+ 191:profiling/measureNTT_12289_512.c **** 	
+ 1260               	.LM99:
+ 1261 04fc 6091 0000 		lds r22,start
+ 1262 0500 7091 0000 		lds r23,start+1
+ 1263 0504 681B      		sub r22,r24
+ 1264 0506 790B      		sbc r23,r25
+ 1265 0508 40E0      		ldi r20,lo8(.LC11)
+ 1266 050a 50E0      		ldi r21,hi8(.LC11)
+ 1267 050c CE01      		movw r24,r28
+ 1268 050e 8E5B      		subi r24,-66
+ 1269 0510 974F      		sbci r25,-9
+ 1270 0512 0E94 0000 		call printResultRAM
+ 1271 0516 10E0      		ldi r17,0
+ 1272               	.L12:
+ 1273               	.LBB36:
+ 197:profiling/measureNTT_12289_512.c **** 		msg[1]= (char) i+10;
+ 1275               	.LM100:
+ 1276 0518 CF5F      		subi r28,lo8(-2049)
+ 1277 051a D74F      		sbci r29,hi8(-2049)
+ 1278 051c 1883      		st Y,r17
+ 1279 051e C150      		subi r28,lo8(2049)
+ 1280 0520 D840      		sbci r29,hi8(2049)
+ 198:profiling/measureNTT_12289_512.c **** 		msg[2]= (char) i+55;
+ 1282               	.LM101:
+ 1283 0522 8AE0      		ldi r24,lo8(10)
+ 1284 0524 810F      		add r24,r17
+ 198:profiling/measureNTT_12289_512.c **** 		msg[2]= (char) i+55;
+ 1286               	.LM102:
+ 1287 0526 CE5F      		subi r28,lo8(-2050)
+ 1288 0528 D74F      		sbci r29,hi8(-2050)
+ 1289 052a 8883      		st Y,r24
+ 1290 052c C250      		subi r28,lo8(2050)
+ 1291 052e D840      		sbci r29,hi8(2050)
+ 199:profiling/measureNTT_12289_512.c **** 
+ 1293               	.LM103:
+ 1294 0530 87E3      		ldi r24,lo8(55)
+ 1295 0532 810F      		add r24,r17
+ 199:profiling/measureNTT_12289_512.c **** 
+ 1297               	.LM104:
+ 1298 0534 CD5F      		subi r28,lo8(-2051)
+ 1299 0536 D74F      		sbci r29,hi8(-2051)
+ 1300 0538 8883      		st Y,r24
+ 1301 053a C350      		subi r28,lo8(2051)
+ 1302 053c D840      		sbci r29,hi8(2051)
+ 201:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 1304               	.LM105:
+ 1305 053e 8091 0000 		lds r24,__malloc_heap_start
+ 1306 0542 9091 0000 		lds r25,__malloc_heap_start+1
+ 1307 0546 0E94 0000 		call startRAM
+ 201:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 1309               	.LM106:
+ 1310 054a 8093 0000 		sts start,r24
+ 1311 054e 9093 0000 		sts start+1,r25
+ 202:profiling/measureNTT_12289_512.c **** 					       									
+ 1313               	.LM107:
+ 1314 0552 0E94 0000 		call startMeasurement
+ 204:profiling/measureNTT_12289_512.c **** 		
+ 1316               	.LM108:
+ 1317 0556 BE01      		movw r22,r28
+ 1318 0558 6F5F      		subi r22,-1
+ 1319 055a 7B4F      		sbci r23,-5
+ 1320 055c CE01      		movw r24,r28
+ 1321 055e 8F5F      		subi r24,-1
+ 1322 0560 974F      		sbci r25,-9
+ 1323 0562 0E94 0000 		call add_encode_12289_512
+ 207:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 			
+ 1325               	.LM109:
+ 1326 0566 CE01      		movw r24,r28
+ 1327 0568 8E5B      		subi r24,-66
+ 1328 056a 974F      		sbci r25,-9
+ 1329 056c 0E94 0000 		call stopMeasurement
+ 208:profiling/measureNTT_12289_512.c **** 	}
+ 1331               	.LM110:
+ 1332 0570 0E94 0000 		call endRAM
+ 208:profiling/measureNTT_12289_512.c **** 	}
+ 1334               	.LM111:
+ 1335 0574 8093 0000 		sts end,r24
+ 1336 0578 9093 0000 		sts end+1,r25
+ 1337 057c 1F5F      		subi r17,lo8(-(1))
+ 195:profiling/measureNTT_12289_512.c **** 	{
+ 1339               	.LM112:
+ 1340 057e 1436      		cpi r17,lo8(100)
+ 1341 0580 01F4      		brne .L12
+ 1342               	.LBE36:
+ 211:profiling/measureNTT_12289_512.c **** 	
+ 1344               	.LM113:
+ 1345 0582 6091 0000 		lds r22,start
+ 1346 0586 7091 0000 		lds r23,start+1
+ 1347 058a 681B      		sub r22,r24
+ 1348 058c 790B      		sbc r23,r25
+ 1349 058e 40E0      		ldi r20,lo8(.LC12)
+ 1350 0590 50E0      		ldi r21,hi8(.LC12)
+ 1351 0592 CE01      		movw r24,r28
+ 1352 0594 8E5B      		subi r24,-66
+ 1353 0596 974F      		sbci r25,-9
+ 1354 0598 0E94 0000 		call printResultRAM
+ 1355 059c 04E6      		ldi r16,lo8(100)
+ 1356 059e 10E0      		ldi r17,0
+ 1357               	.L13:
+ 1358               	.LBB37:
+ 215:profiling/measureNTT_12289_512.c **** 							
+ 1360               	.LM114:
+ 1361 05a0 CE01      		movw r24,r28
+ 1362 05a2 8F5F      		subi r24,-1
+ 1363 05a4 9B4F      		sbci r25,-5
+ 1364 05a6 0E94 0000 		call generateRandomPolyTable_12289_512
+ 217:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 1366               	.LM115:
+ 1367 05aa 8091 0000 		lds r24,__malloc_heap_start
+ 1368 05ae 9091 0000 		lds r25,__malloc_heap_start+1
+ 1369 05b2 0E94 0000 		call startRAM
+ 217:profiling/measureNTT_12289_512.c **** 		startMeasurement();		
+ 1371               	.LM116:
+ 1372 05b6 8093 0000 		sts start,r24
+ 1373 05ba 9093 0000 		sts start+1,r25
+ 218:profiling/measureNTT_12289_512.c **** 														
+ 1375               	.LM117:
+ 1376 05be 0E94 0000 		call startMeasurement
+ 220:profiling/measureNTT_12289_512.c **** 		
+ 1378               	.LM118:
+ 1379 05c2 BE01      		movw r22,r28
+ 1380 05c4 6F5F      		subi r22,-1
+ 1381 05c6 774F      		sbci r23,-9
+ 1382 05c8 CE01      		movw r24,r28
+ 1383 05ca 8F5F      		subi r24,-1
+ 1384 05cc 9B4F      		sbci r25,-5
+ 1385 05ce 0E94 0000 		call decode_12289_512
+ 223:profiling/measureNTT_12289_512.c **** 		end = endRAM(); 			
+ 1387               	.LM119:
+ 1388 05d2 CE01      		movw r24,r28
+ 1389 05d4 8E5B      		subi r24,-66
+ 1390 05d6 974F      		sbci r25,-9
+ 1391 05d8 0E94 0000 		call stopMeasurement
+ 224:profiling/measureNTT_12289_512.c **** 	}
+ 1393               	.LM120:
+ 1394 05dc 0E94 0000 		call endRAM
+ 224:profiling/measureNTT_12289_512.c **** 	}
+ 1396               	.LM121:
+ 1397 05e0 8093 0000 		sts end,r24
+ 1398 05e4 9093 0000 		sts end+1,r25
+ 1399 05e8 0150      		subi r16,1
+ 1400 05ea 1109      		sbc r17,__zero_reg__
+ 213:profiling/measureNTT_12289_512.c **** 	{
+ 1402               	.LM122:
+ 1403 05ec 01F4      		brne .L13
+ 1404               	.LBE37:
+ 227:profiling/measureNTT_12289_512.c **** }
+ 1406               	.LM123:
+ 1407 05ee 6091 0000 		lds r22,start
+ 1408 05f2 7091 0000 		lds r23,start+1
+ 1409 05f6 681B      		sub r22,r24
+ 1410 05f8 790B      		sbc r23,r25
+ 1411 05fa 40E0      		ldi r20,lo8(.LC13)
+ 1412 05fc 50E0      		ldi r21,hi8(.LC13)
+ 1413 05fe CE01      		movw r24,r28
+ 1414 0600 8E5B      		subi r24,-66
+ 1415 0602 974F      		sbci r25,-9
+ 1416 0604 0E94 0000 		call printResultRAM
+ 1417               	.LBE33:
+ 1418               	.LBE32:
+ 236:profiling/measureNTT_12289_512.c **** 	
+ 237:profiling/measureNTT_12289_512.c **** 	measureNTT_12289_512(a,b);
+ 238:profiling/measureNTT_12289_512.c **** 	measurePolyGeneration_12289_512(a);
+ 239:profiling/measureNTT_12289_512.c **** 	measureLWEOperations_12289_512(a,b);	
+ 240:profiling/measureNTT_12289_512.c **** 	
+ 241:profiling/measureNTT_12289_512.c **** 	printf("\n");
+ 1420               	.LM124:
+ 1421 0608 8AE0      		ldi r24,lo8(10)
+ 1422 060a 90E0      		ldi r25,0
+ 1423 060c 0E94 0000 		call putchar
+ 1424               	/* epilogue start */
+ 242:profiling/measureNTT_12289_512.c **** }
+ 1426               	.LM125:
+ 1427 0610 C75B      		subi r28,-73
+ 1428 0612 D74F      		sbci r29,-9
+ 1429 0614 CDBF      		out __SP_L__,r28
+ 1430 0616 DEBF      		out __SP_H__,r29
+ 1431 0618 DF91      		pop r29
+ 1432 061a CF91      		pop r28
+ 1433 061c 1F91      		pop r17
+ 1434 061e 0F91      		pop r16
+ 1435 0620 FF90      		pop r15
+ 1436 0622 0895      		ret
+ 1452               	.Lscope1:
+ 1453               		.section	.bss.end,"aw",@nobits
+ 1456               	end:
+ 1457 0000 0000      		.zero	2
+ 1459               		.section	.bss.start,"aw",@nobits
+ 1462               	start:
+ 1463 0000 0000      		.zero	2
+ 1465               		.section	.progmem.data.pubKeyA_12289_512,"a"
+ 1468               	pubKeyA_12289_512:
+ 1469 0000 EE2A      		.word	10990
+ 1470 0002 6115      		.word	5473
+ 1471 0004 372F      		.word	12087
+ 1472 0006 5D0A      		.word	2653
+ 1473 0008 7E02      		.word	638
+ 1474 000a E308      		.word	2275
+ 1475 000c 4204      		.word	1090
+ 1476 000e 0E01      		.word	270
+ 1477 0010 220D      		.word	3362
+ 1478 0012 DE06      		.word	1758
+ 1479 0014 0D1F      		.word	7949
+ 1480 0016 5F27      		.word	10079
+ 1481 0018 5D1F      		.word	8029
+ 1482 001a 1726      		.word	9751
+ 1483 001c 8B1B      		.word	7051
+ 1484 001e C306      		.word	1731
+ 1485 0020 C919      		.word	6601
+ 1486 0022 911D      		.word	7569
+ 1487 0024 5711      		.word	4439
+ 1488 0026 0A2E      		.word	11786
+ 1489 0028 3629      		.word	10550
+ 1490 002a DC2D      		.word	11740
+ 1491 002c 712F      		.word	12145
+ 1492 002e FE05      		.word	1534
+ 1493 0030 FE2C      		.word	11518
+ 1494 0032 4103      		.word	833
+ 1495 0034 C60C      		.word	3270
+ 1496 0036 5307      		.word	1875
+ 1497 0038 9811      		.word	4504
+ 1498 003a FA2B      		.word	11258
+ 1499 003c 8A0B      		.word	2954
+ 1500 003e A603      		.word	934
+ 1501 0040 7522      		.word	8821
+ 1502 0042 1A04      		.word	1050
+ 1503 0044 6A1D      		.word	7530
+ 1504 0046 A50C      		.word	3237
+ 1505 0048 4807      		.word	1864
+ 1506 004a CF25      		.word	9679
+ 1507 004c C117      		.word	6081
+ 1508 004e 4326      		.word	9795
+ 1509 0050 7F07      		.word	1919
+ 1510 0052 D32A      		.word	10963
+ 1511 0054 5E0D      		.word	3422
+ 1512 0056 990D      		.word	3481
+ 1513 0058 932F      		.word	12179
+ 1514 005a E225      		.word	9698
+ 1515 005c CA26      		.word	9930
+ 1516 005e F12A      		.word	10993
+ 1517 0060 0010      		.word	4096
+ 1518 0062 E40A      		.word	2788
+ 1519 0064 C210      		.word	4290
+ 1520 0066 6508      		.word	2149
+ 1521 0068 E91C      		.word	7401
+ 1522 006a 0A22      		.word	8714
+ 1523 006c F923      		.word	9209
+ 1524 006e 171D      		.word	7447
+ 1525 0070 3B23      		.word	9019
+ 1526 0072 A016      		.word	5792
+ 1527 0074 6A2E      		.word	11882
+ 1528 0076 AF20      		.word	8367
+ 1529 0078 222E      		.word	11810
+ 1530 007a D109      		.word	2513
+ 1531 007c 5A1B      		.word	7002
+ 1532 007e 4000      		.word	64
+ 1533 0080 A20F      		.word	4002
+ 1534 0082 4722      		.word	8775
+ 1535 0084 6712      		.word	4711
+ 1536 0086 B916      		.word	5817
+ 1537 0088 7302      		.word	627
+ 1538 008a 482B      		.word	11080
+ 1539 008c C81D      		.word	7624
+ 1540 008e FC12      		.word	4860
+ 1541 0090 370F      		.word	3895
+ 1542 0092 B80D      		.word	3512
+ 1543 0094 550D      		.word	3413
+ 1544 0096 DA1A      		.word	6874
+ 1545 0098 3926      		.word	9785
+ 1546 009a AE10      		.word	4270
+ 1547 009c CC04      		.word	1228
+ 1548 009e AE07      		.word	1966
+ 1549 00a0 FB00      		.word	251
+ 1550 00a2 481C      		.word	7240
+ 1551 00a4 E51A      		.word	6885
+ 1552 00a6 3814      		.word	5176
+ 1553 00a8 1320      		.word	8211
+ 1554 00aa 8625      		.word	9606
+ 1555 00ac F126      		.word	9969
+ 1556 00ae 6926      		.word	9833
+ 1557 00b0 7502      		.word	629
+ 1558 00b2 EB13      		.word	5099
+ 1559 00b4 A00A      		.word	2720
+ 1560 00b6 F30B      		.word	3059
+ 1561 00b8 B91D      		.word	7609
+ 1562 00ba 0913      		.word	4873
+ 1563 00bc 0209      		.word	2306
+ 1564 00be E01E      		.word	7904
+ 1565 00c0 FC1F      		.word	8188
+ 1566 00c2 7716      		.word	5751
+ 1567 00c4 C01F      		.word	8128
+ 1568 00c6 1F0A      		.word	2591
+ 1569 00c8 771E      		.word	7799
+ 1570 00ca 9107      		.word	1937
+ 1571 00cc 2221      		.word	8482
+ 1572 00ce 2128      		.word	10273
+ 1573 00d0 541F      		.word	8020
+ 1574 00d2 4922      		.word	8777
+ 1575 00d4 1415      		.word	5396
+ 1576 00d6 B205      		.word	1458
+ 1577 00d8 1D28      		.word	10269
+ 1578 00da 6505      		.word	1381
+ 1579 00dc 6900      		.word	105
+ 1580 00de 0526      		.word	9733
+ 1581 00e0 1C00      		.word	28
+ 1582 00e2 EE2C      		.word	11502
+ 1583 00e4 1810      		.word	4120
+ 1584 00e6 9608      		.word	2198
+ 1585 00e8 C92B      		.word	11209
+ 1586 00ea B901      		.word	441
+ 1587 00ec 5B06      		.word	1627
+ 1588 00ee CA29      		.word	10698
+ 1589 00f0 2422      		.word	8740
+ 1590 00f2 C71F      		.word	8135
+ 1591 00f4 A007      		.word	1952
+ 1592 00f6 6213      		.word	4962
+ 1593 00f8 C427      		.word	10180
+ 1594 00fa 2E21      		.word	8494
+ 1595 00fc 3504      		.word	1077
+ 1596 00fe 8218      		.word	6274
+ 1597 0100 572F      		.word	12119
+ 1598 0102 A703      		.word	935
+ 1599 0104 4223      		.word	9026
+ 1600 0106 0D09      		.word	2317
+ 1601 0108 CA1B      		.word	7114
+ 1602 010a 601C      		.word	7264
+ 1603 010c BE1E      		.word	7870
+ 1604 010e 7F01      		.word	383
+ 1605 0110 6A00      		.word	106
+ 1606 0112 7F23      		.word	9087
+ 1607 0114 5313      		.word	4947
+ 1608 0116 F619      		.word	6646
+ 1609 0118 142B      		.word	11028
+ 1610 011a 990A      		.word	2713
+ 1611 011c 8C1F      		.word	8076
+ 1612 011e F624      		.word	9462
+ 1613 0120 6B27      		.word	10091
+ 1614 0122 DD28      		.word	10461
+ 1615 0124 5A15      		.word	5466
+ 1616 0126 1201      		.word	274
+ 1617 0128 D907      		.word	2009
+ 1618 012a 2027      		.word	10016
+ 1619 012c 7A0C      		.word	3194
+ 1620 012e 631F      		.word	8035
+ 1621 0130 F40E      		.word	3828
+ 1622 0132 D02E      		.word	11984
+ 1623 0134 3B04      		.word	1083
+ 1624 0136 9C29      		.word	10652
+ 1625 0138 7108      		.word	2161
+ 1626 013a F522      		.word	8949
+ 1627 013c 0E2A      		.word	10766
+ 1628 013e 6B2F      		.word	12139
+ 1629 0140 531C      		.word	7251
+ 1630 0142 1A1E      		.word	7706
+ 1631 0144 AC0C      		.word	3244
+ 1632 0146 662F      		.word	12134
+ 1633 0148 1906      		.word	1561
+ 1634 014a 281C      		.word	7208
+ 1635 014c C508      		.word	2245
+ 1636 014e 0A07      		.word	1802
+ 1637 0150 C11B      		.word	7105
+ 1638 0152 D613      		.word	5078
+ 1639 0154 D21D      		.word	7634
+ 1640 0156 490A      		.word	2633
+ 1641 0158 1E01      		.word	286
+ 1642 015a 3112      		.word	4657
+ 1643 015c 5606      		.word	1622
+ 1644 015e 962E      		.word	11926
+ 1645 0160 072F      		.word	12039
+ 1646 0162 3320      		.word	8243
+ 1647 0164 6025      		.word	9568
+ 1648 0166 E604      		.word	1254
+ 1649 0168 711B      		.word	7025
+ 1650 016a 3005      		.word	1328
+ 1651 016c 6A0A      		.word	2666
+ 1652 016e 8001      		.word	384
+ 1653 0170 6A25      		.word	9578
+ 1654 0172 981F      		.word	8088
+ 1655 0174 3506      		.word	1589
+ 1656 0176 7611      		.word	4470
+ 1657 0178 6C22      		.word	8812
+ 1658 017a 750B      		.word	2933
+ 1659 017c A62F      		.word	12198
+ 1660 017e BE12      		.word	4798
+ 1661 0180 B42C      		.word	11444
+ 1662 0182 D60B      		.word	3030
+ 1663 0184 C611      		.word	4550
+ 1664 0186 CE14      		.word	5326
+ 1665 0188 160F      		.word	3862
+ 1666 018a 2F13      		.word	4911
+ 1667 018c 7704      		.word	1143
+ 1668 018e D509      		.word	2517
+ 1669 0190 B320      		.word	8371
+ 1670 0192 B72A      		.word	10935
+ 1671 0194 4917      		.word	5961
+ 1672 0196 3B23      		.word	9019
+ 1673 0198 9010      		.word	4240
+ 1674 019a 7F1F      		.word	8063
+ 1675 019c B012      		.word	4784
+ 1676 019e 3908      		.word	2105
+ 1677 01a0 790F      		.word	3961
+ 1678 01a2 7710      		.word	4215
+ 1679 01a4 961B      		.word	7062
+ 1680 01a6 CD1A      		.word	6861
+ 1681 01a8 B210      		.word	4274
+ 1682 01aa 061C      		.word	7174
+ 1683 01ac DC2B      		.word	11228
+ 1684 01ae CC03      		.word	972
+ 1685 01b0 4007      		.word	1856
+ 1686 01b2 5F21      		.word	8543
+ 1687 01b4 6912      		.word	4713
+ 1688 01b6 070A      		.word	2567
+ 1689 01b8 082C      		.word	11272
+ 1690 01ba E108      		.word	2273
+ 1691 01bc 312E      		.word	11825
+ 1692 01be D415      		.word	5588
+ 1693 01c0 9F1A      		.word	6815
+ 1694 01c2 1A0F      		.word	3866
+ 1695 01c4 951F      		.word	8085
+ 1696 01c6 F517      		.word	6133
+ 1697 01c8 741C      		.word	7284
+ 1698 01ca 8220      		.word	8322
+ 1699 01cc CF16      		.word	5839
+ 1700 01ce D005      		.word	1488
+ 1701 01d0 4C2C      		.word	11340
+ 1702 01d2 8C1B      		.word	7052
+ 1703 01d4 D90A      		.word	2777
+ 1704 01d6 1D13      		.word	4893
+ 1705 01d8 7D13      		.word	4989
+ 1706 01da 0702      		.word	519
+ 1707 01dc 0219      		.word	6402
+ 1708 01de E224      		.word	9442
+ 1709 01e0 2C2E      		.word	11820
+ 1710 01e2 0B2A      		.word	10763
+ 1711 01e4 6D26      		.word	9837
+ 1712 01e6 CB2C      		.word	11467
+ 1713 01e8 5006      		.word	1616
+ 1714 01ea 0B07      		.word	1803
+ 1715 01ec 8929      		.word	10633
+ 1716 01ee 120E      		.word	3602
+ 1717 01f0 6320      		.word	8291
+ 1718 01f2 8A2E      		.word	11914
+ 1719 01f4 720E      		.word	3698
+ 1720 01f6 0F0A      		.word	2575
+ 1721 01f8 C214      		.word	5314
+ 1722 01fa B914      		.word	5305
+ 1723 01fc 0417      		.word	5892
+ 1724 01fe 5228      		.word	10322
+ 1725 0200 2726      		.word	9767
+ 1726 0202 4023      		.word	9024
+ 1727 0204 1D2A      		.word	10781
+ 1728 0206 4426      		.word	9796
+ 1729 0208 DF12      		.word	4831
+ 1730 020a CA1E      		.word	7882
+ 1731 020c F42A      		.word	10996
+ 1732 020e 8A1F      		.word	8074
+ 1733 0210 BB04      		.word	1211
+ 1734 0212 4D24      		.word	9293
+ 1735 0214 8F15      		.word	5519
+ 1736 0216 1C10      		.word	4124
+ 1737 0218 7326      		.word	9843
+ 1738 021a 560E      		.word	3670
+ 1739 021c 8327      		.word	10115
+ 1740 021e 9019      		.word	6544
+ 1741 0220 AE2F      		.word	12206
+ 1742 0222 2628      		.word	10278
+ 1743 0224 2C0E      		.word	3628
+ 1744 0226 6221      		.word	8546
+ 1745 0228 B411      		.word	4532
+ 1746 022a E020      		.word	8416
+ 1747 022c D522      		.word	8917
+ 1748 022e E614      		.word	5350
+ 1749 0230 BF01      		.word	447
+ 1750 0232 5B08      		.word	2139
+ 1751 0234 5F2B      		.word	11103
+ 1752 0236 8B0A      		.word	2699
+ 1753 0238 CD03      		.word	973
+ 1754 023a 8201      		.word	386
+ 1755 023c E21B      		.word	7138
+ 1756 023e 050D      		.word	3333
+ 1757 0240 0A0C      		.word	3082
+ 1758 0242 A117      		.word	6049
+ 1759 0244 7701      		.word	375
+ 1760 0246 AC1E      		.word	7852
+ 1761 0248 6425      		.word	9572
+ 1762 024a 5307      		.word	1875
+ 1763 024c 9D29      		.word	10653
+ 1764 024e DF0E      		.word	3807
+ 1765 0250 180A      		.word	2584
+ 1766 0252 6D15      		.word	5485
+ 1767 0254 F70B      		.word	3063
+ 1768 0256 9221      		.word	8594
+ 1769 0258 7A1D      		.word	7546
+ 1770 025a 4614      		.word	5190
+ 1771 025c 3920      		.word	8249
+ 1772 025e 9D02      		.word	669
+ 1773 0260 5F07      		.word	1887
+ 1774 0262 6A26      		.word	9834
+ 1775 0264 FD19      		.word	6653
+ 1776 0266 562D      		.word	11606
+ 1777 0268 0314      		.word	5123
+ 1778 026a 7605      		.word	1398
+ 1779 026c DB0A      		.word	2779
+ 1780 026e C806      		.word	1736
+ 1781 0270 D209      		.word	2514
+ 1782 0272 7304      		.word	1139
+ 1783 0274 D806      		.word	1752
+ 1784 0276 4616      		.word	5702
+ 1785 0278 D22A      		.word	10962
+ 1786 027a 5B15      		.word	5467
+ 1787 027c 011C      		.word	7169
+ 1788 027e FE2D      		.word	11774
+ 1789 0280 CA06      		.word	1738
+ 1790 0282 8524      		.word	9349
+ 1791 0284 C516      		.word	5829
+ 1792 0286 7809      		.word	2424
+ 1793 0288 8801      		.word	392
+ 1794 028a CE12      		.word	4814
+ 1795 028c 7113      		.word	4977
+ 1796 028e B31C      		.word	7347
+ 1797 0290 1600      		.word	22
+ 1798 0292 0123      		.word	8961
+ 1799 0294 D40A      		.word	2772
+ 1800 0296 0408      		.word	2052
+ 1801 0298 9513      		.word	5013
+ 1802 029a A303      		.word	931
+ 1803 029c 8B2F      		.word	12171
+ 1804 029e FD05      		.word	1533
+ 1805 02a0 DE12      		.word	4830
+ 1806 02a2 ED02      		.word	749
+ 1807 02a4 5F04      		.word	1119
+ 1808 02a6 A729      		.word	10663
+ 1809 02a8 0405      		.word	1284
+ 1810 02aa 7E1B      		.word	7038
+ 1811 02ac 301C      		.word	7216
+ 1812 02ae 0009      		.word	2304
+ 1813 02b0 CB0D      		.word	3531
+ 1814 02b2 D910      		.word	4313
+ 1815 02b4 AC27      		.word	10156
+ 1816 02b6 8504      		.word	1157
+ 1817 02b8 A00E      		.word	3744
+ 1818 02ba B82F      		.word	12216
+ 1819 02bc 5A14      		.word	5210
+ 1820 02be 9018      		.word	6288
+ 1821 02c0 1508      		.word	2069
+ 1822 02c2 0F2A      		.word	10767
+ 1823 02c4 8A26      		.word	9866
+ 1824 02c6 142A      		.word	10772
+ 1825 02c8 F90B      		.word	3065
+ 1826 02ca 121C      		.word	7186
+ 1827 02cc 2A24      		.word	9258
+ 1828 02ce 7D0A      		.word	2685
+ 1829 02d0 6B16      		.word	5739
+ 1830 02d2 7C11      		.word	4476
+ 1831 02d4 D502      		.word	725
+ 1832 02d6 D811      		.word	4568
+ 1833 02d8 811B      		.word	7041
+ 1834 02da 322B      		.word	11058
+ 1835 02dc A214      		.word	5282
+ 1836 02de D81F      		.word	8152
+ 1837 02e0 0C15      		.word	5388
+ 1838 02e2 DD1B      		.word	7133
+ 1839 02e4 8702      		.word	647
+ 1840 02e6 032A      		.word	10755
+ 1841 02e8 9E2C      		.word	11422
+ 1842 02ea 862B      		.word	11142
+ 1843 02ec 5409      		.word	2388
+ 1844 02ee 5D26      		.word	9821
+ 1845 02f0 1005      		.word	1296
+ 1846 02f2 F60D      		.word	3574
+ 1847 02f4 1F28      		.word	10271
+ 1848 02f6 CF2E      		.word	11983
+ 1849 02f8 F70A      		.word	2807
+ 1850 02fa F127      		.word	10225
+ 1851 02fc E215      		.word	5602
+ 1852 02fe 832F      		.word	12163
+ 1853 0300 822C      		.word	11394
+ 1854 0302 8E0C      		.word	3214
+ 1855 0304 4411      		.word	4420
+ 1856 0306 DB16      		.word	5851
+ 1857 0308 F310      		.word	4339
+ 1858 030a 7B1C      		.word	7291
+ 1859 030c 5B20      		.word	8283
+ 1860 030e CF0D      		.word	3535
+ 1861 0310 092A      		.word	10761
+ 1862 0312 212C      		.word	11297
+ 1863 0314 DD0B      		.word	3037
+ 1864 0316 E424      		.word	9444
+ 1865 0318 C42B      		.word	11204
+ 1866 031a E326      		.word	9955
+ 1867 031c 8205      		.word	1410
+ 1868 031e 0008      		.word	2048
+ 1869 0320 641F      		.word	8036
+ 1870 0322 261A      		.word	6694
+ 1871 0324 0C09      		.word	2316
+ 1872 0326 3409      		.word	2356
+ 1873 0328 3415      		.word	5428
+ 1874 032a 8A2C      		.word	11402
+ 1875 032c 372C      		.word	11319
+ 1876 032e 3D28      		.word	10301
+ 1877 0330 9815      		.word	5528
+ 1878 0332 F114      		.word	5361
+ 1879 0334 9C0E      		.word	3740
+ 1880 0336 A31A      		.word	6819
+ 1881 0338 EB21      		.word	8683
+ 1882 033a BE0A      		.word	2750
+ 1883 033c 8128      		.word	10369
+ 1884 033e F715      		.word	5623
+ 1885 0340 8E0D      		.word	3470
+ 1886 0342 9F24      		.word	9375
+ 1887 0344 720C      		.word	3186
+ 1888 0346 3B1F      		.word	7995
+ 1889 0348 C01B      		.word	7104
+ 1890 034a 452E      		.word	11845
+ 1891 034c AD07      		.word	1965
+ 1892 034e 3D23      		.word	9021
+ 1893 0350 C128      		.word	10433
+ 1894 0352 5125      		.word	9553
+ 1895 0354 A816      		.word	5800
+ 1896 0356 3100      		.word	49
+ 1897 0358 7A0E      		.word	3706
+ 1898 035a 6D1F      		.word	8045
+ 1899 035c 1919      		.word	6425
+ 1900 035e 590A      		.word	2649
+ 1901 0360 9B17      		.word	6043
+ 1902 0362 C508      		.word	2245
+ 1903 0364 C916      		.word	5833
+ 1904 0366 EC1F      		.word	8172
+ 1905 0368 2F0A      		.word	2607
+ 1906 036a CB25      		.word	9675
+ 1907 036c 2001      		.word	288
+ 1908 036e 8323      		.word	9091
+ 1909 0370 9A0D      		.word	3482
+ 1910 0372 8402      		.word	644
+ 1911 0374 6F06      		.word	1647
+ 1912 0376 0D17      		.word	5901
+ 1913 0378 462A      		.word	10822
+ 1914 037a C81F      		.word	8136
+ 1915 037c BD07      		.word	1981
+ 1916 037e 142B      		.word	11028
+ 1917 0380 7524      		.word	9333
+ 1918 0382 4B0F      		.word	3915
+ 1919 0384 1D28      		.word	10269
+ 1920 0386 0E0F      		.word	3854
+ 1921 0388 A91C      		.word	7337
+ 1922 038a B92C      		.word	11449
+ 1923 038c A221      		.word	8610
+ 1924 038e 0A28      		.word	10250
+ 1925 0390 560D      		.word	3414
+ 1926 0392 4008      		.word	2112
+ 1927 0394 0D0B      		.word	2829
+ 1928 0396 EF08      		.word	2287
+ 1929 0398 3917      		.word	5945
+ 1930 039a 0704      		.word	1031
+ 1931 039c A70E      		.word	3751
+ 1932 039e 0419      		.word	6404
+ 1933 03a0 1106      		.word	1553
+ 1934 03a2 7008      		.word	2160
+ 1935 03a4 2405      		.word	1316
+ 1936 03a6 8E16      		.word	5774
+ 1937 03a8 A40A      		.word	2724
+ 1938 03aa 472B      		.word	11079
+ 1939 03ac E626      		.word	9958
+ 1940 03ae 4608      		.word	2118
+ 1941 03b0 A112      		.word	4769
+ 1942 03b2 830F      		.word	3971
+ 1943 03b4 8109      		.word	2433
+ 1944 03b6 C52F      		.word	12229
+ 1945 03b8 4C0B      		.word	2892
+ 1946 03ba 660C      		.word	3174
+ 1947 03bc C620      		.word	8390
+ 1948 03be 1E2B      		.word	11038
+ 1949 03c0 ED23      		.word	9197
+ 1950 03c2 B503      		.word	949
+ 1951 03c4 0A11      		.word	4362
+ 1952 03c6 B629      		.word	10678
+ 1953 03c8 C30F      		.word	4035
+ 1954 03ca 0913      		.word	4873
+ 1955 03cc 8624      		.word	9350
+ 1956 03ce 7A13      		.word	4986
+ 1957 03d0 5803      		.word	856
+ 1958 03d2 1D10      		.word	4125
+ 1959 03d4 4429      		.word	10564
+ 1960 03d6 901C      		.word	7312
+ 1961 03d8 0003      		.word	768
+ 1962 03da DD10      		.word	4317
+ 1963 03dc 8D10      		.word	4237
+ 1964 03de 1F14      		.word	5151
+ 1965 03e0 052E      		.word	11781
+ 1966 03e2 4D0F      		.word	3917
+ 1967 03e4 E800      		.word	232
+ 1968 03e6 4E27      		.word	10062
+ 1969 03e8 CD16      		.word	5837
+ 1970 03ea 540B      		.word	2900
+ 1971 03ec 322A      		.word	10802
+ 1972 03ee 3923      		.word	9017
+ 1973 03f0 5521      		.word	8533
+ 1974 03f2 EA13      		.word	5098
+ 1975 03f4 3A11      		.word	4410
+ 1976 03f6 352A      		.word	10805
+ 1977 03f8 180E      		.word	3608
+ 1978 03fa 7D0F      		.word	3965
+ 1979 03fc 2A22      		.word	8746
+ 1980 03fe 5A1D      		.word	7514
+ 1982               		.section	.progmem.data.pubKeyP_12289_512,"a"
+ 1985               	pubKeyP_12289_512:
+ 1986 0000 F01A      		.word	6896
+ 1987 0002 8D20      		.word	8333
+ 1988 0004 3E1C      		.word	7230
+ 1989 0006 5A2C      		.word	11354
+ 1990 0008 9D14      		.word	5277
+ 1991 000a D110      		.word	4305
+ 1992 000c F62C      		.word	11510
+ 1993 000e 2F22      		.word	8751
+ 1994 0010 7C0A      		.word	2684
+ 1995 0012 FE0C      		.word	3326
+ 1996 0014 9E21      		.word	8606
+ 1997 0016 3F27      		.word	10047
+ 1998 0018 E81F      		.word	8168
+ 1999 001a 440A      		.word	2628
+ 2000 001c 6C2C      		.word	11372
+ 2001 001e 1E26      		.word	9758
+ 2002 0020 BF04      		.word	1215
+ 2003 0022 7B01      		.word	379
+ 2004 0024 B20A      		.word	2738
+ 2005 0026 2B01      		.word	299
+ 2006 0028 6B28      		.word	10347
+ 2007 002a 6E13      		.word	4974
+ 2008 002c 4F0C      		.word	3151
+ 2009 002e B109      		.word	2481
+ 2010 0030 0A2E      		.word	11786
+ 2011 0032 D208      		.word	2258
+ 2012 0034 F024      		.word	9456
+ 2013 0036 3B0B      		.word	2875
+ 2014 0038 5418      		.word	6228
+ 2015 003a 5C12      		.word	4700
+ 2016 003c 781B      		.word	7032
+ 2017 003e 330E      		.word	3635
+ 2018 0040 DF29      		.word	10719
+ 2019 0042 D714      		.word	5335
+ 2020 0044 C011      		.word	4544
+ 2021 0046 B912      		.word	4793
+ 2022 0048 AE1E      		.word	7854
+ 2023 004a 281F      		.word	7976
+ 2024 004c 4F22      		.word	8783
+ 2025 004e 1A1C      		.word	7194
+ 2026 0050 A905      		.word	1449
+ 2027 0052 AA0E      		.word	3754
+ 2028 0054 FD09      		.word	2557
+ 2029 0056 5E04      		.word	1118
+ 2030 0058 3316      		.word	5683
+ 2031 005a A503      		.word	933
+ 2032 005c 6C27      		.word	10092
+ 2033 005e 5906      		.word	1625
+ 2034 0060 2B1E      		.word	7723
+ 2035 0062 1801      		.word	280
+ 2036 0064 1D01      		.word	285
+ 2037 0066 152D      		.word	11541
+ 2038 0068 E00C      		.word	3296
+ 2039 006a 311C      		.word	7217
+ 2040 006c F113      		.word	5105
+ 2041 006e F81C      		.word	7416
+ 2042 0070 AF06      		.word	1711
+ 2043 0072 701D      		.word	7536
+ 2044 0074 0C1B      		.word	6924
+ 2045 0076 5D2D      		.word	11613
+ 2046 0078 3718      		.word	6199
+ 2047 007a 9E12      		.word	4766
+ 2048 007c EE02      		.word	750
+ 2049 007e B71A      		.word	6839
+ 2050 0080 8E1C      		.word	7310
+ 2051 0082 7827      		.word	10104
+ 2052 0084 DC25      		.word	9692
+ 2053 0086 FE25      		.word	9726
+ 2054 0088 5216      		.word	5714
+ 2055 008a BC2E      		.word	11964
+ 2056 008c 3D06      		.word	1597
+ 2057 008e 4F20      		.word	8271
+ 2058 0090 600C      		.word	3168
+ 2059 0092 B703      		.word	951
+ 2060 0094 8D25      		.word	9613
+ 2061 0096 F11A      		.word	6897
+ 2062 0098 F90C      		.word	3321
+ 2063 009a F506      		.word	1781
+ 2064 009c 3414      		.word	5172
+ 2065 009e 262B      		.word	11046
+ 2066 00a0 262D      		.word	11558
+ 2067 00a2 E604      		.word	1254
+ 2068 00a4 C90E      		.word	3785
+ 2069 00a6 5218      		.word	6226
+ 2070 00a8 202A      		.word	10784
+ 2071 00aa 1A2F      		.word	12058
+ 2072 00ac E410      		.word	4324
+ 2073 00ae 4F0A      		.word	2639
+ 2074 00b0 F327      		.word	10227
+ 2075 00b2 4F2D      		.word	11599
+ 2076 00b4 6128      		.word	10337
+ 2077 00b6 D413      		.word	5076
+ 2078 00b8 8B21      		.word	8587
+ 2079 00ba D325      		.word	9683
+ 2080 00bc 5027      		.word	10064
+ 2081 00be E91C      		.word	7401
+ 2082 00c0 B828      		.word	10424
+ 2083 00c2 402F      		.word	12096
+ 2084 00c4 DC09      		.word	2524
+ 2085 00c6 CE1B      		.word	7118
+ 2086 00c8 E414      		.word	5348
+ 2087 00ca 5F19      		.word	6495
+ 2088 00cc 3109      		.word	2353
+ 2089 00ce DF11      		.word	4575
+ 2090 00d0 6F17      		.word	5999
+ 2091 00d2 4724      		.word	9287
+ 2092 00d4 BC25      		.word	9660
+ 2093 00d6 2B14      		.word	5163
+ 2094 00d8 131D      		.word	7443
+ 2095 00da 5F05      		.word	1375
+ 2096 00dc C226      		.word	9922
+ 2097 00de 2724      		.word	9255
+ 2098 00e0 E01E      		.word	7904
+ 2099 00e2 F029      		.word	10736
+ 2100 00e4 6217      		.word	5986
+ 2101 00e6 372D      		.word	11575
+ 2102 00e8 8019      		.word	6528
+ 2103 00ea BF11      		.word	4543
+ 2104 00ec 9922      		.word	8857
+ 2105 00ee A503      		.word	933
+ 2106 00f0 D50A      		.word	2773
+ 2107 00f2 D70E      		.word	3799
+ 2108 00f4 500D      		.word	3408
+ 2109 00f6 650E      		.word	3685
+ 2110 00f8 5829      		.word	10584
+ 2111 00fa 5C06      		.word	1628
+ 2112 00fc A200      		.word	162
+ 2113 00fe 9113      		.word	5009
+ 2114 0100 510F      		.word	3921
+ 2115 0102 0C17      		.word	5900
+ 2116 0104 A31D      		.word	7587
+ 2117 0106 1425      		.word	9492
+ 2118 0108 1E0E      		.word	3614
+ 2119 010a 7F1F      		.word	8063
+ 2120 010c FB1F      		.word	8187
+ 2121 010e F42F      		.word	12276
+ 2122 0110 0310      		.word	4099
+ 2123 0112 AA03      		.word	938
+ 2124 0114 E516      		.word	5861
+ 2125 0116 1A1C      		.word	7194
+ 2126 0118 6118      		.word	6241
+ 2127 011a D418      		.word	6356
+ 2128 011c 050C      		.word	3077
+ 2129 011e 7306      		.word	1651
+ 2130 0120 D20F      		.word	4050
+ 2131 0122 3A11      		.word	4410
+ 2132 0124 5418      		.word	6228
+ 2133 0126 410F      		.word	3905
+ 2134 0128 110D      		.word	3345
+ 2135 012a 792C      		.word	11385
+ 2136 012c E012      		.word	4832
+ 2137 012e 6404      		.word	1124
+ 2138 0130 3F28      		.word	10303
+ 2139 0132 7025      		.word	9584
+ 2140 0134 DB08      		.word	2267
+ 2141 0136 EF17      		.word	6127
+ 2142 0138 C71A      		.word	6855
+ 2143 013a 0719      		.word	6407
+ 2144 013c EB2E      		.word	12011
+ 2145 013e 892A      		.word	10889
+ 2146 0140 6202      		.word	610
+ 2147 0142 3C27      		.word	10044
+ 2148 0144 F028      		.word	10480
+ 2149 0146 C92E      		.word	11977
+ 2150 0148 4626      		.word	9798
+ 2151 014a 5710      		.word	4183
+ 2152 014c 0521      		.word	8453
+ 2153 014e 330D      		.word	3379
+ 2154 0150 5F19      		.word	6495
+ 2155 0152 D525      		.word	9685
+ 2156 0154 620A      		.word	2658
+ 2157 0156 AA1A      		.word	6826
+ 2158 0158 EF0E      		.word	3823
+ 2159 015a 2C1B      		.word	6956
+ 2160 015c 792C      		.word	11385
+ 2161 015e 4725      		.word	9543
+ 2162 0160 2E09      		.word	2350
+ 2163 0162 D102      		.word	721
+ 2164 0164 E32A      		.word	10979
+ 2165 0166 4303      		.word	835
+ 2166 0168 E122      		.word	8929
+ 2167 016a E012      		.word	4832
+ 2168 016c 9417      		.word	6036
+ 2169 016e C028      		.word	10432
+ 2170 0170 E610      		.word	4326
+ 2171 0172 3B0E      		.word	3643
+ 2172 0174 B92A      		.word	10937
+ 2173 0176 0512      		.word	4613
+ 2174 0178 E811      		.word	4584
+ 2175 017a F428      		.word	10484
+ 2176 017c C604      		.word	1222
+ 2177 017e 4012      		.word	4672
+ 2178 0180 210C      		.word	3105
+ 2179 0182 F207      		.word	2034
+ 2180 0184 5223      		.word	9042
+ 2181 0186 F311      		.word	4595
+ 2182 0188 EC1A      		.word	6892
+ 2183 018a 182A      		.word	10776
+ 2184 018c E802      		.word	744
+ 2185 018e AE0F      		.word	4014
+ 2186 0190 461A      		.word	6726
+ 2187 0192 4C1A      		.word	6732
+ 2188 0194 5D22      		.word	8797
+ 2189 0196 641D      		.word	7524
+ 2190 0198 4F2E      		.word	11855
+ 2191 019a 6A08      		.word	2154
+ 2192 019c 9324      		.word	9363
+ 2193 019e 8E04      		.word	1166
+ 2194 01a0 9308      		.word	2195
+ 2195 01a2 DA2B      		.word	11226
+ 2196 01a4 0B1A      		.word	6667
+ 2197 01a6 3502      		.word	565
+ 2198 01a8 E22B      		.word	11234
+ 2199 01aa D92F      		.word	12249
+ 2200 01ac 2713      		.word	4903
+ 2201 01ae B112      		.word	4785
+ 2202 01b0 DC0F      		.word	4060
+ 2203 01b2 232A      		.word	10787
+ 2204 01b4 E51D      		.word	7653
+ 2205 01b6 7924      		.word	9337
+ 2206 01b8 880A      		.word	2696
+ 2207 01ba 331F      		.word	7987
+ 2208 01bc C32E      		.word	11971
+ 2209 01be DF17      		.word	6111
+ 2210 01c0 A413      		.word	5028
+ 2211 01c2 4A0B      		.word	2890
+ 2212 01c4 990C      		.word	3225
+ 2213 01c6 9E2A      		.word	10910
+ 2214 01c8 1A06      		.word	1562
+ 2215 01ca BE02      		.word	702
+ 2216 01cc EE28      		.word	10478
+ 2217 01ce D513      		.word	5077
+ 2218 01d0 062A      		.word	10758
+ 2219 01d2 4B22      		.word	8779
+ 2220 01d4 BC1B      		.word	7100
+ 2221 01d6 DA27      		.word	10202
+ 2222 01d8 F729      		.word	10743
+ 2223 01da 7C05      		.word	1404
+ 2224 01dc 1D03      		.word	797
+ 2225 01de 4722      		.word	8775
+ 2226 01e0 E703      		.word	999
+ 2227 01e2 D324      		.word	9427
+ 2228 01e4 0B25      		.word	9483
+ 2229 01e6 6207      		.word	1890
+ 2230 01e8 EA25      		.word	9706
+ 2231 01ea CA2E      		.word	11978
+ 2232 01ec D020      		.word	8400
+ 2233 01ee D02A      		.word	10960
+ 2234 01f0 391C      		.word	7225
+ 2235 01f2 8C15      		.word	5516
+ 2236 01f4 DC1A      		.word	6876
+ 2237 01f6 9806      		.word	1688
+ 2238 01f8 EC01      		.word	492
+ 2239 01fa 9427      		.word	10132
+ 2240 01fc 2822      		.word	8744
+ 2241 01fe A329      		.word	10659
+ 2242 0200 8111      		.word	4481
+ 2243 0202 812C      		.word	11393
+ 2244 0204 6011      		.word	4448
+ 2245 0206 2B22      		.word	8747
+ 2246 0208 0D21      		.word	8461
+ 2247 020a 612F      		.word	12129
+ 2248 020c CB16      		.word	5835
+ 2249 020e FC26      		.word	9980
+ 2250 0210 970D      		.word	3479
+ 2251 0212 A528      		.word	10405
+ 2252 0214 A918      		.word	6313
+ 2253 0216 6621      		.word	8550
+ 2254 0218 6402      		.word	612
+ 2255 021a 9713      		.word	5015
+ 2256 021c 6928      		.word	10345
+ 2257 021e C01F      		.word	8128
+ 2258 0220 2222      		.word	8738
+ 2259 0222 DA0D      		.word	3546
+ 2260 0224 B72E      		.word	11959
+ 2261 0226 AE0F      		.word	4014
+ 2262 0228 4618      		.word	6214
+ 2263 022a C900      		.word	201
+ 2264 022c 7801      		.word	376
+ 2265 022e 4207      		.word	1858
+ 2266 0230 6B12      		.word	4715
+ 2267 0232 FC0F      		.word	4092
+ 2268 0234 E60E      		.word	3814
+ 2269 0236 DA2E      		.word	11994
+ 2270 0238 271E      		.word	7719
+ 2271 023a 320A      		.word	2610
+ 2272 023c B50A      		.word	2741
+ 2273 023e B129      		.word	10673
+ 2274 0240 A62D      		.word	11686
+ 2275 0242 C814      		.word	5320
+ 2276 0244 8E0C      		.word	3214
+ 2277 0246 6B19      		.word	6507
+ 2278 0248 D402      		.word	724
+ 2279 024a 012C      		.word	11265
+ 2280 024c 2800      		.word	40
+ 2281 024e 080F      		.word	3848
+ 2282 0250 1707      		.word	1815
+ 2283 0252 7C16      		.word	5756
+ 2284 0254 3C15      		.word	5436
+ 2285 0256 9A28      		.word	10394
+ 2286 0258 A40D      		.word	3492
+ 2287 025a 9012      		.word	4752
+ 2288 025c 2117      		.word	5921
+ 2289 025e 3100      		.word	49
+ 2290 0260 6605      		.word	1382
+ 2291 0262 D01B      		.word	7120
+ 2292 0264 6F01      		.word	367
+ 2293 0266 5E02      		.word	606
+ 2294 0268 AA09      		.word	2474
+ 2295 026a C629      		.word	10694
+ 2296 026c E62C      		.word	11494
+ 2297 026e 6706      		.word	1639
+ 2298 0270 0B0F      		.word	3851
+ 2299 0272 242D      		.word	11556
+ 2300 0274 502E      		.word	11856
+ 2301 0276 2D14      		.word	5165
+ 2302 0278 2610      		.word	4134
+ 2303 027a 7803      		.word	888
+ 2304 027c BD22      		.word	8893
+ 2305 027e CD02      		.word	717
+ 2306 0280 B322      		.word	8883
+ 2307 0282 8B01      		.word	395
+ 2308 0284 FA0C      		.word	3322
+ 2309 0286 F505      		.word	1525
+ 2310 0288 AE2E      		.word	11950
+ 2311 028a 6D12      		.word	4717
+ 2312 028c 1F11      		.word	4383
+ 2313 028e 7624      		.word	9334
+ 2314 0290 4628      		.word	10310
+ 2315 0292 B320      		.word	8371
+ 2316 0294 E32E      		.word	12003
+ 2317 0296 4609      		.word	2374
+ 2318 0298 5E22      		.word	8798
+ 2319 029a AE1E      		.word	7854
+ 2320 029c 6501      		.word	357
+ 2321 029e 3A03      		.word	826
+ 2322 02a0 AB0A      		.word	2731
+ 2323 02a2 FE01      		.word	510
+ 2324 02a4 A507      		.word	1957
+ 2325 02a6 9929      		.word	10649
+ 2326 02a8 0B0A      		.word	2571
+ 2327 02aa 3C2F      		.word	12092
+ 2328 02ac 521A      		.word	6738
+ 2329 02ae 5008      		.word	2128
+ 2330 02b0 611A      		.word	6753
+ 2331 02b2 6725      		.word	9575
+ 2332 02b4 202E      		.word	11808
+ 2333 02b6 8014      		.word	5248
+ 2334 02b8 D31A      		.word	6867
+ 2335 02ba 8008      		.word	2176
+ 2336 02bc B800      		.word	184
+ 2337 02be B004      		.word	1200
+ 2338 02c0 932E      		.word	11923
+ 2339 02c2 3607      		.word	1846
+ 2340 02c4 CD16      		.word	5837
+ 2341 02c6 9C10      		.word	4252
+ 2342 02c8 ED17      		.word	6125
+ 2343 02ca 8315      		.word	5507
+ 2344 02cc AA15      		.word	5546
+ 2345 02ce 1807      		.word	1816
+ 2346 02d0 550D      		.word	3413
+ 2347 02d2 A723      		.word	9127
+ 2348 02d4 3919      		.word	6457
+ 2349 02d6 C90E      		.word	3785
+ 2350 02d8 402B      		.word	11072
+ 2351 02da 6621      		.word	8550
+ 2352 02dc 3922      		.word	8761
+ 2353 02de CB2A      		.word	10955
+ 2354 02e0 8413      		.word	4996
+ 2355 02e2 5E1A      		.word	6750
+ 2356 02e4 5D0A      		.word	2653
+ 2357 02e6 D814      		.word	5336
+ 2358 02e8 E328      		.word	10467
+ 2359 02ea AE09      		.word	2478
+ 2360 02ec F30F      		.word	4083
+ 2361 02ee 2C0B      		.word	2860
+ 2362 02f0 9501      		.word	405
+ 2363 02f2 1120      		.word	8209
+ 2364 02f4 3C24      		.word	9276
+ 2365 02f6 0F24      		.word	9231
+ 2366 02f8 1413      		.word	4884
+ 2367 02fa 6E0A      		.word	2670
+ 2368 02fc CD19      		.word	6605
+ 2369 02fe A416      		.word	5796
+ 2370 0300 2B1D      		.word	7467
+ 2371 0302 BF01      		.word	447
+ 2372 0304 8A21      		.word	8586
+ 2373 0306 E410      		.word	4324
+ 2374 0308 0F11      		.word	4367
+ 2375 030a 5224      		.word	9298
+ 2376 030c 8002      		.word	640
+ 2377 030e 7326      		.word	9843
+ 2378 0310 B617      		.word	6070
+ 2379 0312 8913      		.word	5001
+ 2380 0314 8B14      		.word	5259
+ 2381 0316 0105      		.word	1281
+ 2382 0318 7D2A      		.word	10877
+ 2383 031a C113      		.word	5057
+ 2384 031c DA10      		.word	4314
+ 2385 031e 8A2B      		.word	11146
+ 2386 0320 0B20      		.word	8203
+ 2387 0322 A409      		.word	2468
+ 2388 0324 0E25      		.word	9486
+ 2389 0326 E50C      		.word	3301
+ 2390 0328 3500      		.word	53
+ 2391 032a 9127      		.word	10129
+ 2392 032c 250E      		.word	3621
+ 2393 032e 2B29      		.word	10539
+ 2394 0330 D311      		.word	4563
+ 2395 0332 1A1C      		.word	7194
+ 2396 0334 CD27      		.word	10189
+ 2397 0336 0A0E      		.word	3594
+ 2398 0338 3210      		.word	4146
+ 2399 033a 1211      		.word	4370
+ 2400 033c C00F      		.word	4032
+ 2401 033e 6205      		.word	1378
+ 2402 0340 141A      		.word	6676
+ 2403 0342 8113      		.word	4993
+ 2404 0344 3F26      		.word	9791
+ 2405 0346 F717      		.word	6135
+ 2406 0348 CA2F      		.word	12234
+ 2407 034a B90E      		.word	3769
+ 2408 034c E607      		.word	2022
+ 2409 034e 7D13      		.word	4989
+ 2410 0350 9B02      		.word	667
+ 2411 0352 3615      		.word	5430
+ 2412 0354 1616      		.word	5654
+ 2413 0356 A314      		.word	5283
+ 2414 0358 D821      		.word	8664
+ 2415 035a E208      		.word	2274
+ 2416 035c A31E      		.word	7843
+ 2417 035e D021      		.word	8656
+ 2418 0360 0C28      		.word	10252
+ 2419 0362 1F27      		.word	10015
+ 2420 0364 A106      		.word	1697
+ 2421 0366 0E16      		.word	5646
+ 2422 0368 EA06      		.word	1770
+ 2423 036a C515      		.word	5573
+ 2424 036c 042A      		.word	10756
+ 2425 036e 071E      		.word	7687
+ 2426 0370 E913      		.word	5097
+ 2427 0372 E220      		.word	8418
+ 2428 0374 572F      		.word	12119
+ 2429 0376 0F09      		.word	2319
+ 2430 0378 1328      		.word	10259
+ 2431 037a 4B16      		.word	5707
+ 2432 037c EB19      		.word	6635
+ 2433 037e 631D      		.word	7523
+ 2434 0380 9C0A      		.word	2716
+ 2435 0382 F403      		.word	1012
+ 2436 0384 8E19      		.word	6542
+ 2437 0386 1420      		.word	8212
+ 2438 0388 6100      		.word	97
+ 2439 038a 761A      		.word	6774
+ 2440 038c 221E      		.word	7714
+ 2441 038e 9E1B      		.word	7070
+ 2442 0390 BC00      		.word	188
+ 2443 0392 5319      		.word	6483
+ 2444 0394 3F20      		.word	8255
+ 2445 0396 3905      		.word	1337
+ 2446 0398 7323      		.word	9075
+ 2447 039a 3825      		.word	9528
+ 2448 039c D62D      		.word	11734
+ 2449 039e C62A      		.word	10950
+ 2450 03a0 562F      		.word	12118
+ 2451 03a2 7401      		.word	372
+ 2452 03a4 AF28      		.word	10415
+ 2453 03a6 3E26      		.word	9790
+ 2454 03a8 F42C      		.word	11508
+ 2455 03aa 2928      		.word	10281
+ 2456 03ac B12B      		.word	11185
+ 2457 03ae 841C      		.word	7300
+ 2458 03b0 A61E      		.word	7846
+ 2459 03b2 CC24      		.word	9420
+ 2460 03b4 C102      		.word	705
+ 2461 03b6 9E26      		.word	9886
+ 2462 03b8 6A2C      		.word	11370
+ 2463 03ba 0502      		.word	517
+ 2464 03bc 5427      		.word	10068
+ 2465 03be 6A05      		.word	1386
+ 2466 03c0 B001      		.word	432
+ 2467 03c2 DA2B      		.word	11226
+ 2468 03c4 ED1D      		.word	7661
+ 2469 03c6 D225      		.word	9682
+ 2470 03c8 590F      		.word	3929
+ 2471 03ca 531B      		.word	6995
+ 2472 03cc 330D      		.word	3379
+ 2473 03ce 6209      		.word	2402
+ 2474 03d0 C90A      		.word	2761
+ 2475 03d2 2429      		.word	10532
+ 2476 03d4 BB06      		.word	1723
+ 2477 03d6 FC29      		.word	10748
+ 2478 03d8 8F21      		.word	8591
+ 2479 03da A922      		.word	8873
+ 2480 03dc 090E      		.word	3593
+ 2481 03de 0105      		.word	1281
+ 2482 03e0 760D      		.word	3446
+ 2483 03e2 0E1F      		.word	7950
+ 2484 03e4 4C15      		.word	5452
+ 2485 03e6 2228      		.word	10274
+ 2486 03e8 5427      		.word	10068
+ 2487 03ea C219      		.word	6594
+ 2488 03ec 7D04      		.word	1149
+ 2489 03ee DB25      		.word	9691
+ 2490 03f0 2F00      		.word	47
+ 2491 03f2 832D      		.word	11651
+ 2492 03f4 681F      		.word	8040
+ 2493 03f6 6F1A      		.word	6767
+ 2494 03f8 A610      		.word	4262
+ 2495 03fa 9B01      		.word	411
+ 2496 03fc 9807      		.word	1944
+ 2497 03fe C90E      		.word	3785
+ 2499               		.section	.progmem.data.prvKeyR2_12289_512,"a"
+ 2502               	prvKeyR2_12289_512:
+ 2503 0000 7602      		.word	630
+ 2504 0002 0B03      		.word	779
+ 2505 0004 3B06      		.word	1595
+ 2506 0006 2D1C      		.word	7213
+ 2507 0008 BF2C      		.word	11455
+ 2508 000a B01A      		.word	6832
+ 2509 000c CF29      		.word	10703
+ 2510 000e 2D2E      		.word	11821
+ 2511 0010 7C2F      		.word	12156
+ 2512 0012 572D      		.word	11607
+ 2513 0014 950E      		.word	3733
+ 2514 0016 1814      		.word	5144
+ 2515 0018 D60D      		.word	3542
+ 2516 001a C108      		.word	2241
+ 2517 001c 1923      		.word	8985
+ 2518 001e 2519      		.word	6437
+ 2519 0020 4227      		.word	10050
+ 2520 0022 C905      		.word	1481
+ 2521 0024 430E      		.word	3651
+ 2522 0026 152C      		.word	11285
+ 2523 0028 831F      		.word	8067
+ 2524 002a A51D      		.word	7589
+ 2525 002c 571D      		.word	7511
+ 2526 002e B80C      		.word	3256
+ 2527 0030 CC1E      		.word	7884
+ 2528 0032 0F19      		.word	6415
+ 2529 0034 2A03      		.word	810
+ 2530 0036 600C      		.word	3168
+ 2531 0038 7F1C      		.word	7295
+ 2532 003a C50E      		.word	3781
+ 2533 003c B225      		.word	9650
+ 2534 003e D707      		.word	2007
+ 2535 0040 C515      		.word	5573
+ 2536 0042 D32F      		.word	12243
+ 2537 0044 BB1D      		.word	7611
+ 2538 0046 BA09      		.word	2490
+ 2539 0048 AB1F      		.word	8107
+ 2540 004a C71A      		.word	6855
+ 2541 004c F323      		.word	9203
+ 2542 004e BA02      		.word	698
+ 2543 0050 C326      		.word	9923
+ 2544 0052 950F      		.word	3989
+ 2545 0054 A228      		.word	10402
+ 2546 0056 581C      		.word	7256
+ 2547 0058 AD04      		.word	1197
+ 2548 005a 0220      		.word	8194
+ 2549 005c 1913      		.word	4889
+ 2550 005e 7A16      		.word	5754
+ 2551 0060 B428      		.word	10420
+ 2552 0062 E028      		.word	10464
+ 2553 0064 E503      		.word	997
+ 2554 0066 5803      		.word	856
+ 2555 0068 2019      		.word	6432
+ 2556 006a DD2D      		.word	11741
+ 2557 006c 9316      		.word	5779
+ 2558 006e 3308      		.word	2099
+ 2559 0070 161F      		.word	7958
+ 2560 0072 BA15      		.word	5562
+ 2561 0074 1F16      		.word	5663
+ 2562 0076 E526      		.word	9957
+ 2563 0078 DC08      		.word	2268
+ 2564 007a 370D      		.word	3383
+ 2565 007c 2905      		.word	1321
+ 2566 007e B804      		.word	1208
+ 2567 0080 E900      		.word	233
+ 2568 0082 9122      		.word	8849
+ 2569 0084 8F19      		.word	6543
+ 2570 0086 D301      		.word	467
+ 2571 0088 8921      		.word	8585
+ 2572 008a 150A      		.word	2581
+ 2573 008c 0728      		.word	10247
+ 2574 008e 6229      		.word	10594
+ 2575 0090 EE00      		.word	238
+ 2576 0092 300D      		.word	3376
+ 2577 0094 A402      		.word	676
+ 2578 0096 7008      		.word	2160
+ 2579 0098 F81A      		.word	6904
+ 2580 009a 1914      		.word	5145
+ 2581 009c E305      		.word	1507
+ 2582 009e 6805      		.word	1384
+ 2583 00a0 EF26      		.word	9967
+ 2584 00a2 8025      		.word	9600
+ 2585 00a4 6321      		.word	8547
+ 2586 00a6 EF2C      		.word	11503
+ 2587 00a8 9F23      		.word	9119
+ 2588 00aa 5C1D      		.word	7516
+ 2589 00ac 9F13      		.word	5023
+ 2590 00ae 3504      		.word	1077
+ 2591 00b0 2D0D      		.word	3373
+ 2592 00b2 7913      		.word	4985
+ 2593 00b4 7304      		.word	1139
+ 2594 00b6 5902      		.word	601
+ 2595 00b8 4223      		.word	9026
+ 2596 00ba 0612      		.word	4614
+ 2597 00bc F510      		.word	4341
+ 2598 00be FF0A      		.word	2815
+ 2599 00c0 A726      		.word	9895
+ 2600 00c2 F414      		.word	5364
+ 2601 00c4 CB03      		.word	971
+ 2602 00c6 FF22      		.word	8959
+ 2603 00c8 1E26      		.word	9758
+ 2604 00ca C009      		.word	2496
+ 2605 00cc 6922      		.word	8809
+ 2606 00ce E11B      		.word	7137
+ 2607 00d0 3517      		.word	5941
+ 2608 00d2 FA1D      		.word	7674
+ 2609 00d4 2727      		.word	10023
+ 2610 00d6 D815      		.word	5592
+ 2611 00d8 1A0E      		.word	3610
+ 2612 00da 5214      		.word	5202
+ 2613 00dc A124      		.word	9377
+ 2614 00de 8B19      		.word	6539
+ 2615 00e0 AA02      		.word	682
+ 2616 00e2 940E      		.word	3732
+ 2617 00e4 6622      		.word	8806
+ 2618 00e6 3602      		.word	566
+ 2619 00e8 2E26      		.word	9774
+ 2620 00ea 6D28      		.word	10349
+ 2621 00ec 2C05      		.word	1324
+ 2622 00ee F11C      		.word	7409
+ 2623 00f0 080D      		.word	3336
+ 2624 00f2 0601      		.word	262
+ 2625 00f4 1E1E      		.word	7710
+ 2626 00f6 6411      		.word	4452
+ 2627 00f8 9907      		.word	1945
+ 2628 00fa 332B      		.word	11059
+ 2629 00fc 5D01      		.word	349
+ 2630 00fe 1D16      		.word	5661
+ 2631 0100 9618      		.word	6294
+ 2632 0102 BB08      		.word	2235
+ 2633 0104 2C04      		.word	1068
+ 2634 0106 AB11      		.word	4523
+ 2635 0108 9A05      		.word	1434
+ 2636 010a 6D10      		.word	4205
+ 2637 010c 1601      		.word	278
+ 2638 010e 2712      		.word	4647
+ 2639 0110 9209      		.word	2450
+ 2640 0112 4709      		.word	2375
+ 2641 0114 0603      		.word	774
+ 2642 0116 4C20      		.word	8268
+ 2643 0118 1A19      		.word	6426
+ 2644 011a D718      		.word	6359
+ 2645 011c 5B17      		.word	5979
+ 2646 011e 1210      		.word	4114
+ 2647 0120 8B23      		.word	9099
+ 2648 0122 9E13      		.word	5022
+ 2649 0124 CF0D      		.word	3535
+ 2650 0126 1728      		.word	10263
+ 2651 0128 471C      		.word	7239
+ 2652 012a 371E      		.word	7735
+ 2653 012c 9625      		.word	9622
+ 2654 012e A72D      		.word	11687
+ 2655 0130 A828      		.word	10408
+ 2656 0132 EF02      		.word	751
+ 2657 0134 4221      		.word	8514
+ 2658 0136 F127      		.word	10225
+ 2659 0138 162C      		.word	11286
+ 2660 013a A42A      		.word	10916
+ 2661 013c 4823      		.word	9032
+ 2662 013e 6915      		.word	5481
+ 2663 0140 1D07      		.word	1821
+ 2664 0142 7519      		.word	6517
+ 2665 0144 231E      		.word	7715
+ 2666 0146 940B      		.word	2964
+ 2667 0148 D00D      		.word	3536
+ 2668 014a 5201      		.word	338
+ 2669 014c 301E      		.word	7728
+ 2670 014e AA22      		.word	8874
+ 2671 0150 570E      		.word	3671
+ 2672 0152 0627      		.word	9990
+ 2673 0154 C927      		.word	10185
+ 2674 0156 9605      		.word	1430
+ 2675 0158 2722      		.word	8743
+ 2676 015a 3423      		.word	9012
+ 2677 015c F528      		.word	10485
+ 2678 015e 422B      		.word	11074
+ 2679 0160 011D      		.word	7425
+ 2680 0162 0B01      		.word	267
+ 2681 0164 3005      		.word	1328
+ 2682 0166 AE28      		.word	10414
+ 2683 0168 D70B      		.word	3031
+ 2684 016a 4024      		.word	9280
+ 2685 016c 1629      		.word	10518
+ 2686 016e B80C      		.word	3256
+ 2687 0170 8B1F      		.word	8075
+ 2688 0172 CC1C      		.word	7372
+ 2689 0174 9E09      		.word	2462
+ 2690 0176 C01C      		.word	7360
+ 2691 0178 1624      		.word	9238
+ 2692 017a 8F18      		.word	6287
+ 2693 017c 4D29      		.word	10573
+ 2694 017e 9012      		.word	4752
+ 2695 0180 C60E      		.word	3782
+ 2696 0182 450D      		.word	3397
+ 2697 0184 0E29      		.word	10510
+ 2698 0186 B916      		.word	5817
+ 2699 0188 3F13      		.word	4927
+ 2700 018a FC09      		.word	2556
+ 2701 018c 050F      		.word	3845
+ 2702 018e 4815      		.word	5448
+ 2703 0190 160F      		.word	3862
+ 2704 0192 810B      		.word	2945
+ 2705 0194 5D26      		.word	9821
+ 2706 0196 0016      		.word	5632
+ 2707 0198 380B      		.word	2872
+ 2708 019a F414      		.word	5364
+ 2709 019c C527      		.word	10181
+ 2710 019e 642C      		.word	11364
+ 2711 01a0 3E2A      		.word	10814
+ 2712 01a2 1B2F      		.word	12059
+ 2713 01a4 1217      		.word	5906
+ 2714 01a6 5E25      		.word	9566
+ 2715 01a8 1514      		.word	5141
+ 2716 01aa 872C      		.word	11399
+ 2717 01ac E91D      		.word	7657
+ 2718 01ae 191A      		.word	6681
+ 2719 01b0 D717      		.word	6103
+ 2720 01b2 D518      		.word	6357
+ 2721 01b4 9625      		.word	9622
+ 2722 01b6 2B12      		.word	4651
+ 2723 01b8 0D0B      		.word	2829
+ 2724 01ba D129      		.word	10705
+ 2725 01bc 541E      		.word	7764
+ 2726 01be 2428      		.word	10276
+ 2727 01c0 4E12      		.word	4686
+ 2728 01c2 5012      		.word	4688
+ 2729 01c4 8218      		.word	6274
+ 2730 01c6 6624      		.word	9318
+ 2731 01c8 5912      		.word	4697
+ 2732 01ca BF02      		.word	703
+ 2733 01cc 8922      		.word	8841
+ 2734 01ce D01E      		.word	7888
+ 2735 01d0 6A03      		.word	874
+ 2736 01d2 0429      		.word	10500
+ 2737 01d4 EB0F      		.word	4075
+ 2738 01d6 2311      		.word	4387
+ 2739 01d8 5301      		.word	339
+ 2740 01da 0905      		.word	1289
+ 2741 01dc 4829      		.word	10568
+ 2742 01de 3B0F      		.word	3899
+ 2743 01e0 E101      		.word	481
+ 2744 01e2 130A      		.word	2579
+ 2745 01e4 3F23      		.word	9023
+ 2746 01e6 440E      		.word	3652
+ 2747 01e8 E229      		.word	10722
+ 2748 01ea F72F      		.word	12279
+ 2749 01ec 522F      		.word	12114
+ 2750 01ee C027      		.word	10176
+ 2751 01f0 4A0F      		.word	3914
+ 2752 01f2 8C07      		.word	1932
+ 2753 01f4 4426      		.word	9796
+ 2754 01f6 E815      		.word	5608
+ 2755 01f8 A810      		.word	4264
+ 2756 01fa BE24      		.word	9406
+ 2757 01fc BF21      		.word	8639
+ 2758 01fe 6C15      		.word	5484
+ 2759 0200 DE23      		.word	9182
+ 2760 0202 041F      		.word	7940
+ 2761 0204 8515      		.word	5509
+ 2762 0206 0413      		.word	4868
+ 2763 0208 9B1A      		.word	6811
+ 2764 020a 0818      		.word	6152
+ 2765 020c 9421      		.word	8596
+ 2766 020e A42E      		.word	11940
+ 2767 0210 0E18      		.word	6158
+ 2768 0212 4F2F      		.word	12111
+ 2769 0214 9D1A      		.word	6813
+ 2770 0216 6328      		.word	10339
+ 2771 0218 7305      		.word	1395
+ 2772 021a 6A1B      		.word	7018
+ 2773 021c 1C0F      		.word	3868
+ 2774 021e E40B      		.word	3044
+ 2775 0220 B11D      		.word	7601
+ 2776 0222 8610      		.word	4230
+ 2777 0224 EE22      		.word	8942
+ 2778 0226 911B      		.word	7057
+ 2779 0228 B903      		.word	953
+ 2780 022a E117      		.word	6113
+ 2781 022c E328      		.word	10467
+ 2782 022e AB1A      		.word	6827
+ 2783 0230 9F0B      		.word	2975
+ 2784 0232 B622      		.word	8886
+ 2785 0234 6006      		.word	1632
+ 2786 0236 A90C      		.word	3241
+ 2787 0238 392C      		.word	11321
+ 2788 023a D505      		.word	1493
+ 2789 023c 2D1D      		.word	7469
+ 2790 023e 501B      		.word	6992
+ 2791 0240 552E      		.word	11861
+ 2792 0242 A529      		.word	10661
+ 2793 0244 7A26      		.word	9850
+ 2794 0246 F62D      		.word	11766
+ 2795 0248 B316      		.word	5811
+ 2796 024a 941B      		.word	7060
+ 2797 024c 1E06      		.word	1566
+ 2798 024e C905      		.word	1481
+ 2799 0250 B215      		.word	5554
+ 2800 0252 6014      		.word	5216
+ 2801 0254 B318      		.word	6323
+ 2802 0256 6319      		.word	6499
+ 2803 0258 4403      		.word	836
+ 2804 025a 4F0A      		.word	2639
+ 2805 025c DE11      		.word	4574
+ 2806 025e 8808      		.word	2184
+ 2807 0260 A327      		.word	10147
+ 2808 0262 9B1C      		.word	7323
+ 2809 0264 5823      		.word	9048
+ 2810 0266 572F      		.word	12119
+ 2811 0268 841B      		.word	7044
+ 2812 026a 9709      		.word	2455
+ 2813 026c 982F      		.word	12184
+ 2814 026e DF06      		.word	1759
+ 2815 0270 A70F      		.word	4007
+ 2816 0272 780F      		.word	3960
+ 2817 0274 C823      		.word	9160
+ 2818 0276 B11D      		.word	7601
+ 2819 0278 C125      		.word	9665
+ 2820 027a 7721      		.word	8567
+ 2821 027c 6703      		.word	871
+ 2822 027e 3B17      		.word	5947
+ 2823 0280 511F      		.word	8017
+ 2824 0282 0A22      		.word	8714
+ 2825 0284 9601      		.word	406
+ 2826 0286 3609      		.word	2358
+ 2827 0288 2B0E      		.word	3627
+ 2828 028a FF05      		.word	1535
+ 2829 028c 0618      		.word	6150
+ 2830 028e E82E      		.word	12008
+ 2831 0290 EE03      		.word	1006
+ 2832 0292 472F      		.word	12103
+ 2833 0294 7E0E      		.word	3710
+ 2834 0296 4317      		.word	5955
+ 2835 0298 941D      		.word	7572
+ 2836 029a ED0C      		.word	3309
+ 2837 029c 9721      		.word	8599
+ 2838 029e 2D0C      		.word	3117
+ 2839 02a0 4F2E      		.word	11855
+ 2840 02a2 C826      		.word	9928
+ 2841 02a4 2320      		.word	8227
+ 2842 02a6 C21D      		.word	7618
+ 2843 02a8 3615      		.word	5430
+ 2844 02aa BD1E      		.word	7869
+ 2845 02ac 3716      		.word	5687
+ 2846 02ae DB0B      		.word	3035
+ 2847 02b0 B80D      		.word	3512
+ 2848 02b2 B028      		.word	10416
+ 2849 02b4 6C00      		.word	108
+ 2850 02b6 C024      		.word	9408
+ 2851 02b8 5B11      		.word	4443
+ 2852 02ba 5911      		.word	4441
+ 2853 02bc EE25      		.word	9710
+ 2854 02be E617      		.word	6118
+ 2855 02c0 ED02      		.word	749
+ 2856 02c2 D40D      		.word	3540
+ 2857 02c4 3F1A      		.word	6719
+ 2858 02c6 8C27      		.word	10124
+ 2859 02c8 9607      		.word	1942
+ 2860 02ca 1D14      		.word	5149
+ 2861 02cc 452D      		.word	11589
+ 2862 02ce 1911      		.word	4377
+ 2863 02d0 AA12      		.word	4778
+ 2864 02d2 DE14      		.word	5342
+ 2865 02d4 8027      		.word	10112
+ 2866 02d6 B41F      		.word	8116
+ 2867 02d8 5508      		.word	2133
+ 2868 02da 6700      		.word	103
+ 2869 02dc 3824      		.word	9272
+ 2870 02de 0F16      		.word	5647
+ 2871 02e0 0429      		.word	10500
+ 2872 02e2 C30E      		.word	3779
+ 2873 02e4 7426      		.word	9844
+ 2874 02e6 9A15      		.word	5530
+ 2875 02e8 1B11      		.word	4379
+ 2876 02ea 3B2C      		.word	11323
+ 2877 02ec B624      		.word	9398
+ 2878 02ee 411F      		.word	8001
+ 2879 02f0 5A25      		.word	9562
+ 2880 02f2 FE2C      		.word	11518
+ 2881 02f4 9B29      		.word	10651
+ 2882 02f6 5900      		.word	89
+ 2883 02f8 0921      		.word	8457
+ 2884 02fa DE08      		.word	2270
+ 2885 02fc F000      		.word	240
+ 2886 02fe 6F0F      		.word	3951
+ 2887 0300 C20F      		.word	4034
+ 2888 0302 8023      		.word	9088
+ 2889 0304 F30C      		.word	3315
+ 2890 0306 4111      		.word	4417
+ 2891 0308 DF2B      		.word	11231
+ 2892 030a 0B21      		.word	8459
+ 2893 030c C61C      		.word	7366
+ 2894 030e 9601      		.word	406
+ 2895 0310 1326      		.word	9747
+ 2896 0312 9310      		.word	4243
+ 2897 0314 2A17      		.word	5930
+ 2898 0316 AC12      		.word	4780
+ 2899 0318 6A27      		.word	10090
+ 2900 031a 6117      		.word	5985
+ 2901 031c 851F      		.word	8069
+ 2902 031e D606      		.word	1750
+ 2903 0320 8023      		.word	9088
+ 2904 0322 B301      		.word	435
+ 2905 0324 8B10      		.word	4235
+ 2906 0326 F928      		.word	10489
+ 2907 0328 3001      		.word	304
+ 2908 032a 5925      		.word	9561
+ 2909 032c 9329      		.word	10643
+ 2910 032e 5105      		.word	1361
+ 2911 0330 CA1D      		.word	7626
+ 2912 0332 7B1A      		.word	6779
+ 2913 0334 A32C      		.word	11427
+ 2914 0336 E223      		.word	9186
+ 2915 0338 AC12      		.word	4780
+ 2916 033a FB2F      		.word	12283
+ 2917 033c E92B      		.word	11241
+ 2918 033e B11F      		.word	8113
+ 2919 0340 1108      		.word	2065
+ 2920 0342 641F      		.word	8036
+ 2921 0344 BE0E      		.word	3774
+ 2922 0346 C924      		.word	9417
+ 2923 0348 AC14      		.word	5292
+ 2924 034a 5B0A      		.word	2651
+ 2925 034c C100      		.word	193
+ 2926 034e 4521      		.word	8517
+ 2927 0350 CD16      		.word	5837
+ 2928 0352 CF20      		.word	8399
+ 2929 0354 691F      		.word	8041
+ 2930 0356 2F25      		.word	9519
+ 2931 0358 1918      		.word	6169
+ 2932 035a 6D09      		.word	2413
+ 2933 035c 3710      		.word	4151
+ 2934 035e 9F04      		.word	1183
+ 2935 0360 481B      		.word	6984
+ 2936 0362 FC1B      		.word	7164
+ 2937 0364 F908      		.word	2297
+ 2938 0366 1D0C      		.word	3101
+ 2939 0368 E501      		.word	485
+ 2940 036a 6C02      		.word	620
+ 2941 036c 4E0F      		.word	3918
+ 2942 036e 8629      		.word	10630
+ 2943 0370 701C      		.word	7280
+ 2944 0372 4300      		.word	67
+ 2945 0374 510C      		.word	3153
+ 2946 0376 1A04      		.word	1050
+ 2947 0378 7921      		.word	8569
+ 2948 037a 0D0B      		.word	2829
+ 2949 037c C805      		.word	1480
+ 2950 037e 7522      		.word	8821
+ 2951 0380 EC12      		.word	4844
+ 2952 0382 F31A      		.word	6899
+ 2953 0384 7E21      		.word	8574
+ 2954 0386 2708      		.word	2087
+ 2955 0388 2B29      		.word	10539
+ 2956 038a 672F      		.word	12135
+ 2957 038c C609      		.word	2502
+ 2958 038e 690B      		.word	2921
+ 2959 0390 9D26      		.word	9885
+ 2960 0392 3E11      		.word	4414
+ 2961 0394 BB12      		.word	4795
+ 2962 0396 A719      		.word	6567
+ 2963 0398 692C      		.word	11369
+ 2964 039a 9E2F      		.word	12190
+ 2965 039c F01A      		.word	6896
+ 2966 039e 8E19      		.word	6542
+ 2967 03a0 071F      		.word	7943
+ 2968 03a2 7829      		.word	10616
+ 2969 03a4 3E0E      		.word	3646
+ 2970 03a6 6C0A      		.word	2668
+ 2971 03a8 4216      		.word	5698
+ 2972 03aa 2E26      		.word	9774
+ 2973 03ac AE2A      		.word	10926
+ 2974 03ae E202      		.word	738
+ 2975 03b0 F02D      		.word	11760
+ 2976 03b2 542C      		.word	11348
+ 2977 03b4 A326      		.word	9891
+ 2978 03b6 A107      		.word	1953
+ 2979 03b8 D71D      		.word	7639
+ 2980 03ba 7509      		.word	2421
+ 2981 03bc 4E22      		.word	8782
+ 2982 03be 150A      		.word	2581
+ 2983 03c0 5006      		.word	1616
+ 2984 03c2 3D1B      		.word	6973
+ 2985 03c4 0817      		.word	5896
+ 2986 03c6 0809      		.word	2312
+ 2987 03c8 2409      		.word	2340
+ 2988 03ca 0C20      		.word	8204
+ 2989 03cc 341C      		.word	7220
+ 2990 03ce 7607      		.word	1910
+ 2991 03d0 590E      		.word	3673
+ 2992 03d2 0F1A      		.word	6671
+ 2993 03d4 6C2A      		.word	10860
+ 2994 03d6 EC2A      		.word	10988
+ 2995 03d8 7E2B      		.word	11134
+ 2996 03da 7328      		.word	10355
+ 2997 03dc A30E      		.word	3747
+ 2998 03de 4106      		.word	1601
+ 2999 03e0 C622      		.word	8902
+ 3000 03e2 742E      		.word	11892
+ 3001 03e4 282A      		.word	10792
+ 3002 03e6 7815      		.word	5496
+ 3003 03e8 540C      		.word	3156
+ 3004 03ea 5B06      		.word	1627
+ 3005 03ec 1004      		.word	1040
+ 3006 03ee 7726      		.word	9847
+ 3007 03f0 5605      		.word	1366
+ 3008 03f2 E520      		.word	8421
+ 3009 03f4 A01E      		.word	7840
+ 3010 03f6 DF25      		.word	9695
+ 3011 03f8 6822      		.word	8808
+ 3012 03fa 8E08      		.word	2190
+ 3013 03fc 3C12      		.word	4668
+ 3014 03fe DA17      		.word	6106
+ 3016               		.section	.progmem.data.omegainvbitrev_12289_512,"a"
+ 3019               	omegainvbitrev_12289_512:
+ 3020 0000 0100      		.word	1
+ 3021 0002 C705      		.word	1479
+ 3022 0004 3620      		.word	8246
+ 3023 0006 1A14      		.word	5146
+ 3024 0008 2610      		.word	4134
+ 3025 000a 9919      		.word	6553
+ 3026 000c 2F2D      		.word	11567
+ 3027 000e 1905      		.word	1305
+ 3028 0010 1D19      		.word	6429
+ 3029 0012 8623      		.word	9094
+ 3030 0014 452B      		.word	11077
+ 3031 0016 6E06      		.word	1646
+ 3032 0018 DC21      		.word	8668
+ 3033 001a F109      		.word	2545
+ 3034 001c B00D      		.word	3504
+ 3035 001e 2B22      		.word	8747
+ 3036 0020 BA2A      		.word	10938
+ 3037 0022 7213      		.word	4978
+ 3038 0024 9116      		.word	5777
+ 3039 0026 000D      		.word	3328
+ 3040 0028 3D19      		.word	6461
+ 3041 002a 621C      		.word	7266
+ 3042 002c EF11      		.word	4591
+ 3043 002e A119      		.word	6561
+ 3044 0030 B80A      		.word	2744
+ 3045 0032 BE0B      		.word	3006
+ 3046 0034 9F0B      		.word	2975
+ 3047 0036 3302      		.word	563
+ 3048 0038 B503      		.word	949
+ 3049 003a 410A      		.word	2625
+ 3050 003c B225      		.word	9650
+ 3051 003e D512      		.word	4821
+ 3052 0040 D602      		.word	726
+ 3053 0042 0312      		.word	4611
+ 3054 0044 3D07      		.word	1853
+ 3055 0046 8C00      		.word	140
+ 3056 0048 D00A      		.word	2768
+ 3057 004a 6306      		.word	1635
+ 3058 004c 9F10      		.word	4255
+ 3059 004e 9904      		.word	1177
+ 3060 0050 C326      		.word	9923
+ 3061 0052 EB0B      		.word	3051
+ 3062 0054 2013      		.word	4896
+ 3063 0056 930B      		.word	2963
+ 3064 0058 E803      		.word	1000
+ 3065 005a E010      		.word	4320
+ 3066 005c 5100      		.word	81
+ 3067 005e EE23      		.word	9198
+ 3068 0060 F608      		.word	2294
+ 3069 0062 2604      		.word	1062
+ 3070 0064 E10D      		.word	3553
+ 3071 0066 3C1D      		.word	7484
+ 3072 0068 8121      		.word	8577
+ 3073 006a 3F0C      		.word	3135
+ 3074 006c BB0A      		.word	2747
+ 3075 006e 131D      		.word	7443
+ 3076 0070 2E05      		.word	1326
+ 3077 0072 231C      		.word	7203
+ 3078 0074 3B24      		.word	9275
+ 3079 0076 810C      		.word	3201
+ 3080 0078 1603      		.word	790
+ 3081 007a BB03      		.word	955
+ 3082 007c 9204      		.word	1170
+ 3083 007e F226      		.word	9970
+ 3084 0080 FE14      		.word	5374
+ 3085 0082 EC24      		.word	9452
+ 3086 0084 7F2F      		.word	12159
+ 3087 0086 0211      		.word	4354
+ 3088 0088 A526      		.word	9893
+ 3089 008a 9D1E      		.word	7837
+ 3090 008c E00C      		.word	3296
+ 3091 008e 9420      		.word	8340
+ 3092 0090 CB13      		.word	5067
+ 3093 0092 6C27      		.word	10092
+ 3094 0094 8B2F      		.word	12171
+ 3095 0096 5526      		.word	9813
+ 3096 0098 7A19      		.word	6522
+ 3097 009a C62C      		.word	11462
+ 3098 009c A40E      		.word	3748
+ 3099 009e B903      		.word	953
+ 3100 00a0 DD09      		.word	2525
+ 3101 00a2 9C2A      		.word	10908
+ 3102 00a4 000E      		.word	3584
+ 3103 00a6 5110      		.word	4177
+ 3104 00a8 7D13      		.word	4989
+ 3105 00aa D314      		.word	5331
+ 3106 00ac 4B1F      		.word	8011
+ 3107 00ae 8906      		.word	1673
+ 3108 00b0 E12D      		.word	11745
+ 3109 00b2 6219      		.word	6498
+ 3110 00b4 AE2E      		.word	11950
+ 3111 00b6 A409      		.word	2468
+ 3112 00b8 F82F      		.word	12280
+ 3113 00ba 032C      		.word	11267
+ 3114 00bc 212E      		.word	11809
+ 3115 00be 1A0B      		.word	2842
+ 3116 00c0 1717      		.word	5911
+ 3117 00c2 1A13      		.word	4890
+ 3118 00c4 5C0F      		.word	3932
+ 3119 00c6 AB0A      		.word	2731
+ 3120 00c8 A615      		.word	5542
+ 3121 00ca 702F      		.word	12144
+ 3122 00cc 7E22      		.word	8830
+ 3123 00ce CC21      		.word	8652
+ 3124 00d0 8710      		.word	4231
+ 3125 00d2 F409      		.word	2548
+ 3126 00d4 6301      		.word	355
+ 3127 00d6 CB22      		.word	8907
+ 3128 00d8 7B0E      		.word	3707
+ 3129 00da DF06      		.word	1759
+ 3130 00dc 3B14      		.word	5179
+ 3131 00de 6E0E      		.word	3694
+ 3132 00e0 2908      		.word	2089
+ 3133 00e2 E413      		.word	5092
+ 3134 00e4 2D23      		.word	9005
+ 3135 00e6 C024      		.word	9408
+ 3136 00e8 5823      		.word	9048
+ 3137 00ea 282D      		.word	11560
+ 3138 00ec D90C      		.word	3289
+ 3139 00ee 2428      		.word	10276
+ 3140 00f0 6129      		.word	10593
+ 3141 00f2 6D2A      		.word	10861
+ 3142 00f4 B32E      		.word	11955
+ 3143 00f6 8726      		.word	9863
+ 3144 00f8 7B16      		.word	5755
+ 3145 00fa E91D      		.word	7657
+ 3146 00fc DD1E      		.word	7901
+ 3147 00fe 152B      		.word	11029
+ 3148 0100 252E      		.word	11813
+ 3149 0102 3622      		.word	8758
+ 3150 0104 D81C      		.word	7384
+ 3151 0106 7020      		.word	8304
+ 3152 0108 F929      		.word	10745
+ 3153 010a 8208      		.word	2178
+ 3154 010c 5D2E      		.word	11869
+ 3155 010e B715      		.word	5559
+ 3156 0110 0E2F      		.word	12046
+ 3157 0112 3924      		.word	9273
+ 3158 0114 622D      		.word	11618
+ 3159 0116 B80B      		.word	3000
+ 3160 0118 400C      		.word	3136
+ 3161 011a 4714      		.word	5191
+ 3162 011c 480D      		.word	3400
+ 3163 011e 5F09      		.word	2399
+ 3164 0120 D00F      		.word	4048
+ 3165 0122 C908      		.word	2249
+ 3166 0124 440B      		.word	2884
+ 3167 0126 8104      		.word	1153
+ 3168 0128 8F23      		.word	9103
+ 3169 012a E21A      		.word	6882
+ 3170 012c 4E08      		.word	2126
+ 3171 012e A329      		.word	10659
+ 3172 0130 4B22      		.word	8779
+ 3173 0132 2D1B      		.word	6957
+ 3174 0134 D024      		.word	9424
+ 3175 0136 4209      		.word	2370
+ 3176 0138 990B      		.word	2969
+ 3177 013a 8A0F      		.word	3978
+ 3178 013c 7E0A      		.word	2686
+ 3179 013e AF0C      		.word	3247
+ 3180 0140 352A      		.word	10805
+ 3181 0142 1F13      		.word	4895
+ 3182 0144 DC0A      		.word	2780
+ 3183 0146 B61B      		.word	7094
+ 3184 0148 AC25      		.word	9644
+ 3185 014a 2C20      		.word	8236
+ 3186 014c 0109      		.word	2305
+ 3187 014e B213      		.word	5042
+ 3188 0150 ED1E      		.word	7917
+ 3189 0152 8327      		.word	10115
+ 3190 0154 3E11      		.word	4414
+ 3191 0156 1F0B      		.word	2847
+ 3192 0158 C70C      		.word	3271
+ 3193 015a 2820      		.word	8232
+ 3194 015c 6829      		.word	10600
+ 3195 015e DD22      		.word	8925
+ 3196 0160 F106      		.word	1777
+ 3197 0162 8229      		.word	10626
+ 3198 0164 2E12      		.word	4654
+ 3199 0166 9205      		.word	1426
+ 3200 0168 7125      		.word	9585
+ 3201 016a 561B      		.word	6998
+ 3202 016c B71C      		.word	7351
+ 3203 016e CD21      		.word	8653
+ 3204 0170 AC1E      		.word	7852
+ 3205 0172 0300      		.word	3
+ 3206 0174 B423      		.word	9140
+ 3207 0176 A000      		.word	160
+ 3208 0178 3713      		.word	4919
+ 3209 017a 7100      		.word	113
+ 3210 017c B620      		.word	8374
+ 3211 017e 8B27      		.word	10123
+ 3212 0180 8928      		.word	10377
+ 3213 0182 9F2A      		.word	10911
+ 3214 0184 B301      		.word	435
+ 3215 0186 F110      		.word	4337
+ 3216 0188 B426      		.word	9908
+ 3217 018a 4415      		.word	5444
+ 3218 018c 0010      		.word	4096
+ 3219 018e 142E      		.word	11796
+ 3220 0190 5123      		.word	9041
+ 3221 0192 B704      		.word	1207
+ 3222 0194 641B      		.word	7012
+ 3223 0196 712B      		.word	11121
+ 3224 0198 2512      		.word	4645
+ 3225 019a 9401      		.word	404
+ 3226 019c A227      		.word	10146
+ 3227 019e 2904      		.word	1065
+ 3228 01a0 7609      		.word	2422
+ 3229 01a2 9717      		.word	6039
+ 3230 01a4 8B08      		.word	2187
+ 3231 01a6 060A      		.word	2566
+ 3232 01a8 5624      		.word	9302
+ 3233 01aa 7B18      		.word	6267
+ 3234 01ac C321      		.word	8643
+ 3235 01ae 8509      		.word	2437
+ 3236 01b0 6B03      		.word	875
+ 3237 01b2 C40E      		.word	3780
+ 3238 01b4 4706      		.word	1607
+ 3239 01b6 7013      		.word	4976
+ 3240 01b8 BC10      		.word	4284
+ 3241 01ba 211C      		.word	7201
+ 3242 01bc 6E1C      		.word	7278
+ 3243 01be 172C      		.word	11287
+ 3244 01c0 2102      		.word	545
+ 3245 01c2 661C      		.word	7270
+ 3246 01c4 8921      		.word	8585
+ 3247 01c6 760A      		.word	2678
+ 3248 01c8 2F10      		.word	4143
+ 3249 01ca 971D      		.word	7575
+ 3250 01cc 0F2F      		.word	12047
+ 3251 01ce 002A      		.word	10752
+ 3252 01d0 A005      		.word	1440
+ 3253 01d2 B30E      		.word	3763
+ 3254 01d4 FA0B      		.word	3066
+ 3255 01d6 E62F      		.word	12262
+ 3256 01d8 DC13      		.word	5084
+ 3257 01da A129      		.word	10657
+ 3258 01dc 1513      		.word	4885
+ 3259 01de 082C      		.word	11272
+ 3260 01e0 1504      		.word	1045
+ 3261 01e2 D624      		.word	9430
+ 3262 01e4 B109      		.word	2481
+ 3263 01e6 6D1C      		.word	7277
+ 3264 01e8 BF19      		.word	6591
+ 3265 01ea 600B      		.word	2912
+ 3266 01ec 041D      		.word	7428
+ 3267 01ee 9F2E      		.word	11935
+ 3268 01f0 3F21      		.word	8511
+ 3269 01f2 F90E      		.word	3833
+ 3270 01f4 FC2C      		.word	11516
+ 3271 01f6 7B2E      		.word	11899
+ 3272 01f8 2B04      		.word	1067
+ 3273 01fa ED13      		.word	5101
+ 3274 01fc 472E      		.word	11847
+ 3275 01fe A026      		.word	9888
+ 3276 0200 E604      		.word	1254
+ 3277 0202 342C      		.word	11316
+ 3278 0204 3B15      		.word	5435
+ 3279 0206 4F05      		.word	1359
+ 3280 0208 7F28      		.word	10367
+ 3281 020a DA20      		.word	8410
+ 3282 020c 9E0F      		.word	3998
+ 3283 020e F107      		.word	2033
+ 3284 0210 7E01      		.word	382
+ 3285 0212 C52E      		.word	11973
+ 3286 0214 940F      		.word	3988
+ 3287 0216 2D2E      		.word	11821
+ 3288 0218 3418      		.word	6196
+ 3289 021a 8321      		.word	8579
+ 3290 021c BB1A      		.word	6843
+ 3291 021e 261B      		.word	6950
+ 3292 0220 C006      		.word	1728
+ 3293 0222 712E      		.word	11889
+ 3294 0224 F917      		.word	6137
+ 3295 0226 AD1C      		.word	7341
+ 3296 0228 3B0E      		.word	3643
+ 3297 022a 2715      		.word	5415
+ 3298 022c E616      		.word	5862
+ 3299 022e 0918      		.word	6153
+ 3300 0230 3800      		.word	56
+ 3301 0232 8223      		.word	9090
+ 3302 0234 AB1B      		.word	7083
+ 3303 0236 9915      		.word	5529
+ 3304 0238 3E28      		.word	10302
+ 3305 023a 5B29      		.word	10587
+ 3306 023c 1422      		.word	8724
+ 3307 023e 732D      		.word	11635
+ 3308 0240 FA03      		.word	1018
+ 3309 0242 DC18      		.word	6364
+ 3310 0244 1104      		.word	1041
+ 3311 0246 BA0D      		.word	3514
+ 3312 0248 C615      		.word	5574
+ 3313 024a 4C28      		.word	10316
+ 3314 024c 2809      		.word	2344
+ 3315 024e FE04      		.word	1278
+ 3316 0250 3E1B      		.word	6974
+ 3317 0252 EB0F      		.word	4075
+ 3318 0254 CD1C      		.word	7373
+ 3319 0256 E410      		.word	4324
+ 3320 0258 0A02      		.word	522
+ 3321 025a 8827      		.word	10120
+ 3322 025c BE0C      		.word	3262
+ 3323 025e 2A1C      		.word	7210
+ 3324 0260 1A04      		.word	1050
+ 3325 0262 B811      		.word	4536
+ 3326 0264 BC1A      		.word	6844
+ 3327 0266 ED20      		.word	8429
+ 3328 0268 7B0A      		.word	2683
+ 3329 026a 5B2B      		.word	11099
+ 3330 026c EA0E      		.word	3818
+ 3331 026e 1B18      		.word	6171
+ 3332 0270 CD0E      		.word	3789
+ 3333 0272 9300      		.word	147
+ 3334 0274 5015      		.word	5456
+ 3335 0276 A01E      		.word	7840
+ 3336 0278 741D      		.word	7540
+ 3337 027a A115      		.word	5537
+ 3338 027c B512      		.word	4789
+ 3339 027e 7311      		.word	4467
+ 3340 0280 1012      		.word	4624
+ 3341 0282 4418      		.word	6212
+ 3342 0284 4223      		.word	9026
+ 3343 0286 100E      		.word	3600
+ 3344 0288 4D18      		.word	6221
+ 3345 028a EF21      		.word	8687
+ 3346 028c F00F      		.word	4080
+ 3347 028e A501      		.word	421
+ 3348 0290 5D02      		.word	605
+ 3349 0292 0327      		.word	9987
+ 3350 0294 092E      		.word	11785
+ 3351 0296 7510      		.word	4213
+ 3352 0298 0319      		.word	6403
+ 3353 029a 531D      		.word	7507
+ 3354 029c DA15      		.word	5594
+ 3355 029e D50B      		.word	3029
+ 3356 02a0 8D1F      		.word	8077
+ 3357 02a2 CF03      		.word	975
+ 3358 02a4 9322      		.word	8851
+ 3359 02a6 1C0B      		.word	2844
+ 3360 02a8 5104      		.word	1105
+ 3361 02aa 732F      		.word	12147
+ 3362 02ac 3116      		.word	5681
+ 3363 02ae 6C22      		.word	8812
+ 3364 02b0 7817      		.word	6008
+ 3365 02b2 7503      		.word	885
+ 3366 02b4 9113      		.word	5009
+ 3367 02b6 5D28      		.word	10333
+ 3368 02b8 EB03      		.word	1003
+ 3369 02ba 3522      		.word	8757
+ 3370 02bc F100      		.word	241
+ 3371 02be 3A00      		.word	58
+ 3372 02c0 4F08      		.word	2127
+ 3373 02c2 6A2F      		.word	12138
+ 3374 02c4 170B      		.word	2839
+ 3375 02c6 8C20      		.word	8332
+ 3376 02c8 EF18      		.word	6383
+ 3377 02ca C909      		.word	2505
+ 3378 02cc AF01      		.word	431
+ 3379 02ce D629      		.word	10710
+ 3380 02d0 9B23      		.word	9115
+ 3381 02d2 3400      		.word	52
+ 3382 02d4 CE0A      		.word	2766
+ 3383 02d6 D62A      		.word	10966
+ 3384 02d8 080D      		.word	3336
+ 3385 02da A717      		.word	6055
+ 3386 02dc F216      		.word	5874
+ 3387 02de 5C2D      		.word	11612
+ 3388 02e0 0108      		.word	2049
+ 3389 02e2 D11C      		.word	7377
+ 3390 02e4 D82A      		.word	10968
+ 3391 02e6 C000      		.word	192
+ 3392 02e8 750D      		.word	3445
+ 3393 02ea 551D      		.word	7509
+ 3394 02ec A71D      		.word	7591
+ 3395 02ee 401C      		.word	7232
+ 3396 02f0 EE2C      		.word	11502
+ 3397 02f2 9A0D      		.word	3482
+ 3398 02f4 0F2C      		.word	11279
+ 3399 02f6 5C15      		.word	5468
+ 3400 02f8 370C      		.word	3127
+ 3401 02fa 4910      		.word	4169
+ 3402 02fc 680B      		.word	2920
+ 3403 02fe 7914      		.word	5241
+ 3404 0300 8914      		.word	5257
+ 3405 0302 0721      		.word	8455
+ 3406 0304 1F17      		.word	5919
+ 3407 0306 5111      		.word	4433
+ 3408 0308 6E15      		.word	5486
+ 3409 030a EE0B      		.word	3054
+ 3410 030c D306      		.word	1747
+ 3411 030e 330C      		.word	3123
+ 3412 0310 C709      		.word	2503
+ 3413 0312 840B      		.word	2948
+ 3414 0314 6B19      		.word	6507
+ 3415 0316 1E06      		.word	1566
+ 3416 0318 4000      		.word	64
+ 3417 031a B921      		.word	8633
+ 3418 031c 562D      		.word	11606
+ 3419 031e 6626      		.word	9830
+ 3420 0320 4303      		.word	835
+ 3421 0322 B117      		.word	6065
+ 3422 0324 F20D      		.word	3570
+ 3423 0326 711F      		.word	8049
+ 3424 0328 DA2A      		.word	10970
+ 3425 032a 4E0C      		.word	3150
+ 3426 032c 3C2D      		.word	11580
+ 3427 032e 3320      		.word	8243
+ 3428 0330 E327      		.word	10211
+ 3429 0332 A92B      		.word	11177
+ 3430 0334 1F1F      		.word	7967
+ 3431 0336 5B28      		.word	10331
+ 3432 0338 482E      		.word	11848
+ 3433 033a 672C      		.word	11367
+ 3434 033c 2204      		.word	1058
+ 3435 033e EF0F      		.word	4079
+ 3436 0340 501B      		.word	6992
+ 3437 0342 E717      		.word	6119
+ 3438 0344 8D20      		.word	8333
+ 3439 0346 B12A      		.word	10929
+ 3440 0348 B004      		.word	1200
+ 3441 034a 4014      		.word	5184
+ 3442 034c FB09      		.word	2555
+ 3443 034e EA17      		.word	6122
+ 3444 0350 C729      		.word	10695
+ 3445 0352 AA07      		.word	1962
+ 3446 0354 F213      		.word	5106
+ 3447 0356 B818      		.word	6328
+ 3448 0358 7D25      		.word	9597
+ 3449 035a A800      		.word	168
+ 3450 035c 371F      		.word	7991
+ 3451 035e 0023      		.word	8960
+ 3452 0360 D10F      		.word	4049
+ 3453 0362 900E      		.word	3728
+ 3454 0364 7A2B      		.word	11130
+ 3455 0366 9B18      		.word	6299
+ 3456 0368 B403      		.word	948
+ 3457 036a 7A04      		.word	1146
+ 3458 036c 7C05      		.word	1404
+ 3459 036e BC2E      		.word	11964
+ 3460 0370 670B      		.word	2919
+ 3461 0372 B20E      		.word	3762
+ 3462 0374 1420      		.word	8212
+ 3463 0376 B00F      		.word	4016
+ 3464 0378 752D      		.word	11637
+ 3465 037a 7B19      		.word	6523
+ 3466 037c 2E18      		.word	6190
+ 3467 037e DA2E      		.word	11994
+ 3468 0380 F42A      		.word	10996
+ 3469 0382 8112      		.word	4737
+ 3470 0384 A612      		.word	4774
+ 3471 0386 CC1A      		.word	6860
+ 3472 0388 C501      		.word	453
+ 3473 038a ED18      		.word	6381
+ 3474 038c 5F2E      		.word	11871
+ 3475 038e 4521      		.word	8517
+ 3476 0390 2C1B      		.word	6956
+ 3477 0392 EF07      		.word	2031
+ 3478 0394 0D19      		.word	6413
+ 3479 0396 1827      		.word	10008
+ 3480 0398 652F      		.word	12133
+ 3481 039a CF0A      		.word	2767
+ 3482 039c 810F      		.word	3969
+ 3483 039e 6A20      		.word	8298
+ 3484 03a0 0D07      		.word	1805
+ 3485 03a2 420B      		.word	2882
+ 3486 03a4 0308      		.word	2051
+ 3487 03a6 5F28      		.word	10335
+ 3488 03a8 8F09      		.word	2447
+ 3489 03aa 0318      		.word	6147
+ 3490 03ac C12D      		.word	11713
+ 3491 03ae 8620      		.word	8326
+ 3492 03b0 C90D      		.word	3529
+ 3493 03b2 9722      		.word	8855
+ 3494 03b4 272F      		.word	12071
+ 3495 03b6 A524      		.word	9381
+ 3496 03b8 3307      		.word	1843
+ 3497 03ba C826      		.word	9928
+ 3498 03bc EE1F      		.word	8174
+ 3499 03be 2B24      		.word	9259
+ 3500 03c0 6F1D      		.word	7535
+ 3501 03c2 BF28      		.word	10431
+ 3502 03c4 AA01      		.word	426
+ 3503 03c6 F30C      		.word	3315
+ 3504 03c8 9424      		.word	9364
+ 3505 03ca A62E      		.word	11942
+ 3506 03cc AD0E      		.word	3757
+ 3507 03ce B707      		.word	1975
+ 3508 03d0 2E2D      		.word	11566
+ 3509 03d2 532F      		.word	12115
+ 3510 03d4 6429      		.word	10596
+ 3511 03d6 C10B      		.word	3009
+ 3512 03d8 A225      		.word	9634
+ 3513 03da 6716      		.word	5735
+ 3514 03dc EC16      		.word	5868
+ 3515 03de B20A      		.word	2738
+ 3516 03e0 741E      		.word	7796
+ 3517 03e2 820C      		.word	3202
+ 3518 03e4 0908      		.word	2057
+ 3519 03e6 081B      		.word	6920
+ 3520 03e8 FA1A      		.word	6906
+ 3521 03ea 1707      		.word	1815
+ 3522 03ec A32E      		.word	11939
+ 3523 03ee 192A      		.word	10777
+ 3524 03f0 3617      		.word	5942
+ 3525 03f2 2F06      		.word	1583
+ 3526 03f4 D105      		.word	1489
+ 3527 03f6 C409      		.word	2500
+ 3528 03f8 362A      		.word	10806
+ 3529 03fa E618      		.word	6374
+ 3530 03fc 122B      		.word	11026
+ 3531 03fe D02F      		.word	12240
+ 3533               		.section	.progmem.data.psibitrev_12289_512,"a"
+ 3536               	psibitrev_12289_512:
+ 3537 0000 0100      		.word	1
+ 3538 0002 3A2A      		.word	10810
+ 3539 0004 E71B      		.word	7143
+ 3540 0006 CB0F      		.word	4043
+ 3541 0008 E82A      		.word	10984
+ 3542 000a D202      		.word	722
+ 3543 000c 6816      		.word	5736
+ 3544 000e DB1F      		.word	8155
+ 3545 0010 D60D      		.word	3542
+ 3546 0012 5122      		.word	8785
+ 3547 0014 1026      		.word	9744
+ 3548 0016 250E      		.word	3621
+ 3549 0018 9329      		.word	10643
+ 3550 001a BC04      		.word	1212
+ 3551 001c 7B0C      		.word	3195
+ 3552 001e E416      		.word	5860
+ 3553 0020 2C1D      		.word	7468
+ 3554 0022 4F0A      		.word	2639
+ 3555 0024 C025      		.word	9664
+ 3556 0026 4C2C      		.word	11340
+ 3557 0028 CE2D      		.word	11726
+ 3558 002a 6224      		.word	9314
+ 3559 002c 4324      		.word	9283
+ 3560 002e 4925      		.word	9545
+ 3561 0030 6016      		.word	5728
+ 3562 0032 121E      		.word	7698
+ 3563 0034 9F13      		.word	5023
+ 3564 0036 C416      		.word	5828
+ 3565 0038 0123      		.word	8961
+ 3566 003a 7019      		.word	6512
+ 3567 003c 8F1C      		.word	7311
+ 3568 003e 4705      		.word	1351
+ 3569 0040 0F09      		.word	2319
+ 3570 0042 6F2B      		.word	11119
+ 3571 0044 462C      		.word	11334
+ 3572 0046 EB2C      		.word	11499
+ 3573 0048 8023      		.word	9088
+ 3574 004a C60B      		.word	3014
+ 3575 004c DE13      		.word	5086
+ 3576 004e D32A      		.word	10963
+ 3577 0050 EE12      		.word	4846
+ 3578 0052 4625      		.word	9542
+ 3579 0054 C223      		.word	9154
+ 3580 0056 800E      		.word	3712
+ 3581 0058 C512      		.word	4805
+ 3582 005a 2022      		.word	8736
+ 3583 005c DB2B      		.word	11227
+ 3584 005e 0B27      		.word	9995
+ 3585 0060 130C      		.word	3091
+ 3586 0062 B02F      		.word	12208
+ 3587 0064 211F      		.word	7969
+ 3588 0066 192C      		.word	11289
+ 3589 0068 6E24      		.word	9326
+ 3590 006a E11C      		.word	7393
+ 3591 006c 1624      		.word	9238
+ 3592 006e 3E09      		.word	2366
+ 3593 0070 682B      		.word	11112
+ 3594 0072 621F      		.word	8034
+ 3595 0074 9E29      		.word	10654
+ 3596 0076 3125      		.word	9521
+ 3597 0078 752F      		.word	12149
+ 3598 007a C428      		.word	10436
+ 3599 007c FE1D      		.word	7678
+ 3600 007e 2B2D      		.word	11563
+ 3601 0080 EC04      		.word	1260
+ 3602 0082 2411      		.word	4388
+ 3603 0084 1812      		.word	4632
+ 3604 0086 8619      		.word	6534
+ 3605 0088 7A09      		.word	2426
+ 3606 008a 4E01      		.word	334
+ 3607 008c 9405      		.word	1428
+ 3608 008e A006      		.word	1696
+ 3609 0090 DD07      		.word	2013
+ 3610 0092 2823      		.word	9000
+ 3611 0094 D902      		.word	729
+ 3612 0096 A90C      		.word	3241
+ 3613 0098 410B      		.word	2881
+ 3614 009a D40C      		.word	3284
+ 3615 009c 1D1C      		.word	7197
+ 3616 009e D827      		.word	10200
+ 3617 00a0 9321      		.word	8595
+ 3618 00a2 C61B      		.word	7110
+ 3619 00a4 2229      		.word	10530
+ 3620 00a6 8621      		.word	8582
+ 3621 00a8 360D      		.word	3382
+ 3622 00aa 9E2E      		.word	11934
+ 3623 00ac 0D26      		.word	9741
+ 3624 00ae 7A1F      		.word	8058
+ 3625 00b0 350E      		.word	3637
+ 3626 00b2 830D      		.word	3459
+ 3627 00b4 9100      		.word	145
+ 3628 00b6 5B1A      		.word	6747
+ 3629 00b8 5625      		.word	9558
+ 3630 00ba A520      		.word	8357
+ 3631 00bc E71C      		.word	7399
+ 3632 00be EA18      		.word	6378
+ 3633 00c0 E724      		.word	9447
+ 3634 00c2 E001      		.word	480
+ 3635 00c4 FE03      		.word	1022
+ 3636 00c6 0900      		.word	9
+ 3637 00c8 5D26      		.word	9821
+ 3638 00ca 5301      		.word	339
+ 3639 00cc 9F16      		.word	5791
+ 3640 00ce 2002      		.word	544
+ 3641 00d0 7829      		.word	10616
+ 3642 00d2 B610      		.word	4278
+ 3643 00d4 2E1B      		.word	6958
+ 3644 00d6 841C      		.word	7300
+ 3645 00d8 B01F      		.word	8112
+ 3646 00da 0122      		.word	8705
+ 3647 00dc 6505      		.word	1381
+ 3648 00de 2426      		.word	9764
+ 3649 00e0 482C      		.word	11336
+ 3650 00e2 5D21      		.word	8541
+ 3651 00e4 3B03      		.word	827
+ 3652 00e6 8716      		.word	5767
+ 3653 00e8 AC09      		.word	2476
+ 3654 00ea 7600      		.word	118
+ 3655 00ec 9508      		.word	2197
+ 3656 00ee 361C      		.word	7222
+ 3657 00f0 6D0F      		.word	3949
+ 3658 00f2 2123      		.word	8993
+ 3659 00f4 6411      		.word	4452
+ 3660 00f6 5C09      		.word	2396
+ 3661 00f8 FF1E      		.word	7935
+ 3662 00fa 8200      		.word	130
+ 3663 00fc 150B      		.word	2837
+ 3664 00fe 031B      		.word	6915
+ 3665 0100 6109      		.word	2401
+ 3666 0102 BA01      		.word	442
+ 3667 0104 141C      		.word	7188
+ 3668 0106 D62B      		.word	11222
+ 3669 0108 8601      		.word	390
+ 3670 010a 0503      		.word	773
+ 3671 010c 0821      		.word	8456
+ 3672 010e C20E      		.word	3778
+ 3673 0110 6201      		.word	354
+ 3674 0112 FD12      		.word	4861
+ 3675 0114 A124      		.word	9377
+ 3676 0116 4216      		.word	5698
+ 3677 0118 9413      		.word	5012
+ 3678 011a 5026      		.word	9808
+ 3679 011c 2B0B      		.word	2859
+ 3680 011e EC2B      		.word	11244
+ 3681 0120 F903      		.word	1017
+ 3682 0122 EC1C      		.word	7404
+ 3683 0124 6006      		.word	1632
+ 3684 0126 251C      		.word	7205
+ 3685 0128 1B00      		.word	27
+ 3686 012a 0724      		.word	9223
+ 3687 012c 4E21      		.word	8526
+ 3688 012e 612A      		.word	10849
+ 3689 0130 0106      		.word	1537
+ 3690 0132 F200      		.word	242
+ 3691 0134 6A12      		.word	4714
+ 3692 0136 D21F      		.word	8146
+ 3693 0138 8B25      		.word	9611
+ 3694 013a 780E      		.word	3704
+ 3695 013c 9B13      		.word	5019
+ 3696 013e E02D      		.word	11744
+ 3697 0140 EA03      		.word	1002
+ 3698 0142 9313      		.word	5011
+ 3699 0144 E013      		.word	5088
+ 3700 0146 451F      		.word	8005
+ 3701 0148 911C      		.word	7313
+ 3702 014a BA29      		.word	10682
+ 3703 014c 3D21      		.word	8509
+ 3704 014e 962C      		.word	11414
+ 3705 0150 7C26      		.word	9852
+ 3706 0152 3E0E      		.word	3646
+ 3707 0154 8617      		.word	6022
+ 3708 0156 AB0B      		.word	2987
+ 3709 0158 FB25      		.word	9723
+ 3710 015a 7627      		.word	10102
+ 3711 015c 6A18      		.word	6250
+ 3712 015e 8B26      		.word	9867
+ 3713 0160 D82B      		.word	11224
+ 3714 0162 5F08      		.word	2143
+ 3715 0164 6D2E      		.word	11885
+ 3716 0166 DC1D      		.word	7644
+ 3717 0168 9004      		.word	1168
+ 3718 016a 9D14      		.word	5277
+ 3719 016c 4A2B      		.word	11082
+ 3720 016e B00C      		.word	3248
+ 3721 0170 ED01      		.word	493
+ 3722 0172 0120      		.word	8193
+ 3723 0174 BD1A      		.word	6845
+ 3724 0176 4D09      		.word	2381
+ 3725 0178 101F      		.word	7952
+ 3726 017a 4E2E      		.word	11854
+ 3727 017c 6205      		.word	1378
+ 3728 017e 7807      		.word	1912
+ 3729 0180 7608      		.word	2166
+ 3730 0182 4B0F      		.word	3915
+ 3731 0184 902F      		.word	12176
+ 3732 0186 CA1C      		.word	7370
+ 3733 0188 612F      		.word	12129
+ 3734 018a 4D0C      		.word	3149
+ 3735 018c FE2F      		.word	12286
+ 3736 018e 5511      		.word	4437
+ 3737 0190 340E      		.word	3636
+ 3738 0192 4A13      		.word	4938
+ 3739 0194 AB14      		.word	5291
+ 3740 0196 900A      		.word	2704
+ 3741 0198 6F2A      		.word	10863
+ 3742 019a D31D      		.word	7635
+ 3743 019c 7F06      		.word	1663
+ 3744 019e 1029      		.word	10512
+ 3745 01a0 240D      		.word	3364
+ 3746 01a2 9906      		.word	1689
+ 3747 01a4 D90F      		.word	4057
+ 3748 01a6 3A23      		.word	9018
+ 3749 01a8 E224      		.word	9442
+ 3750 01aa C31E      		.word	7875
+ 3751 01ac 7E08      		.word	2174
+ 3752 01ae 1411      		.word	4372
+ 3753 01b0 4F1C      		.word	7247
+ 3754 01b2 0027      		.word	9984
+ 3755 01b4 D50F      		.word	4053
+ 3756 01b6 550A      		.word	2645
+ 3757 01b8 4B14      		.word	5195
+ 3758 01ba 2525      		.word	9509
+ 3759 01bc E21C      		.word	7394
+ 3760 01be CC05      		.word	1484
+ 3761 01c0 5223      		.word	9042
+ 3762 01c2 8325      		.word	9603
+ 3763 01c4 7720      		.word	8311
+ 3764 01c6 6824      		.word	9320
+ 3765 01c8 BF26      		.word	9919
+ 3766 01ca 310B      		.word	2865
+ 3767 01cc D414      		.word	5332
+ 3768 01ce B60D      		.word	3510
+ 3769 01d0 5E06      		.word	1630
+ 3770 01d2 B327      		.word	10163
+ 3771 01d4 1F15      		.word	5407
+ 3772 01d6 720C      		.word	3186
+ 3773 01d8 802B      		.word	11136
+ 3774 01da BD24      		.word	9405
+ 3775 01dc 3827      		.word	10040
+ 3776 01de 3120      		.word	8241
+ 3777 01e0 A226      		.word	9890
+ 3778 01e2 B922      		.word	8889
+ 3779 01e4 BA1B      		.word	7098
+ 3780 01e6 C123      		.word	9153
+ 3781 01e8 4924      		.word	9289
+ 3782 01ea 9F02      		.word	671
+ 3783 01ec C80B      		.word	3016
+ 3784 01ee F300      		.word	243
+ 3785 01f0 4A1A      		.word	6730
+ 3786 01f2 A401      		.word	420
+ 3787 01f4 7F27      		.word	10111
+ 3788 01f6 0806      		.word	1544
+ 3789 01f8 910F      		.word	3985
+ 3790 01fa 2913      		.word	4905
+ 3791 01fc CB0D      		.word	3531
+ 3792 01fe DC01      		.word	476
+ 3793 0200 3100      		.word	49
+ 3794 0202 EF04      		.word	1263
+ 3795 0204 1B17      		.word	5915
+ 3796 0206 CB05      		.word	1483
+ 3797 0208 3D26      		.word	9789
+ 3798 020a 302A      		.word	10800
+ 3799 020c D229      		.word	10706
+ 3800 020e CB18      		.word	6347
+ 3801 0210 E805      		.word	1512
+ 3802 0212 5E01      		.word	350
+ 3803 0214 EA28      		.word	10474
+ 3804 0216 0715      		.word	5383
+ 3805 0218 F914      		.word	5369
+ 3806 021a F827      		.word	10232
+ 3807 021c 7F23      		.word	9087
+ 3808 021e 8D11      		.word	4493
+ 3809 0220 4F25      		.word	9551
+ 3810 0222 1519      		.word	6421
+ 3811 0224 9A19      		.word	6554
+ 3812 0226 5F0A      		.word	2655
+ 3813 0228 4024      		.word	9280
+ 3814 022a 9D06      		.word	1693
+ 3815 022c AE00      		.word	174
+ 3816 022e D302      		.word	723
+ 3817 0230 4A28      		.word	10314
+ 3818 0232 5421      		.word	8532
+ 3819 0234 5B01      		.word	347
+ 3820 0236 6D0B      		.word	2925
+ 3821 0238 0E23      		.word	8974
+ 3822 023a 572E      		.word	11863
+ 3823 023c 4207      		.word	1858
+ 3824 023e 9212      		.word	4754
+ 3825 0240 D60B      		.word	3030
+ 3826 0242 1310      		.word	4115
+ 3827 0244 3909      		.word	2361
+ 3828 0246 CE28      		.word	10446
+ 3829 0248 5C0B      		.word	2908
+ 3830 024a DA00      		.word	218
+ 3831 024c 6A0D      		.word	3434
+ 3832 024e 3822      		.word	8760
+ 3833 0250 7B0F      		.word	3963
+ 3834 0252 4002      		.word	576
+ 3835 0254 FE17      		.word	6142
+ 3836 0256 7226      		.word	9842
+ 3837 0258 A207      		.word	1954
+ 3838 025a FE27      		.word	10238
+ 3839 025c BF24      		.word	9407
+ 3840 025e F428      		.word	10484
+ 3841 0260 970F      		.word	3991
+ 3842 0262 8020      		.word	8320
+ 3843 0264 3225      		.word	9522
+ 3844 0266 9C00      		.word	156
+ 3845 0268 E908      		.word	2281
+ 3846 026a F416      		.word	5876
+ 3847 026c 1228      		.word	10258
+ 3848 026e D514      		.word	5333
+ 3849 0270 BC0E      		.word	3772
+ 3850 0272 A201      		.word	418
+ 3851 0274 1417      		.word	5908
+ 3852 0276 3C2E      		.word	11836
+ 3853 0278 3515      		.word	5429
+ 3854 027a 5B1D      		.word	7515
+ 3855 027c 801D      		.word	7552
+ 3856 027e 0D05      		.word	1293
+ 3857 0280 2701      		.word	295
+ 3858 0282 D317      		.word	6099
+ 3859 0284 8616      		.word	5766
+ 3860 0286 8C02      		.word	652
+ 3861 0288 5120      		.word	8273
+ 3862 028a ED0F      		.word	4077
+ 3863 028c 4F21      		.word	8527
+ 3864 028e 9A24      		.word	9370
+ 3865 0290 4501      		.word	325
+ 3866 0292 852A      		.word	10885
+ 3867 0294 872B      		.word	11143
+ 3868 0296 4D2C      		.word	11341
+ 3869 0298 6617      		.word	5990
+ 3870 029a 8704      		.word	1159
+ 3871 029c 7121      		.word	8561
+ 3872 029e 3020      		.word	8240
+ 3873 02a0 010D      		.word	3329
+ 3874 02a2 CA10      		.word	4298
+ 3875 02a4 592F      		.word	12121
+ 3876 02a6 840A      		.word	2692
+ 3877 02a8 4917      		.word	5961
+ 3878 02aa 0F1C      		.word	7183
+ 3879 02ac 5728      		.word	10327
+ 3880 02ae 3A06      		.word	1594
+ 3881 02b0 1718      		.word	6167
+ 3882 02b2 0626      		.word	9734
+ 3883 02b4 C11B      		.word	7105
+ 3884 02b6 512B      		.word	11089
+ 3885 02b8 5005      		.word	1360
+ 3886 02ba 740F      		.word	3956
+ 3887 02bc 1A18      		.word	6170
+ 3888 02be B114      		.word	5297
+ 3889 02c0 1220      		.word	8210
+ 3890 02c2 DF2B      		.word	11231
+ 3891 02c4 9A03      		.word	922
+ 3892 02c6 B901      		.word	441
+ 3893 02c8 A607      		.word	1958
+ 3894 02ca E210      		.word	4322
+ 3895 02cc 5804      		.word	1112
+ 3896 02ce 1E08      		.word	2078
+ 3897 02d0 CE0F      		.word	4046
+ 3898 02d2 C502      		.word	709
+ 3899 02d4 B323      		.word	9139
+ 3900 02d6 2705      		.word	1319
+ 3901 02d8 9010      		.word	4240
+ 3902 02da 0F22      		.word	8719
+ 3903 02dc 5018      		.word	6224
+ 3904 02de BE2C      		.word	11454
+ 3905 02e0 9B09      		.word	2459
+ 3906 02e2 AB02      		.word	683
+ 3907 02e4 480E      		.word	3656
+ 3908 02e6 C12F      		.word	12225
+ 3909 02e8 E329      		.word	10723
+ 3910 02ea 9616      		.word	5782
+ 3911 02ec 7D24      		.word	9341
+ 3912 02ee 3A26      		.word	9786
+ 3913 02f0 CE23      		.word	9166
+ 3914 02f2 2E29      		.word	10542
+ 3915 02f4 1324      		.word	9235
+ 3916 02f6 931A      		.word	6803
+ 3917 02f8 B01E      		.word	7856
+ 3918 02fa E218      		.word	6370
+ 3919 02fc FA0E      		.word	3834
+ 3920 02fe 781B      		.word	7032
+ 3921 0300 881B      		.word	7048
+ 3922 0302 9924      		.word	9369
+ 3923 0304 B81F      		.word	8120
+ 3924 0306 CA23      		.word	9162
+ 3925 0308 A51A      		.word	6821
+ 3926 030a F203      		.word	1010
+ 3927 030c 6722      		.word	8807
+ 3928 030e 1303      		.word	787
+ 3929 0310 C113      		.word	5057
+ 3930 0312 5A12      		.word	4698
+ 3931 0314 AC12      		.word	4780
+ 3932 0316 8C22      		.word	8844
+ 3933 0318 412F      		.word	12097
+ 3934 031a 2905      		.word	1321
+ 3935 031c 3013      		.word	4912
+ 3936 031e 0028      		.word	10240
+ 3937 0320 A502      		.word	677
+ 3938 0322 0F19      		.word	6415
+ 3939 0324 5A18      		.word	6234
+ 3940 0326 F922      		.word	8953
+ 3941 0328 2B05      		.word	1323
+ 3942 032a 3325      		.word	9523
+ 3943 032c CD2F      		.word	12237
+ 3944 032e 660C      		.word	3174
+ 3945 0330 2B06      		.word	1579
+ 3946 0332 522E      		.word	11858
+ 3947 0334 3826      		.word	9784
+ 3948 0336 1217      		.word	5906
+ 3949 0338 750F      		.word	3957
+ 3950 033a EA24      		.word	9450
+ 3951 033c 9700      		.word	151
+ 3952 033e B227      		.word	10162
+ 3953 0340 C72F      		.word	12231
+ 3954 0342 102F      		.word	12048
+ 3955 0344 CC0D      		.word	3532
+ 3956 0346 162C      		.word	11286
+ 3957 0348 A407      		.word	1956
+ 3958 034a 701C      		.word	7280
+ 3959 034c 8C2C      		.word	11404
+ 3960 034e 8918      		.word	6281
+ 3961 0350 950D      		.word	3477
+ 3962 0352 D019      		.word	6608
+ 3963 0354 8E00      		.word	142
+ 3964 0356 B02B      		.word	11184
+ 3965 0358 E524      		.word	9445
+ 3966 035a 6E0D      		.word	3438
+ 3967 035c 322C      		.word	11314
+ 3968 035e 7410      		.word	4212
+ 3969 0360 2C24      		.word	9260
+ 3970 0362 271A      		.word	6695
+ 3971 0364 AE12      		.word	4782
+ 3972 0366 FE16      		.word	5886
+ 3973 0368 8C1F      		.word	8076
+ 3974 036a F801      		.word	504
+ 3975 036c FE08      		.word	2302
+ 3976 036e A42D      		.word	11684
+ 3977 0370 5C2E      		.word	11868
+ 3978 0372 1120      		.word	8209
+ 3979 0374 120E      		.word	3602
+ 3980 0376 B417      		.word	6068
+ 3981 0378 F121      		.word	8689
+ 3982 037a BF0C      		.word	3263
+ 3983 037c BD17      		.word	6077
+ 3984 037e F11D      		.word	7665
+ 3985 0380 8E1E      		.word	7822
+ 3986 0382 4C1D      		.word	7500
+ 3987 0384 601A      		.word	6752
+ 3988 0386 8D12      		.word	4749
+ 3989 0388 6111      		.word	4449
+ 3990 038a B11A      		.word	6833
+ 3991 038c 6E2F      		.word	12142
+ 3992 038e 3421      		.word	8500
+ 3993 0390 E617      		.word	6118
+ 3994 0392 1721      		.word	8471
+ 3995 0394 A604      		.word	1190
+ 3996 0396 8625      		.word	9606
+ 3997 0398 140F      		.word	3860
+ 3998 039a 4515      		.word	5445
+ 3999 039c 491E      		.word	7753
+ 4000 039e E72B      		.word	11239
+ 4001 03a0 D713      		.word	5079
+ 4002 03a2 4323      		.word	9027
+ 4003 03a4 7908      		.word	2169
+ 4004 03a6 F72D      		.word	11767
+ 4005 03a8 1D1F      		.word	7965
+ 4006 03aa 3413      		.word	4916
+ 4007 03ac 1620      		.word	8214
+ 4008 03ae C314      		.word	5315
+ 4009 03b0 032B      		.word	11011
+ 4010 03b2 D926      		.word	9945
+ 4011 03b4 B507      		.word	1973
+ 4012 03b6 3B1A      		.word	6715
+ 4013 03b8 4722      		.word	8775
+ 4014 03ba F02B      		.word	11248
+ 4015 03bc 2517      		.word	5925
+ 4016 03be 072C      		.word	11271
+ 4017 03c0 8E02      		.word	654
+ 4018 03c2 ED0D      		.word	3565
+ 4019 03c4 A606      		.word	1702
+ 4020 03c6 C307      		.word	1987
+ 4021 03c8 681A      		.word	6760
+ 4022 03ca 5614      		.word	5206
+ 4023 03cc 7F0C      		.word	3199
+ 4024 03ce C92F      		.word	12233
+ 4025 03d0 F817      		.word	6136
+ 4026 03d2 1B19      		.word	6427
+ 4027 03d4 DA1A      		.word	6874
+ 4028 03d6 C621      		.word	8646
+ 4029 03d8 5413      		.word	4948
+ 4030 03da 0818      		.word	6152
+ 4031 03dc 9001      		.word	400
+ 4032 03de 4129      		.word	10561
+ 4033 03e0 DB14      		.word	5339
+ 4034 03e2 4615      		.word	5446
+ 4035 03e4 7E0E      		.word	3710
+ 4036 03e6 CD17      		.word	6093
+ 4037 03e8 D401      		.word	468
+ 4038 03ea 6D20      		.word	8301
+ 4039 03ec 3C01      		.word	316
+ 4040 03ee 832E      		.word	11907
+ 4041 03f0 1028      		.word	10256
+ 4042 03f2 6320      		.word	8291
+ 4043 03f4 270F      		.word	3879
+ 4044 03f6 8207      		.word	1922
+ 4045 03f8 B22A      		.word	10930
+ 4046 03fa C61A      		.word	6854
+ 4047 03fc CD03      		.word	973
+ 4048 03fe 1B2B      		.word	11035
+ 4050               		.text
+ 4052               	.Letext0:
+ 4053               		.ident	"GCC: (GNU) 9.1.0"
+ 4054               	.global __do_copy_data
+ 4055               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 measureNTT_12289_512.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:495    .text.do_measurement_12289_512:0000000000000000 do_measurement_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:3536   .progmem.data.psibitrev_12289_512:0000000000000000 psibitrev_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:3019   .progmem.data.omegainvbitrev_12289_512:0000000000000000 omegainvbitrev_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:1462   .bss.start:0000000000000000 start
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:1456   .bss.end:0000000000000000 end
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:1985   .progmem.data.pubKeyP_12289_512:0000000000000000 pubKeyP_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:1468   .progmem.data.pubKeyA_12289_512:0000000000000000 pubKeyA_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccTEFQ1n.s:2502   .progmem.data.prvKeyR2_12289_512:0000000000000000 prvKeyR2_12289_512
+
+UNDEFINED SYMBOLS
+printf
+generateRandomPolyTable_12289_512
+startMeasurement
+ntt_CT_no_to_bo_incl_psi_12289_512
+stopMeasurement
+printResult
+ntt_GS_bo_to_no_incl_invpsi_12289_512
+ntt_CT_no_to_bo_incl_psi_12289_512_nolookup
+__malloc_heap_start
+startRAM
+pw_mul_flash_12289_512
+endRAM
+printResultRAM
+pw_psi_12289
+add_12289
+get_gauss_poly_12289_512
+encrypt_12289_512
+generateRandomPolyTable_7681_256
+decrypt_12289_512
+add_encode_12289_512
+decode_12289_512
+putchar
+__do_copy_data
+__do_clear_bss

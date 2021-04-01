@@ -1,0 +1,1141 @@
+   1               		.file	"measureSchoolbook_4093.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__RAMPZ__ = 0x3b
+   6               	__RAMPY__ = 0x3a
+   7               	__RAMPX__ = 0x39
+   8               	__RAMPD__ = 0x38
+   9               	__CCP__ = 0x34
+  10               	__tmp_reg__ = 0
+  11               	__zero_reg__ = 1
+  13               		.text
+  14               	.Ltext0:
+ 458               		.section	.rodata.do_measurement_4093.str1.1,"aMS",@progbits,1
+ 459               	.LC0:
+ 460 0000 4D65 6173 		.string	"Measure SchoolbookMul with n = %d and q = 4093:\n\r"
+ 460      7572 6520 
+ 460      5363 686F 
+ 460      6F6C 626F 
+ 460      6F6B 4D75 
+ 461               	.LC1:
+ 462 0032 4761 7573 		.string	"Gaussian Poly Generation: "
+ 462      7369 616E 
+ 462      2050 6F6C 
+ 462      7920 4765 
+ 462      6E65 7261 
+ 463               	.LC2:
+ 464 004d 5261 6E64 		.string	"Random Poly Generation: "
+ 464      6F6D 2050 
+ 464      6F6C 7920 
+ 464      4765 6E65 
+ 464      7261 7469 
+ 465               	.LC3:
+ 466 0066 6F6E 6574 		.string	"onetwothreefourfonetwoth"
+ 466      776F 7468 
+ 466      7265 6566 
+ 466      6F75 7266 
+ 466      6F6E 6574 
+ 467               	.LC4:
+ 468 007f 6F6E 6574 		.string	"onetwothreefourfonetwothreefourf"
+ 468      776F 7468 
+ 468      7265 6566 
+ 468      6F75 7266 
+ 468      6F6E 6574 
+ 469               	.LC5:
+ 470 00a0 6F6E 6574 		.string	"onetwothreefourfonetwothreefourfivesixse"
+ 470      776F 7468 
+ 470      7265 6566 
+ 470      6F75 7266 
+ 470      6F6E 6574 
+ 471               	.LC6:
+ 472 00c9 456E 6372 		.string	"Encryption: "
+ 472      7970 7469 
+ 472      6F6E 3A20 
+ 472      00
+ 473               	.LC7:
+ 474 00d6 4465 6372 		.string	"Decryption: "
+ 474      7970 7469 
+ 474      6F6E 3A20 
+ 474      00
+ 475               	.LC8:
+ 476 00e3 5363 686F 		.string	"Schoolbook multiplication: "
+ 476      6F6C 626F 
+ 476      6F6B 206D 
+ 476      756C 7469 
+ 476      706C 6963 
+ 477               	.LC10:
+ 478 00ff 456E 636F 		.string	"Encoding: "
+ 478      6469 6E67 
+ 478      3A20 00
+ 479               	.LC11:
+ 480 010a 4465 636F 		.string	"Decoding: "
+ 480      6469 6E67 
+ 480      3A20 00
+ 481               	.LC12:
+ 482 0115 0A0D 00   		.string	"\n\r"
+ 483               		.section	.rodata
+ 484               	.LC9:
+ 485 0000 6F6E 6574 		.string	"onetwothreefourfonetwothreefourf"
+ 485      776F 7468 
+ 485      7265 6566 
+ 485      6F75 7266 
+ 485      6F6E 6574 
+ 486 0021 0000 0000 		.zero	8
+ 486      0000 0000 
+ 487               		.section	.text.do_measurement_4093,"ax",@progbits
+ 490               	.global	do_measurement_4093
+ 492               	do_measurement_4093:
+   1:profiling/measureSchoolbook_4093.c **** #include "../device/usart_driver.h"
+   2:profiling/measureSchoolbook_4093.c **** #include "../device/clksys_driver.h"
+   3:profiling/measureSchoolbook_4093.c **** 
+   4:profiling/measureSchoolbook_4093.c **** #include <inttypes.h>
+   5:profiling/measureSchoolbook_4093.c **** #include "../crypto/p4093/school_4093.h"
+   6:profiling/measureSchoolbook_4093.c **** #include "profiling.h"
+   7:profiling/measureSchoolbook_4093.c **** #include <stdio.h>
+   8:profiling/measureSchoolbook_4093.c **** #include <string.h>
+   9:profiling/measureSchoolbook_4093.c **** #include "../device/measureRAM.h"
+  10:profiling/measureSchoolbook_4093.c **** 
+  11:profiling/measureSchoolbook_4093.c **** #define paramQ 4093
+  12:profiling/measureSchoolbook_4093.c **** 
+  13:profiling/measureSchoolbook_4093.c **** static int16_t start, end;
+  14:profiling/measureSchoolbook_4093.c **** 
+  15:profiling/measureSchoolbook_4093.c **** static void measurePolyGeneration_4093(uint16_t * a, int paramN)
+  16:profiling/measureSchoolbook_4093.c **** {
+  17:profiling/measureSchoolbook_4093.c ****   uint64_t mean = 0;
+  18:profiling/measureSchoolbook_4093.c **** 	
+  19:profiling/measureSchoolbook_4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+  20:profiling/measureSchoolbook_4093.c ****     {					
+  21:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+  22:profiling/measureSchoolbook_4093.c **** 			
+  23:profiling/measureSchoolbook_4093.c ****       get_gauss_poly_4093(a,0,paramN);									       
+  24:profiling/measureSchoolbook_4093.c **** 					
+  25:profiling/measureSchoolbook_4093.c ****       stopMeasurement(&mean);
+  26:profiling/measureSchoolbook_4093.c ****     }
+  27:profiling/measureSchoolbook_4093.c **** 	
+  28:profiling/measureSchoolbook_4093.c ****   printResult(&mean, "Gaussian Poly Generation: ");
+  29:profiling/measureSchoolbook_4093.c **** 	
+  30:profiling/measureSchoolbook_4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+  31:profiling/measureSchoolbook_4093.c ****     {
+  32:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+  33:profiling/measureSchoolbook_4093.c **** 										
+  34:profiling/measureSchoolbook_4093.c ****       generateRandomPolyTable_4093(a,paramN);
+  35:profiling/measureSchoolbook_4093.c **** 					
+  36:profiling/measureSchoolbook_4093.c ****       stopMeasurement(&mean);
+  37:profiling/measureSchoolbook_4093.c ****     }
+  38:profiling/measureSchoolbook_4093.c **** 	
+  39:profiling/measureSchoolbook_4093.c ****   printResult(&mean, "Random Poly Generation: ");	
+  40:profiling/measureSchoolbook_4093.c **** }
+  41:profiling/measureSchoolbook_4093.c **** 
+  42:profiling/measureSchoolbook_4093.c **** 
+  43:profiling/measureSchoolbook_4093.c **** static void measure_school_4093(uint16_t *a, const uint16_t *prvKeyR2_4093,  uint16_t *b, int param
+  44:profiling/measureSchoolbook_4093.c **** {
+  45:profiling/measureSchoolbook_4093.c ****   uint64_t mean = 0;
+  46:profiling/measureSchoolbook_4093.c **** 	
+  47:profiling/measureSchoolbook_4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+  48:profiling/measureSchoolbook_4093.c ****     {				          
+  49:profiling/measureSchoolbook_4093.c **** 
+  50:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+  51:profiling/measureSchoolbook_4093.c **** 		
+  52:profiling/measureSchoolbook_4093.c ****       if (paramN==192){
+  53:profiling/measureSchoolbook_4093.c **** 	school_4093_192(a, prvKeyR2_4093, b);
+  54:profiling/measureSchoolbook_4093.c ****       }
+  55:profiling/measureSchoolbook_4093.c ****       if (paramN==256){
+  56:profiling/measureSchoolbook_4093.c **** 	school_4093_256(a, prvKeyR2_4093, b);
+  57:profiling/measureSchoolbook_4093.c ****       }
+  58:profiling/measureSchoolbook_4093.c ****       if (paramN==320){
+  59:profiling/measureSchoolbook_4093.c **** 	school_4093_320(a, prvKeyR2_4093, b);
+  60:profiling/measureSchoolbook_4093.c ****       }
+  61:profiling/measureSchoolbook_4093.c **** 	       	
+  62:profiling/measureSchoolbook_4093.c ****       end = endRAM(); 								
+  63:profiling/measureSchoolbook_4093.c ****     }
+  64:profiling/measureSchoolbook_4093.c **** 	
+  65:profiling/measureSchoolbook_4093.c ****   printResult(&mean, "Schoolbook multiplication: ");
+  66:profiling/measureSchoolbook_4093.c **** }
+  67:profiling/measureSchoolbook_4093.c **** 
+  68:profiling/measureSchoolbook_4093.c **** static void measureLWEOperations_4093(uint16_t * a, uint16_t * b, int paramN, const uint16_t * prvK
+  69:profiling/measureSchoolbook_4093.c **** {
+  70:profiling/measureSchoolbook_4093.c ****   uint64_t mean = 0;
+  71:profiling/measureSchoolbook_4093.c ****   char msg[paramN/8+1];
+  72:profiling/measureSchoolbook_4093.c **** 	
+  73:profiling/measureSchoolbook_4093.c ****   if(paramN == 192)
+  74:profiling/measureSchoolbook_4093.c ****     {
+  75:profiling/measureSchoolbook_4093.c ****       strcpy(msg,"onetwothreefourfonetwoth");
+  76:profiling/measureSchoolbook_4093.c ****     }
+  77:profiling/measureSchoolbook_4093.c ****   else if(paramN == 256)
+  78:profiling/measureSchoolbook_4093.c ****     {
+  79:profiling/measureSchoolbook_4093.c ****       strcpy(msg,"onetwothreefourfonetwothreefourf");
+  80:profiling/measureSchoolbook_4093.c ****     }
+  81:profiling/measureSchoolbook_4093.c ****   //paramN == 320
+  82:profiling/measureSchoolbook_4093.c ****   else
+  83:profiling/measureSchoolbook_4093.c ****     {
+  84:profiling/measureSchoolbook_4093.c ****       strcpy(msg,"onetwothreefourfonetwothreefourfivesixse");
+  85:profiling/measureSchoolbook_4093.c ****     }
+  86:profiling/measureSchoolbook_4093.c **** 	
+  87:profiling/measureSchoolbook_4093.c **** 	
+  88:profiling/measureSchoolbook_4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+  89:profiling/measureSchoolbook_4093.c ****     {
+  90:profiling/measureSchoolbook_4093.c ****       generateRandomPolyTable_4093(a,paramN);
+  91:profiling/measureSchoolbook_4093.c ****       generateRandomPolyTable_4093(b,paramN);
+  92:profiling/measureSchoolbook_4093.c **** 							
+  93:profiling/measureSchoolbook_4093.c ****       msg[0]= (char) i;
+  94:profiling/measureSchoolbook_4093.c ****       msg[1]= (char) i+10;
+  95:profiling/measureSchoolbook_4093.c ****       msg[2]= (char) i+55;
+  96:profiling/measureSchoolbook_4093.c **** 		
+  97:profiling/measureSchoolbook_4093.c ****       start = startRAM(__malloc_heap_start); 
+  98:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+  99:profiling/measureSchoolbook_4093.c **** 
+ 100:profiling/measureSchoolbook_4093.c ****       encrypt_4093((uint8_t *)msg,a,b, pubKeyA_4093, pubKeyP_4093,paramN);
+ 101:profiling/measureSchoolbook_4093.c **** 
+ 102:profiling/measureSchoolbook_4093.c ****       stopMeasurement(&mean);		
+ 103:profiling/measureSchoolbook_4093.c ****       end = endRAM();
+ 104:profiling/measureSchoolbook_4093.c ****     }
+ 105:profiling/measureSchoolbook_4093.c **** 	
+ 106:profiling/measureSchoolbook_4093.c ****    printResultRAM(&mean, start-end, "Encryption: ");
+ 107:profiling/measureSchoolbook_4093.c **** 	
+ 108:profiling/measureSchoolbook_4093.c **** 
+ 109:profiling/measureSchoolbook_4093.c **** 	
+ 110:profiling/measureSchoolbook_4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 111:profiling/measureSchoolbook_4093.c ****     {
+ 112:profiling/measureSchoolbook_4093.c ****       generateRandomPolyTable_4093(a, paramN);
+ 113:profiling/measureSchoolbook_4093.c ****       generateRandomPolyTable_4093(b, paramN);					
+ 114:profiling/measureSchoolbook_4093.c **** 		
+ 115:profiling/measureSchoolbook_4093.c ****       start = startRAM(__malloc_heap_start); 
+ 116:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+ 117:profiling/measureSchoolbook_4093.c **** 							
+ 118:profiling/measureSchoolbook_4093.c ****       decrypt_4093((uint8_t *)msg,a,b, prvKeyR2_4093,paramN);	
+ 119:profiling/measureSchoolbook_4093.c **** 
+ 120:profiling/measureSchoolbook_4093.c ****       stopMeasurement(&mean);	
+ 121:profiling/measureSchoolbook_4093.c ****       end = endRAM();
+ 122:profiling/measureSchoolbook_4093.c ****     }
+ 123:profiling/measureSchoolbook_4093.c **** 	
+ 124:profiling/measureSchoolbook_4093.c ****    printResultRAM(&mean, start-end, "Decryption: ");
+ 125:profiling/measureSchoolbook_4093.c **** 	
+ 126:profiling/measureSchoolbook_4093.c **** 
+ 127:profiling/measureSchoolbook_4093.c ****   /*	
+ 128:profiling/measureSchoolbook_4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 129:profiling/measureSchoolbook_4093.c ****     {
+ 130:profiling/measureSchoolbook_4093.c ****       msg[0]= (char) i;
+ 131:profiling/measureSchoolbook_4093.c ****       msg[1]= (char) i+10;
+ 132:profiling/measureSchoolbook_4093.c ****       msg[2]= (char) i+55;
+ 133:profiling/measureSchoolbook_4093.c **** 							
+ 134:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+ 135:profiling/measureSchoolbook_4093.c **** 													
+ 136:profiling/measureSchoolbook_4093.c ****       add_encode_4093(msg,a,paramN);
+ 137:profiling/measureSchoolbook_4093.c **** 					
+ 138:profiling/measureSchoolbook_4093.c ****       stopMeasurement(&mean);
+ 139:profiling/measureSchoolbook_4093.c ****     }
+ 140:profiling/measureSchoolbook_4093.c **** 	
+ 141:profiling/measureSchoolbook_4093.c ****   printResult(&mean, "Encoding: ");
+ 142:profiling/measureSchoolbook_4093.c ****   */
+ 143:profiling/measureSchoolbook_4093.c **** 
+ 144:profiling/measureSchoolbook_4093.c ****   /*	
+ 145:profiling/measureSchoolbook_4093.c ****   for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 146:profiling/measureSchoolbook_4093.c ****     {
+ 147:profiling/measureSchoolbook_4093.c ****       generateRandomPolyTable_12289_512(a);
+ 148:profiling/measureSchoolbook_4093.c **** 							
+ 149:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+ 150:profiling/measureSchoolbook_4093.c **** 													
+ 151:profiling/measureSchoolbook_4093.c ****       decode_4093(a, msg, paramN);
+ 152:profiling/measureSchoolbook_4093.c **** 					
+ 153:profiling/measureSchoolbook_4093.c ****       stopMeasurement(&mean);
+ 154:profiling/measureSchoolbook_4093.c ****     }
+ 155:profiling/measureSchoolbook_4093.c **** 	
+ 156:profiling/measureSchoolbook_4093.c ****   printResult(&mean, "Decoding: ");
+ 157:profiling/measureSchoolbook_4093.c ****   */
+ 158:profiling/measureSchoolbook_4093.c **** }
+ 159:profiling/measureSchoolbook_4093.c **** 
+ 160:profiling/measureSchoolbook_4093.c **** 
+ 161:profiling/measureSchoolbook_4093.c **** static void measureCoding(uint16_t * a, int paramN){
+ 162:profiling/measureSchoolbook_4093.c **** 	char msg[320/8+1] = "onetwothreefourfonetwothreefourf";
+ 163:profiling/measureSchoolbook_4093.c **** 	uint64_t mean = 0;
+ 164:profiling/measureSchoolbook_4093.c **** 
+ 165:profiling/measureSchoolbook_4093.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 166:profiling/measureSchoolbook_4093.c **** 	{
+ 167:profiling/measureSchoolbook_4093.c **** 		msg[0]= (char) i;
+ 168:profiling/measureSchoolbook_4093.c **** 		msg[1]= (char) i+10;
+ 169:profiling/measureSchoolbook_4093.c **** 		msg[2]= (char) i+55;
+ 170:profiling/measureSchoolbook_4093.c **** 	
+ 171:profiling/measureSchoolbook_4093.c **** 		
+ 172:profiling/measureSchoolbook_4093.c **** 		startMeasurement();		
+ 173:profiling/measureSchoolbook_4093.c **** 
+ 174:profiling/measureSchoolbook_4093.c **** 		add_encode_4093((uint8_t *)msg, a, paramN);
+ 175:profiling/measureSchoolbook_4093.c **** 					
+ 176:profiling/measureSchoolbook_4093.c **** 		stopMeasurement(&mean);
+ 177:profiling/measureSchoolbook_4093.c **** 	}
+ 178:profiling/measureSchoolbook_4093.c **** 	
+ 179:profiling/measureSchoolbook_4093.c **** 	printResult(&mean, "Encoding: ");
+ 180:profiling/measureSchoolbook_4093.c **** 	
+ 181:profiling/measureSchoolbook_4093.c **** 	for(int i = 0; i<MAX_MEASUREMENT;i++)
+ 182:profiling/measureSchoolbook_4093.c **** 	{
+ 183:profiling/measureSchoolbook_4093.c **** 		generateRandomPolyTable_7681_256(a);
+ 184:profiling/measureSchoolbook_4093.c **** 							
+ 185:profiling/measureSchoolbook_4093.c **** 		startMeasurement();		
+ 186:profiling/measureSchoolbook_4093.c **** 
+ 187:profiling/measureSchoolbook_4093.c **** 	        decode_4093(a, (uint8_t *)msg, paramN);	
+ 188:profiling/measureSchoolbook_4093.c **** 					
+ 189:profiling/measureSchoolbook_4093.c **** 		stopMeasurement(&mean);
+ 190:profiling/measureSchoolbook_4093.c **** 	}
+ 191:profiling/measureSchoolbook_4093.c **** 	
+ 192:profiling/measureSchoolbook_4093.c **** 	printResult(&mean, "Decoding: ");
+ 193:profiling/measureSchoolbook_4093.c **** }
+ 194:profiling/measureSchoolbook_4093.c **** 
+ 195:profiling/measureSchoolbook_4093.c **** void do_measurement_4093(int paramN, const uint16_t * r2, const uint16_t * p,const uint16_t * a)
+ 196:profiling/measureSchoolbook_4093.c **** {
+ 494               	.LM0:
+ 495               	.LFBB1:
+ 496 0000 3F92      		push r3
+ 497 0002 4F92      		push r4
+ 498 0004 5F92      		push r5
+ 499 0006 6F92      		push r6
+ 500 0008 7F92      		push r7
+ 501 000a 8F92      		push r8
+ 502 000c 9F92      		push r9
+ 503 000e AF92      		push r10
+ 504 0010 BF92      		push r11
+ 505 0012 CF92      		push r12
+ 506 0014 DF92      		push r13
+ 507 0016 EF92      		push r14
+ 508 0018 FF92      		push r15
+ 509 001a 0F93      		push r16
+ 510 001c 1F93      		push r17
+ 511 001e CF93      		push r28
+ 512 0020 DF93      		push r29
+ 513 0022 CDB7      		in r28,__SP_L__
+ 514 0024 DEB7      		in r29,__SP_H__
+ 515 0026 C553      		subi r28,53
+ 516 0028 D540      		sbci r29,5
+ 517 002a CDBF      		out __SP_L__,r28
+ 518 002c DEBF      		out __SP_H__,r29
+ 519               	/* prologue: function */
+ 520               	/* frame size = 1333 */
+ 521               	/* stack size = 1350 */
+ 522               	.L__stack_usage = 1350
+ 523 002e 6C01      		movw r12,r24
+ 524 0030 962E      		mov r9,r22
+ 525 0032 872E      		mov r8,r23
+ 526 0034 342E      		mov r3,r20
+ 527 0036 452E      		mov r4,r21
+ 528 0038 522E      		mov r5,r18
+ 529 003a 632E      		mov r6,r19
+ 197:profiling/measureSchoolbook_4093.c ****   uint16_t buf1[320];
+ 198:profiling/measureSchoolbook_4093.c ****   uint16_t buf2[320];
+ 199:profiling/measureSchoolbook_4093.c **** 
+ 200:profiling/measureSchoolbook_4093.c ****   printf("Measure SchoolbookMul with n = %d and q = 4093:\n\r", paramN);
+ 201:profiling/measureSchoolbook_4093.c **** 
+ 202:profiling/measureSchoolbook_4093.c ****   measurePolyGeneration_4093(buf1,paramN);
+ 203:profiling/measureSchoolbook_4093.c ****   measureLWEOperations_4093(buf1,buf2,paramN, r2, p, a);		
+ 204:profiling/measureSchoolbook_4093.c ****   measure_school_4093(buf1, r2,  buf2, paramN);
+ 205:profiling/measureSchoolbook_4093.c ****   measureCoding(buf1, paramN);
+ 206:profiling/measureSchoolbook_4093.c **** 	
+ 207:profiling/measureSchoolbook_4093.c ****   printf("\n\r");
+ 208:profiling/measureSchoolbook_4093.c **** }
+ 531               	.LM1:
+ 532 003c 2DB7      		in r18,__SP_L__
+ 533 003e 3EB7      		in r19,__SP_H__
+ 534 0040 CC5C      		subi r28,lo8(-1332)
+ 535 0042 DA4F      		sbci r29,hi8(-1332)
+ 536 0044 2883      		st Y,r18
+ 537 0046 3983      		std Y+1,r19
+ 538 0048 C453      		subi r28,lo8(1332)
+ 539 004a D540      		sbci r29,hi8(1332)
+ 200:profiling/measureSchoolbook_4093.c **** 
+ 541               	.LM2:
+ 542 004c DF92      		push r13
+ 543 004e 8F93      		push r24
+ 544 0050 80E0      		ldi r24,lo8(.LC0)
+ 545 0052 90E0      		ldi r25,hi8(.LC0)
+ 546 0054 9F93      		push r25
+ 547 0056 8F93      		push r24
+ 548 0058 0E94 0000 		call printf
+ 549               	.LBB17:
+ 550               	.LBB18:
+  17:profiling/measureSchoolbook_4093.c **** 	
+ 552               	.LM3:
+ 553 005c 1982      		std Y+1,__zero_reg__
+ 554 005e 1A82      		std Y+2,__zero_reg__
+ 555 0060 1B82      		std Y+3,__zero_reg__
+ 556 0062 1C82      		std Y+4,__zero_reg__
+ 557 0064 1D82      		std Y+5,__zero_reg__
+ 558 0066 1E82      		std Y+6,__zero_reg__
+ 559 0068 1F82      		std Y+7,__zero_reg__
+ 560 006a 1886      		std Y+8,__zero_reg__
+ 561 006c 0F90      		pop __tmp_reg__
+ 562 006e 0F90      		pop __tmp_reg__
+ 563 0070 0F90      		pop __tmp_reg__
+ 564 0072 0F90      		pop __tmp_reg__
+ 565 0074 04E6      		ldi r16,lo8(100)
+ 566 0076 10E0      		ldi r17,0
+ 567               	.L2:
+ 568               	.LBB19:
+  21:profiling/measureSchoolbook_4093.c **** 			
+ 570               	.LM4:
+ 571 0078 0E94 0000 		call startMeasurement
+  23:profiling/measureSchoolbook_4093.c **** 					
+ 573               	.LM5:
+ 574 007c A601      		movw r20,r12
+ 575 007e 70E0      		ldi r23,0
+ 576 0080 60E0      		ldi r22,0
+ 577 0082 CE01      		movw r24,r28
+ 578 0084 8F57      		subi r24,127
+ 579 0086 9D4F      		sbci r25,-3
+ 580 0088 0E94 0000 		call get_gauss_poly_4093
+  25:profiling/measureSchoolbook_4093.c ****     }
+ 582               	.LM6:
+ 583 008c CE01      		movw r24,r28
+ 584 008e 0196      		adiw r24,1
+ 585 0090 0E94 0000 		call stopMeasurement
+ 586 0094 0150      		subi r16,1
+ 587 0096 1109      		sbc r17,__zero_reg__
+  19:profiling/measureSchoolbook_4093.c ****     {					
+ 589               	.LM7:
+ 590 0098 01F4      		brne .L2
+ 591               	.LBE19:
+  28:profiling/measureSchoolbook_4093.c **** 	
+ 593               	.LM8:
+ 594 009a 60E0      		ldi r22,lo8(.LC1)
+ 595 009c 70E0      		ldi r23,hi8(.LC1)
+ 596 009e CE01      		movw r24,r28
+ 597 00a0 0196      		adiw r24,1
+ 598 00a2 0E94 0000 		call printResult
+ 599 00a6 04E6      		ldi r16,lo8(100)
+ 600 00a8 10E0      		ldi r17,0
+ 601               	.L3:
+ 602               	.LBB20:
+  32:profiling/measureSchoolbook_4093.c **** 										
+ 604               	.LM9:
+ 605 00aa 0E94 0000 		call startMeasurement
+  34:profiling/measureSchoolbook_4093.c **** 					
+ 607               	.LM10:
+ 608 00ae B601      		movw r22,r12
+ 609 00b0 CE01      		movw r24,r28
+ 610 00b2 8F57      		subi r24,127
+ 611 00b4 9D4F      		sbci r25,-3
+ 612 00b6 0E94 0000 		call generateRandomPolyTable_4093
+  36:profiling/measureSchoolbook_4093.c ****     }
+ 614               	.LM11:
+ 615 00ba CE01      		movw r24,r28
+ 616 00bc 0196      		adiw r24,1
+ 617 00be 0E94 0000 		call stopMeasurement
+ 618 00c2 0150      		subi r16,1
+ 619 00c4 1109      		sbc r17,__zero_reg__
+  30:profiling/measureSchoolbook_4093.c ****     {
+ 621               	.LM12:
+ 622 00c6 01F4      		brne .L3
+ 623               	.LBE20:
+  39:profiling/measureSchoolbook_4093.c **** }
+ 625               	.LM13:
+ 626 00c8 60E0      		ldi r22,lo8(.LC2)
+ 627 00ca 70E0      		ldi r23,hi8(.LC2)
+ 628 00cc CE01      		movw r24,r28
+ 629 00ce 0196      		adiw r24,1
+ 630 00d0 0E94 0000 		call printResult
+ 631               	.LBE18:
+ 632               	.LBE17:
+ 633               	.LBB22:
+ 634               	.LBB23:
+  69:profiling/measureSchoolbook_4093.c ****   uint64_t mean = 0;
+ 636               	.LM14:
+ 637 00d4 8DB7      		in r24,__SP_L__
+ 638 00d6 9EB7      		in r25,__SP_H__
+ 639 00d8 CE5C      		subi r28,lo8(-1330)
+ 640 00da DA4F      		sbci r29,hi8(-1330)
+ 641 00dc 8883      		st Y,r24
+ 642 00de 9983      		std Y+1,r25
+ 643 00e0 C253      		subi r28,lo8(1330)
+ 644 00e2 D540      		sbci r29,hi8(1330)
+  70:profiling/measureSchoolbook_4093.c ****   char msg[paramN/8+1];
+ 646               	.LM15:
+ 647 00e4 CF5F      		subi r28,lo8(-1281)
+ 648 00e6 DA4F      		sbci r29,hi8(-1281)
+ 649 00e8 1882      		st Y,__zero_reg__
+ 650 00ea C150      		subi r28,lo8(1281)
+ 651 00ec D540      		sbci r29,hi8(1281)
+ 652 00ee CE5F      		subi r28,lo8(-1282)
+ 653 00f0 DA4F      		sbci r29,hi8(-1282)
+ 654 00f2 1882      		st Y,__zero_reg__
+ 655 00f4 C250      		subi r28,lo8(1282)
+ 656 00f6 D540      		sbci r29,hi8(1282)
+ 657 00f8 CD5F      		subi r28,lo8(-1283)
+ 658 00fa DA4F      		sbci r29,hi8(-1283)
+ 659 00fc 1882      		st Y,__zero_reg__
+ 660 00fe C350      		subi r28,lo8(1283)
+ 661 0100 D540      		sbci r29,hi8(1283)
+ 662 0102 CC5F      		subi r28,lo8(-1284)
+ 663 0104 DA4F      		sbci r29,hi8(-1284)
+ 664 0106 1882      		st Y,__zero_reg__
+ 665 0108 C450      		subi r28,lo8(1284)
+ 666 010a D540      		sbci r29,hi8(1284)
+ 667 010c CB5F      		subi r28,lo8(-1285)
+ 668 010e DA4F      		sbci r29,hi8(-1285)
+ 669 0110 1882      		st Y,__zero_reg__
+ 670 0112 C550      		subi r28,lo8(1285)
+ 671 0114 D540      		sbci r29,hi8(1285)
+ 672 0116 CA5F      		subi r28,lo8(-1286)
+ 673 0118 DA4F      		sbci r29,hi8(-1286)
+ 674 011a 1882      		st Y,__zero_reg__
+ 675 011c C650      		subi r28,lo8(1286)
+ 676 011e D540      		sbci r29,hi8(1286)
+ 677 0120 C95F      		subi r28,lo8(-1287)
+ 678 0122 DA4F      		sbci r29,hi8(-1287)
+ 679 0124 1882      		st Y,__zero_reg__
+ 680 0126 C750      		subi r28,lo8(1287)
+ 681 0128 D540      		sbci r29,hi8(1287)
+ 682 012a C85F      		subi r28,lo8(-1288)
+ 683 012c DA4F      		sbci r29,hi8(-1288)
+ 684 012e 1882      		st Y,__zero_reg__
+ 685 0130 C850      		subi r28,lo8(1288)
+ 686 0132 D540      		sbci r29,hi8(1288)
+  71:profiling/measureSchoolbook_4093.c **** 	
+ 688               	.LM16:
+ 689 0134 C601      		movw r24,r12
+ 690 0136 D7FC      		sbrc r13,7
+ 691 0138 0796      		adiw r24,7
+ 692               	.L4:
+ 693 013a 23E0      		ldi r18,3
+ 694               		1:
+ 695 013c 9595      		asr r25
+ 696 013e 8795      		ror r24
+ 697 0140 2A95      		dec r18
+ 698 0142 01F4      		brne 1b
+  71:profiling/measureSchoolbook_4093.c **** 	
+ 700               	.LM17:
+ 701 0144 0196      		adiw r24,1
+  71:profiling/measureSchoolbook_4093.c **** 	
+ 703               	.LM18:
+ 704 0146 ADB7      		in r26,__SP_L__
+ 705 0148 BEB7      		in r27,__SP_H__
+ 706 014a A81B      		sub r26,r24
+ 707 014c B90B      		sbc r27,r25
+ 708 014e ADBF      		out __SP_L__,r26
+ 709 0150 BEBF      		out __SP_H__,r27
+ 710 0152 EDB7      		in r30,__SP_L__
+ 711 0154 FEB7      		in r31,__SP_H__
+ 712 0156 3196      		adiw r30,1
+ 713 0158 5F01      		movw r10,r30
+  75:profiling/measureSchoolbook_4093.c ****     }
+ 715               	.LM19:
+ 716 015a 60E0      		ldi r22,lo8(.LC3)
+ 717 015c 70E0      		ldi r23,hi8(.LC3)
+  73:profiling/measureSchoolbook_4093.c ****     {
+ 719               	.LM20:
+ 720 015e F0EC      		ldi r31,-64
+ 721 0160 CF16      		cp r12,r31
+ 722 0162 D104      		cpc r13,__zero_reg__
+ 723 0164 01F0      		breq .L24
+  79:profiling/measureSchoolbook_4093.c ****     }
+ 725               	.LM21:
+ 726 0166 60E0      		ldi r22,lo8(.LC4)
+ 727 0168 70E0      		ldi r23,hi8(.LC4)
+  77:profiling/measureSchoolbook_4093.c ****     {
+ 729               	.LM22:
+ 730 016a C114      		cp r12,__zero_reg__
+ 731 016c 21E0      		ldi r18,1
+ 732 016e D206      		cpc r13,r18
+ 733 0170 01F0      		breq .L24
+  84:profiling/measureSchoolbook_4093.c ****     }
+ 735               	.LM23:
+ 736 0172 60E0      		ldi r22,lo8(.LC5)
+ 737 0174 70E0      		ldi r23,hi8(.LC5)
+ 738               	.L24:
+ 739 0176 C501      		movw r24,r10
+ 740 0178 0E94 0000 		call strcpy
+ 741               	.LBE23:
+ 742               	.LBE22:
+ 743               	.LBB27:
+ 744               	.LBB21:
+  28:profiling/measureSchoolbook_4093.c **** 	
+ 746               	.LM24:
+ 747 017c 712C      		mov r7,__zero_reg__
+ 748               	.L8:
+ 749               	.LBE21:
+ 750               	.LBE27:
+ 751               	.LBB28:
+ 752               	.LBB26:
+ 753               	.LBB24:
+  90:profiling/measureSchoolbook_4093.c ****       generateRandomPolyTable_4093(b,paramN);
+ 755               	.LM25:
+ 756 017e B601      		movw r22,r12
+ 757 0180 CE01      		movw r24,r28
+ 758 0182 8F57      		subi r24,127
+ 759 0184 9D4F      		sbci r25,-3
+ 760 0186 0E94 0000 		call generateRandomPolyTable_4093
+  91:profiling/measureSchoolbook_4093.c **** 							
+ 762               	.LM26:
+ 763 018a B601      		movw r22,r12
+ 764 018c CE01      		movw r24,r28
+ 765 018e 0196      		adiw r24,1
+ 766 0190 0E94 0000 		call generateRandomPolyTable_4093
+  93:profiling/measureSchoolbook_4093.c ****       msg[1]= (char) i+10;
+ 768               	.LM27:
+ 769 0194 D501      		movw r26,r10
+ 770 0196 7C92      		st X,r7
+  94:profiling/measureSchoolbook_4093.c ****       msg[2]= (char) i+55;
+ 772               	.LM28:
+ 773 0198 8AE0      		ldi r24,lo8(10)
+ 774 019a 870D      		add r24,r7
+  94:profiling/measureSchoolbook_4093.c ****       msg[2]= (char) i+55;
+ 776               	.LM29:
+ 777 019c 1196      		adiw r26,1
+ 778 019e 8C93      		st X,r24
+ 779 01a0 1197      		sbiw r26,1
+  95:profiling/measureSchoolbook_4093.c **** 		
+ 781               	.LM30:
+ 782 01a2 87E3      		ldi r24,lo8(55)
+ 783 01a4 870D      		add r24,r7
+  95:profiling/measureSchoolbook_4093.c **** 		
+ 785               	.LM31:
+ 786 01a6 1296      		adiw r26,2
+ 787 01a8 8C93      		st X,r24
+  97:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+ 789               	.LM32:
+ 790 01aa 8091 0000 		lds r24,__malloc_heap_start
+ 791 01ae 9091 0000 		lds r25,__malloc_heap_start+1
+ 792 01b2 0E94 0000 		call startRAM
+  97:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+ 794               	.LM33:
+ 795 01b6 8093 0000 		sts start,r24
+ 796 01ba 9093 0000 		sts start+1,r25
+  98:profiling/measureSchoolbook_4093.c **** 
+ 798               	.LM34:
+ 799 01be 0E94 0000 		call startMeasurement
+ 100:profiling/measureSchoolbook_4093.c **** 
+ 801               	.LM35:
+ 802 01c2 7601      		movw r14,r12
+ 803 01c4 032D      		mov r16,r3
+ 804 01c6 142D      		mov r17,r4
+ 805 01c8 252D      		mov r18,r5
+ 806 01ca 362D      		mov r19,r6
+ 807 01cc AE01      		movw r20,r28
+ 808 01ce 4F5F      		subi r20,-1
+ 809 01d0 5F4F      		sbci r21,-1
+ 810 01d2 BE01      		movw r22,r28
+ 811 01d4 6F57      		subi r22,127
+ 812 01d6 7D4F      		sbci r23,-3
+ 813 01d8 C501      		movw r24,r10
+ 814 01da 0E94 0000 		call encrypt_4093
+ 102:profiling/measureSchoolbook_4093.c ****       end = endRAM();
+ 816               	.LM36:
+ 817 01de CE01      		movw r24,r28
+ 818 01e0 8F5F      		subi r24,-1
+ 819 01e2 9A4F      		sbci r25,-6
+ 820 01e4 0E94 0000 		call stopMeasurement
+ 103:profiling/measureSchoolbook_4093.c ****     }
+ 822               	.LM37:
+ 823 01e8 0E94 0000 		call endRAM
+ 103:profiling/measureSchoolbook_4093.c ****     }
+ 825               	.LM38:
+ 826 01ec 8093 0000 		sts end,r24
+ 827 01f0 9093 0000 		sts end+1,r25
+ 828 01f4 7394      		inc r7
+  88:profiling/measureSchoolbook_4093.c ****     {
+ 830               	.LM39:
+ 831 01f6 B4E6      		ldi r27,lo8(100)
+ 832 01f8 7B12      		cpse r7,r27
+ 833 01fa 00C0      		rjmp .L8
+ 834               	.LBE24:
+ 106:profiling/measureSchoolbook_4093.c **** 	
+ 836               	.LM40:
+ 837 01fc 6091 0000 		lds r22,start
+ 838 0200 7091 0000 		lds r23,start+1
+ 839 0204 681B      		sub r22,r24
+ 840 0206 790B      		sbc r23,r25
+ 841 0208 40E0      		ldi r20,lo8(.LC6)
+ 842 020a 50E0      		ldi r21,hi8(.LC6)
+ 843 020c CE01      		movw r24,r28
+ 844 020e 8F5F      		subi r24,-1
+ 845 0210 9A4F      		sbci r25,-6
+ 846 0212 0E94 0000 		call printResultRAM
+ 847 0216 84E6      		ldi r24,lo8(100)
+ 848 0218 682E      		mov r6,r24
+ 849 021a 712C      		mov r7,__zero_reg__
+ 850               	.L9:
+ 851               	.LBB25:
+ 112:profiling/measureSchoolbook_4093.c ****       generateRandomPolyTable_4093(b, paramN);					
+ 853               	.LM41:
+ 854 021c B601      		movw r22,r12
+ 855 021e CE01      		movw r24,r28
+ 856 0220 8F57      		subi r24,127
+ 857 0222 9D4F      		sbci r25,-3
+ 858 0224 0E94 0000 		call generateRandomPolyTable_4093
+ 113:profiling/measureSchoolbook_4093.c **** 		
+ 860               	.LM42:
+ 861 0228 B601      		movw r22,r12
+ 862 022a CE01      		movw r24,r28
+ 863 022c 0196      		adiw r24,1
+ 864 022e 0E94 0000 		call generateRandomPolyTable_4093
+ 115:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+ 866               	.LM43:
+ 867 0232 8091 0000 		lds r24,__malloc_heap_start
+ 868 0236 9091 0000 		lds r25,__malloc_heap_start+1
+ 869 023a 0E94 0000 		call startRAM
+ 115:profiling/measureSchoolbook_4093.c ****       startMeasurement();		
+ 871               	.LM44:
+ 872 023e 8093 0000 		sts start,r24
+ 873 0242 9093 0000 		sts start+1,r25
+ 116:profiling/measureSchoolbook_4093.c **** 							
+ 875               	.LM45:
+ 876 0246 0E94 0000 		call startMeasurement
+ 118:profiling/measureSchoolbook_4093.c **** 
+ 878               	.LM46:
+ 879 024a 8601      		movw r16,r12
+ 880 024c 292D      		mov r18,r9
+ 881 024e 382D      		mov r19,r8
+ 882 0250 AE01      		movw r20,r28
+ 883 0252 4F5F      		subi r20,-1
+ 884 0254 5F4F      		sbci r21,-1
+ 885 0256 BE01      		movw r22,r28
+ 886 0258 6F57      		subi r22,127
+ 887 025a 7D4F      		sbci r23,-3
+ 888 025c C501      		movw r24,r10
+ 889 025e 0E94 0000 		call decrypt_4093
+ 120:profiling/measureSchoolbook_4093.c ****       end = endRAM();
+ 891               	.LM47:
+ 892 0262 CE01      		movw r24,r28
+ 893 0264 8F5F      		subi r24,-1
+ 894 0266 9A4F      		sbci r25,-6
+ 895 0268 0E94 0000 		call stopMeasurement
+ 121:profiling/measureSchoolbook_4093.c ****     }
+ 897               	.LM48:
+ 898 026c 0E94 0000 		call endRAM
+ 121:profiling/measureSchoolbook_4093.c ****     }
+ 900               	.LM49:
+ 901 0270 8093 0000 		sts end,r24
+ 902 0274 9093 0000 		sts end+1,r25
+ 903 0278 E1E0      		ldi r30,1
+ 904 027a 6E1A      		sub r6,r30
+ 905 027c 7108      		sbc r7,__zero_reg__
+ 110:profiling/measureSchoolbook_4093.c ****     {
+ 907               	.LM50:
+ 908 027e 01F4      		brne .L9
+ 909               	.LBE25:
+ 124:profiling/measureSchoolbook_4093.c **** 	
+ 911               	.LM51:
+ 912 0280 6091 0000 		lds r22,start
+ 913 0284 7091 0000 		lds r23,start+1
+ 914 0288 681B      		sub r22,r24
+ 915 028a 790B      		sbc r23,r25
+ 916 028c 40E0      		ldi r20,lo8(.LC7)
+ 917 028e 50E0      		ldi r21,hi8(.LC7)
+ 918 0290 CE01      		movw r24,r28
+ 919 0292 8F5F      		subi r24,-1
+ 920 0294 9A4F      		sbci r25,-6
+ 921 0296 0E94 0000 		call printResultRAM
+ 922 029a CE5C      		subi r28,lo8(-1330)
+ 923 029c DA4F      		sbci r29,hi8(-1330)
+ 924 029e 2881      		ld r18,Y
+ 925 02a0 3981      		ldd r19,Y+1
+ 926 02a2 C253      		subi r28,lo8(1330)
+ 927 02a4 D540      		sbci r29,hi8(1330)
+ 928 02a6 2DBF      		out __SP_L__,r18
+ 929 02a8 3EBF      		out __SP_H__,r19
+ 930               	.LBE26:
+ 931               	.LBE28:
+ 932               	.LBB29:
+ 933               	.LBB30:
+  45:profiling/measureSchoolbook_4093.c **** 	
+ 935               	.LM52:
+ 936 02aa CF5F      		subi r28,lo8(-1281)
+ 937 02ac DA4F      		sbci r29,hi8(-1281)
+ 938 02ae 1882      		st Y,__zero_reg__
+ 939 02b0 C150      		subi r28,lo8(1281)
+ 940 02b2 D540      		sbci r29,hi8(1281)
+ 941 02b4 CE5F      		subi r28,lo8(-1282)
+ 942 02b6 DA4F      		sbci r29,hi8(-1282)
+ 943 02b8 1882      		st Y,__zero_reg__
+ 944 02ba C250      		subi r28,lo8(1282)
+ 945 02bc D540      		sbci r29,hi8(1282)
+ 946 02be CD5F      		subi r28,lo8(-1283)
+ 947 02c0 DA4F      		sbci r29,hi8(-1283)
+ 948 02c2 1882      		st Y,__zero_reg__
+ 949 02c4 C350      		subi r28,lo8(1283)
+ 950 02c6 D540      		sbci r29,hi8(1283)
+ 951 02c8 CC5F      		subi r28,lo8(-1284)
+ 952 02ca DA4F      		sbci r29,hi8(-1284)
+ 953 02cc 1882      		st Y,__zero_reg__
+ 954 02ce C450      		subi r28,lo8(1284)
+ 955 02d0 D540      		sbci r29,hi8(1284)
+ 956 02d2 CB5F      		subi r28,lo8(-1285)
+ 957 02d4 DA4F      		sbci r29,hi8(-1285)
+ 958 02d6 1882      		st Y,__zero_reg__
+ 959 02d8 C550      		subi r28,lo8(1285)
+ 960 02da D540      		sbci r29,hi8(1285)
+ 961 02dc CA5F      		subi r28,lo8(-1286)
+ 962 02de DA4F      		sbci r29,hi8(-1286)
+ 963 02e0 1882      		st Y,__zero_reg__
+ 964 02e2 C650      		subi r28,lo8(1286)
+ 965 02e4 D540      		sbci r29,hi8(1286)
+ 966 02e6 C95F      		subi r28,lo8(-1287)
+ 967 02e8 DA4F      		sbci r29,hi8(-1287)
+ 968 02ea 1882      		st Y,__zero_reg__
+ 969 02ec C750      		subi r28,lo8(1287)
+ 970 02ee D540      		sbci r29,hi8(1287)
+ 971 02f0 C85F      		subi r28,lo8(-1288)
+ 972 02f2 DA4F      		sbci r29,hi8(-1288)
+ 973 02f4 1882      		st Y,__zero_reg__
+ 974 02f6 C850      		subi r28,lo8(1288)
+ 975 02f8 D540      		sbci r29,hi8(1288)
+ 976 02fa 04E6      		ldi r16,lo8(100)
+ 977 02fc 10E0      		ldi r17,0
+ 978               	.L14:
+ 979               	.LBB31:
+  50:profiling/measureSchoolbook_4093.c **** 		
+ 981               	.LM53:
+ 982 02fe 0E94 0000 		call startMeasurement
+  52:profiling/measureSchoolbook_4093.c **** 	school_4093_192(a, prvKeyR2_4093, b);
+ 984               	.LM54:
+ 985 0302 30EC      		ldi r19,-64
+ 986 0304 C316      		cp r12,r19
+ 987 0306 D104      		cpc r13,__zero_reg__
+ 988 0308 01F0      		breq .+2
+ 989 030a 00C0      		rjmp .L10
+  53:profiling/measureSchoolbook_4093.c ****       }
+ 991               	.LM55:
+ 992 030c AE01      		movw r20,r28
+ 993 030e 4F5F      		subi r20,-1
+ 994 0310 5F4F      		sbci r21,-1
+ 995 0312 692D      		mov r22,r9
+ 996 0314 782D      		mov r23,r8
+ 997 0316 CE01      		movw r24,r28
+ 998 0318 8F57      		subi r24,127
+ 999 031a 9D4F      		sbci r25,-3
+ 1000 031c 0E94 0000 		call school_4093_192
+ 1001               	.L11:
+  62:profiling/measureSchoolbook_4093.c ****     }
+ 1003               	.LM56:
+ 1004 0320 0E94 0000 		call endRAM
+  62:profiling/measureSchoolbook_4093.c ****     }
+ 1006               	.LM57:
+ 1007 0324 8093 0000 		sts end,r24
+ 1008 0328 9093 0000 		sts end+1,r25
+ 1009 032c 0150      		subi r16,1
+ 1010 032e 1109      		sbc r17,__zero_reg__
+  47:profiling/measureSchoolbook_4093.c ****     {				          
+ 1012               	.LM58:
+ 1013 0330 01F4      		brne .L14
+ 1014               	.LBE31:
+  65:profiling/measureSchoolbook_4093.c **** }
+ 1016               	.LM59:
+ 1017 0332 60E0      		ldi r22,lo8(.LC8)
+ 1018 0334 70E0      		ldi r23,hi8(.LC8)
+ 1019 0336 CE01      		movw r24,r28
+ 1020 0338 8F5F      		subi r24,-1
+ 1021 033a 9A4F      		sbci r25,-6
+ 1022 033c 0E94 0000 		call printResult
+ 1023               	.LBE30:
+ 1024               	.LBE29:
+ 1025               	.LBB34:
+ 1026               	.LBB35:
+ 162:profiling/measureSchoolbook_4093.c **** 	uint64_t mean = 0;
+ 1028               	.LM60:
+ 1029 0340 81E2      		ldi r24,lo8(33)
+ 1030 0342 E0E0      		ldi r30,lo8(.LC9)
+ 1031 0344 F0E0      		ldi r31,hi8(.LC9)
+ 1032 0346 DE01      		movw r26,r28
+ 1033 0348 AF5F      		subi r26,-1
+ 1034 034a BA4F      		sbci r27,-6
+ 1035               		0:
+ 1036 034c 0190      		ld r0,Z+
+ 1037 034e 0D92      		st X+,r0
+ 1038 0350 8A95      		dec r24
+ 1039 0352 01F4      		brne 0b
+ 1040 0354 88E0      		ldi r24,lo8(8)
+ 1041 0356 E1E0      		ldi r30,lo8(1)
+ 1042 0358 F5E0      		ldi r31,lo8(5)
+ 1043 035a EC0F      		add r30,r28
+ 1044 035c FD1F      		adc r31,r29
+ 1045 035e B196      		adiw r30,33
+ 1046 0360 DF01      		movw r26,r30
+ 1047               		0:
+ 1048 0362 1D92      		st X+,__zero_reg__
+ 1049 0364 8A95      		dec r24
+ 1050 0366 01F4      		brne 0b
+ 163:profiling/measureSchoolbook_4093.c **** 
+ 1052               	.LM61:
+ 1053 0368 C65D      		subi r28,lo8(-1322)
+ 1054 036a DA4F      		sbci r29,hi8(-1322)
+ 1055 036c 1882      		st Y,__zero_reg__
+ 1056 036e CA52      		subi r28,lo8(1322)
+ 1057 0370 D540      		sbci r29,hi8(1322)
+ 1058 0372 C55D      		subi r28,lo8(-1323)
+ 1059 0374 DA4F      		sbci r29,hi8(-1323)
+ 1060 0376 1882      		st Y,__zero_reg__
+ 1061 0378 CB52      		subi r28,lo8(1323)
+ 1062 037a D540      		sbci r29,hi8(1323)
+ 1063 037c C45D      		subi r28,lo8(-1324)
+ 1064 037e DA4F      		sbci r29,hi8(-1324)
+ 1065 0380 1882      		st Y,__zero_reg__
+ 1066 0382 CC52      		subi r28,lo8(1324)
+ 1067 0384 D540      		sbci r29,hi8(1324)
+ 1068 0386 C35D      		subi r28,lo8(-1325)
+ 1069 0388 DA4F      		sbci r29,hi8(-1325)
+ 1070 038a 1882      		st Y,__zero_reg__
+ 1071 038c CD52      		subi r28,lo8(1325)
+ 1072 038e D540      		sbci r29,hi8(1325)
+ 1073 0390 C25D      		subi r28,lo8(-1326)
+ 1074 0392 DA4F      		sbci r29,hi8(-1326)
+ 1075 0394 1882      		st Y,__zero_reg__
+ 1076 0396 CE52      		subi r28,lo8(1326)
+ 1077 0398 D540      		sbci r29,hi8(1326)
+ 1078 039a C15D      		subi r28,lo8(-1327)
+ 1079 039c DA4F      		sbci r29,hi8(-1327)
+ 1080 039e 1882      		st Y,__zero_reg__
+ 1081 03a0 CF52      		subi r28,lo8(1327)
+ 1082 03a2 D540      		sbci r29,hi8(1327)
+ 1083 03a4 C05D      		subi r28,lo8(-1328)
+ 1084 03a6 DA4F      		sbci r29,hi8(-1328)
+ 1085 03a8 1882      		st Y,__zero_reg__
+ 1086 03aa C053      		subi r28,lo8(1328)
+ 1087 03ac D540      		sbci r29,hi8(1328)
+ 1088 03ae CF5C      		subi r28,lo8(-1329)
+ 1089 03b0 DA4F      		sbci r29,hi8(-1329)
+ 1090 03b2 1882      		st Y,__zero_reg__
+ 1091 03b4 C153      		subi r28,lo8(1329)
+ 1092 03b6 D540      		sbci r29,hi8(1329)
+ 1093 03b8 10E0      		ldi r17,0
+ 1094               	.L15:
+ 1095               	.LBB36:
+ 167:profiling/measureSchoolbook_4093.c **** 		msg[1]= (char) i+10;
+ 1097               	.LM62:
+ 1098 03ba CF5F      		subi r28,lo8(-1281)
+ 1099 03bc DA4F      		sbci r29,hi8(-1281)
+ 1100 03be 1883      		st Y,r17
+ 1101 03c0 C150      		subi r28,lo8(1281)
+ 1102 03c2 D540      		sbci r29,hi8(1281)
+ 168:profiling/measureSchoolbook_4093.c **** 		msg[2]= (char) i+55;
+ 1104               	.LM63:
+ 1105 03c4 8AE0      		ldi r24,lo8(10)
+ 1106 03c6 810F      		add r24,r17
+ 168:profiling/measureSchoolbook_4093.c **** 		msg[2]= (char) i+55;
+ 1108               	.LM64:
+ 1109 03c8 CE5F      		subi r28,lo8(-1282)
+ 1110 03ca DA4F      		sbci r29,hi8(-1282)
+ 1111 03cc 8883      		st Y,r24
+ 1112 03ce C250      		subi r28,lo8(1282)
+ 1113 03d0 D540      		sbci r29,hi8(1282)
+ 169:profiling/measureSchoolbook_4093.c **** 	
+ 1115               	.LM65:
+ 1116 03d2 87E3      		ldi r24,lo8(55)
+ 1117 03d4 810F      		add r24,r17
+ 169:profiling/measureSchoolbook_4093.c **** 	
+ 1119               	.LM66:
+ 1120 03d6 CD5F      		subi r28,lo8(-1283)
+ 1121 03d8 DA4F      		sbci r29,hi8(-1283)
+ 1122 03da 8883      		st Y,r24
+ 1123 03dc C350      		subi r28,lo8(1283)
+ 1124 03de D540      		sbci r29,hi8(1283)
+ 172:profiling/measureSchoolbook_4093.c **** 
+ 1126               	.LM67:
+ 1127 03e0 0E94 0000 		call startMeasurement
+ 174:profiling/measureSchoolbook_4093.c **** 					
+ 1129               	.LM68:
+ 1130 03e4 A601      		movw r20,r12
+ 1131 03e6 BE01      		movw r22,r28
+ 1132 03e8 6F57      		subi r22,127
+ 1133 03ea 7D4F      		sbci r23,-3
+ 1134 03ec CE01      		movw r24,r28
+ 1135 03ee 8F5F      		subi r24,-1
+ 1136 03f0 9A4F      		sbci r25,-6
+ 1137 03f2 0E94 0000 		call add_encode_4093
+ 176:profiling/measureSchoolbook_4093.c **** 	}
+ 1139               	.LM69:
+ 1140 03f6 CE01      		movw r24,r28
+ 1141 03f8 865D      		subi r24,-42
+ 1142 03fa 9A4F      		sbci r25,-6
+ 1143 03fc 0E94 0000 		call stopMeasurement
+ 1144 0400 1F5F      		subi r17,lo8(-(1))
+ 165:profiling/measureSchoolbook_4093.c **** 	{
+ 1146               	.LM70:
+ 1147 0402 1436      		cpi r17,lo8(100)
+ 1148 0404 01F4      		brne .L15
+ 1149               	.LBE36:
+ 179:profiling/measureSchoolbook_4093.c **** 	
+ 1151               	.LM71:
+ 1152 0406 60E0      		ldi r22,lo8(.LC10)
+ 1153 0408 70E0      		ldi r23,hi8(.LC10)
+ 1154 040a CE01      		movw r24,r28
+ 1155 040c 865D      		subi r24,-42
+ 1156 040e 9A4F      		sbci r25,-6
+ 1157 0410 0E94 0000 		call printResult
+ 1158 0414 04E6      		ldi r16,lo8(100)
+ 1159 0416 10E0      		ldi r17,0
+ 1160               	.L16:
+ 1161               	.LBB37:
+ 183:profiling/measureSchoolbook_4093.c **** 							
+ 1163               	.LM72:
+ 1164 0418 CE01      		movw r24,r28
+ 1165 041a 8F57      		subi r24,127
+ 1166 041c 9D4F      		sbci r25,-3
+ 1167 041e 0E94 0000 		call generateRandomPolyTable_7681_256
+ 185:profiling/measureSchoolbook_4093.c **** 
+ 1169               	.LM73:
+ 1170 0422 0E94 0000 		call startMeasurement
+ 187:profiling/measureSchoolbook_4093.c **** 					
+ 1172               	.LM74:
+ 1173 0426 A601      		movw r20,r12
+ 1174 0428 BE01      		movw r22,r28
+ 1175 042a 6F5F      		subi r22,-1
+ 1176 042c 7A4F      		sbci r23,-6
+ 1177 042e CE01      		movw r24,r28
+ 1178 0430 8F57      		subi r24,127
+ 1179 0432 9D4F      		sbci r25,-3
+ 1180 0434 0E94 0000 		call decode_4093
+ 189:profiling/measureSchoolbook_4093.c **** 	}
+ 1182               	.LM75:
+ 1183 0438 CE01      		movw r24,r28
+ 1184 043a 865D      		subi r24,-42
+ 1185 043c 9A4F      		sbci r25,-6
+ 1186 043e 0E94 0000 		call stopMeasurement
+ 1187 0442 0150      		subi r16,1
+ 1188 0444 1109      		sbc r17,__zero_reg__
+ 181:profiling/measureSchoolbook_4093.c **** 	{
+ 1190               	.LM76:
+ 1191 0446 01F4      		brne .L16
+ 1192               	.LBE37:
+ 192:profiling/measureSchoolbook_4093.c **** }
+ 1194               	.LM77:
+ 1195 0448 60E0      		ldi r22,lo8(.LC11)
+ 1196 044a 70E0      		ldi r23,hi8(.LC11)
+ 1197 044c CE01      		movw r24,r28
+ 1198 044e 865D      		subi r24,-42
+ 1199 0450 9A4F      		sbci r25,-6
+ 1200 0452 0E94 0000 		call printResult
+ 1201               	.LBE35:
+ 1202               	.LBE34:
+ 207:profiling/measureSchoolbook_4093.c **** }
+ 1204               	.LM78:
+ 1205 0456 80E0      		ldi r24,lo8(.LC12)
+ 1206 0458 90E0      		ldi r25,hi8(.LC12)
+ 1207 045a 9F93      		push r25
+ 1208 045c 8F93      		push r24
+ 1209 045e 0E94 0000 		call printf
+ 1211               	.LM79:
+ 1212 0462 0F90      		pop __tmp_reg__
+ 1213 0464 0F90      		pop __tmp_reg__
+ 1214 0466 CC5C      		subi r28,lo8(-1332)
+ 1215 0468 DA4F      		sbci r29,hi8(-1332)
+ 1216 046a E881      		ld r30,Y
+ 1217 046c F981      		ldd r31,Y+1
+ 1218 046e C453      		subi r28,lo8(1332)
+ 1219 0470 D540      		sbci r29,hi8(1332)
+ 1220 0472 EDBF      		out __SP_L__,r30
+ 1221 0474 FEBF      		out __SP_H__,r31
+ 1222               	/* epilogue start */
+ 1223 0476 CB5C      		subi r28,-53
+ 1224 0478 DA4F      		sbci r29,-6
+ 1225 047a CDBF      		out __SP_L__,r28
+ 1226 047c DEBF      		out __SP_H__,r29
+ 1227 047e DF91      		pop r29
+ 1228 0480 CF91      		pop r28
+ 1229 0482 1F91      		pop r17
+ 1230 0484 0F91      		pop r16
+ 1231 0486 FF90      		pop r15
+ 1232 0488 EF90      		pop r14
+ 1233 048a DF90      		pop r13
+ 1234 048c CF90      		pop r12
+ 1235 048e BF90      		pop r11
+ 1236 0490 AF90      		pop r10
+ 1237 0492 9F90      		pop r9
+ 1238 0494 8F90      		pop r8
+ 1239 0496 7F90      		pop r7
+ 1240 0498 6F90      		pop r6
+ 1241 049a 5F90      		pop r5
+ 1242 049c 4F90      		pop r4
+ 1243 049e 3F90      		pop r3
+ 1244 04a0 0895      		ret
+ 1245               	.L10:
+ 1246               	.LBB38:
+ 1247               	.LBB33:
+ 1248               	.LBB32:
+  55:profiling/measureSchoolbook_4093.c **** 	school_4093_256(a, prvKeyR2_4093, b);
+ 1250               	.LM80:
+ 1251 04a2 C114      		cp r12,__zero_reg__
+ 1252 04a4 81E0      		ldi r24,1
+ 1253 04a6 D806      		cpc r13,r24
+ 1254 04a8 01F0      		breq .L12
+  58:profiling/measureSchoolbook_4093.c **** 	school_4093_320(a, prvKeyR2_4093, b);
+ 1256               	.LM81:
+ 1257 04aa 90E4      		ldi r25,64
+ 1258 04ac C916      		cp r12,r25
+ 1259 04ae 91E0      		ldi r25,1
+ 1260 04b0 D906      		cpc r13,r25
+ 1261 04b2 01F0      		breq .+2
+ 1262 04b4 00C0      		rjmp .L11
+  59:profiling/measureSchoolbook_4093.c ****       }
+ 1264               	.LM82:
+ 1265 04b6 AE01      		movw r20,r28
+ 1266 04b8 4F5F      		subi r20,-1
+ 1267 04ba 5F4F      		sbci r21,-1
+ 1268 04bc 692D      		mov r22,r9
+ 1269 04be 782D      		mov r23,r8
+ 1270 04c0 CE01      		movw r24,r28
+ 1271 04c2 8F57      		subi r24,127
+ 1272 04c4 9D4F      		sbci r25,-3
+ 1273 04c6 0E94 0000 		call school_4093_320
+ 1274 04ca 00C0      		rjmp .L11
+ 1275               	.L12:
+  56:profiling/measureSchoolbook_4093.c ****       }
+ 1277               	.LM83:
+ 1278 04cc AE01      		movw r20,r28
+ 1279 04ce 4F5F      		subi r20,-1
+ 1280 04d0 5F4F      		sbci r21,-1
+ 1281 04d2 692D      		mov r22,r9
+ 1282 04d4 782D      		mov r23,r8
+ 1283 04d6 CE01      		movw r24,r28
+ 1284 04d8 8F57      		subi r24,127
+ 1285 04da 9D4F      		sbci r25,-3
+ 1286 04dc 0E94 0000 		call school_4093_256
+ 1287 04e0 00C0      		rjmp .L11
+ 1288               	.LBE32:
+ 1289               	.LBE33:
+ 1290               	.LBE38:
+ 1318               	.Lscope1:
+ 1319               		.section	.bss.end,"aw",@nobits
+ 1322               	end:
+ 1323 0000 0000      		.zero	2
+ 1325               		.section	.bss.start,"aw",@nobits
+ 1328               	start:
+ 1329 0000 0000      		.zero	2
+ 1331               		.text
+ 1333               	.Letext0:
+ 1334               		.ident	"GCC: (GNU) 9.1.0"
+ 1335               	.global __do_copy_data
+ 1336               	.global __do_clear_bss
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 measureSchoolbook_4093.c
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:492    .text.do_measurement_4093:0000000000000000 do_measurement_4093
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:1328   .bss.start:0000000000000000 start
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccCXxrvi.s:1322   .bss.end:0000000000000000 end
+
+UNDEFINED SYMBOLS
+printf
+startMeasurement
+get_gauss_poly_4093
+stopMeasurement
+printResult
+generateRandomPolyTable_4093
+strcpy
+__malloc_heap_start
+startRAM
+encrypt_4093
+endRAM
+printResultRAM
+decrypt_4093
+school_4093_192
+add_encode_4093
+generateRandomPolyTable_7681_256
+decode_4093
+school_4093_320
+school_4093_256
+__do_copy_data
+__do_clear_bss

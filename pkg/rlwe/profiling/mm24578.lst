@@ -1,0 +1,331 @@
+   1               	# 1 "profiling/mm24578.S"
+   1               		#define P0_low r24
+   0               	
+   0               	
+   2               		 #define P0_high r25
+   3               		 #define P1_low r22
+   4               		 #define P1_high r23
+   5               	
+   6               		 #define T1  r30
+   7               		 #define C1  r31
+   8               	
+   9               		 #define V0 r22
+  10               		 #define V1 r23
+  11               		 #define V2 r24
+  12               		 #define V3 r25
+  13               	
+  14               		 #define S0 r18
+  15               		 #define S1 r19
+  16               		 #define S2 r20
+  17               		 #define S3 r21
+  18               	
+  19               		 #define RET0 r24
+  20               		 #define RET1 r25
+  21               	
+  22               	
+  23               	
+  24               	//#############################################  mulmod24578 #################################
+  25               	.global mm24578
+  26               	mm24578:
+  27               		 // --------------------- PROGRAM ----------------------
+  28               		 //Multiply a*b. Store result in P1-P4. Use S0-S4
+  29:profiling/mm24578.S **** 	 mul P0_low, P1_low
+  30:profiling/mm24578.S **** 	 movw S0, r0
+  31:profiling/mm24578.S **** 	 mul P0_high, P1_high
+  32:profiling/mm24578.S **** 	 mov S2, r0
+  33:profiling/mm24578.S **** 	 mov S3, r1
+  34:profiling/mm24578.S **** 	 mul P0_high, P1_low
+  35:profiling/mm24578.S **** 	 clr P1_low //have a zero register for addition
+  36:profiling/mm24578.S **** 	 add S1, r0
+  37:profiling/mm24578.S **** 	 adc S2, r1
+  38:profiling/mm24578.S **** 	 adc S3, P1_low
+  39:profiling/mm24578.S **** 	 mul P0_low, P1_high
+  40:profiling/mm24578.S **** 	 add S1, r0
+  41:profiling/mm24578.S **** 	 adc S2, r1
+  42:profiling/mm24578.S **** 	 adc S3, P1_low
+  43               		 //result of multiplication is now in S3:S0
+  44               	
+  45               		 //Load 12289<<16 - constant that is substracted
+  46:profiling/mm24578.S **** 	 ldi V0, ((12289<<(16)) & 0xFF)		  //LSB
+  47:profiling/mm24578.S **** 	 ldi V1, ((12289<<(16)) >> 8) & 0xFF
+  48:profiling/mm24578.S **** 	 ldi V2, ((12289<<(16)) >> 16) & 0xFF
+  49:profiling/mm24578.S **** 	 ldi V3, ((12289<<(16)) >> 24) & 0xFF //MSB
+  50               	
+  51               	
+  52               		 // ######### unroll first two operations on 4 registers ########
+  53               		// #### Operation on 30 bits #####
+  54               		 //if (result >= mul12289){
+  55:profiling/mm24578.S **** 	 CP S0, V0
+  56:profiling/mm24578.S **** 	 CPC S1, V1
+  57:profiling/mm24578.S **** 	 CPC S2, V2
+  58:profiling/mm24578.S **** 	 CPC S3, V3
+  59:profiling/mm24578.S **** 	 BRLT NOT_GREATER_U04_DUMMY
+  60               		 //Test was TRUE
+  61:profiling/mm24578.S **** 	 SUB S1, V1
+  62:profiling/mm24578.S **** 	 SBC S2, V2
+  63:profiling/mm24578.S **** 	 SBC S3, V3
+  64:profiling/mm24578.S **** 	 rjmp NOT_GREATER_U04
+  65               	NOT_GREATER_U04_DUMMY:
+  66:profiling/mm24578.S **** 	 inc S1
+  67:profiling/mm24578.S **** 	 inc S1
+  68:profiling/mm24578.S **** 	 dec S1
+  69:profiling/mm24578.S **** 	 dec S1
+  70               		 //Now shift V>>1
+  71               	NOT_GREATER_U04:
+  72:profiling/mm24578.S **** 	 LSR V3
+  73:profiling/mm24578.S **** 	 ROR V2
+  74:profiling/mm24578.S **** 	 ROR V1
+  75               	
+  76               	// #### Operation on 29 bits #####
+  77               		 //if (result >= mul12289){
+  78:profiling/mm24578.S **** 	 CP S0, V0
+  79:profiling/mm24578.S **** 	 CPC S1, V1
+  80:profiling/mm24578.S **** 	 CPC S2, V2
+  81:profiling/mm24578.S **** 	 CPC S3, V3
+  82:profiling/mm24578.S **** 	 BRLT NOT_GREATER_U03_DUMMY
+  83               		 //Test was TRUE
+  84:profiling/mm24578.S **** 	 SUB S1, V1
+  85:profiling/mm24578.S **** 	 SBC S2, V2
+  86:profiling/mm24578.S **** 	 SBC S3, V3
+  87:profiling/mm24578.S **** 	 rjmp NOT_GREATER_U03
+  88               	NOT_GREATER_U03_DUMMY:
+  89:profiling/mm24578.S **** 	 inc S1
+  90:profiling/mm24578.S **** 	 inc S1
+  91:profiling/mm24578.S **** 	 dec S1
+  92:profiling/mm24578.S **** 	 dec S1
+  93               		 //Now shift V>>1
+  94               	NOT_GREATER_U03:
+  95:profiling/mm24578.S **** 	 LSR V3
+  96:profiling/mm24578.S **** 	 ROR V2
+  97:profiling/mm24578.S **** 	 ROR V1
+  98               		  // #### Operation on 28 bits #####
+  99               		 //if (result >= mul12289){
+ 100:profiling/mm24578.S **** 	 CP S0, V0
+ 101:profiling/mm24578.S **** 	 CPC S1, V1
+ 102:profiling/mm24578.S **** 	 CPC S2, V2
+ 103:profiling/mm24578.S **** 	 CPC S3, V3
+ 104:profiling/mm24578.S **** 	 BRLT NOT_GREATER_U02_DUMMY
+ 105               		 //Test was TRUE
+ 106:profiling/mm24578.S **** 	 SUB S1, V1
+ 107:profiling/mm24578.S **** 	 SBC S2, V2
+ 108:profiling/mm24578.S **** 	 SBC S3, V3
+ 109:profiling/mm24578.S **** 	 rjmp NOT_GREATER_U02
+ 110               	NOT_GREATER_U02_DUMMY:
+ 111:profiling/mm24578.S **** 	 inc S1
+ 112:profiling/mm24578.S **** 	 inc S1
+ 113:profiling/mm24578.S **** 	 dec S1
+ 114:profiling/mm24578.S **** 	 dec S1
+ 115               		 //Now shift V>>1
+ 116               	NOT_GREATER_U02:
+ 117:profiling/mm24578.S **** 	 LSR V3
+ 118:profiling/mm24578.S **** 	 ROR V2
+ 119:profiling/mm24578.S **** 	 ROR V1
+ 120               	
+ 121               	
+ 122               		  // #### Operation on 27 bits #####
+ 123               		 //if (result >= mul12289){
+ 124:profiling/mm24578.S **** 	 CP S0, V0
+ 125:profiling/mm24578.S **** 	 CPC S1, V1
+ 126:profiling/mm24578.S **** 	 CPC S2, V2
+ 127:profiling/mm24578.S **** 	 CPC S3, V3
+ 128:profiling/mm24578.S **** 	 BRLT NOT_GREATER_U01_DUMMY
+ 129               		 //Test was TRUE
+ 130:profiling/mm24578.S **** 	 SUB S1, V1
+ 131:profiling/mm24578.S **** 	 SBC S2, V2
+ 132:profiling/mm24578.S **** 	 SBC S3, V3
+ 133:profiling/mm24578.S **** 	 rjmp NOT_GREATER_U01
+ 134               	NOT_GREATER_U01_DUMMY:
+ 135:profiling/mm24578.S **** 	 inc S1
+ 136:profiling/mm24578.S **** 	 inc S1
+ 137:profiling/mm24578.S **** 	 dec S1
+ 138:profiling/mm24578.S **** 	 dec S1
+ 139               		 //Now shift V>>1
+ 140               	NOT_GREATER_U01:
+ 141:profiling/mm24578.S **** 	 LSR V3
+ 142:profiling/mm24578.S **** 	 ROR V2
+ 143:profiling/mm24578.S **** 	 ROR V1
+ 144               	
+ 145               	
+ 146               		 // #### Operation on 26 bits #####
+ 147               		 //if (result >= mul12289){
+ 148:profiling/mm24578.S **** 	 CP S0, V0
+ 149:profiling/mm24578.S **** 	 CPC S1, V1
+ 150:profiling/mm24578.S **** 	 CPC S2, V2
+ 151:profiling/mm24578.S **** 	 CPC S3, V3
+ 152:profiling/mm24578.S **** 	 BRLT NOT_GREATER_U0_DUMMY
+ 153               		 //Test was TRUE
+ 154:profiling/mm24578.S **** 	 SUB S1, V1
+ 155:profiling/mm24578.S **** 	 SBC S2, V2
+ 156:profiling/mm24578.S **** 	 SBC S3, V3
+ 157:profiling/mm24578.S **** 	 rjmp NOT_GREATER_U0
+ 158               	NOT_GREATER_U0_DUMMY:
+ 159:profiling/mm24578.S **** 	 inc S1
+ 160:profiling/mm24578.S **** 	 inc S1
+ 161:profiling/mm24578.S **** 	 dec S1
+ 162:profiling/mm24578.S **** 	 dec S1
+ 163               		 //Now shift V>>1
+ 164               	NOT_GREATER_U0:
+ 165:profiling/mm24578.S **** 	 LSR V3
+ 166:profiling/mm24578.S **** 	 ROR V2
+ 167:profiling/mm24578.S **** 	 ROR V1
+ 168               	
+ 169               		 // #### Operation on 25 bits #####
+ 170               		  //if (result >= mul12289){
+ 171:profiling/mm24578.S **** 	 CP S0, V0
+ 172:profiling/mm24578.S **** 	 CPC S1, V1
+ 173:profiling/mm24578.S **** 	 CPC S2, V2
+ 174:profiling/mm24578.S **** 	 CPC S3, V3
+ 175:profiling/mm24578.S **** 	 BRLT NOT_GREATER_U1_DUMMY
+ 176               		 //Test was TRUE
+ 177:profiling/mm24578.S **** 	 SUB S1, V1
+ 178:profiling/mm24578.S **** 	 SBC S2, V2
+ 179:profiling/mm24578.S **** 	 SBC S3, V3
+ 180:profiling/mm24578.S **** 	 rjmp NOT_GREATER_U1
+ 181               	NOT_GREATER_U1_DUMMY:
+ 182:profiling/mm24578.S **** 	 inc S1
+ 183:profiling/mm24578.S **** 	 inc S1
+ 184:profiling/mm24578.S **** 	 dec S1
+ 185:profiling/mm24578.S **** 	 dec S1
+ 186               		 //Now shift V>>1
+ 187               	NOT_GREATER_U1:
+ 188:profiling/mm24578.S **** 	 LSR V3
+ 189:profiling/mm24578.S **** 	 ROR V2
+ 190:profiling/mm24578.S **** 	 ROR V1
+ 191               	
+ 192               		 // #### Operation on 24 bits #####
+ 193               		 //if (result >= mul12289){
+ 194:profiling/mm24578.S **** 	 CP S0, V0
+ 195:profiling/mm24578.S **** 	 CPC S1, V1
+ 196:profiling/mm24578.S **** 	 CPC S2, V2
+ 197:profiling/mm24578.S **** 	 CPC S3, V3
+ 198:profiling/mm24578.S **** 	 BRLT NOT_GREATER_U2_DUMMY
+ 199               		 //Test was TRUE
+ 200:profiling/mm24578.S **** 	 SUB S1, V1
+ 201:profiling/mm24578.S **** 	 SBC S2, V2
+ 202:profiling/mm24578.S **** 	 SBC S3, V3
+ 203:profiling/mm24578.S **** 	  rjmp NOT_GREATER_U2
+ 204               	NOT_GREATER_U2_DUMMY:
+ 205:profiling/mm24578.S **** 	 inc S1
+ 206:profiling/mm24578.S **** 	 inc S1
+ 207:profiling/mm24578.S **** 	 dec S1
+ 208:profiling/mm24578.S **** 	 dec S1
+ 209               		 //Now shift V>>1
+ 210               	NOT_GREATER_U2:
+ 211:profiling/mm24578.S **** 	 LSR V3
+ 212:profiling/mm24578.S **** 	 ROR V2
+ 213:profiling/mm24578.S **** 	 ROR V1
+ 214               	
+ 215               		 // #### Operation on 23 bits #####
+ 216               		 //if (result >= mul12289){
+ 217:profiling/mm24578.S **** 	 CP S0, V0
+ 218:profiling/mm24578.S **** 	 CPC S1, V1
+ 219:profiling/mm24578.S **** 	 CPC S2, V2
+ 220:profiling/mm24578.S **** 	 CPC S3, V3
+ 221:profiling/mm24578.S **** 	 BRLT NOT_GREATER_U3_DUMMY
+ 222               		 //Test was TRUE
+ 223:profiling/mm24578.S **** 	 SUB S1, V1
+ 224:profiling/mm24578.S **** 	 SBC S2, V2
+ 225:profiling/mm24578.S **** 	 SBC S3, V3
+ 226:profiling/mm24578.S **** 	 rjmp NOT_GREATER_U3
+ 227               	NOT_GREATER_U3_DUMMY:
+ 228:profiling/mm24578.S **** 	 inc S1
+ 229:profiling/mm24578.S **** 	 inc S1
+ 230:profiling/mm24578.S **** 	 dec S1
+ 231:profiling/mm24578.S **** 	 dec S1
+ 232               		 //Now shift V>>1
+ 233               	NOT_GREATER_U3:
+ 234:profiling/mm24578.S **** 	 LSR V3
+ 235:profiling/mm24578.S **** 	 ROR V2
+ 236:profiling/mm24578.S **** 	 ROR V1
+ 237               	
+ 238               		 //No we work only on three registers
+ 239:profiling/mm24578.S **** 	 ldi C1, 14-4-2
+ 240               	
+ 241               	DO_WORK_X0:
+ 242               		 //if (result >= mul12289){
+ 243:profiling/mm24578.S **** 	 CP S0, V0
+ 244:profiling/mm24578.S **** 	 CPC S1, V1
+ 245:profiling/mm24578.S **** 	 CPC S2, V2
+ 246               		 //CPC S3, V3
+ 247:profiling/mm24578.S **** 	 BRLT NOT_GREATER_X0_DUMMY
+ 248               		 //Test was TRUE
+ 249:profiling/mm24578.S **** 	 SUB S0, V0
+ 250:profiling/mm24578.S **** 	 SBC S1, V1
+ 251:profiling/mm24578.S **** 	 SBC S2, V2
+ 252:profiling/mm24578.S **** 	 rjmp NOT_GREATER_X0
+ 253               	NOT_GREATER_X0_DUMMY:
+ 254:profiling/mm24578.S **** 	 inc S1
+ 255:profiling/mm24578.S **** 	 inc S1
+ 256:profiling/mm24578.S **** 	 dec S1
+ 257:profiling/mm24578.S **** 	 dec S1
+ 258               		 //SBC S3, V3
+ 259               		 //Now shift V>>1
+ 260               	NOT_GREATER_X0:
+ 261               		 //LSR V3
+ 262               		 //ROR V2
+ 263:profiling/mm24578.S **** 	 LSR V2
+ 264:profiling/mm24578.S **** 	 ROR V1
+ 265:profiling/mm24578.S **** 	 ROR V0
+ 266:profiling/mm24578.S **** 	 dec C1 //test if we did enough operations
+ 267:profiling/mm24578.S **** 	 breq FINISHED_X1	//branch if not equal (zero flag = 0)
+ 268:profiling/mm24578.S **** 	 rjmp DO_WORK_X0
+ 269               	
+ 270               	FINISHED_X1:
+ 271               	/*
+ 272               		 //No we work only on two registers
+ 273               		 ldi C1, 1
+ 274               	DO_WORK_X1:
+ 275               		 //if (result >= mul12289){
+ 276               		 CP S0, V0
+ 277               		 CPC S1, V1
+ 278               		 BRLT NOT_GREATER_X1_DUMMY
+ 279               		 //Test was TRUE
+ 280               		 SUB S0, V0
+ 281               		 SBC S1, V1
+ 282               		 rjmp NOT_GREATER_X1
+ 283               	NOT_GREATER_X1_DUMMY:
+ 284               		 inc S1
+ 285               		 dec S1
+ 286               		 ori S1, 0
+ 287               		 //Now shift V>>1
+ 288               	NOT_GREATER_X1:
+ 289               		 LSR V1
+ 290               		 ROR V0
+ 291               	
+ 292               		 dec C1 //test if we did enough operations
+ 293               		 breq FINISHED	//branch if not equal (zero flag = 0)
+ 294               		 rjmp DO_WORK_X1
+ 295               	*/
+ 296               	
+ 297               	FINISHED:
+ 298               		//Return argument has to be put into r25:r24
+ 299:profiling/mm24578.S **** 	clr r1
+ 300:profiling/mm24578.S **** 	mov RET0, S0
+ 301:profiling/mm24578.S **** 	mov RET1, S1
+ 302               		 //Result ist now in S3:S0
+ 303:profiling/mm24578.S **** 	ret
+DEFINED SYMBOLS
+ profiling/mm24578.S:26     .text:0000000000000000 mm24578
+ profiling/mm24578.S:65     .text:0000000000000036 NOT_GREATER_U04_DUMMY
+ profiling/mm24578.S:71     .text:000000000000003e NOT_GREATER_U04
+ profiling/mm24578.S:88     .text:0000000000000056 NOT_GREATER_U03_DUMMY
+ profiling/mm24578.S:94     .text:000000000000005e NOT_GREATER_U03
+ profiling/mm24578.S:110    .text:0000000000000076 NOT_GREATER_U02_DUMMY
+ profiling/mm24578.S:116    .text:000000000000007e NOT_GREATER_U02
+ profiling/mm24578.S:134    .text:0000000000000096 NOT_GREATER_U01_DUMMY
+ profiling/mm24578.S:140    .text:000000000000009e NOT_GREATER_U01
+ profiling/mm24578.S:158    .text:00000000000000b6 NOT_GREATER_U0_DUMMY
+ profiling/mm24578.S:164    .text:00000000000000be NOT_GREATER_U0
+ profiling/mm24578.S:181    .text:00000000000000d6 NOT_GREATER_U1_DUMMY
+ profiling/mm24578.S:187    .text:00000000000000de NOT_GREATER_U1
+ profiling/mm24578.S:204    .text:00000000000000f6 NOT_GREATER_U2_DUMMY
+ profiling/mm24578.S:210    .text:00000000000000fe NOT_GREATER_U2
+ profiling/mm24578.S:227    .text:0000000000000116 NOT_GREATER_U3_DUMMY
+ profiling/mm24578.S:233    .text:000000000000011e NOT_GREATER_U3
+ profiling/mm24578.S:241    .text:0000000000000126 DO_WORK_X0
+ profiling/mm24578.S:253    .text:0000000000000136 NOT_GREATER_X0_DUMMY
+ profiling/mm24578.S:260    .text:000000000000013e NOT_GREATER_X0
+ profiling/mm24578.S:270    .text:000000000000014a FINISHED_X1
+ profiling/mm24578.S:297    .text:000000000000014a FINISHED
+
+NO UNDEFINED SYMBOLS
