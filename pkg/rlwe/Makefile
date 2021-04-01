@@ -23,6 +23,9 @@
 
 # user defined values
 
+PKG_NAME = rlwe
+
+
 # MCU name
 
 MCU = atxmega128a1
@@ -625,7 +628,10 @@ clean_list :
 	$(REMOVE) $(addsuffix .d,$(basename $(SRC)))
 	$(REMOVE) .dep/*
 
+include $(RIOTBASE)/pkg/pkg.mk
 
+all:
+	$(MAKE) -C $(PKG_SOURCE_DIR) -f $(RIOTBASE)/Makefile.base
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)

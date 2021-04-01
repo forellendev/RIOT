@@ -1815,20 +1815,20 @@
  2121               	.global __do_clear_bss
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 inst_4093.c
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:2      *ABS*:000000000000003e __SP_H__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:3      *ABS*:000000000000003d __SP_L__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:4      *ABS*:000000000000003f __SREG__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:5      *ABS*:000000000000003b __RAMPZ__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:6      *ABS*:000000000000003a __RAMPY__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:7      *ABS*:0000000000000039 __RAMPX__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:8      *ABS*:0000000000000038 __RAMPD__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:9      *ABS*:0000000000000034 __CCP__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:10     *ABS*:0000000000000000 __tmp_reg__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:11     *ABS*:0000000000000001 __zero_reg__
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:443    .text.startup.main:0000000000000000 main
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:1084   .progmem.data.pubKeyP_12289_512:0000000000000000 pubKeyP_12289_512
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:567    .progmem.data.pubKeyA_12289_512:0000000000000000 pubKeyA_12289_512
-/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//cc56IsOl.s:1601   .progmem.data.prvKeyR2_12289_512:0000000000000000 prvKeyR2_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:5      *ABS*:000000000000003b __RAMPZ__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:6      *ABS*:000000000000003a __RAMPY__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:7      *ABS*:0000000000000039 __RAMPX__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:8      *ABS*:0000000000000038 __RAMPD__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:9      *ABS*:0000000000000034 __CCP__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:10     *ABS*:0000000000000000 __tmp_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:11     *ABS*:0000000000000001 __zero_reg__
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:443    .text.startup.main:0000000000000000 main
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:1084   .progmem.data.pubKeyP_12289_512:0000000000000000 pubKeyP_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:567    .progmem.data.pubKeyA_12289_512:0000000000000000 pubKeyA_12289_512
+/var/folders/mm/zr_rkfjd2qvbw_fkp36g3p0m0000gn/T//ccyH36li.s:1601   .progmem.data.prvKeyR2_12289_512:0000000000000000 prvKeyR2_12289_512
                             *COM*:0000000000000002 counter
 
 UNDEFINED SYMBOLS
