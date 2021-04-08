@@ -4,6 +4,11 @@ PKG_URL = https://github.com/safecrypto/libsafecrypto.git
 PKG_VERSION = 65b962f6d608704336ac16f226c8a5ff63b75851
 PKG_LICENSE = MIT
 
+# manually set some RIOT env vars, so this Makefile can be called stand-alone
+RIOTBASE ?= $(CURDIR)/../../..
+RIOTTOOLS ?= $(CURDIR)/..
+RIOTMAKE ?= $(RIOTBASE)/makefiles
+
 include $(RIOTBASE)/pkg/pkg.mk
 
 all:
