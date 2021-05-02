@@ -1,0 +1,7 @@
+INCLUDES += -I$(PKGDIRBASE)/libopencm3/include
+INCLUDES += -I$(PKGDIRBASE)/libopencm3/scripts
+INCLUDES += -I$(PKGDIRBASE)/libopencm3/lib
+INCLUDES += -I$(PKGDIRBASE)/libopencm3/ld
+INCLUDES += -I$(PKGDIRBASE)/libopencm3/doc
+INCLUDES += -I$(PKGDIRBASE)/libopencm3/tests
+INCLUDES += -I$(PKGDIRBASE)/libopencm3/mk
