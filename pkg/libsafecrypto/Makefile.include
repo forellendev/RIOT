@@ -7,4 +7,4 @@ INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/src/utils/threading
 INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/src/schemes
 
 INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/include
-ARCHIVES += $(BINDIR)/libsafecrypto.a
+ARCHIVES += $(RIOTBASE)/pkg/libsafecrypto/libsafecrypto.a
