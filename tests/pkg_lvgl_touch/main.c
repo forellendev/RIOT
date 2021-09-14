@@ -25,7 +25,6 @@
 
 #include "disp_dev.h"
 
-
 static void btn_event_cb(lv_obj_t * btn, lv_event_t event)
 {
     (void)btn;
@@ -57,7 +56,7 @@ int main(void)
     lv_obj_t * label = lv_label_create(btn, NULL);
     lv_label_set_text(label, "Click me");
 
-    lvgl_start();
+    lvgl_run();
 
     return 0;
 }

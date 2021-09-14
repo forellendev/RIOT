@@ -26,6 +26,7 @@
 
 #include "assert.h"
 #include "net/gnrc.h"
+#include "luid.h"
 #include "cc1xxx_common.h"
 
 #define ENABLE_DEBUG 0
@@ -122,7 +123,6 @@ static int cc1xxx_adpt_send(gnrc_netif_t *netif, gnrc_pktsnip_t *pkt)
     DEBUG("[cc1xxx-gnrc] send: payload of packet is %i\n", (int)size);
     netif_hdr = (gnrc_netif_hdr_t *)pkt->data;
 
-
     l2hdr.src_addr = cc1xxx_dev->addr;
     if (netif_hdr->flags & BCAST) {
         l2hdr.dest_addr = CC1XXX_BCAST_ADDR;
@@ -171,4 +171,13 @@ int gnrc_netif_cc1xxx_create(gnrc_netif_t *netif, char *stack, int stacksize,
 {
     return gnrc_netif_create(netif, stack, stacksize, priority, name,
                              dev, &cc1xxx_netif_ops);
+}
+
+void __attribute__((weak)) cc1xxx_eui_get(const netdev_t *netdev, uint8_t *eui)
+{
+    (void)netdev;
+    do {
+        luid_get(eui, 1);
+    }
+    while (*eui == CC1XXX_BCAST_ADDR);
 }

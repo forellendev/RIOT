@@ -18,10 +18,11 @@
  */
 #include <assert.h>
 
-#define ENABLE_DEBUG    (0)
+#define ENABLE_DEBUG 0
 #include "debug.h"
 
 #include "net/gnrc.h"
+#include "luid.h"
 #include "gnrc_netif_nrf24l01p_ng.h"
 #include "nrf24l01p_ng.h"
 
@@ -155,7 +156,7 @@ static int _nrf24l01p_ng_adpt_send(gnrc_netif_t *netif, gnrc_pktsnip_t *pkt)
     assert(pkt);
     assert(netif->dev);
 
-    netdev_t *netdev = (netdev_t *)netif->dev;
+    netdev_t *netdev = netif->dev;
     gnrc_netif_hdr_t *netif_hdr = (gnrc_netif_hdr_t *)pkt->data;
     if (!netif_hdr) {
         return -EBADMSG;
@@ -189,7 +190,7 @@ static int _nrf24l01p_ng_adpt_send(gnrc_netif_t *netif, gnrc_pktsnip_t *pkt)
     uint8_t src[1 + NRF24L01P_NG_ADDR_WIDTH];
     src[0] = NRF24L01P_NG_ADDR_WIDTH;
     memcpy(src + 1,
-           NRF24L01P_NG_ADDR_P1((nrf24l01p_ng_t *)netdev),
+           NRF24L01P_NG_ADDR_P1(container_of(netdev, nrf24l01p_ng_t, netdev)),
            NRF24L01P_NG_ADDR_WIDTH);
     iolist_t iolist_src_addr = {
         .iol_next = ((iolist_t *)pkt->next),
@@ -233,4 +234,14 @@ int gnrc_netif_nrf24l01p_ng_create(gnrc_netif_t *netif, char *stack,
 {
     return gnrc_netif_create(netif, stack, stacksize, priority, name,
                              dev, &nrf24l01p_ng_netif_ops);
+}
+
+void __attribute__((weak)) nrf24l01p_ng_eui_get(const netdev_t *netdev, uint8_t *eui)
+{
+    (void)netdev;
+    do {
+        luid_get_lb(eui, NRF24L01P_NG_ADDR_WIDTH);
+    }
+    while (eui[NRF24L01P_NG_ADDR_WIDTH - 1] ==
+           ((uint8_t[])NRF24L01P_NG_BROADCAST_ADDR)[NRF24L01P_NG_ADDR_WIDTH - 1]);
 }

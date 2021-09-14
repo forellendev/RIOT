@@ -22,6 +22,7 @@
 
 #include "cpu.h"
 #include "cpu_clock.h"
+#include "cpu_pm.h"
 #include "panic.h"
 
 #define ENABLE_DEBUG 0
@@ -63,18 +64,7 @@ void avr8_reset_cause(void)
 
 void __attribute__((weak)) avr8_clk_init(void)
 {
-    volatile uint8_t *reg = (uint8_t *)&PR.PRGEN;
-    uint8_t i;
-
-    /* Turn off all peripheral clocks that can be turned off. */
-    for (i = 0; i <= 7; i++) {
-        reg[i] = 0xff;
-    }
-
-    /* Turn on all peripheral clocks that can be turned on. */
-    for (i = 0; i <= 7; i++) {
-        reg[i] = 0x00;
-    }
+    pm_periph_power_off();
 
     /* XMEGA A3U [DATASHEET] p.23 After reset, the device starts up running
      * from the 2MHz internal oscillator. The other clock sources, DFLLs
@@ -98,10 +88,15 @@ void __attribute__((weak)) avr8_clk_init(void)
         != (OSC_RC32KRDY_bm | OSC_RC32MRDY_bm)) {}
 
     /* Enable DFLL - defaults to calibrate against internal 32Khz clock */
-    DFLLRC32M.CTRL = DFLL_ENABLE_bm;
+    DFLLRC2M.CTRL = DFLL_ENABLE_bm;
 
     /* Enable DFLL - defaults to calibrate against internal 32Khz clock */
-    DFLLRC2M.CTRL = DFLL_ENABLE_bm;
+    DFLLRC32M.CTRL = DFLL_ENABLE_bm;
+
+    /* Some ATxmega need sync clocks after enable DFLL.  Otherwise clock may
+     * stay at 2MHz source when try enable.
+     */
+    while ((OSC.STATUS & OSC_RC32MRDY_bm) != OSC_RC32MRDY_bm) {}
 
     atxmega_set_prescaler(CPU_ATXMEGA_CLK_SCALE_INIT,
                           CPU_ATXMEGA_BUS_SCALE_INIT);

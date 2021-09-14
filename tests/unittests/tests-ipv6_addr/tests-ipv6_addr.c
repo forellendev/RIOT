@@ -256,7 +256,6 @@ static void test_ipv6_addr_is_site_local_site_local_multicast(void)
     TEST_ASSERT_EQUAL_INT(true, ipv6_addr_is_site_local(&a));
 }
 
-
 static void test_ipv6_addr_is_site_local(void)
 {
     ipv6_addr_t a = { {
@@ -826,7 +825,7 @@ static void test_ipv6_addr_to_str__addr_NULL(void)
 
 static void test_ipv6_addr_to_str__result_NULL(void)
 {
-    ipv6_addr_t a;
+    ipv6_addr_t a = {0};
 
     TEST_ASSERT_NULL(ipv6_addr_to_str(NULL, &a, IPV6_ADDR_MAX_STR_LEN));
 }

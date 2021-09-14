@@ -91,7 +91,7 @@
  * Please note that the layer 2 address by default is derived from the CPU ID.
  * Due to the birthday paradox with only 20 devices the probability of a
  * collision is already bigger than 50%. Thus, manual address assignment is
- * supported by defining `C110X_PARAM_L2ADDR`.
+ * supported by providing an implementation of @ref cc1xxx_eui_get.
  *
  *
  * Base Band, Data Rate, Channel Bandwidth and Channel Map Configuration
@@ -226,12 +226,6 @@ extern "C" {
 #define CC110X_MAX_CHANNELS             8
 
 /**
- * @brief   Special value to indicate that layer 2 address should be derived
- *          from the CPU-ID
- */
-#define CC110X_L2ADDR_AUTO              0x00
-
-/**
  * @brief   Default protocol for data that is coming in
  */
 #ifdef MODULE_GNRC_SIXLOWPAN
@@ -241,7 +235,8 @@ extern "C" {
 #endif
 
 /**
- * @defgroup drivers_cc110x_config CC1100/CC1100e/CC1101 Sub-GHz transceiver driver compile configuration
+ * @defgroup drivers_cc110x_config CC1100/CC1100e/CC1101 Sub-GHz transceiver driver
+ *                                 compile time configuration
  * @ingroup config_drivers_netdev
  * @{
  */
@@ -269,7 +264,7 @@ typedef enum {
      */
     CC110X_STATE_FRAME_READY        = 0x08,
     /**
-     * @brief   Frame received, waiting for upper layer to retrieve it
+     * @brief   Devices is powered down
      *
      * Transceiver is in SLEEP state. There is no matching representation in the
      * status byte, as reading the status byte will power up the transceiver in
@@ -329,7 +324,6 @@ typedef enum {
 typedef struct {
     uint8_t data[8]; /**< Magic number to store in the configuration register */
 } cc110x_patable_t;
-
 
 /**
  * @brief   Configuration of the transceiver to use
@@ -470,11 +464,6 @@ typedef struct {
     spi_cs_t cs;                        /**< GPIO pin connected to chip select */
     gpio_t gdo0;                        /**< GPIO pin connected to GDO0 */
     gpio_t gdo2;                        /**< GPIO pin connected to GDO2 */
-    /**
-     * @brief Layer-2 address to use or `CC110X_L2ADDR_AUTO` to derive it from
-     *        the CPU ID
-     */
-    uint8_t l2addr;
 } cc110x_params_t;
 
 /**
@@ -643,6 +632,21 @@ int cc110x_set_channel(cc110x_t *dev, uint8_t channel);
  * @retval  -EIO    Communication with the transceiver failed
  */
 int cc110x_set_tx_power(cc110x_t *dev, cc110x_tx_power_t power);
+
+/**
+ * @brief   Wakes the transceiver from SLEEP mode and enters RX mode
+ *
+ * @retval  0       Success
+ * @retval  -EIO    Communication with the transceiver failed
+ */
+int cc110x_wakeup(cc110x_t *dev);
+
+/**
+ * @brief   Sets the transceiver into SLEEP mode.
+ *
+ * Only @ref cc110x_wakeup can awake the device again.
+ */
+void cc110x_sleep(cc110x_t *dev);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,9 @@
 
 menu "Drivers"
 
+config MODULE_NETDEV_DEFAULT
+    bool "Enable default network devices on the platform"
+
 rsource "saul/Kconfig"
 
 menu "Actuator Device Drivers"
@@ -90,6 +93,7 @@ rsource "lc709203f/Kconfig"
 rsource "lis2dh12/Kconfig"
 rsource "lis3dh/Kconfig"
 rsource "lis3mdl/Kconfig"
+rsource "lm75/Kconfig"
 rsource "lpd8808/Kconfig"
 rsource "lpsxxx/Kconfig"
 rsource "lsm6dsl/Kconfig"
@@ -112,6 +116,7 @@ rsource "pulse_counter/Kconfig"
 rsource "qmc5883l/Kconfig"
 rsource "scd30/Kconfig"
 rsource "sdp3x/Kconfig"
+rsource "sgp30/Kconfig"
 rsource "sds011/Kconfig"
 rsource "seesaw_soil/Kconfig"
 rsource "sht1x/Kconfig"
@@ -121,6 +126,7 @@ rsource "shtc1/Kconfig"
 rsource "si70xx/Kconfig"
 rsource "si114x/Kconfig"
 rsource "si1133/Kconfig"
+rsource "sm_pwm_01c/Kconfig"
 rsource "sps30/Kconfig"
 rsource "srf02/Kconfig"
 rsource "srf04/Kconfig"

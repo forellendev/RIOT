@@ -56,6 +56,7 @@ LOW_MEMORY_BOARDS += \
   opencm904 \
   saml10-xpro \
   saml11-xpro \
+  seeeduino_xiao \
   sensebox_samd21 \
   serpente \
   sodaq-autonomo \
@@ -80,6 +81,7 @@ SUPER_LOW_MEMORY_BOARDS += \
   arduino-nano \
   arduino-uno \
   atmega328p \
+  atmega328p-xplained-mini \
   nucleo-f031k6 \
   stm32f030f4-demo \
   #

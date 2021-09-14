@@ -147,7 +147,7 @@ typedef enum {
     GPIO_MUX_F = 0x5,       /**< select peripheral function F */
     GPIO_MUX_G = 0x6,       /**< select peripheral function G */
     GPIO_MUX_H = 0x7,       /**< select peripheral function H */
-    GPIO_MUX_L = 0xb,
+    GPIO_MUX_L = 0xb,       /**< select peripheral function L */
 } gpio_mux_t;
 #endif
 
@@ -178,8 +178,6 @@ typedef enum {
     UART_FLAG_NONE            = 0x0,    /**< No flags set */
     UART_FLAG_RUN_STANDBY     = 0x1,    /**< run SERCOM in standby mode */
     UART_FLAG_WAKEUP          = 0x2,    /**< wake from sleep on receive */
-    UART_FLAG_RXINV           = 0x4,    /**< invert RX signal */
-    UART_FLAG_TXINV           = 0x8,    /**< invert TX signal */
 } uart_flag_t;
 
 #ifndef DOXYGEN
@@ -208,7 +206,6 @@ typedef enum {
 /** @} */
 
 #endif /* ndef DOXYGEN */
-
 
 /**
  * @brief   Size of the UART TX buffer for non-blocking mode.
@@ -332,9 +329,9 @@ typedef struct {
  */
 typedef enum {
     SPI_PAD_MISO_0 = 0x0,       /**< use pad 0 for MISO line */
-    SPI_PAD_MISO_1 = 0x1,       /**< use pad 0 for MISO line */
-    SPI_PAD_MISO_2 = 0x2,       /**< use pad 0 for MISO line */
-    SPI_PAD_MISO_3 = 0x3,       /**< use pad 0 for MISO line */
+    SPI_PAD_MISO_1 = 0x1,       /**< use pad 1 for MISO line */
+    SPI_PAD_MISO_2 = 0x2,       /**< use pad 2 for MISO line */
+    SPI_PAD_MISO_3 = 0x3,       /**< use pad 3 for MISO line */
 } spi_misopad_t;
 
 /**
@@ -839,7 +836,6 @@ typedef struct {
 #define NWDT_TIME_UPPER_LIMIT          (16384U)
 /** @} */
 
-
 /**
  * @brief Watchdog can be stopped.
  */
@@ -1144,6 +1140,27 @@ int rtc_tamper_register(gpio_t pin, gpio_flank_t flank);
  * @brief   Enable Tamper Detection IRQs
  */
 void rtc_tamper_enable(void);
+
+/**
+ * @brief   Get and clear the RTC tamper event that has woken the CPU
+ *          from Deep Sleep.
+ *
+ * @return  The set bits in the return value correspond to the tamper
+ *          pin index inside the @ref rtc_tamper_pins array.
+ */
+uint8_t rtc_get_tamper_event(void);
+
+/**
+ * @brief   Get the tamper event mask for a certain pin.
+ *          Can be used together with @ref rtc_get_tamper_event to
+ *          check which RTC  pin caused the tamper event.
+ *
+ * @param pin   Pin to query
+ *
+ * @return  Bit mask with the bit corresponding to @p pin set
+ *          0 if @p pin is no RTC tamper pin
+ */
+uint8_t rtc_tamper_pin_mask(gpio_t pin);
 /** @} */
 
 /**

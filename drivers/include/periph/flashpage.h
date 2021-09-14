@@ -48,6 +48,7 @@
 #ifndef PERIPH_FLASHPAGE_H
 #define PERIPH_FLASHPAGE_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "cpu_conf.h"
@@ -103,6 +104,30 @@ extern "C" {
  */
 #ifdef DOXYGEN
 #define PERIPH_FLASHPAGE_CUSTOM_PAGESIZES
+#endif
+
+/**
+ * @def     PERIPH_FLASHPAGE_NEEDS_FLASHPAGE_ADDR
+ *
+ * @brief   If non-uniform flash page sizes are required, defined to signal
+ *          that the peripheral does not implement a custom @ref flashpage_addr
+ *          function and instead relies on the generic helper function that
+ *          relies on @ref flashpage_size.
+ */
+#ifdef DOXYGEN
+#define PERIPH_FLASHPAGE_NEEDS_FLASHPAGE_ADDR
+#endif
+
+/**
+ * @def     PERIPH_FLASHPAGE_NEEDS_FLASHPAGE_PAGE
+ *
+ * @brief   If non-uniform flash page sizes are required, defined to signal
+ *          that the peripheral does not implement a custom @ref flashpage_page
+ *          function and instead relies on the generic helper function that
+ *          relies on @ref flashpage_size.
+ */
+#ifdef DOXYGEN
+#define PERIPH_FLASHPAGE_NEEDS_FLASHPAGE_PAGE
 #endif
 
 /**
@@ -165,7 +190,7 @@ static inline void *flashpage_addr(unsigned page)
  *
  * @return              page containing the given address
  */
-static inline unsigned flashpage_page(void *addr)
+static inline unsigned flashpage_page(const void *addr)
 {
     return (((intptr_t)addr - CPU_FLASH_BASE) / FLASHPAGE_SIZE);
 }
@@ -175,7 +200,7 @@ static inline unsigned flashpage_page(void *addr)
 /* Bare prototypes for the above functions. See above for the documentation */
 size_t flashpage_size(unsigned page);
 void *flashpage_addr(unsigned page);
-unsigned flashpage_page(void *addr);
+unsigned flashpage_page(const void *addr);
 
 #endif
 
@@ -294,7 +319,7 @@ static inline void *flashpage_rwwee_addr(unsigned page)
  *
  * @return              RWWEE page containing the given address
  */
-static inline int flashpage_rwwee_page(void *addr)
+static inline int flashpage_rwwee_page(const void *addr)
 {
     return (int)(((int)addr - CPU_FLASH_RWWEE_BASE) / FLASHPAGE_SIZE);
 }

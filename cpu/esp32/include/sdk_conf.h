@@ -29,11 +29,17 @@ extern "C" {
 #endif
 
 /**
+* @name    Clock configuration
+* @{
+*/
+/**
  * @brief   Defines the CPU frequency [values = 2, 40, 80, 160 and 240]
  */
 #ifndef CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ
 #define CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ   80
 #endif
+#define CLOCK_CORECLOCK     (1000000UL * CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ)
+/** @} */
 
 /**
  * Default console configuration
@@ -182,3 +188,4 @@ extern "C" {
 
 #endif /* DOXYGEN */
 #endif /* SDK_CONF_H */
+/** @} */

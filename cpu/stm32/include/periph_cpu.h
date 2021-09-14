@@ -52,6 +52,8 @@
 #include "periph/l5/periph_cpu.h"
 #elif defined(CPU_FAM_STM32WB)
 #include "periph/wb/periph_cpu.h"
+#elif defined(CPU_FAM_STM32WL)
+#include "periph/wl/periph_cpu.h"
 #endif
 
 #ifdef __cplusplus
@@ -70,7 +72,7 @@ extern "C" {
       defined(CPU_FAM_STM32F7) || defined(CPU_FAM_STM32L4) || \
       defined(CPU_FAM_STM32WB) || defined(CPU_FAM_STM32G4) || \
       defined(CPU_FAM_STM32G0) || defined(CPU_FAM_STM32L5) || \
-      defined(CPU_FAM_STM32MP1)
+      defined(CPU_FAM_STM32MP1) || defined(CPU_FAM_STM32WL)
 #define CLOCK_LSI           (32000U)
 #else
 #error "error: LSI clock speed not defined for your target CPU"
@@ -170,9 +172,12 @@ extern "C" {
 typedef enum {
     APB1,           /**< APB1 bus */
     APB2,           /**< APB2 bus */
+#if defined(CPU_FAM_STM32WL)
+    APB3,
+#endif
 #if defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32WB) || \
     defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32G0) || \
-    defined(CPU_FAM_STM32L5)
+    defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32WL)
     APB12,          /**< AHB1 bus, second register */
 #endif
 #if defined(CPU_FAM_STM32L0) || defined(CPU_FAM_STM32G0)
@@ -184,7 +189,7 @@ typedef enum {
 #elif defined(CPU_FAM_STM32F2) || defined(CPU_FAM_STM32F4) || \
       defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32F7) || \
       defined(CPU_FAM_STM32WB) || defined(CPU_FAM_STM32G4) || \
-      defined(CPU_FAM_STM32L5)
+      defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32WL)
     AHB1,           /**< AHB1 bus */
     AHB2,           /**< AHB2 bus */
     AHB3,           /**< AHB3 bus */
@@ -319,8 +324,10 @@ typedef enum {
     GPIO_AF12,              /**< use alternate function 12 */
     GPIO_AF13,              /**< use alternate function 13 */
     GPIO_AF14,              /**< use alternate function 14 */
-    GPIO_AF15               /**< use alternate function 15 */
+    GPIO_AF15,              /**< use alternate function 15 */
 #endif
+    GPIO_AF_UNDEF           /** an UNDEF value definition, e.g. for register
+                                based spi */
 #endif
 } gpio_af_t;
 
@@ -681,7 +688,8 @@ typedef struct {
 #endif
 #if defined(CPU_FAM_STM32L0) || defined(CPU_FAM_STM32L4) || \
     defined(CPU_FAM_STM32WB) || defined(CPU_FAM_STM32G4) || \
-    defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32MP1)
+    defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32MP1) || \
+    defined(CPU_FAM_STM32WL)
     uart_type_t type;       /**< hardware module type (USART or LPUART) */
     uint32_t clk_src;       /**< clock source used for UART */
 #endif
@@ -734,7 +742,7 @@ typedef enum {
     defined(CPU_FAM_STM32F7) || defined(CPU_FAM_STM32L0) || \
     defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32WB) || \
     defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32G0) || \
-    defined(CPU_FAM_STM32L5)
+    defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32WL)
     I2C_SPEED_FAST_PLUS,    /**< fast plus mode: ~1Mbit/s */
 #endif
 } i2c_speed_t;
@@ -770,7 +778,7 @@ typedef struct {
     defined(CPU_FAM_STM32F7) || defined(CPU_FAM_STM32L0) || \
     defined(CPU_FAM_STM32L4) || defined(CPU_FAM_STM32WB) || \
     defined(CPU_FAM_STM32G4) || defined(CPU_FAM_STM32G0) || \
-    defined(CPU_FAM_STM32L5)
+    defined(CPU_FAM_STM32L5) || defined(CPU_FAM_STM32WL)
 /**
  * @brief   Structure for I2C timing register settings
  *

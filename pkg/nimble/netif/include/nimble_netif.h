@@ -103,6 +103,37 @@ extern "C" {
 #endif
 
 /**
+ * @brief   Set to > 0 to enforce different connection intervals for each of the
+ *          nodes BLE connections
+ *
+ * Enabling this option will enforce that every BLE connection a node maintains,
+ * independent of the nodes role, uses a different connection interval. The
+ * value of NIMBLE_NETIF_CONN_ITVL_SPACING specifies the minimum spacing between
+ * connection intervals as multiple of 1,25ms. E.g. a value of 2 will force each
+ * connection to use a connection interval that is at least 2.5ms different from
+ * all other used connection intervals.
+ *
+ * If a node is the coordinator of a connection, it will generate a connection
+ * interval for each new connection based on a random value by adhering to the
+ * spacing constraint.
+ *
+ * If a node is the subordinate of a new connection, it will check if the given
+ * connection interval is fulfilling the spacing constraint with respect to
+ * already existing connections of that node. If the connection interval of the
+ * new connection is not properly spaced, the node will drop the connection
+ * right away, giving the coordinator node the possibly to reconnect with a
+ * different connection interval.
+ */
+#ifndef NIMBLE_NETIF_CONN_ITVL_SPACING
+#define NIMBLE_NETIF_CONN_ITVL_SPACING          0
+#endif
+
+/**
+ * @brief   Minimum spacing of connection interval when using randomized
+ *          intervals, in multiples of 1.25ms
+ */
+
+/**
  * @brief   Return codes used by the NimBLE netif module
  */
 enum {
@@ -183,16 +214,18 @@ void nimble_netif_eventcb(nimble_netif_eventcb_t cb);
  *
  * @param[in] addr          address of the advertising BLE slave, in the NimBLE
  *                          addr format (little endian)
- * @param[in] conn_params   connection (timing) parameters
+ * @param[in] conn_params   connection (timing) parameters, set to NULL to use
+ *                          NimBLEs default parameters
  * @param[in] timeout       connect timeout [in ms]
  *
  * @return  the used connection handle on success
  * @return  NIMBLE_NETIF_BUSY if already connected to the given address or if
  *          a connection setup procedure is in progress
  * @return  NIMBLE_NETIF_NOMEM if no connection context memory is available
+ * @return  NIMBLE_NETIF_NOTFOUND if unable to find valid connection interval
  */
 int nimble_netif_connect(const ble_addr_t *addr,
-                         const struct ble_gap_conn_params *conn_params,
+                         struct ble_gap_conn_params *conn_params,
                          uint32_t timeout);
 
 /**
@@ -221,6 +254,22 @@ int nimble_netif_accept(const uint8_t *ad, size_t ad_len,
                         const struct ble_gap_adv_params *adv_params);
 
 /**
+ * @brief   Wait for an incoming connection from a specific peer, sending
+ *          directed advertisements (IND_DIR)
+ *
+ * @param[in] addr          BLE address of the target peer
+ * @param[in] timeout_ms    stop advertising after this time (in ms), set to
+ *                          BLE_HS_FOREVER to disable timeout
+ * @param[in] adv_params    advertising (timing) parameters to use
+ *
+ * @return  NIMBLE_NETIF_OK on success
+ * @return  NIMBLE_NETIF_BUSY if already advertising
+ * @return  NIMBLE_NETIF_NOMEM on insufficient connection memory
+ */
+int nimble_netif_accept_direct(const ble_addr_t *addr, uint32_t timeout_ms,
+                               const struct ble_gap_adv_params *adv_params);
+
+/**
  * @brief   Stop accepting incoming connections (stop advertising)
  * *
  * @return  NIMBLE_NETIF_OK on success
@@ -240,6 +289,21 @@ int nimble_netif_accept_stop(void);
  */
 int nimble_netif_update(int handle,
                         const struct ble_gap_upd_params *conn_params);
+
+/**
+ * @brief   Get the currently used channel map for the given connection as
+ *          bitmap
+ *
+ * @param[in] handle        connection handle
+ * @param[out] map          used channel map, map[0] denotes channels 0 to 7,
+ *                          map[1] chan 8-15, ..., map[5] channels 33 to 36.
+ *                          **must** be able to hold 5 bytes.
+ *
+ * @return  NIMBLE_NETIF_OK on success
+ * @return  NIMBLE_NETIF_NOTCONN if handle dos not point to a connection
+ * @return  NIMBLE_NETIF_DEVERR if reading the channel map failed otherwise
+ */
+int nimble_netif_used_chanmap(int handle, uint8_t map[5]);
 
 #ifdef __cplusplus
 }

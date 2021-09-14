@@ -22,6 +22,7 @@
 
 #include <kernel_defines.h>
 
+#include "net/dhcpv6/client.h"
 #include "net/ieee802154.h"
 #include "net/ethernet/hdr.h"
 #include "net/gnrc/ipv6/nib/conf.h"
@@ -108,10 +109,12 @@ extern "C" {
  *          @ref GNRC_NETIF_IPV6_GROUPS_NUMOF is also large enough to fit the
  *          addresses' solicited nodes multicast addresses.
  *
- * Default: 2 (1 link-local + 1 global address)
+ * Default: 2 (1 link-local + 1 global address) + any additional address via
+ * configuration protocol (e.g. DHCPv6 leases).
  */
 #ifndef CONFIG_GNRC_NETIF_IPV6_ADDRS_NUMOF
-#define CONFIG_GNRC_NETIF_IPV6_ADDRS_NUMOF    (2)
+#define CONFIG_GNRC_NETIF_IPV6_ADDRS_NUMOF    (2 + \
+                                               DHCPV6_CLIENT_ADDRS_NUMOF)
 #endif
 
 /**
@@ -143,7 +146,7 @@ extern "C" {
  *       address types are included
  */
 #ifndef GNRC_NETIF_L2ADDR_MAXLEN
-#if defined(MODULE_NETDEV_IEEE802154) || defined(MODULE_XBEE)
+#if defined(MODULE_NETDEV_IEEE802154) || defined(MODULE_XBEE) || defined(MODULE_SLIPDEV_L2ADDR)
 #define GNRC_NETIF_L2ADDR_MAXLEN   (IEEE802154_LONG_ADDRESS_LEN)
 #elif   MODULE_NETDEV_ETH
 #define GNRC_NETIF_L2ADDR_MAXLEN   (ETHERNET_ADDR_LEN)
