@@ -30,6 +30,7 @@ RIOT_CFLAGS = $(INCLUDES)
 
 all: $(BINDIR)/$(PKG_NAME).a
 
+# TODO: where is the RIOT pkg build folder with the *.a files
 $(BINDIR)/$(PKG_NAME).a: $(PKG_BUILD_DIR)/lib/libsafecrypto-riot.a
 	cp $< $@
 
@@ -40,9 +41,9 @@ $(PKG_BUILD_DIR)/lib/libsafecrypto-riot.a: cross_compile
 # TOOLCHAIN=/usr/compilers/gcc-arm-xxx-xxx
 # Downloaded libsafecrypto projects is under RIOT/build/pkg/libsafecrypto/
 cross_compile:
-	cd $(PKGDIRBASE)/libsafecrypto/; ls -la; automake
+	cd $(PKGDIRBASE)/libsafecrypto/; ls -la;
 # to generate configure: sudo autoconf
-	cd $(PKGDIRBASE)/libsafecrypto/; sudo ./configure --host=arm-none-eabi --prefix=$TOOLCHAIN --without-tests --disable-multithreading \
+	cd $(PKGDIRBASE)/libsafecrypto/; ./autogen.sh; sudo autoconf; sudo ./configure --host=arm-none-eabi --prefix=/usr/share/gcc-arm-none-eabi-10.3-2021.07/bin --without-tests --disable-multithreading \
  		CFLAGS="-mcpu=cortex-m4 -mthumb -mfpu=neon -O2 -falign-functions=16 -ffunction-sections \
  		-fdata-sections --specs=nosys.specs" \
 
