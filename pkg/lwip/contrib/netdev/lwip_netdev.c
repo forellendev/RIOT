@@ -17,9 +17,6 @@
 #include <sys/uio.h>
 #include <inttypes.h>
 
-#if MODULE_LWIP_DHCP_AUTO
-#include "lwip/dhcp.h"
-#endif
 #include "lwip/err.h"
 #include "lwip/ethip6.h"
 #include "lwip/netif.h"
@@ -97,7 +94,7 @@ err_t lwip_netdev_init(struct netif *netif)
     }
 
     /* initialize netdev and netif */
-    netdev = (netdev_t *)netif->state;
+    netdev = netif->state;
     netdev->driver->init(netdev);
     _configure_netdev(netdev);
     netdev->event_callback = _event_cb;
@@ -206,7 +203,7 @@ err_t lwip_netdev_init(struct netif *netif)
 #ifdef MODULE_NETDEV_ETH
 static err_t _eth_link_output(struct netif *netif, struct pbuf *p)
 {
-    netdev_t *netdev = (netdev_t *)netif->state;
+    netdev_t *netdev = netif->state;
     struct pbuf *q;
     unsigned int count = 0;
 
@@ -239,7 +236,7 @@ static err_t _eth_link_output(struct netif *netif, struct pbuf *p)
 static err_t _ieee802154_link_output(struct netif *netif, struct pbuf *p)
 {
     LWIP_ASSERT("p->next == NULL", p->next == NULL);
-    netdev_t *netdev = (netdev_t *)netif->state;
+    netdev_t *netdev = netif->state;
     iolist_t pkt = {
         .iol_base = p->payload,
         .iol_len = (p->len - IEEE802154_FCS_LEN),   /* FCS is written by driver */
@@ -297,10 +294,8 @@ static void _event_cb(netdev_t *dev, netdev_event_t event)
                 break;
             }
             case NETDEV_EVENT_LINK_UP: {
+                /* Will wake up DHCP state machine */
                 netifapi_netif_set_link_up(netif);
-#ifdef MODULE_LWIP_DHCP_AUTO
-                netifapi_dhcp_start(netif);
-#endif
                 break;
             }
             case NETDEV_EVENT_LINK_DOWN: {

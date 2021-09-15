@@ -148,6 +148,27 @@ typedef enum {
      * @brief Multi-Rate Frequency Shift Keying PHY mode
      */
     IEEE802154_CAP_PHY_MR_FSK           = BIT17,
+    /**
+     * @brief the device supports source address match table.
+     *
+     * A Source Address Match table contains source addresses with pending
+     * data. When a coordinator device receives an IEEE 802.15.4 Data
+     * Request command from a child node, the Frame Pending bit of the ACK is
+     * set if the source address matches one from the table.
+     */
+    IEEE802154_CAP_SRC_ADDR_MATCH       = BIT18,
+    /**
+     * @brief the device stays in RX_ON on @ref
+     * IEEE802154_RADIO_INDICATION_RX_DONE or @ref
+     * IEEE802154_RADIO_INDICATION_CRC_ERROR
+     *
+     * Radios that provide this feature don't need to call @ref
+     * ieee802154_radio_request_set_trx_state on after receiving a frame, in
+     * case more frames are expected. This does not affect Framebuffer
+     * protection (e.g a radio might still be listening but its framebuffer is
+     * locked because the upper layer didn't call @ref ieee802154_radio_read)
+     */
+    IEEE802154_CAP_RX_CONTINUOUS        = BIT19,
 } ieee802154_rf_caps_t;
 
 /**
@@ -263,11 +284,10 @@ typedef enum {
      * The transceiver or driver MUST handle the ACK reply if the Ack Request
      * bit is set in the received frame and promiscuous mode is disabled.
      *
-     * The transceiver will be in a "FB Lock" state where no more frames are
+     * The transceiver might be in a "FB Lock" state where no more frames are
      * received. This is done in order to avoid overwriting the Frame Buffer
      * with new frame arrivals.  In order to leave this state, the upper layer
-     * must set the transceiver state (@ref
-     * ieee802154_radio_ops::request_set_trx_state).
+     * must call @ref ieee802154_radio_ops::read.
      */
     IEEE802154_RADIO_INDICATION_RX_DONE,
 
@@ -287,6 +307,87 @@ typedef enum {
      */
     IEEE802154_RADIO_CONFIRM_CCA,
 } ieee802154_trx_ev_t;
+
+/**
+ * @brief Source Address Match commands.
+ */
+typedef enum {
+    /**
+     * @brief Enable or disable source address match.
+     *
+     * Enabling it sets the frame pending to all ACK frames in
+     * response to a Data Request command (if the radio doesn't
+     * support Source Address Matching) or to a specific address
+     * in the Source Address Matching table
+     */
+    IEEE802154_SRC_MATCH_EN,
+    /**
+     * @brief Add a short address to entry.
+     *
+     * This command should only be implemented if @ref IEEE802154_CAP_SRC_ADDR_MATCH
+     * is available.
+     */
+    IEEE802154_SRC_MATCH_SHORT_ADD,
+    /**
+     * @brief Clear short address from entry.
+     * This command should only be implemented if @ref IEEE802154_CAP_SRC_ADDR_MATCH
+     * is available.
+     */
+    IEEE802154_SRC_MATCH_SHORT_CLEAR,
+    /**
+     * @brief Add a extended address to entry.
+     * This command should only be implemented if @ref IEEE802154_CAP_SRC_ADDR_MATCH
+     * is available.
+     */
+    IEEE802154_SRC_MATCH_EXT_ADD,
+    /**
+     * @brief Clear extended address from entry.
+     *
+     * This command should only be implemented if @ref IEEE802154_CAP_SRC_ADDR_MATCH
+     * is available.
+     */
+    IEEE802154_SRC_MATCH_EXT_CLEAR,
+} ieee802154_src_match_t;
+
+/**
+ * @brief Address filter command
+ */
+typedef enum {
+    IEEE802154_AF_SHORT_ADDR, /**< Set short IEEE 802.15.4 address (network_uint16_t) */
+    IEEE802154_AF_EXT_ADDR,   /**< Set extended IEEE 802.15.4 address (eui64_t) */
+    IEEE802154_AF_PANID,      /**< Set PAN ID (uint16_t) */
+    IEEE802154_AF_PAN_COORD,  /**< Set device as PAN coordinator (bool) */
+} ieee802154_af_cmd_t;
+
+/**
+ * @brief Frame Filter mode
+ */
+typedef enum {
+    /**
+     * @brief accept all valid frames that match address filter configuration
+     */
+    IEEE802154_FILTER_ACCEPT,
+    /**
+     * @brief accept only ACK frames
+     *
+     * @note This mode should only be implemented if the transceiver doesn't
+     * handle ACK frame reception (when @ref IEEE802154_CAP_FRAME_RETRANS and
+     * @ref IEEE802154_CAP_IRQ_ACK_TIMEOUT are not present).
+     */
+    IEEE802154_FILTER_ACK_ONLY,
+    /**
+     * @brief accept all valid frames
+     *
+     * @note This mode is optional
+     */
+    IEEE802154_FILTER_PROMISC,
+    /**
+     * @brief accept all frames, regardless of FCS
+     *
+     * @note This mode is optional
+     */
+    IEEE802154_FILTER_SNIFFER,
+} ieee802154_filter_mode_t;
 
 /**
  * @brief CSMA-CA exponential backoff parameters.
@@ -341,9 +442,9 @@ struct ieee802154_dev {
      */
     const ieee802154_radio_ops_t *driver;
     /**
-     * @brief pointer to the context of the device
+     * @brief pointer to the private descriptor of the device
      */
-    void *ctx;
+    void *priv;
     /**
      * @brief the event callback of the device
      */
@@ -371,40 +472,6 @@ typedef enum {
      */
     IEEE802154_CCA_MODE_ED_THRESH_OR_CS,
 } ieee802154_cca_mode_t;
-
-/**
- * @brief RX mode configuration
- */
-typedef enum {
-    /**
-     * @brief Auto ACK is disabled
-     */
-    IEEE802154_RX_AACK_DISABLED,
-    /**
-     * @brief Auto ACK is enabled
-     */
-    IEEE802154_RX_AACK_ENABLED,
-    /**
-     * @brief Auto ACK is enabled and frame pending bit set in the next ACK frame
-     */
-    IEEE802154_RX_AACK_FRAME_PENDING,
-    /**
-     * @brief Radio is in promiscuous mode
-     */
-    IEEE802154_RX_PROMISC,
-    /**
-     * @brief Radio is ready to receive ACK frames
-     *
-     * This mode is optional. If a radio decides to implement it, the radio
-     * should allow ACK frames (and block ACK frames in all other RX modes).
-     * Note that this mode cannot guarantee that only ACK frames will be
-     * received.
-     *
-     * Expected to be implemented when either @ref IEEE802154_CAP_FRAME_RETRANS
-     * or @ref IEEE802154_CAP_IRQ_ACK_TIMEOUT is not there.
-     */
-    IEEE802154_RX_WAIT_FOR_ACK,
-} ieee802154_rx_mode_t;
 
 /**
  * @brief Holder of the PHY configuration
@@ -505,11 +572,13 @@ struct ieee802154_radio_ops {
      * This function reads the received frame from the internal framebuffer.
      * It should try to copy the received PSDU frame into @p buf. The FCS
      * field will **not** be copied and its size **not** be taken into account
-     * for the return value.
+     * for the return value. If the radio provides any kind of framebuffer protection,
+     * this function should release it.
      *
-     * @post It's not safe to call this function again before setting the
-     *       transceiver state to @ref IEEE802154_TRX_STATE_RX_ON (thus flushing
-     *       the RX FIFO).
+     * @post Don't call this function if there was no reception event
+     * (either @ref IEEE802154_RADIO_INDICATION_RX_DONE or @ref
+     * IEEE802154_RADIO_INDICATION_CRC_ERROR). Otherwise there's risk of RX
+     * underflow.
      *
      * @param[in] dev IEEE802.15.4 device descriptor
      * @param[out] buf buffer to write the received PSDU frame into.
@@ -565,9 +634,10 @@ struct ieee802154_radio_ops {
      * - @ref set_cca_threshold
      * - @ref set_cca_mode
      * - @ref config_phy
+     * - @ref config_addr_filter
      * - @ref set_csma_params
-     * - @ref set_rx_mode
-     * - @ref set_hw_addr_filter
+     * - @ref set_frame_filter_mode
+     * - @ref config_src_addr_match
      * - @ref set_frame_retrans (if available)
      *
      * @param[in] dev IEEE802.15.4 device descriptor
@@ -699,26 +769,6 @@ struct ieee802154_radio_ops {
     int (*config_phy)(ieee802154_dev_t *dev, const ieee802154_phy_conf_t *conf);
 
     /**
-     * @brief Set IEEE802.15.4 addresses in hardware address filter
-     *
-     * @pre the device is on
-     *
-     * @param[in] dev IEEE802.15.4 device descriptor
-     * @param[in] short_addr the IEEE802.15.4 short address. If NULL, the short
-     *            address is not altered..
-     * @param[in] ext_addr the IEEE802.15.4 extended address (Network Byte Order).
-     *            If NULL, the extended address is not altered.
-     * @param[in] pan_id the IEEE802.15.4 PAN ID. If NULL, the PAN ID is not altered.
-     *
-     * @return 0 on success
-     * @return negative errno on error
-     */
-    int (*set_hw_addr_filter)(ieee802154_dev_t *dev,
-                              const network_uint16_t *short_addr,
-                              const eui64_t *ext_addr,
-                              const uint16_t *pan_id);
-
-    /**
      * @brief Set number of frame retransmissions
      *
      * @pre the device is on
@@ -756,15 +806,55 @@ struct ieee802154_radio_ops {
                            int8_t retries);
 
     /**
-     * @brief Set the RX mode.
+     * @brief Set the frame filter moder.
+     *
+     * @pre the device is on
      *
      * @param[in] dev IEEE802.15.4 device descriptor
-     * @param[in] mode RX mode
+     * @param[in] mode address filter mode
      *
      * @return 0 on success
      * @return negative errno on error
      */
-    int (*set_rx_mode)(ieee802154_dev_t *dev, ieee802154_rx_mode_t mode);
+    int (*set_frame_filter_mode)(ieee802154_dev_t *dev, ieee802154_filter_mode_t mode);
+
+    /**
+     * @brief Configure the address filter.
+     *
+     * This functions is used for configuring the address filter parameters
+     * required by the IEEE 802.15.4 standard.
+     *
+     * @pre the device is on
+     *
+     * @param[in] dev IEEE802.15.4 device descriptor
+     * @param[in] cmd command for the address filter
+     * @param[in] value value for @p cmd.
+     *
+     * @return 0 on success
+     * @return negative errno on error
+     */
+    int (*config_addr_filter)(ieee802154_dev_t *dev, ieee802154_af_cmd_t cmd, const void *value);
+
+    /**
+     * @brief Set the source address match configuration.
+     *
+     * This function configures the source address match filter in order to set
+     * the Frame Pending bit in ACK frames accordingly.
+     * In case the radio doesn't support @ref IEEE802154_CAP_SRC_ADDR_MATCH,
+     * this functions is used to activate the Frame Pending bit for all ACK
+     * frames (in order to be compliant with the IEEE 802.15.4 standard).
+     *
+     * @pre the device is on
+     *
+     * @param[in] dev IEEE802.15.4 device descriptor
+     * @param[in] cmd command for the source address match configuration
+     * @param[in] value value associated to @p cmd.
+     *
+     * @return 0 on success
+     * @return negative errno on error
+     */
+    int (*config_src_addr_match)(ieee802154_dev_t *dev, ieee802154_src_match_t cmd,
+                                 const void *value);
 };
 
 /**
@@ -882,6 +972,24 @@ static inline int ieee802154_radio_config_phy(ieee802154_dev_t *dev,
 }
 
 /**
+ * @brief Shortcut to @ref ieee802154_radio_ops::config_src_addr_match
+ *
+ * @pre the device is on
+ *
+ * @param[in] dev IEEE802.15.4 device descriptor
+ * @param[in] cmd command for the source address match configuration
+ * @param[in] value value associated to @p cmd.
+ *
+ * @return  result of @ref ieee802154_radio_ops::config_src_addr_match
+ */
+static inline int ieee802154_radio_config_src_address_match(ieee802154_dev_t *dev,
+                                                            ieee802154_src_match_t cmd,
+                                                            const void *value)
+{
+    return dev->driver->config_src_addr_match(dev, cmd, value);
+}
+
+/**
  * @brief Shortcut to @ref ieee802154_radio_ops::off
  *
  * @param[in] dev IEEE802.15.4 device descriptor
@@ -896,25 +1004,37 @@ static inline int ieee802154_radio_off(ieee802154_dev_t *dev)
 }
 
 /**
- * @brief Shortcut to @ref ieee802154_radio_ops::set_hw_addr_filter
+ * @brief Shortcut to @ref ieee802154_radio_ops::config_addr_filter
  *
  * @pre the device is on
  *
  * @param[in] dev IEEE802.15.4 device descriptor
- * @param[in] short_addr the IEEE802.15.4 short address. If NULL, the short
- *            address is not altered..
- * @param[in] ext_addr the IEEE802.15.4 extended address (Network Byte Order).
- *            If NULL, the extended address is not altered.
- * @param[in] pan_id the IEEE802.15.4 PAN ID. If NULL, the PAN ID is not altered.
+ * @param[in] cmd command for the address filter
+ * @param[in] value value for @p cmd.
  *
- * @return result of @ref ieee802154_radio_ops::set_hw_addr_filter
+ * @return result of @ref ieee802154_radio_ops::config_addr_filter
  */
-static inline int ieee802154_radio_set_hw_addr_filter(ieee802154_dev_t *dev,
-                                                      const network_uint16_t *short_addr,
-                                                      const eui64_t *ext_addr,
-                                                      const uint16_t *pan_id)
+static inline int ieee802154_radio_config_addr_filter(ieee802154_dev_t *dev,
+                                                  ieee802154_af_cmd_t cmd,
+                                                  const void* value)
 {
-    return dev->driver->set_hw_addr_filter(dev, short_addr, ext_addr, pan_id);
+    return dev->driver->config_addr_filter(dev, cmd, value);
+}
+
+/**
+ * @brief Shortcut to @ref ieee802154_radio_ops::set_frame_filter_mode
+ *
+ * @pre the device is on
+ *
+ * @param[in] dev IEEE802.15.4 device descriptor
+ * @param[in] mode frame filter mode
+ *
+ * @return result of @ref ieee802154_radio_ops::set_frame_filter_mode
+ */
+static inline int ieee802154_radio_set_frame_filter_mode(ieee802154_dev_t *dev,
+                                                    ieee802154_filter_mode_t mode)
+{
+    return dev->driver->set_frame_filter_mode(dev, mode);
 }
 
 /**
@@ -1304,17 +1424,19 @@ static inline uint32_t ieee802154_radio_get_phy_modes(ieee802154_dev_t *dev)
 }
 
 /**
- * @brief Shortcut to @ref ieee802154_radio_ops::set_rx_mode
+ * @brief Check whether the radio stays in RX_ON after @ref
+ *        IEEE802154_RADIO_INDICATION_RX_DONE or @ref
+ *        IEEE802154_RADIO_INDICATION_CRC_ERROR events (see @ref
+ *        IEEE802154_CAP_RX_CONTINUOUS)
  *
  * @param[in] dev IEEE802.15.4 device descriptor
- * @param[in] mode RX mode
  *
- * @return result of @ref ieee802154_radio_ops::set_rx_mode
+ * @return true if the device stays in RX_ON state
+ * @return false otherwise
  */
-static inline int ieee802154_radio_set_rx_mode(ieee802154_dev_t *dev,
-                                               ieee802154_rx_mode_t mode)
+static inline bool ieee802154_radio_has_rx_continuous(ieee802154_dev_t *dev)
 {
-    return dev->driver->set_rx_mode(dev, mode);
+    return (dev->driver->caps & IEEE802154_CAP_RX_CONTINUOUS);
 }
 
 /**

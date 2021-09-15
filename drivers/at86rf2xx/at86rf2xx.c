@@ -233,10 +233,6 @@ void at86rf2xx_reset(at86rf2xx_t *dev)
     IS_USED(MODULE_AT86RF2XX_AES_SPI)
     dev->netdev.sec_ctx.dev.cipher_ops = &_at86rf2xx_cipher_ops;
     dev->netdev.sec_ctx.dev.ctx = dev;
-    /* All configurations of the security module, the SRAM content,
-       and keys are reset during DEEP_SLEEP or RESET state. */
-    at86rf2xx_aes_key_write_encrypt(dev,
-        dev->netdev.sec_ctx.cipher.context.context);
 #endif
 
     /* State to return after receiving or transmitting */
@@ -287,7 +283,7 @@ size_t at86rf2xx_tx_load(at86rf2xx_t *dev, const uint8_t *data,
 
 void at86rf2xx_tx_exec(at86rf2xx_t *dev)
 {
-    netdev_t *netdev = (netdev_t *)dev;
+    netdev_t *netdev = &dev->netdev.netdev;
 
 #if AT86RF2XX_HAVE_RETRIES
     dev->tx_retries = -1;

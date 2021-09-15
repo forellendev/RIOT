@@ -91,16 +91,14 @@ static struct {
     bool cca_send   : 1;    /**< whether the next transmission uses CCA or not */
     bool ack_filter : 1;    /**< whether the ACK filter is activated or not */
     bool promisc    : 1;    /**< whether the device is in promiscuous mode or not */
+    bool pending    : 1;    /**< whether there pending bit should be set in the ACK frame or not */
 } cfg = {
     .cca_send   = true,
     .ack_filter = true,
 };
 
 static const ieee802154_radio_ops_t nrf802154_ops;
-
-ieee802154_dev_t nrf802154_hal_dev = {
-    .driver = &nrf802154_ops,
-};
+static ieee802154_dev_t *nrf802154_hal_dev;
 
 static void _power_on(void)
 {
@@ -173,7 +171,7 @@ static int _write(ieee802154_dev_t *dev, const iolist_t *iolist)
     /* specify the length of the package. */
     txbuf[0] = len + IEEE802154_FCS_LEN;
 
-    return len;
+    return 0;
 }
 
 static int _confirm_transmit(ieee802154_dev_t *dev, ieee802154_tx_info_t *info)
@@ -427,10 +425,15 @@ static int _request_set_trx_state(ieee802154_dev_t *dev, ieee802154_trx_state_t 
 static void _timer_cb(void *arg, int chan)
 {
     (void)arg;
-    ieee802154_dev_t *dev = &nrf802154_hal_dev;
+    ieee802154_dev_t *dev = nrf802154_hal_dev;
 
     if (chan == MAC_TIMER_CHAN_ACK) {
         /* Copy sqn */
+        ack[1] = IEEE802154_FCF_TYPE_ACK;
+        if (cfg.pending) {
+            ack[1] |= IEEE802154_FCF_FRAME_PEND;
+        }
+
         ack[3] = rxbuf[3];
 
         NRF_RADIO->PACKETPTR = (uint32_t) &ack;
@@ -471,7 +474,7 @@ int nrf802154_init(void)
 
 void isr_radio(void)
 {
-    ieee802154_dev_t *dev = &nrf802154_hal_dev;
+    ieee802154_dev_t *dev = nrf802154_hal_dev;
 
     if (NRF_RADIO->EVENTS_FRAMESTART) {
         NRF_RADIO->EVENTS_FRAMESTART = 0;
@@ -517,7 +520,7 @@ void isr_radio(void)
         case STATE_RX:
             if (NRF_RADIO->CRCSTATUS) {
                 bool l2filter_passed = _l2filter(rxbuf+1);
-                bool is_auto_ack_en = ack[1];
+                bool is_auto_ack_en = !IS_ACTIVE(CONFIG_IEEE802154_AUTO_ACK_DISABLE);
                 bool is_ack = rxbuf[1] & IEEE802154_FCF_TYPE_ACK;
                 bool ack_req = rxbuf[1] & IEEE802154_FCF_ACK_REQ;
 
@@ -699,26 +702,41 @@ int _set_cca_mode(ieee802154_dev_t *dev, ieee802154_cca_mode_t mode)
     return 0;
 }
 
-static int _set_hw_addr_filter(ieee802154_dev_t *dev, const network_uint16_t *short_addr,
-                              const eui64_t *ext_addr, const uint16_t *pan_id)
+static int _config_addr_filter(ieee802154_dev_t *dev, ieee802154_af_cmd_t cmd, const void *value)
 {
     (void) dev;
-    if (short_addr) {
-        memcpy(nrf802154_short_addr, short_addr, IEEE802154_SHORT_ADDRESS_LEN);
-    }
-
-    if (ext_addr) {
-        memcpy(nrf802154_long_addr, ext_addr, IEEE802154_LONG_ADDRESS_LEN);
-    }
-
-    if (pan_id) {
-        nrf802154_pan_id = *pan_id;
+    const uint16_t *pan_id = value;
+    switch(cmd) {
+        case IEEE802154_AF_SHORT_ADDR:
+            memcpy(nrf802154_short_addr, value, IEEE802154_SHORT_ADDRESS_LEN);
+            break;
+        case IEEE802154_AF_EXT_ADDR:
+            memcpy(nrf802154_long_addr, value, IEEE802154_LONG_ADDRESS_LEN);
+            break;
+        case IEEE802154_AF_PANID:
+            nrf802154_pan_id = *pan_id;
+            break;
+        case IEEE802154_AF_PAN_COORD:
+            return -ENOTSUP;
     }
 
     return 0;
 }
 
-static int _set_rx_mode(ieee802154_dev_t *dev, ieee802154_rx_mode_t mode)
+static int _config_src_addr_match(ieee802154_dev_t *dev, ieee802154_src_match_t cmd, const void *value)
+{
+    (void) dev;
+    switch(cmd) {
+        case IEEE802154_SRC_MATCH_EN:
+            cfg.pending = *((const bool*) value);
+            break;
+        default:
+            return -ENOTSUP;
+    }
+    return 0;
+}
+
+static int _set_frame_filter_mode(ieee802154_dev_t *dev, ieee802154_filter_mode_t mode)
 {
     (void) dev;
 
@@ -726,21 +744,16 @@ static int _set_rx_mode(ieee802154_dev_t *dev, ieee802154_rx_mode_t mode)
     bool _promisc = false;
 
     switch (mode) {
-    case IEEE802154_RX_AACK_DISABLED:
-        ack[1] = 0;
-        break;
-    case IEEE802154_RX_AACK_ENABLED:
-        ack[1] = IEEE802154_FCF_TYPE_ACK;
-        break;
-    case IEEE802154_RX_AACK_FRAME_PENDING:
-        ack[1] = IEEE802154_FCF_TYPE_ACK | IEEE802154_FCF_FRAME_PEND;
-        break;
-    case IEEE802154_RX_PROMISC:
-        _promisc = true;
-        break;
-    case IEEE802154_RX_WAIT_FOR_ACK:
-        ackf = false;
-        break;
+        case IEEE802154_FILTER_ACCEPT:
+            break;
+        case IEEE802154_FILTER_PROMISC:
+            _promisc = true;
+            break;
+        case IEEE802154_FILTER_ACK_ONLY:
+            ackf = false;
+            break;
+        default:
+            return -ENOTSUP;
     }
 
     cfg.ack_filter = ackf;
@@ -767,13 +780,15 @@ static int _set_csma_params(ieee802154_dev_t *dev, const ieee802154_csma_be_t *b
 void nrf802154_setup(nrf802154_t *dev)
 {
     (void) dev;
-#if IS_USED(MODULE_NETDEV_IEEE802154_SUBMAC)
-    netdev_t *netdev = (netdev_t*) dev;
-    netdev_register(netdev, NETDEV_NRF802154, 0);
-    DEBUG("[nrf802154] init submac.\n")
-    netdev_ieee802154_submac_init(&dev->netdev, &nrf802154_hal_dev);
-#endif
     nrf802154_init();
+}
+
+void nrf802154_hal_setup(ieee802154_dev_t *hal)
+{
+    /* We don't set hal->priv because the context of this device is global */
+    /* We need to store a reference to the HAL descriptor though for the ISR */
+    hal->driver = &nrf802154_ops;
+    nrf802154_hal_dev = hal;
 }
 
 static const ieee802154_radio_ops_t nrf802154_ops = {
@@ -800,7 +815,8 @@ static const ieee802154_radio_ops_t nrf802154_ops = {
     .set_cca_threshold = set_cca_threshold,
     .set_cca_mode = _set_cca_mode,
     .config_phy = _config_phy,
-    .set_hw_addr_filter = _set_hw_addr_filter,
     .set_csma_params = _set_csma_params,
-    .set_rx_mode = _set_rx_mode,
+    .config_addr_filter = _config_addr_filter,
+    .config_src_addr_match = _config_src_addr_match,
+    .set_frame_filter_mode = _set_frame_filter_mode,
 };

@@ -1,10 +1,11 @@
 BOARD_INSUFFICIENT_MEMORY := \
     arduino-duemilanove \
     arduino-leonardo \
+    arduino-mega2560 \
     arduino-nano \
     arduino-uno \
     atmega328p \
-    atxmega-a1u-xpro \
+    atmega328p-xplained-mini \
     bluepill-stm32f030c8 \
     i-nucleo-lrwan1 \
     nucleo-f030r8 \

@@ -3,7 +3,9 @@ include ../Makefile.tests_common
 FEATURES_REQUIRED = periph_timer
 
 BOARDS_TIMER_500kHz := \
+    atxmega-a1-xplained \
     atxmega-a1u-xpro \
+    atxmega-a3bu-xplained \
     #
 
 BOARDS_TIMER_250kHz := \
@@ -13,6 +15,7 @@ BOARDS_TIMER_250kHz := \
     arduino-uno \
     atmega256rfr2-xpro \
     atmega328p \
+    atmega328p-xplained-mini \
     #
 
 BOARDS_TIMER_32kHz := \

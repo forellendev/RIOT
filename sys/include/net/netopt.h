@@ -30,14 +30,6 @@ extern "C" {
 #endif
 
 /**
- * @brief       A deprecated alias for @ref NETOPT_MAX_PDU_SIZE
- *
- * @deprecated  Please use @ref NETOPT_MAX_PDU_SIZE instead of
- *              `NETOPT_MAX_PACKET_SIZE`
- */
-#define NETOPT_MAX_PACKET_SIZE NETOPT_MAX_PDU_SIZE
-
-/**
  * @brief   Global list of configuration options available throughout the
  *          network stack, e.g. by netdev and netapi
  *
@@ -411,7 +403,8 @@ typedef enum {
     NETOPT_CCA_MODE,
 
     /**
-     * @brief   (@ref netstats_t*) get statistics about sent and received packets and data of the device or protocol
+     * @brief   (@ref netstats_t*) get statistics about sent and received packets and data of the
+     *          device or protocol
      *
      * Expects a pointer to a @ref netstats_t struct that will be pointed to
      * the corresponding @ref netstats_t of the module.
@@ -431,7 +424,8 @@ typedef enum {
     NETOPT_ENCRYPTION_KEY,
 
     /**
-     * @brief   (@ref netopt_rf_testmode_t) Test mode for the radio, e.g. for CE or FCC certification
+     * @brief   (@ref netopt_rf_testmode_t) Test mode for the radio, e.g. for CE or FCC
+     *          certification
      *
      * Get/set the test mode as type @ref netopt_rf_testmode_t or as uint8_t if
      * the radio supports other vendor specific test modes.
@@ -640,6 +634,20 @@ typedef enum {
     /**
      * @brief   (uint8_t) LoRaWAN TX application port
      * - LoRaWAN: between 1 and 223 (included)
+     *
+     * @deprecated  This option is deprecated and will be removed in the
+     *              2022.01 Release.
+     *              The port is encoded now as a one byte
+     *              destination address in a @ref net_gnrc_netif_hdr snip
+     *              prepended in the packet.
+     *              The user must take care of prepending the required snip
+     *              during transmission. On reception, the
+     *              snip is prepended automatically by the stack and shall be
+     *              consumed by the user.
+     *              During the deprecation period it is required to
+     *              compile with @ref
+     *              CONFIG_GNRC_NETIF_LORAWAN_NETIF_HDR
+     *
      */
     NETOPT_LORAWAN_TX_PORT,
 
@@ -734,7 +742,7 @@ typedef enum {
     NETOPT_RANDOM,
 
     /**
-     * @brief (uint8_t) Get or set the number of PHY symbols before assuming there's no data
+     * @brief (uint16_t) Get or set the number of PHY symbols before assuming there's no data
      */
     NETOPT_RX_SYMBOL_TIMEOUT,
 

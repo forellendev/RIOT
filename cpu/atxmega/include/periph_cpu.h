@@ -69,6 +69,29 @@ enum {
 };
 
 /**
+ * @brief   Power Reduction Peripheral Mask
+ */
+typedef uint16_t pwr_reduction_t;
+
+/**
+ * @brief   Define a CPU specific Power Reduction index macro
+ */
+#define PWR_RED_REG(reg, dev) ((reg << 8) | dev)
+
+/**
+ * @brief   Define a CPU specific Power Reduction index macro
+ */
+enum {
+    PWR_GENERAL_POWER,
+    PWR_PORT_A,
+    PWR_PORT_B,
+    PWR_PORT_C,
+    PWR_PORT_D,
+    PWR_PORT_E,
+    PWR_PORT_F,
+};
+
+/**
  * @name    Power management configuration
  * @{
  */
@@ -190,6 +213,7 @@ typedef enum {
  */
 typedef struct {
     USART_t *dev;                   /**< pointer to the used UART device */
+    pwr_reduction_t pwr;            /**< Power Management */
     gpio_t rx_pin;                  /**< pin used for RX */
     gpio_t tx_pin;                  /**< pin used for TX */
 #ifdef MODULE_PERIPH_UART_HW_FC
@@ -235,9 +259,330 @@ typedef enum {
  */
 typedef struct {
     TC0_t *dev;                                 /**< Pointer to the used as Timer device */
+    pwr_reduction_t pwr;                        /**< Power Management */
     timer_type_t type;                          /**< Timer Type */
     cpu_int_lvl_t int_lvl[TIMER_CH_MAX_NUMOF];  /**< Interrupt channels level */
 } timer_conf_t;
+
+/**
+ * @name    Override I2C clock speed values
+ * @{
+ */
+#define HAVE_I2C_SPEED_T
+typedef enum {
+    I2C_SPEED_LOW       =   10000ul, /**< low speed mode:     ~10 kbit/s */
+    I2C_SPEED_NORMAL    =  100000ul, /**< normal mode:       ~100 kbit/s */
+    I2C_SPEED_FAST      =  400000ul, /**< fast mode:         ~400 kbit/s */
+    I2C_SPEED_FAST_PLUS = 1000000ul, /**< fast plus mode:   ~1000 kbit/s */
+    /* High speed is not supported without external hardware hacks */
+    I2C_SPEED_HIGH      = 3400000ul, /**< high speed mode:  ~3400 kbit/s */
+} i2c_speed_t;
+/** @} */
+
+/**
+ * @name   Use shared I2C functions
+ * @{
+ */
+#define PERIPH_I2C_NEED_READ_REG
+#define PERIPH_I2C_NEED_READ_REGS
+#define PERIPH_I2C_NEED_WRITE_REG
+#define PERIPH_I2C_NEED_WRITE_REGS
+/** @} */
+
+/**
+ * @brief   I2C configuration structure
+ */
+typedef struct {
+    TWI_t *dev;             /**< Pointer to hardware module registers */
+    pwr_reduction_t pwr;    /**< Power Management */
+    gpio_t sda_pin;         /**< SDA GPIO pin */
+    gpio_t scl_pin;         /**< SCL GPIO pin */
+    i2c_speed_t speed;      /**< Configured bus speed, actual speed may be lower but never higher */
+    cpu_int_lvl_t int_lvl;  /**< Serial Interrupt Level */
+} i2c_conf_t;
+
+/**
+ * @brief   Enable common SPI functions
+ * @{
+ */
+#define PERIPH_SPI_NEEDS_INIT_CS
+#define PERIPH_SPI_NEEDS_TRANSFER_BYTE
+#define PERIPH_SPI_NEEDS_TRANSFER_REG
+#define PERIPH_SPI_NEEDS_TRANSFER_REGS
+/** @} */
+
+/**
+ * @brief   Define global value for undefined SPI device
+ * @{
+ */
+#define SPI_UNDEF               (UCHAR_MAX)
+/** @} */
+
+/**
+ * @brief Define spi_t data type to save data
+ * @{
+ */
+#define HAVE_SPI_T
+typedef uint8_t spi_t;
+/** @} */
+
+/**
+ * @brief  SPI device configuration
+ * @{
+ */
+typedef struct {
+    SPI_t *dev;                     /**< pointer to the used SPI device */
+    pwr_reduction_t pwr;            /**< Power Management */
+    gpio_t sck_pin;                 /**< pin used for SCK */
+    gpio_t miso_pin;                /**< pin used for MISO */
+    gpio_t mosi_pin;                /**< pin used for MOSI */
+    gpio_t ss_pin;                  /**< pin used for SS line */
+} spi_conf_t;
+/** @} */
+
+/**
+ * @brief  Available SPI clock speeds
+ * @{
+ */
+#define HAVE_SPI_CLK_T
+typedef enum {
+    SPI_CLK_100KHZ = 100000U,       /**< drive the SPI bus with 100KHz */
+    SPI_CLK_400KHZ = 400000U,       /**< drive the SPI bus with 400KHz */
+    SPI_CLK_1MHZ   = 1000000U,      /**< drive the SPI bus with 1MHz */
+    SPI_CLK_5MHZ   = 5000000U,      /**< drive the SPI bus with 5MHz */
+    SPI_CLK_10MHZ  = 10000000U,     /**< drive the SPI bus with 10MHz */
+} spi_clk_t;
+/** @} */
+
+#if defined(__AVR_ATxmega64A1__)   || \
+    defined(__AVR_ATxmega128A1__)  || \
+    defined(__AVR_ATxmega64A1U__)  || \
+    defined(__AVR_ATxmega128A1U__) || \
+    defined(Doxygen)
+/**
+ * @brief   EBI (External Bus Interface)
+ * {@
+ */
+
+/**
+ * @brief   EBI Low Pin Count (LPC) Mode Address Latch Enable (ALE) config
+ */
+typedef enum {
+    EBI_LPC_MODE_ALE1       = 0x01,     /**< Data multiplexed with Address byte 0 */
+    EBI_LPC_MODE_ALE12      = 0x03,     /**< Data multiplexed with Address byte 0 and 1 */
+} ebi_lpc_mode_t;
+
+/**
+ * @brief   EBI Port Access Flags
+ *
+ * Indicate what should be configured
+ */
+typedef enum {
+    EBI_PORT_3PORT          = 0x01,     /**< Three Port Config */
+    EBI_PORT_SDRAM          = 0x02,     /**< SDRAM Port Config */
+    EBI_PORT_SRAM           = 0x04,     /**< SRAM Port Config */
+    EBI_PORT_LPC            = 0x08,     /**< Low Pin Count Port Config */
+    EBI_PORT_CS0            = 0x10,     /**< Chip Select 0 Config */
+    EBI_PORT_CS1            = 0x20,     /**< Chip Select 1 Config */
+    EBI_PORT_CS2            = 0x40,     /**< Chip Select 2 Config */
+    EBI_PORT_CS3            = 0x80,     /**< Chip Select 3 Config */
+    EBI_PORT_CS_ALL         = 0xF0,     /**< Chip Select 0-3 Config */
+} ebi_port_mask_t;
+
+/**
+ * @brief   SDRAM Column Address Strobe latency
+ */
+typedef enum {
+    EBI_SDRAM_CAS_LAT_2CLK  = 0x00,     /**< 2 Clk PER2 cycles delay */
+    EBI_SDRAM_CAS_LAT_3CLK  = 0x01,     /**< 3 Clk PER2 cycles delay */
+} ebi_sdram_cas_latency_t;
+
+/**
+ * @brief   SDRAM number of Row Bits
+ */
+typedef enum {
+    EBI_SDRAM_ROW_BITS_11  = 0x00,     /**< 11 row bits */
+    EBI_SDRAM_ROW_BITS_12  = 0x01,     /**< 12 row bits */
+} ebi_sdram_row_bits_t;
+
+/**
+ * @brief   EBI maximum Chip Select
+ */
+#define PERIPH_EBI_MAX_CS   (4)
+
+/**
+ * @brief   EBI SDRAM Chip Select
+ */
+#define PERIPH_EBI_SDRAM_CS (3)
+
+/**
+ * @brief   EBI Chip Select configuration structure
+ */
+typedef struct {
+    EBI_CS_MODE_t   mode;               /**< Chip Select address mode */
+#if defined (__AVR_ATxmega64A1U__) || defined (__AVR_ATxmega128A1U__)
+    EBI_CS_ASPACE_t space;              /**< Chip Select address space */
+#else
+    EBI_CS_ASIZE_t  space;              /**< Chip Select address space */
+#endif
+    EBI_CS_SRWS_t   wait;               /**< SRAM Wait State Selection */
+    uint32_t        address;            /**< Chip Select Base Address */
+} ebi_cs_t;
+
+/**
+ * @brief   EBI SDRAM configuration structure
+ */
+typedef struct {
+    uint8_t refresh;                     /**< Self-Refresh Enabled */
+    uint16_t refresh_period;             /**< microseconds */
+    uint16_t init_dly;                   /**< microseconds */
+    EBI_CS_SDMODE_t mode;                /**< Access Mode */
+    ebi_sdram_cas_latency_t cas_latency; /**< CAS Latency */
+    ebi_sdram_row_bits_t row_bits;       /**< ROW bits */
+    EBI_SDCOL_t column_bits;             /**< COLUMN bits */
+    EBI_MRDLY_t ld_mode_dly;             /**< Number of Clk PER2 cycles */
+    EBI_ROWCYCDLY_t row_cycle_dly;       /**< Number of Clk PER2 cycles */
+    EBI_RPDLY_t row_prechage_dly;        /**< Number of Clk PER2 cycles */
+    EBI_WRDLY_t write_recovery_dly;      /**< Number of Clk PER2 cycles */
+    EBI_ESRDLY_t exit_self_rfsh_dly;     /**< Number of Clk PER2 cycles */
+    EBI_ROWCOLDLY_t row_to_column_dly;   /**< Number of Clk PER2 cycles */
+} ebi_sd_t;
+
+/**
+ * @brief   EBI configuration structure
+ *
+ * The ebi_conf_t define the whole external memory that ATxmega A1 can address.
+ * It is recommended read all EBI chapter from XMEGA-AU manual.
+ *
+ * The external address space can be used to address external peripherals and
+ * expand SRAM.  The ebi driver provide methods to read/write in external
+ * address space.  The SRAM can be expanded up to 64k when one chip select
+ * address have value equal to zero. To allow expand external RAM both
+ * @b RAM_LEN and @b EXP_RAM variables should be override at board
+ * makefile.include file.
+ *
+ * When expanding RAM for use with RIOT-OS, the memory address must be aligned
+ * at external memory size boundary, respecting power of 2.  In this case, to
+ * add 32K memory on the system, the chip select address should be set to 0,
+ * or 32k, or 64 etc.  This means that when the board have external memory and
+ * user wants to map part of that memory to expand RAM, both internal and
+ * external memories must have same start address @b A, inclusive, see image
+ * for details. This is necessary to make sure RIOT-OS have a contiguous address
+ * space.  The drawback is that first @b Xk external memory will be lost.
+ * Assuming internal top address memory is @b B and external top address memory
+ * is @b C.  The XMEGA will automatically access internal memory <b><= B</b>
+ * when address collide with external memory.  At address <b>>= B + 1</b>, XMEGA
+ * will access memory thru EBI.  Also, note that @b RAM_LEN must be a power
+ * of 2, so it can't e.g. be 48k.
+ *
+ *   C      ------
+ *          |    |
+ *          |    |
+ *          |    |
+ *   B -----|    |
+ *     |    |    |
+ *     |    |    |
+ *   A -----------
+ *
+ * @note To avoid parser problems, @b RAM_LEN must be defined as decimal value.
+ *
+ * Example: Add 256K of external RAM
+ *
+ * The max addressable RAM by SP is 64K due to limit of 16 bits.  In this case,
+ * RAM will be 64K.  The remaining RAM can be addressed only by ebi_mem methods
+ * and GCC doesn't see it.
+ *
+ * At board/periph_conf.h:
+ *
+ * static const ebi_conf_t ebi_config = {
+ *   ...
+ *   .cs                     = {
+ *                              { EBI_CS_MODE_DISABLED_gc,
+ *                                0,
+ *                                EBI_CS_SRWS_0CLK_gc,
+ *                                0x0UL,
+ *                              },
+ *                              { EBI_CS_MODE_DISABLED_gc,
+ *                                0,
+ *                                EBI_CS_SRWS_0CLK_gc,
+ *                                0x0UL,
+ *                              },
+ *                              { EBI_CS_MODE_LPC_gc,
+ *                                EBI_CS_ASPACE_256KB_gc,
+ *                                EBI_CS_SRWS_1CLK_gc,
+ *                                0x0UL,
+ *                              },
+ *                              { EBI_CS_MODE_DISABLED_gc,
+ *                                0,
+ *                                EBI_CS_SRWS_0CLK_gc,
+ *                                0x0UL,
+ *                              },
+ *                            },
+ * };
+ *
+ * At board/Makefile.include:
+ * override RAM_LEN = 65536
+ * override EXP_RAM = 1
+ *
+ * Example: Add 32K of external RAM and a LCD
+ *
+ * At board/periph_conf.h:
+ *
+ * static const ebi_conf_t ebi_config = {
+ * ...
+ *   .cs                     = {
+ *                              { EBI_CS_MODE_DISABLED_gc,
+ *                                0,
+ *                                EBI_CS_SRWS_0CLK_gc,
+ *                                0x0UL,
+ *                              },
+ *                              { EBI_CS_MODE_DISABLED_gc,
+ *                                0,
+ *                                EBI_CS_SRWS_0CLK_gc,
+ *                                0x0UL,
+ *                              },
+ *                              { EBI_CS_MODE_LPC_gc,
+ *                                EBI_CS_ASPACE_32KB_gc,
+ *                                EBI_CS_SRWS_1CLK_gc,
+ *                                0x0UL,
+ *                              },
+ *                              { EBI_CS_MODE_LPC_gc,
+ *                                EBI_CS_ASPACE_256B_gc,
+ *                                EBI_CS_SRWS_5CLK_gc,
+ *                                0x100000UL,
+ *                              },
+ *                            },
+ * };
+ *
+ * At board/Makefile.include:
+ * override RAM_LEN = 32768
+ * override EXP_RAM = 1
+ *
+ * This data structure a mandatory configuration for A1 variation. If no
+ * external memory is used the module can be disabled defining data struct
+ * with all zeros, as below:
+ *
+ * static const ebi_conf_t ebi_config = { 0 };
+ *
+ * or, for a temporary disable, set addr_bits to 0 at periph_conf.h:
+ *
+ * static const ebi_conf_t ebi_config = {
+ *     .addr_bits = 0,
+ *     ...
+ * };
+ *
+ */
+typedef struct {
+    uint8_t addr_bits;                  /**< EBI port address lines */
+    ebi_port_mask_t flags;              /**< EBI port flags */
+    uint8_t sram_ale;                   /**< Number of ALE for SRAM mode */
+    uint8_t lpc_ale;                    /**< Number of ALE for LPC mode */
+    ebi_sd_t sdram;                     /**< SDRAM configuration */
+    ebi_cs_t cs[PERIPH_EBI_MAX_CS];     /**< Chip Select configuration */
+} ebi_conf_t;
+/** @} */
+
+#endif /* __AVR_ATxmegaxxxA1x__ */
 
 #ifdef __cplusplus
 }

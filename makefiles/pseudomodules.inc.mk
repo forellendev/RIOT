@@ -4,6 +4,7 @@ PSEUDOMODULES += at_urc_isr_low
 PSEUDOMODULES += at_urc_isr_medium
 PSEUDOMODULES += at_urc_isr_highest
 PSEUDOMODULES += at24c%
+PSEUDOMODULES += at86rf215_timestamp
 PSEUDOMODULES += atomic_utils
 PSEUDOMODULES += base64url
 PSEUDOMODULES += board_software_reset
@@ -13,24 +14,31 @@ PSEUDOMODULES += can_pm
 PSEUDOMODULES += can_raw
 PSEUDOMODULES += ccn-lite-utils
 PSEUDOMODULES += cc2538_rf_obs_sig
-PSEUDOMODULES += cc2538_rf_netdev_legacy
 PSEUDOMODULES += conn_can_isotp_multi
 PSEUDOMODULES += cord_ep_standalone
 PSEUDOMODULES += core_%
 PSEUDOMODULES += cortexm_fpu
 PSEUDOMODULES += cortexm_svc
+PSEUDOMODULES += cpp
 PSEUDOMODULES += cpu_check_address
-PSEUDOMODULES += crypto_%	# crypto_aes or crypto_3des
 PSEUDOMODULES += dbgpin
 PSEUDOMODULES += devfs_%
 PSEUDOMODULES += dhcpv6_%
+PSEUDOMODULES += dhcpv6_client_dns
+PSEUDOMODULES += dhcpv6_client_ia_pd
+PSEUDOMODULES += dhcpv6_client_ia_na
+PSEUDOMODULES += dhcpv6_client_mud_url
+PSEUDOMODULES += dhcpv6_relay
+PSEUDOMODULES += dns_msg
 PSEUDOMODULES += ecc_%
 PSEUDOMODULES += event_%
+PSEUDOMODULES += event_timeout_ztimer
 PSEUDOMODULES += evtimer_mbox
 PSEUDOMODULES += evtimer_on_ztimer
 PSEUDOMODULES += fmt_%
+PSEUDOMODULES += gcoap_dtls
+PSEUDOMODULES += fido2_tests
 PSEUDOMODULES += gnrc_dhcpv6_%
-PSEUDOMODULES += gnrc_dhcpv6_client_mud_url
 PSEUDOMODULES += gnrc_ipv6_default
 PSEUDOMODULES += gnrc_ipv6_ext_frag_stats
 PSEUDOMODULES += gnrc_ipv6_router
@@ -39,7 +47,9 @@ PSEUDOMODULES += gnrc_ipv6_nib_6lbr
 PSEUDOMODULES += gnrc_ipv6_nib_6ln
 PSEUDOMODULES += gnrc_ipv6_nib_6lr
 PSEUDOMODULES += gnrc_ipv6_nib_dns
+PSEUDOMODULES += gnrc_ipv6_nib_rio
 PSEUDOMODULES += gnrc_ipv6_nib_router
+PSEUDOMODULES += gnrc_ipv6_nib_rtr_adv_pio_cb
 PSEUDOMODULES += gnrc_netdev_default
 PSEUDOMODULES += gnrc_neterr
 PSEUDOMODULES += gnrc_netapi_callbacks
@@ -73,6 +83,7 @@ PSEUDOMODULES += ieee802154_submac
 PSEUDOMODULES += ina3221_alerts
 PSEUDOMODULES += l2filter_blacklist
 PSEUDOMODULES += l2filter_whitelist
+PSEUDOMODULES += libstdcpp
 PSEUDOMODULES += lis2dh12_i2c
 PSEUDOMODULES += lis2dh12_int
 PSEUDOMODULES += lis2dh12_spi
@@ -105,7 +116,6 @@ PSEUDOMODULES += newlib
 PSEUDOMODULES += newlib_gnu_source
 PSEUDOMODULES += newlib_nano
 PSEUDOMODULES += nrf24l01p_ng_diagnostics
-PSEUDOMODULES += nrf802154_netdev_legacy
 PSEUDOMODULES += openthread
 PSEUDOMODULES += picolibc
 PSEUDOMODULES += picolibc_stdout_buffered
@@ -121,12 +131,14 @@ PSEUDOMODULES += saul_adc
 PSEUDOMODULES += saul_default
 PSEUDOMODULES += saul_gpio
 PSEUDOMODULES += saul_nrf_temperature
+PSEUDOMODULES += saul_nrf_vddh
 PSEUDOMODULES += saul_pwm
 PSEUDOMODULES += scanf_float
 PSEUDOMODULES += sched_cb
 PSEUDOMODULES += semtech_loramac_rx
 PSEUDOMODULES += shell_hooks
 PSEUDOMODULES += slipdev_stdio
+PSEUDOMODULES += slipdev_l2addr
 PSEUDOMODULES += sock
 PSEUDOMODULES += sock_async
 PSEUDOMODULES += sock_aux_local
@@ -206,6 +218,9 @@ PSEUDOMODULES += cc1100
 PSEUDOMODULES += cc1100e
 PSEUDOMODULES += cc1101
 
+# include variants of ds3231 drivers as pseudo modules
+PSEUDOMODULES += ds3231_int
+
 # interrupt variant of the HMC5883L driver
 PSEUDOMODULES += hmc5883l_int
 
@@ -224,6 +239,10 @@ PSEUDOMODULES += mpu9250
 PSEUDOMODULES += ina219
 PSEUDOMODULES += ina220
 
+# include vairants of lm75 drivers as pseudo modules
+PSEUDOMODULES += lm75a
+PSEUDOMODULES += tmp1075
+
 # include variants of mrf24j40 drivers as pseudo modules
 PSEUDOMODULES += mrf24j40m%
 
@@ -233,6 +252,16 @@ PSEUDOMODULES += pn532_spi
 
 # include variants of sdp3x drivers as pseudo modules
 PSEUDOMODULES += sdp3x_irq
+
+# include variants of SX126X drivers and LLCC68 driver as pseudo modules
+PSEUDOMODULES += sx1261
+PSEUDOMODULES += sx1262
+PSEUDOMODULES += sx1268
+PSEUDOMODULES += llcc68
+PSEUDOMODULES += sx126x_stm32wl
+
+# include RF switch implemented in the board for use with sx126x
+PSEUDOMODULES += sx126x_rf_switch
 
 # include variants of SX127X drivers as pseudo modules
 PSEUDOMODULES += sx1272
@@ -253,6 +282,11 @@ PSEUDOMODULES += si7006
 PSEUDOMODULES += si7013
 PSEUDOMODULES += si7020
 PSEUDOMODULES += si7021
+PSEUDOMODULES += si7050
+PSEUDOMODULES += si7051
+PSEUDOMODULES += si7053
+PSEUDOMODULES += si7054
+PSEUDOMODULES += si7055
 
 #include variants of tmp00x drivers as pseudo modules
 PSEUDOMODULES += tmp006
@@ -292,6 +326,9 @@ PSEUDOMODULES += skald_eddystone
 # define optimized read function of DS18 driver as a pseudo module
 PSEUDOMODULES += ds18_optimized
 
+PSEUDOMODULES += crypto_aes_128
+PSEUDOMODULES += crypto_aes_192
+PSEUDOMODULES += crypto_aes_256
 # By using this pseudomodule, T tables will be precalculated.
 PSEUDOMODULES += crypto_aes_precalculated
 # This pseudomodule causes a loop in AES to be unrolled (more flash, less CPU)

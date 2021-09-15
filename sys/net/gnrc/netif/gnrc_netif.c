@@ -32,6 +32,7 @@
 #if IS_USED(MODULE_GNRC_NETIF_PKTQ)
 #include "net/gnrc/netif/pktq.h"
 #endif /* IS_USED(MODULE_GNRC_NETIF_PKTQ) */
+#include "net/gnrc/sixlowpan/ctx.h"
 #if IS_USED(MODULE_GNRC_SIXLOWPAN_FRAG_SFR)
 #include "net/gnrc/sixlowpan/frag/sfr.h"
 #endif /* IS_USED(MODULE_GNRC_SIXLOWPAN_FRAG_SFR) */
@@ -56,11 +57,18 @@ static void _check_netdev_capabilities(netdev_t *dev);
 static void *_gnrc_netif_thread(void *args);
 static void _event_cb(netdev_t *dev, netdev_event_t event);
 
+typedef struct {
+    gnrc_netif_t *netif;
+    mutex_t init_done;
+    int result;
+} _netif_ctx_t;
+
 int gnrc_netif_create(gnrc_netif_t *netif, char *stack, int stacksize,
                       char priority, const char *name, netdev_t *netdev,
                       const gnrc_netif_ops_t *ops)
 {
     int res;
+    _netif_ctx_t ctx;
 
     if (IS_ACTIVE(DEVELHELP) && gnrc_netif_highlander() && netif_iter(NULL)) {
         LOG_WARNING("gnrc_netif: gnrc_netif_highlander() returned true but "
@@ -81,11 +89,20 @@ int gnrc_netif_create(gnrc_netif_t *netif, char *stack, int stacksize,
     netstats_nb_init(&netif->netif);
 #endif
 
+    /* prepare thread context */
+    ctx.netif = netif;
+    mutex_init(&ctx.init_done);
+    mutex_lock(&ctx.init_done);
+
     res = thread_create(stack, stacksize, priority, THREAD_CREATE_STACKTEST,
-                        _gnrc_netif_thread, (void *)netif, name);
-    (void)res;
+                        _gnrc_netif_thread, &ctx, name);
     assert(res > 0);
-    return 0;
+    (void)res;
+
+    /* wait for result of driver init */
+    mutex_lock(&ctx.init_done);
+
+    return ctx.result;
 }
 
 bool gnrc_netif_dev_is_6lo(const gnrc_netif_t *netif)
@@ -1219,6 +1236,68 @@ static ipv6_addr_t *_src_addr_selection(gnrc_netif_t *netif,
         return &netif->ipv6.addrs[idx];
     }
 }
+
+int gnrc_netif_ipv6_add_prefix(gnrc_netif_t *netif,
+                               const ipv6_addr_t *pfx, uint8_t pfx_len,
+                               uint32_t valid, uint32_t pref)
+{
+    int res;
+    eui64_t iid;
+    ipv6_addr_t addr = {0};
+
+    assert(netif != NULL);
+    DEBUG("gnrc_netif: (re-)configure prefix %s/%d\n",
+          ipv6_addr_to_str(addr_str, pfx, sizeof(addr_str)), pfx_len);
+    if (gnrc_netapi_get(netif->pid, NETOPT_IPV6_IID, 0, &iid,
+                        sizeof(eui64_t)) >= 0) {
+        ipv6_addr_set_aiid(&addr, iid.uint8);
+    }
+    else {
+        LOG_WARNING("gnrc_netif: cannot get IID of netif %u\n", netif->pid);
+        return -ENODEV;
+    }
+    ipv6_addr_init_prefix(&addr, pfx, pfx_len);
+
+    /* add address as valid */
+    res = gnrc_netif_ipv6_addr_add_internal(netif, &addr, pfx_len,
+                                           GNRC_NETIF_IPV6_ADDRS_FLAGS_STATE_VALID);
+    if (res < 0) {
+        goto out;
+    }
+
+    /* update lifetime */
+    if (valid < UINT32_MAX) { /* UINT32_MAX means infinite lifetime */
+        /* the valid lifetime is given in seconds, but the NIB's timers work
+         * in microseconds, so we have to scale down to the smallest
+         * possible value (UINT32_MAX - 1). */
+        valid = (valid > (UINT32_MAX / MS_PER_SEC))
+              ? (UINT32_MAX - 1) : valid * MS_PER_SEC;
+    }
+    if (pref < UINT32_MAX) { /* UINT32_MAX means infinite lifetime */
+        /* same treatment for pref */
+        pref = (pref > (UINT32_MAX / MS_PER_SEC))
+             ? (UINT32_MAX - 1) : pref * MS_PER_SEC;
+    }
+    gnrc_ipv6_nib_pl_set(netif->pid, pfx, pfx_len, valid, pref);
+
+    /* configure 6LoWPAN specific options */
+    if (IS_USED(MODULE_GNRC_IPV6_NIB) &&
+        IS_ACTIVE(CONFIG_GNRC_IPV6_NIB_6LBR) &&
+        IS_ACTIVE(CONFIG_GNRC_IPV6_NIB_MULTIHOP_P6C) &&
+        gnrc_netif_is_6ln(netif)) {
+
+        /* configure compression context */
+        if (gnrc_sixlowpan_ctx_update_6ctx(pfx, pfx_len, valid)) {
+            DEBUG("gnrc_netif: add compression context for prefix %s/%u\n",
+                   ipv6_addr_to_str(addr_str, pfx, sizeof(addr_str)), pfx_len);
+        }
+
+        (void)gnrc_ipv6_nib_abr_add(&addr);
+    }
+
+out:
+    return res;
+}
 #endif  /* IS_USED(MODULE_GNRC_NETIF_IPV6) */
 
 static void _update_l2addr_from_dev(gnrc_netif_t *netif)
@@ -1364,8 +1443,13 @@ static void _test_options(gnrc_netif_t *netif)
             assert(netif->flags & GNRC_NETIF_FLAGS_HAS_L2ADDR);
             assert(netif->l2addr_len >= 3U && netif->l2addr_len <= 5U);
             break;
-        case NETDEV_TYPE_LORA: /* LoRa doesn't provide L2 ADDR */
         case NETDEV_TYPE_SLIP:
+#if IS_USED(MODULE_SLIPDEV_L2ADDR)
+            assert(netif->flags & GNRC_NETIF_FLAGS_HAS_L2ADDR);
+            assert(8U == netif->l2addr_len);
+            break;
+#endif /* IS_USED(MODULE_SLIPDEV_L2ADDR) */
+        case NETDEV_TYPE_LORA: /* LoRa doesn't provide L2 ADDR */
             assert(!(netif->flags & GNRC_NETIF_FLAGS_HAS_L2ADDR));
             assert(0U == netif->l2addr_len);
             /* don't check MTU here for now since I'm not sure the current
@@ -1633,6 +1717,7 @@ static void _send(gnrc_netif_t *netif, gnrc_pktsnip_t *pkt, bool push_back)
 
 static void *_gnrc_netif_thread(void *args)
 {
+    _netif_ctx_t *ctx = args;
     gnrc_netapi_opt_t *opt;
     gnrc_netif_t *netif;
     netdev_t *dev;
@@ -1641,7 +1726,7 @@ static void *_gnrc_netif_thread(void *args)
     msg_t msg_queue[GNRC_NETIF_MSG_QUEUE_SIZE];
 
     DEBUG("gnrc_netif: starting thread %i\n", thread_getpid());
-    netif = args;
+    netif = ctx->netif;
     gnrc_netif_acquire(netif);
     dev = netif->dev;
     netif->pid = thread_getpid();
@@ -1658,9 +1743,11 @@ static void *_gnrc_netif_thread(void *args)
     dev->event_callback = _event_cb;
     dev->context = netif;
     /* initialize low-level driver */
-    res = dev->driver->init(dev);
-    if (res < 0) {
-        LOG_ERROR("gnrc_netif: netdev init failed: %d\n", res);
+    ctx->result = dev->driver->init(dev);
+    /* signal that driver init is done */
+    mutex_unlock(&ctx->init_done);
+    if (ctx->result < 0) {
+        LOG_ERROR("gnrc_netif: netdev init failed: %d\n", ctx->result);
         return NULL;
     }
     netif_register(&netif->netif);

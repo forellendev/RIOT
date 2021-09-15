@@ -201,6 +201,30 @@ gnrc_pktsnip_t *gnrc_ndp_opt_pi_build(const ipv6_addr_t *prefix,
     return pkt;
 }
 
+gnrc_pktsnip_t *gnrc_ndp_opt_ri_build(const ipv6_addr_t *prefix,
+                                      uint8_t prefix_len,
+                                      uint32_t route_ltime,
+                                      uint8_t flags, gnrc_pktsnip_t *next)
+{
+    assert(prefix != NULL);
+    assert(!ipv6_addr_is_link_local(prefix) && !ipv6_addr_is_multicast(prefix));
+    assert(prefix_len <= 128);
+    gnrc_pktsnip_t *pkt = gnrc_ndp_opt_build(NDP_OPT_RI, sizeof(ndp_opt_ri_t),
+                                             next);
+
+    if (pkt != NULL) {
+        ndp_opt_ri_t *ri_opt = pkt->data;
+
+        ri_opt->prefix_len = prefix_len;
+        ri_opt->flags = (flags & NDP_OPT_PI_FLAGS_MASK);
+        ri_opt->route_ltime = byteorder_htonl(route_ltime);
+        /* Bits beyond prefix_len MUST be 0 */
+        ipv6_addr_set_unspecified(&ri_opt->prefix);
+        ipv6_addr_init_prefix(&ri_opt->prefix, prefix, prefix_len);
+    }
+    return pkt;
+}
+
 gnrc_pktsnip_t *gnrc_ndp_opt_mtu_build(uint32_t mtu, gnrc_pktsnip_t *next)
 {
     gnrc_pktsnip_t *pkt = gnrc_ndp_opt_build(NDP_OPT_MTU,
@@ -331,11 +355,16 @@ void gnrc_ndp_nbr_adv_send(const ipv6_addr_t *tgt, gnrc_netif_t *netif,
     gnrc_netif_acquire(netif);
     do {    /* XXX: hidden goto */
         int tgt_idx;
+        gnrc_netif_t *tgt_netif = gnrc_netif_get_by_ipv6_addr(tgt);
 
-        if ((tgt_idx = gnrc_netif_ipv6_addr_idx(netif, tgt)) < 0) {
+        if (tgt_netif == NULL) {
             DEBUG("ndp: tgt not assigned to interface. Abort sending\n");
             break;
         }
+
+        tgt_idx = gnrc_netif_ipv6_addr_idx(tgt_netif, tgt);
+        assert(tgt_idx >= 0);
+
         if (gnrc_netif_is_rtr(netif) && gnrc_netif_is_rtr_adv(netif)) {
             adv_flags |= NDP_NBR_ADV_FLAGS_R;
         }
@@ -368,7 +397,7 @@ void gnrc_ndp_nbr_adv_send(const ipv6_addr_t *tgt, gnrc_netif_t *netif,
         }
         /* TODO: also check if the node provides proxy services for tgt */
         if ((pkt != NULL) &&
-            (netif->ipv6.addrs_flags[tgt_idx] &
+            (tgt_netif->ipv6.addrs_flags[tgt_idx] &
              GNRC_NETIF_IPV6_ADDRS_FLAGS_ANYCAST)) {
             /* TL2A is not supplied and tgt is not anycast */
             adv_flags |= NDP_NBR_ADV_FLAGS_O;
@@ -538,7 +567,7 @@ void gnrc_ndp_rtr_adv_send(gnrc_netif_t *netif, const ipv6_addr_t *src,
         if (!fin) {
             adv_ltime = netif->ipv6.rtr_ltime;
         }
-        if (netif->ipv6.aac_mode == GNRC_NETIF_AAC_DHCP) {
+        if (netif->ipv6.aac_mode & GNRC_NETIF_AAC_DHCP) {
             flags |= NDP_RTR_ADV_FLAGS_M;
             if (netif->flags & GNRC_NETIF_FLAGS_IPV6_ADV_O_FLAG) {
                 flags |= NDP_RTR_ADV_FLAGS_O;

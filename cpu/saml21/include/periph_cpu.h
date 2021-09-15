@@ -44,7 +44,7 @@ extern "C" {
  */
 enum {
     SAM0_GCLK_MAIN  = 0,                 /**< Main clock */
-    SAM0_GCLK_8MHZ  = 1,                 /**< 8MHz clock */
+    SAM0_GCLK_TIMER = 1,                 /**< 4/8MHz clock for timers */
     SAM0_GCLK_32KHZ = 2,                 /**< 32 kHz clock */
     SAM0_GCLK_48MHZ = 3,                 /**< 48MHz clock */
 };
@@ -60,7 +60,6 @@ typedef enum {
     ADC_RES_14BIT = 0xfe,                       /**< not supported */
     ADC_RES_16BIT = 0xfd                        /**< not supported */
 } adc_res_t;
-/** @} */
 #endif /* ndef DOXYGEN */
 
 /**
