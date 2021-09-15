@@ -1,11 +1,9 @@
 INCLUDES += -I$(APPDIR)
 
 INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/include
-INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/bindings
-INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/build_tools
-INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/src
-INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/src/utils/crypto
-INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/src/utils/threading
-INCLUDES += -I$(PKGDIRBASE)/libsafecrypto/src/schemes
+INCLUDES += -I$(BINDIR)/pkg-build/libsafecrypto/bindings
 
 ARCHIVES += $(RIOTBASE)/pkg/libsafecrypto/libsafecrypto.a
+# ARCHIVES += $(BINDIR)/libsafecrypto.a
+
+PSEUDOMODULES += libsafecrypto
